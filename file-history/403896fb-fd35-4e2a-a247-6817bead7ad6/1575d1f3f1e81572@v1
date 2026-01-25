@@ -1,0 +1,416 @@
+# 基金分类标签管理系统 v2.0 - 修改说明
+
+## 修改时间
+2026-01-20
+
+## 修改概述
+
+本次修改将系统从"内置基金分类管理"模式升级为"双文件导入"模式，优化了数据管理方式和匹配逻辑，并新增了结果导出功能。
+
+---
+
+## 主要修改内容
+
+### 1. 移除基金分类设置模块 ✅
+
+**删除的功能**：
+- ❌ 基金分类列表展示
+- ❌ 手动添加/编辑/删除基金
+- ❌ LocalStorage数据持久化
+- ❌ 导出/导入JSON基金分类
+- ❌ 恢复默认数据功能
+- ❌ 智能基金检测和批量添加功能
+- ❌ 未分类基金提示区域
+
+**删除的HTML区域**：
+- 整个"⚙️ 基金分类设置"section
+- "基金检测状态提示区域"section
+- "未分类基金提示区域"section
+
+**删除的JavaScript函数**：
+- `loadFundClassifications()`
+- `saveFundClassifications()`
+- `renderFundList()`
+- `addFund()`
+- `updateFund()`
+- `deleteFund()`
+- `exportFundData()`
+- `importFundData()`
+- `updateHtmlWithNewFunds()`
+- `resetToDefaults()`
+- `renderFundDetectionStatus()`
+- `renderUnclassifiedFunds()`
+- `updateUnclassifiedFund()`
+- `addSingleUnclassifiedFund()`
+- `batchAddUnclassifiedFunds()`
+- `hideUnclassifiedFunds()`
+- `hideFundDetectionStatus()`
+
+**删除的全局变量**：
+- `defaultFundClassifications` (66个默认基金数据)
+- `STORAGE_KEY`
+- `FUND_EQUITY_SUBCLASS_RULES`
+- `FUND_EQUITY_SUBCLASS_NAMES`
+- `unclassifiedFunds`
+
+---
+
+### 2. 新增双文件上传功能 ✅
+
+**新增的HTML结构**：
+```html
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- 基金分类表上传 -->
+    <div class="upload-area" id="classificationUploadArea">
+        <p>📋 1. 基金分类表</p>
+        <button>选择分类表</button>
+        <input type="file" id="classificationInput" />
+        <div id="classificationResult"></div>
+    </div>
+
+    <!-- 持仓明细表上传 -->
+    <div class="upload-area" id="holdingUploadArea">
+        <p>📊 2. 持仓明细表</p>
+        <button>选择持仓表</button>
+        <input type="file" id="fileInput" />
+        <div id="holdingResult"></div>
+    </div>
+</div>
+```
+
+**新增的全局变量**：
+```javascript
+let classificationData = [];        // 原始基金分类表数据
+let isClassificationLoaded = false; // 标记是否已加载分类表
+```
+
+**新增的JavaScript函数**：
+```javascript
+handleClassificationUpload(event)  // 处理基金分类表上传
+```
+
+**修改的函数**：
+```javascript
+setupFileUpload()       // 修改为同时设置两个文件输入
+handleFileUpload()      // 增加基金分类表检查逻辑
+```
+
+---
+
+### 3. 优化基金匹配逻辑 ✅
+
+**旧的匹配逻辑**（基于资产大类判断）：
+```javascript
+function getFundMatchKey(row) {
+    const assetClass = normalizeText(row['新版资产大类']);
+    const externalCode = normalizeText(row['外部代码']);
+    const assetCode = normalizeText(row['资产代码']);
+    const assetName = normalizeText(row['资产简称']);
+
+    // 对于公募基金，优先使用外部代码
+    if (assetClass === '公募基金' && externalCode) {
+        return externalCode;
+    }
+
+    // 对于委外投资，使用资产代码
+    if (assetClass === '委外投资' && assetCode) {
+        return assetCode;
+    }
+
+    // 其他情况使用资产简称
+    return assetName;
+}
+```
+
+**新的匹配逻辑**（统一使用代码匹配）：
+```javascript
+function getFundMatchKey(row) {
+    const externalCode = normalizeText(row['外部代码']);
+    const assetCode = normalizeText(row['资产代码']);
+
+    // 优先使用外部代码，如果没有则使用资产代码
+    return externalCode || assetCode || '';
+}
+```
+
+**优化说明**：
+- ✅ 简化了匹配逻辑，不再依赖"新版资产大类"字段
+- ✅ 避免了因资产名称不规范导致的匹配失败
+- ✅ 统一使用代码进行精确匹配
+- ✅ 与基金分类表的匹配逻辑完全一致
+
+**基金分类表数据处理**：
+```javascript
+// 在handleClassificationUpload中
+jsonData.forEach(row => {
+    const externalCode = normalizeText(row['外部代码']);
+    const assetCode = normalizeText(row['资产代码']);
+    const assetClass = normalizeText(row['资产类别（PAS)']);
+    const style = normalizeText(row['风格']);
+    const equityPosition = parseInt(row['权益仓位']) || 0;
+
+    // 优先使用外部代码，如果没有则使用资产代码
+    const matchKey = externalCode || assetCode;
+
+    if (matchKey && style && equityPosition >= 0) {
+        fundClassifications[matchKey] = {
+            assetClass: assetClass,
+            style: style,
+            equityPosition: equityPosition
+        };
+    }
+});
+```
+
+---
+
+### 4. 修改数据处理逻辑 ✅
+
+**processData() 函数的主要变更**：
+
+1. **移除未分类基金检测**：
+   - 删除了 `detectedUnclassifiedFunds` 相关逻辑
+   - 删除了 `FUND_EQUITY_SUBCLASS_RULES` 检查
+   - 删除了 `renderFundDetectionStatus()` 和 `renderUnclassifiedFunds()` 调用
+
+2. **增加匹配统计**：
+   ```javascript
+   let matchedCount = 0;
+   let unmatchedCount = 0;
+
+   // 在处理每条记录时统计
+   if (!classification) {
+       if (matchKey) {
+           unmatchedCount++;
+           console.log('未匹配到基金:', assetName, '匹配键:', matchKey);
+       }
+       return;
+   }
+   matchedCount++;
+   ```
+
+3. **优化结果提示**：
+   ```javascript
+   uploadResult.innerHTML = `<div class="success">✅ 数据处理完成: 成功匹配 ${matchedCount} 条持仓${unmatchedCount > 0 ? `, 未匹配 ${unmatchedCount} 条` : ''}</div>`;
+   ```
+
+---
+
+### 5. 新增结果导出功能 ✅
+
+**新增的HTML**：
+```html
+<!-- 在分析结果区域顶部 -->
+<div style="margin-bottom: 20px; text-align: right;">
+    <button class="btn btn-primary" onclick="exportResultsToExcel()">
+        📥 导出分析结果到Excel
+    </button>
+</div>
+```
+
+**新增的JavaScript函数**：
+
+1. **exportResultsToExcel()** - 主导出函数
+   - 创建Excel工作簿
+   - 生成3个工作表
+   - 导出文件
+
+2. **createMatrixData(type)** - 创建矩阵数据
+   - type = 'amount': 生成金额数据（万元，整数）
+   - type = 'percentage': 生成占比数据（整数%）
+   - 只导出选中的产品
+   - 风格按固定顺序排列
+
+3. **createDetailData()** - 创建详细数据
+   - 生成持仓明细表
+   - 包含8列：产品名称、基金名称、资产小类、风格、权益仓位、持仓金额、权益暴露金额、权益暴露占比
+   - 按产品名称、风格、权益暴露占比排序
+
+**导出的Excel文件结构**：
+```
+基金分析结果_2026-01-20.xlsx
+├── 产品风格汇总-金额
+│   ├── 产品名称 | 红利 | 均衡 | 科技成长 | 周期 | 价值
+│   └── (数据以万元为单位，整数)
+├── 产品风格汇总-占比
+│   ├── 产品名称 | 红利 | 均衡 | 科技成长 | 周期 | 价值
+│   └── (数据以百分比显示，如 "25%")
+└── 持仓明细
+    ├── 产品名称 | 基金名称 | 资产小类 | 风格 | 权益仓位 | 持仓金额(万) | 权益暴露金额(万) | 权益暴露占比
+    └── (详细的每条持仓记录)
+```
+
+---
+
+## 文件修改统计
+
+### 代码变更统计
+- **删除代码行数**: 约 600 行
+- **新增代码行数**: 约 200 行
+- **净减少代码**: 约 400 行
+
+### 功能模块变更
+- **删除模块**: 3 个（基金分类设置、基金检测、数据管理）
+- **新增模块**: 2 个（双文件上传、结果导出）
+- **修改模块**: 1 个（数据处理）
+
+---
+
+## 使用流程对比
+
+### v1.1.0 使用流程（旧版本）
+```
+1. 打开网页
+2. 管理基金分类（添加/编辑/删除）
+3. 上传持仓明细表
+4. 查看分析结果
+5. （可选）导出基金分类JSON
+```
+
+### v2.0 使用流程（新版本）
+```
+1. 打开网页
+2. 上传基金分类表（Excel）
+3. 上传持仓明细表（Excel）
+4. 查看分析结果
+5. 导出分析结果（Excel，3个工作表）
+```
+
+---
+
+## 优势与改进
+
+### ✅ 优势
+
+1. **更简洁的界面**
+   - 移除了复杂的基金分类管理界面
+   - 界面更加清爽，操作流程更直观
+
+2. **更灵活的数据管理**
+   - 基金分类数据在Excel中维护，更方便编辑
+   - 不依赖浏览器存储，数据更安全
+   - 可以轻松备份和版本控制分类数据
+
+3. **更可靠的匹配逻辑**
+   - 使用代码匹配，避免名称不一致问题
+   - 匹配规则更简单，更容易理解和维护
+
+4. **更完整的导出功能**
+   - 导出Excel格式，便于后续处理
+   - 包含多个工作表，满足不同需求
+   - 保留了页面展示的格式和样式
+
+5. **更好的可维护性**
+   - 代码更简洁，减少了400行代码
+   - 功能更聚焦，专注于分析计算
+   - 不需要维护LocalStorage逻辑
+
+### ⚠️ 注意事项
+
+1. **必须先上传基金分类表**
+   - 系统会检查分类表是否已加载
+   - 未加载分类表时上传持仓表会提示错误
+
+2. **每次使用都需要重新上传**
+   - 系统不保存基金分类数据
+   - 刷新页面后需要重新上传两个文件
+
+3. **匹配键要求**
+   - 基金分类表和持仓表的外部代码/资产代码必须一致
+   - 至少要有一个代码字段有值
+
+---
+
+## 测试建议
+
+### 1. 基本功能测试
+
+- [ ] 上传基金分类表成功
+- [ ] 未上传分类表时上传持仓表会提示错误
+- [ ] 上传持仓表后正确显示匹配统计
+- [ ] 分析结果正确显示（矩阵表、卡片、详细表）
+- [ ] 产品筛选功能正常
+- [ ] 金额/占比切换正常
+- [ ] 导出Excel功能正常
+
+### 2. 匹配逻辑测试
+
+测试用例：
+
+**测试1：外部代码匹配**
+- 分类表：外部代码 = "515220.SH"
+- 持仓表：外部代码 = "515220.SH"
+- 预期：匹配成功
+
+**测试2：资产代码匹配**
+- 分类表：外部代码 = 空, 资产代码 = "80PF210158"
+- 持仓表：外部代码 = 空, 资产代码 = "80PF210158"
+- 预期：匹配成功
+
+**测试3：优先使用外部代码**
+- 分类表：外部代码 = "515220.SH", 资产代码 = "ABC123"
+- 持仓表：外部代码 = "515220.SH", 资产代码 = "XYZ789"
+- 预期：匹配成功（使用外部代码）
+
+**测试4：匹配失败**
+- 分类表：外部代码 = "515220.SH"
+- 持仓表：外部代码 = "999999.OF"
+- 预期：匹配失败，记录到未匹配计数
+
+### 3. 导出功能测试
+
+- [ ] 导出的Excel包含3个工作表
+- [ ] 工作表1：产品风格汇总-金额，数据格式正确
+- [ ] 工作表2：产品风格汇总-占比，百分比格式正确
+- [ ] 工作表3：持仓明细，所有列数据正确
+- [ ] 只导出选中的产品
+- [ ] 风格按固定顺序排列
+- [ ] 文件名格式正确
+
+### 4. 边界情况测试
+
+- [ ] 空的基金分类表
+- [ ] 空的持仓表
+- [ ] 所有持仓都无法匹配
+- [ ] 包含正回购的持仓表
+- [ ] 特殊字符的产品名称/基金名称
+
+---
+
+## 相关文件
+
+### 修改的文件
+- `fund_analysis.html` - 主程序文件
+
+### 新增的文件
+- `使用说明_v2.0.md` - 用户使用说明
+- `修改说明_v2.0.md` - 本文档，开发者修改说明
+
+### 需要准备的数据文件
+- 基金分类表（Excel）：包含外部代码、资产代码、资产类别、风格、权益仓位
+- 持仓明细表（Excel）：包含产品简称、外部代码、资产代码、资产简称、日终市值
+
+---
+
+## 后续优化建议
+
+### 短期优化
+1. 增加文件格式验证，提前检查必需的列是否存在
+2. 提供示例文件下载
+3. 增加匹配详情查看功能，显示哪些基金未匹配
+
+### 中期优化
+1. 支持拖拽上传
+2. 增加数据预览功能
+3. 支持导出自定义选择的列
+
+### 长期优化
+1. 支持多种导出格式（PDF、CSV等）
+2. 增加数据对比功能（对比不同时间点的分析结果）
+3. 增加图表导出功能
+
+---
+
+**修改完成日期**: 2026-01-20
+**修改人**: Claude AI Assistant
+**版本**: v2.0

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系列产品运作情况统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .custom-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+            text-align: center;
+            border: 2px solid #d1d5db;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-table th,
+        .custom-table td {
+            border: 1px solid #d1d5db;
+            padding: 14px 12px;
+        }
+
+        /* Header Colors */
+        .header-blue {
+            background-color: #4472C4;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .header-green {
+            background-color: #548235;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .header-red {
+            background-color: #C00000;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .header-yellow {
+            background-color: #FFC000;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 0px 0px 1px rgba(0,0,0,0.3);
+        }
+
+        .header-purple {
+            background-color: #7030A0;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Cell Styles */
+        .series-name {
+            font-weight: 700;
+            background-color: #f9fafb;
+            color: #1f2937;
+            font-size: 15px;
+        }
+
+        .value-cell {
+            font-weight: 600;
+            color: #374151;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .commodity-cell {
+            font-weight: 600;
+            color: #374151;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+            vertical-align: middle;
+        }
+
+        .commodity-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            font-family: 'Inter', sans-serif;
+            padding: 4px;
+        }
+
+        .commodity-input:focus {
+            outline: 2px solid #7030A0;
+            border-radius: 4px;
+        }
+
+        /* Change Badge - displayed as superscript next to value */
+        .change-badge {
+            display: inline-block;
+            vertical-align: super;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            line-height: 1;
+            margin-left: 3px;
+            background-color: white;
+        }
+
+        .change-badge.up {
+            color: #991b1b;
+        }
+
+        .change-badge.down {
+            color: #065f46;
+        }
+
+        .change-badge.neutral {
+            color: #6b7280;
+        }
+
+        .arrow {
+            font-size: 10px;
+            margin-right: 1px;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-success {
+            background-color: #16a34a;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-success:hover {
+            background-color: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Table container */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* Subtle hover effect on rows */
+        .custom-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 180px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #7030A0;
+            box-shadow: 0 0 0 3px rgba(112, 48, 160, 0.1);
+        }
+    </style>
+</head>
+
+<body class="p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-white p-8 rounded-xl shadow-sm mb-8">
+            <h1 class="text-3xl font-bold mb-2 text-gray-800">系列产品运作情况统计工具</h1>
+            <p class="text-gray-500 text-sm">Multi-Asset Investment Department Performance Analysis</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">当期产品运作表 (Excel)</label>
+                    <input type="file" id="currentFile" accept=".xlsx, .xls"
+                        class="block w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:transition-colors" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">对比期产品运作表 (Excel)</label>
+                    <input type="file" id="compareFile" accept=".xlsx, .xls"
+                        class="block w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:transition-colors" />
+                </div>
+            </div>
+
+            <div class="flex gap-4 justify-center">
+                <button onclick="processFiles()" class="btn-primary">📊 生成统计表</button>
+                <button onclick="exportToExcel()" id="exportBtn" class="btn-success hidden">📥 导出 Excel</button>
+            </div>
+        </div>
+
+        <!-- 黄金及商品仓位输入区域 -->
+        <div id="commodityInputSection" class="input-section hidden">
+            <h3 class="text-lg font-bold mb-4 text-gray-800">黄金及商品仓位</h3>
+            <div class="input-group">
+                <label>当期黄金及商品仓位:</label>
+                <input type="text" id="commodityValue" placeholder="例如: 5.23%" />
+            </div>
+            <div class="input-group">
+                <label>对比期黄金及商品仓位:</label>
+                <input type="text" id="commodityCompareValue" placeholder="例如: 4.89%" />
+            </div>
+            <div class="text-sm text-gray-500 mt-2">
+                提示：输入格式可以是百分比（如 5.23%）或小数（如 0.0523），变化会自动计算
+            </div>
+        </div>
+
+        <div id="resultContainer" class="overflow-x-auto">
+            <!-- Table will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const MAPPING = [
+            { key: '悦动稳享短持', name: '稳享' },
+            { key: '丰利/增盈', name: '合享' },
+            { key: '逸动短持', name: '逸动' },
+            { key: '悦动短持/定开', name: '悦动' },
+            { key: '灵动短持', name: '灵动' },
+            { key: '兴动短持', name: '兴动' }
+        ];
+
+        // Expected Columns
+        const COLS = {
+            CATEGORY: '母分类',
+            NET_ASSETS: '净资产(亿)',
+            DURATION: '组合久期',
+            LEVERAGE: '杠杆',
+            EQUITY: '权益仓位',
+            DERIVATIVES: '衍生品仓位',
+            FLAG: '母子标志'
+        };
+
+        let generatedData = [];
+        let commodityData = {
+            current: null,
+            compare: null,
+            change: null
+        };
+
+        async function readExcel(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                        const normalizedData = jsonData.map(row => {
+                            const newRow = {};
+                            Object.keys(row).forEach(key => {
+                                newRow[key.trim()] = row[key];
+                            });
+                            return newRow;
+                        });
+
+                        resolve(normalizedData);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function extractDateFromFilename(filename) {
+            const match = filename.match(/(\d{4}[-年]?\d{2}[-月]?\d{2})/);
+            return match ? match[0] : '当期';
+        }
+
+        async function processFiles() {
+            const currentFile = document.getElementById('currentFile').files[0];
+            const compareFile = document.getElementById('compareFile').files[0];
+
+            if (!currentFile || !compareFile) {
+                alert("请上传两个文件！");
+                return;
+            }
+
+            try {
+                let currentData = await readExcel(currentFile);
+                let compareData = await readExcel(compareFile);
+
+                const filterData = (data) => {
+                    return data.filter(row => {
+                        const flag = row[COLS.FLAG];
+                        if (!flag) return false;
+                        const val = String(flag).trim();
+                        return val === '母产品' || val === '非母子产品';
+                    });
+                };
+
+                currentData = filterData(currentData);
+                compareData = filterData(compareData);
+
+                const currentDate = extractDateFromFilename(currentFile.name);
+                const compareDate = extractDateFromFilename(compareFile.name);
+
+                generateTable(currentData, compareData, currentDate, compareDate);
+                document.getElementById('exportBtn').classList.remove('hidden');
+                document.getElementById('commodityInputSection').classList.remove('hidden');
+
+                window.currentDateStr = currentDate;
+                window.compareDateStr = compareDate;
+
+                // 监听黄金仓位输入变化
+                document.getElementById('commodityValue').addEventListener('input', updateCommodityData);
+                document.getElementById('commodityCompareValue').addEventListener('input', updateCommodityData);
+            } catch (error) {
+                console.error(error);
+                alert("处理文件时出错: " + error.message);
+            }
+        }
+
+        function parsePercentInput(val) {
+            if (!val || val.trim() === '') return null;
+            val = val.trim();
+            if (val.endsWith('%')) {
+                return parseFloat(val) / 100;
+            }
+            return parseFloat(val);
+        }
+
+        function updateCommodityData() {
+            const currentVal = parsePercentInput(document.getElementById('commodityValue').value);
+            const compareVal = parsePercentInput(document.getElementById('commodityCompareValue').value);
+
+            commodityData.current = currentVal;
+            commodityData.compare = compareVal;
+            commodityData.change = (currentVal !== null && compareVal !== null) ? currentVal - compareVal : null;
+
+            // 更新表格显示
+            updateCommodityDisplay();
+        }
+
+        function updateCommodityDisplay() {
+            const cell = document.getElementById('commodityDisplayCell');
+            if (cell) {
+                const valueText = formatValue(commodityData.current, 'percent');
+                const changeHTML = getChangeBadge(commodityData.change, 'percent');
+                cell.innerHTML = valueText + changeHTML;
+            }
+        }
+
+        const parseNum = (val) => {
+            if (typeof val === 'number') return val;
+            if (typeof val === 'string') {
+                val = val.trim();
+                if (val.endsWith('%')) {
+                    return parseFloat(val) / 100;
+                }
+                return parseFloat(val);
+            }
+            return 0;
+        };
+
+        function calculateTotalScale(data, categoryKey) {
+            const items = data.filter(row => row[COLS.CATEGORY] === categoryKey);
+            let totalAssets = 0;
+            items.forEach(row => {
+                let assets = row[COLS.NET_ASSETS];
+                assets = parseNum(assets) || 0;
+                totalAssets += assets;
+            });
+            return totalAssets;
+        }
+
+        function calculateWeightedAvg(data, categoryKey, metricKey) {
+            const items = data.filter(row => row[COLS.CATEGORY] === categoryKey);
+            if (items.length === 0) return null;
+
+            let totalWeighted = 0;
+            let totalAssets = 0;
+
+            items.forEach(row => {
+                let assets = row[COLS.NET_ASSETS];
+                let metric = row[metricKey];
+
+                assets = parseNum(assets) || 0;
+                metric = parseNum(metric) || 0;
+
+                totalWeighted += metric * assets;
+                totalAssets += assets;
+            });
+
+            return totalAssets === 0 ? 0 : totalWeighted / totalAssets;
+        }
+
+        function formatValue(value, type) {
+            if (value === null || value === undefined || isNaN(value)) return '-';
+            if (Math.abs(value) < 0.000001) return '-';
+
+            if (type === 'percent') {
+                return (value * 100).toFixed(2) + '%';
+            } else if (type === 'percent_int') {
+                return (value * 100).toFixed(0) + '%';
+            } else if (type === 'decimal') {
+                return value.toFixed(2);
+            } else if (type === 'integer') {
+                return Math.round(value).toString();
+            }
+            return value;
+        }
+
+        function getChangeBadge(change, type) {
+            if (change === null || change === undefined || isNaN(change) || Math.abs(change) < 0.000001) {
+                return '';
+            }
+
+            const formattedChange = formatValue(Math.abs(change), type);
+            const isPositive = change > 0;
+            const arrow = isPositive ? '↑' : '↓';
+            const sign = isPositive ? '+' : '';
+            const className = isPositive ? 'up' : 'down';
+
+            return `<span class="change-badge ${className}"><span class="arrow">${arrow}</span>${sign}${formattedChange}</span>`;
+        }
+
+        function generateTable(currentData, compareData, currentDate, compareDate) {
+            let html = `
+                <div class="table-container">
+                    <table class="custom-table" id="resultTable">
+                        <thead>
+                            <tr>
+                                <th class="header-blue">产品系列</th>
+                                <th class="header-blue">规模(亿)</th>
+                                <th class="header-blue">${currentDate}久期</th>
+                                <th class="header-green">${currentDate}杠杆</th>
+                                <th class="header-red">${currentDate}权益仓位</th>
+                                <th class="header-yellow">${currentDate}衍生品仓位</th>
+                                <th class="header-purple">20251231黄金及商品仓位</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            generatedData = [];
+
+            MAPPING.forEach((item, index) => {
+                const rowData = { series: item.name };
+
+                // Scale
+                rowData.scale = calculateTotalScale(currentData, item.key);
+
+                // Duration
+                const curDur = calculateWeightedAvg(currentData, item.key, COLS.DURATION);
+                const oldDur = calculateWeightedAvg(compareData, item.key, COLS.DURATION);
+                rowData.dur = curDur;
+                rowData.durChg = (curDur !== null && oldDur !== null) ? curDur - oldDur : null;
+
+                // Leverage
+                const curLev = calculateWeightedAvg(currentData, item.key, COLS.LEVERAGE);
+                const oldLev = calculateWeightedAvg(compareData, item.key, COLS.LEVERAGE);
+                rowData.lev = curLev;
+                rowData.levChg = (curLev !== null && oldLev !== null) ? curLev - oldLev : null;
+
+                // Equity - 稳享和悦动系列没有权益仓位
+                let curEq = null;
+                let oldEq = null;
+                if (item.name !== '稳享' && item.name !== '悦动') {
+                    curEq = calculateWeightedAvg(currentData, item.key, COLS.EQUITY);
+                    oldEq = calculateWeightedAvg(compareData, item.key, COLS.EQUITY);
+                }
+                rowData.eq = curEq;
+                rowData.eqChg = (curEq !== null && oldEq !== null) ? curEq - oldEq : null;
+
+                // Derivatives
+                const curDer = calculateWeightedAvg(currentData, item.key, COLS.DERIVATIVES);
+                const oldDer = calculateWeightedAvg(compareData, item.key, COLS.DERIVATIVES);
+                rowData.der = curDer;
+                rowData.derChg = (curDer !== null && oldDer !== null) ? curDer - oldDer : null;
+
+                generatedData.push(rowData);
+
+                const commodityCell = index === 0
+                    ? `<td class="commodity-cell" rowspan="${MAPPING.length}" id="commodityDisplayCell">-</td>`
+                    : '';
+
+                html += `
+                    <tr>
+                        <td class="series-name">${item.name}</td>
+                        <td class="value-cell">${formatValue(rowData.scale, 'integer')}</td>
+                        <td class="value-cell">
+                            ${formatValue(rowData.dur, 'decimal')}
+                            ${getChangeBadge(rowData.durChg, 'decimal')}
+                        </td>
+                        <td class="value-cell">
+                            ${formatValue(rowData.lev, 'percent_int')}
+                            ${getChangeBadge(rowData.levChg, 'percent_int')}
+                        </td>
+                        <td class="value-cell">
+                            ${formatValue(rowData.eq, 'percent')}
+                            ${getChangeBadge(rowData.eqChg, 'percent')}
+                        </td>
+                        <td class="value-cell">
+                            ${formatValue(rowData.der, 'percent')}
+                            ${getChangeBadge(rowData.derChg, 'percent')}
+                        </td>
+                        ${commodityCell}
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table></div>`;
+            document.getElementById('resultContainer').innerHTML = html;
+        }
+
+        function getExcelChangeText(change, type) {
+            if (change === null || change === undefined || isNaN(change) || Math.abs(change) < 0.000001) {
+                return '';
+            }
+            const formattedChange = formatValue(Math.abs(change), type);
+            const isPositive = change > 0;
+            const arrow = isPositive ? '↑' : '↓';
+            const sign = isPositive ? '+' : '';
+            return `\n${arrow}${sign}${formattedChange}`;
+        }
+
+        function exportToExcel() {
+            const currentDate = window.currentDateStr || '当期';
+
+            const wb = XLSX.utils.book_new();
+
+            // 创建工作表数据
+            const wsData = [
+                [
+                    "产品系列",
+                    "规模(亿)",
+                    `${currentDate}久期`,
+                    `${currentDate}杠杆`,
+                    `${currentDate}权益仓位`,
+                    `${currentDate}衍生品仓位`,
+                    "20251231黄金及商品仓位"
+                ]
+            ];
+
+            const changeInfo = [];
+
+            generatedData.forEach(row => {
+                changeInfo.push({
+                    dur: row.durChg,
+                    lev: row.levChg,
+                    eq: row.eqChg,
+                    der: row.derChg
+                });
+
+                wsData.push([
+                    row.series,
+                    formatValue(row.scale, 'integer'),
+                    formatValue(row.dur, 'decimal') + getExcelChangeText(row.durChg, 'decimal'),
+                    formatValue(row.lev, 'percent_int') + getExcelChangeText(row.levChg, 'percent_int'),
+                    formatValue(row.eq, 'percent') + getExcelChangeText(row.eqChg, 'percent'),
+                    formatValue(row.der, 'percent') + getExcelChangeText(row.derChg, 'percent'),
+                    row.series === '稳享'
+                        ? formatValue(commodityData.current, 'percent') + getExcelChangeText(commodityData.change, 'percent')
+                        : ''
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // 合并黄金商品仓位单元格
+            if (!ws['!merges']) ws['!merges'] = [];
+            ws['!merges'].push({
+                s: { r: 1, c: 6 },  // 开始：第2行，第7列
+                e: { r: MAPPING.length, c: 6 }  // 结束：最后一行，第7列
+            });
+
+            const borderStyle = {
+                top: { style: "thin" },
+                bottom: { style: "thin" },
+                left: { style: "thin" },
+                right: { style: "thin" }
+            };
+            const alignCenter = {
+                horizontal: "center",
+                vertical: "center",
+                wrapText: true
+            };
+
+            const colorBlue = "4472C4";
+            const colorGreen = "548235";
+            const colorRed = "C00000";
+            const colorYellow = "FFC000";
+            const colorPurple = "7030A0";
+            const colorWhite = "FFFFFF";
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cell_address]) continue;
+
+                    let cellStyle = {
+                        border: borderStyle,
+                        alignment: alignCenter,
+                        font: { name: "Calibri", sz: 11 }
+                    };
+
+                    if (R === 0) {
+                        // 表头样式
+                        cellStyle.font.bold = true;
+                        cellStyle.font.color = { rgb: colorWhite };
+
+                        let bgColor = colorBlue;
+                        if (C === 3) bgColor = colorGreen;
+                        else if (C === 4) bgColor = colorRed;
+                        else if (C === 5) bgColor = colorYellow;
+                        else if (C === 6) bgColor = colorPurple;
+
+                        cellStyle.fill = { fgColor: { rgb: bgColor } };
+                    } else {
+                        const dataRowIndex = R - 1;
+
+                        if (C === 0) {
+                            cellStyle.font.bold = true;
+                        } else if (C >= 2 && C <= 6 && dataRowIndex < changeInfo.length) {
+                            const changes = changeInfo[dataRowIndex];
+                            let changeValue = null;
+
+                            if (C === 2) changeValue = changes.dur;
+                            else if (C === 3) changeValue = changes.lev;
+                            else if (C === 4) changeValue = changes.eq;
+                            else if (C === 5) changeValue = changes.der;
+                            else if (C === 6) changeValue = commodityData.change;
+
+                            if (changeValue !== null && !isNaN(changeValue) && Math.abs(changeValue) >= 0.000001) {
+                                const isPositive = changeValue > 0;
+                                // 增加用红色，减少用绿色
+                                cellStyle.font.color = { rgb: isPositive ? colorRed : colorGreen };
+                                cellStyle.font.bold = true;
+                            }
+                        }
+
+                        // 黄金商品仓位单元格背景色保持白色
+                        // if (C === 6) {
+                        //     cellStyle.fill = { fgColor: { rgb: "FFFFFF" } };
+                        // }
+                    }
+
+                    ws[cell_address].s = cellStyle;
+                }
+            }
+
+            ws['!cols'] = [
+                { wch: 12 },
+                { wch: 10 },
+                { wch: 15 },
+                { wch: 13 },
+                { wch: 16 },
+                { wch: 18 },
+                { wch: 20 }
+            ];
+
+            ws['!rows'] = [{ hpt: 30 }];
+            for (let i = 1; i <= generatedData.length; i++) {
+                ws['!rows'][i] = { hpt: 40 };
+            }
+
+            XLSX.utils.book_append_sheet(wb, ws, "产品运作概览");
+
+            const date = new Date();
+            const dateStr = date.toISOString().split('T')[0];
+            XLSX.writeFile(wb, `产品运作概览信息表_${dateStr}.xlsx`);
+        }
+    </script>
+</body>
+
+</html>

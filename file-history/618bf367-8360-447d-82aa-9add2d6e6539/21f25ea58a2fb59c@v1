@@ -1,0 +1,541 @@
+/* ============================================
+   IndexedDB 数据库操作
+   ============================================ */
+
+class Database {
+    constructor() {
+        this.dbName = 'InvestmentNotebook';
+        this.version = 1;
+        this.db = null;
+    }
+
+    // 初始化数据库
+    async init() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.version);
+
+            request.onerror = () => {
+                console.error('Database failed to open:', request.error);
+                reject(request.error);
+            };
+
+            request.onsuccess = () => {
+                this.db = request.result;
+                console.log('Database opened successfully');
+                resolve(this.db);
+            };
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+
+                // 创建 notebooks 对象存储
+                if (!db.objectStoreNames.contains('notebooks')) {
+                    const notebookStore = db.createObjectStore('notebooks', { keyPath: 'id' });
+                    notebookStore.createIndex('createdAt', 'createdAt', { unique: false });
+                    notebookStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+                    notebookStore.createIndex('sortOrder', 'sortOrder', { unique: false });
+                }
+
+                // 创建 sections 对象存储
+                if (!db.objectStoreNames.contains('sections')) {
+                    const sectionStore = db.createObjectStore('sections', { keyPath: 'id' });
+                    sectionStore.createIndex('notebookId', 'notebookId', { unique: false });
+                    sectionStore.createIndex('createdAt', 'createdAt', { unique: false });
+                    sectionStore.createIndex('sortOrder', 'sortOrder', { unique: false });
+                }
+
+                // 创建 pages 对象存储
+                if (!db.objectStoreNames.contains('pages')) {
+                    const pageStore = db.createObjectStore('pages', { keyPath: 'id' });
+                    pageStore.createIndex('sectionId', 'sectionId', { unique: false });
+                    pageStore.createIndex('type', 'type', { unique: false });
+                    pageStore.createIndex('createdAt', 'createdAt', { unique: false });
+                    pageStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+                    pageStore.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+                }
+
+                // 创建 templates 对象存储
+                if (!db.objectStoreNames.contains('templates')) {
+                    const templateStore = db.createObjectStore('templates', { keyPath: 'id' });
+                    templateStore.createIndex('productType', 'productType', { unique: false });
+                    templateStore.createIndex('createdAt', 'createdAt', { unique: false });
+                }
+
+                // 创建 attachments 对象存储
+                if (!db.objectStoreNames.contains('attachments')) {
+                    const attachmentStore = db.createObjectStore('attachments', { keyPath: 'id' });
+                    attachmentStore.createIndex('pageId', 'pageId', { unique: false });
+                    attachmentStore.createIndex('createdAt', 'createdAt', { unique: false });
+                }
+
+                // 创建 todos 对象存储
+                if (!db.objectStoreNames.contains('todos')) {
+                    const todoStore = db.createObjectStore('todos', { keyPath: 'id' });
+                    todoStore.createIndex('pageId', 'pageId', { unique: false });
+                    todoStore.createIndex('completed', 'completed', { unique: false });
+                    todoStore.createIndex('dueDate', 'dueDate', { unique: false });
+                    todoStore.createIndex('priority', 'priority', { unique: false });
+                }
+
+                console.log('Database setup complete');
+            };
+        });
+    }
+
+    // 通用添加方法
+    async add(storeName, data) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.add(data);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // 通用更新方法
+    async update(storeName, data) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.put(data);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // 通用获取方法
+    async get(storeName, id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.get(id);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // 通用删除方法
+    async delete(storeName, id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.delete(id);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // 获取所有记录
+    async getAll(storeName) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // 通过索引获取
+    async getByIndex(storeName, indexName, value) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const index = store.index(indexName);
+            const request = index.getAll(value);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // 笔记本相关操作
+    async createNotebook(name, type = 'general', icon = '📚', color = '#2d5a7b') {
+        const notebook = {
+            id: generateUUID(),
+            name,
+            type,
+            icon,
+            color,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            sortOrder: await this.getNextSortOrder('notebooks')
+        };
+        await this.add('notebooks', notebook);
+        return notebook;
+    }
+
+    async getNotebooks() {
+        const notebooks = await this.getAll('notebooks');
+        return notebooks.sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    async updateNotebook(id, updates) {
+        const notebook = await this.get('notebooks', id);
+        if (!notebook) throw new Error('Notebook not found');
+
+        const updated = {
+            ...notebook,
+            ...updates,
+            updatedAt: Date.now()
+        };
+        await this.update('notebooks', updated);
+        return updated;
+    }
+
+    async deleteNotebook(id) {
+        // 删除笔记本及其所有分区和页面
+        const sections = await this.getByIndex('sections', 'notebookId', id);
+        for (const section of sections) {
+            await this.deleteSection(section.id);
+        }
+        await this.delete('notebooks', id);
+    }
+
+    // 分区相关操作
+    async createSection(notebookId, name, icon = '📁') {
+        const section = {
+            id: generateUUID(),
+            notebookId,
+            name,
+            icon,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            sortOrder: await this.getNextSortOrder('sections', 'notebookId', notebookId)
+        };
+        await this.add('sections', section);
+        return section;
+    }
+
+    async getSectionsByNotebook(notebookId) {
+        const sections = await this.getByIndex('sections', 'notebookId', notebookId);
+        return sections.sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    async updateSection(id, updates) {
+        const section = await this.get('sections', id);
+        if (!section) throw new Error('Section not found');
+
+        const updated = {
+            ...section,
+            ...updates,
+            updatedAt: Date.now()
+        };
+        await this.update('sections', updated);
+        return updated;
+    }
+
+    async deleteSection(id) {
+        // 删除分区及其所有页面
+        const pages = await this.getByIndex('pages', 'sectionId', id);
+        for (const page of pages) {
+            await this.deletePage(page.id);
+        }
+        await this.delete('sections', id);
+    }
+
+    // 页面相关操作
+    async createPage(sectionId, title = '无标题页面', type = 'note') {
+        const page = {
+            id: generateUUID(),
+            sectionId,
+            title,
+            type,
+            tags: [],
+            content: { ops: [] }, // 空的Quill Delta
+            metadata: {},
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            isPinned: false,
+            sortOrder: await this.getNextSortOrder('pages', 'sectionId', sectionId)
+        };
+        await this.add('pages', page);
+        return page;
+    }
+
+    async getPagesBySection(sectionId) {
+        const pages = await this.getByIndex('pages', 'sectionId', sectionId);
+        return pages.sort((a, b) => {
+            if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+            return b.updatedAt - a.updatedAt;
+        });
+    }
+
+    async updatePage(id, updates) {
+        const page = await this.get('pages', id);
+        if (!page) throw new Error('Page not found');
+
+        const updated = {
+            ...page,
+            ...updates,
+            updatedAt: Date.now()
+        };
+        await this.update('pages', updated);
+        return updated;
+    }
+
+    async deletePage(id) {
+        // 删除页面及其附件和待办
+        const attachments = await this.getByIndex('attachments', 'pageId', id);
+        for (const attachment of attachments) {
+            await this.delete('attachments', attachment.id);
+        }
+
+        const todos = await this.getByIndex('todos', 'pageId', id);
+        for (const todo of todos) {
+            await this.delete('todos', todo.id);
+        }
+
+        await this.delete('pages', id);
+    }
+
+    async searchPages(query) {
+        const allPages = await this.getAll('pages');
+        const lowerQuery = query.toLowerCase();
+
+        return allPages.filter(page => {
+            // 搜索标题
+            if (page.title.toLowerCase().includes(lowerQuery)) return true;
+
+            // 搜索标签
+            if (page.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
+
+            // 搜索内容 (Delta转文本)
+            if (page.content && page.content.ops) {
+                const text = page.content.ops
+                    .map(op => typeof op.insert === 'string' ? op.insert : '')
+                    .join('')
+                    .toLowerCase();
+                if (text.includes(lowerQuery)) return true;
+            }
+
+            return false;
+        });
+    }
+
+    // 模板相关操作
+    async createTemplate(name, productType, content, fields) {
+        const template = {
+            id: generateUUID(),
+            name,
+            productType,
+            content,
+            fields,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+        await this.add('templates', template);
+        return template;
+    }
+
+    async getTemplates() {
+        return await this.getAll('templates');
+    }
+
+    async getTemplatesByType(productType) {
+        return await this.getByIndex('templates', 'productType', productType);
+    }
+
+    async deleteTemplate(id) {
+        await this.delete('templates', id);
+    }
+
+    // 附件相关操作
+    async addAttachment(pageId, name, type, size, data) {
+        const attachment = {
+            id: generateUUID(),
+            pageId,
+            name,
+            type,
+            size,
+            data,
+            createdAt: Date.now()
+        };
+        await this.add('attachments', attachment);
+        return attachment;
+    }
+
+    async getAttachmentsByPage(pageId) {
+        return await this.getByIndex('attachments', 'pageId', pageId);
+    }
+
+    async deleteAttachment(id) {
+        await this.delete('attachments', id);
+    }
+
+    // 待办相关操作
+    async createTodo(content, pageId = null, priority = 'medium', dueDate = null) {
+        const todo = {
+            id: generateUUID(),
+            pageId,
+            content,
+            completed: false,
+            priority,
+            dueDate,
+            tags: [],
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+        await this.add('todos', todo);
+        return todo;
+    }
+
+    async getTodos(pageId = null) {
+        if (pageId) {
+            return await this.getByIndex('todos', 'pageId', pageId);
+        }
+        return await this.getAll('todos');
+    }
+
+    async updateTodo(id, updates) {
+        const todo = await this.get('todos', id);
+        if (!todo) throw new Error('Todo not found');
+
+        const updated = {
+            ...todo,
+            ...updates,
+            updatedAt: Date.now()
+        };
+        await this.update('todos', updated);
+        return updated;
+    }
+
+    async deleteTodo(id) {
+        await this.delete('todos', id);
+    }
+
+    // 辅助方法：获取下一个排序序号
+    async getNextSortOrder(storeName, indexName = null, indexValue = null) {
+        let items;
+        if (indexName && indexValue) {
+            items = await this.getByIndex(storeName, indexName, indexValue);
+        } else {
+            items = await this.getAll(storeName);
+        }
+
+        if (items.length === 0) return 0;
+
+        const maxOrder = Math.max(...items.map(item => item.sortOrder || 0));
+        return maxOrder + 1;
+    }
+
+    // 导出所有数据
+    async exportAll() {
+        const data = {
+            notebooks: await this.getAll('notebooks'),
+            sections: await this.getAll('sections'),
+            pages: await this.getAll('pages'),
+            templates: await this.getAll('templates'),
+            attachments: await this.getAll('attachments'),
+            todos: await this.getAll('todos'),
+            exportedAt: Date.now()
+        };
+        return data;
+    }
+
+    // 导入数据
+    async importAll(data) {
+        // 清空现有数据
+        const stores = ['notebooks', 'sections', 'pages', 'templates', 'attachments', 'todos'];
+        for (const storeName of stores) {
+            const items = await this.getAll(storeName);
+            for (const item of items) {
+                await this.delete(storeName, item.id);
+            }
+        }
+
+        // 导入新数据
+        for (const [storeName, items] of Object.entries(data)) {
+            if (storeName === 'exportedAt') continue;
+            if (!Array.isArray(items)) continue;
+
+            for (const item of items) {
+                await this.add(storeName, item);
+            }
+        }
+    }
+
+    // 初始化默认数据
+    async initializeDefaultData() {
+        const notebooks = await this.getNotebooks();
+        if (notebooks.length > 0) return; // 已有数据，不初始化
+
+        // 创建默认笔记本
+        const notebook1 = await this.createNotebook('权益组合', 'product-group', '📊', '#2d5a7b');
+        const notebook2 = await this.createNotebook('债券组合', 'product-group', '📈', '#4a7c59');
+        const notebook3 = await this.createNotebook('个人笔记', 'general', '📝', '#c97d60');
+
+        // 创建默认分区
+        const section1 = await this.createSection(notebook1.id, '2024年Q1', '📅');
+        const section2 = await this.createSection(notebook2.id, '利率债', '💰');
+
+        // 创建欢迎页面
+        const welcomePage = await this.createPage(section1.id, '欢迎使用投资经理记事本', 'note');
+        await this.updatePage(welcomePage.id, {
+            content: {
+                ops: [
+                    { insert: '欢迎使用投资经理记事本\n', attributes: { header: 1 } },
+                    { insert: '\n这是一个专为投资经理设计的记事本应用，支持：\n\n' },
+                    { insert: '多产品管理', attributes: { list: 'bullet' } },
+                    { insert: '\n' },
+                    { insert: '交易日志记录', attributes: { list: 'bullet' } },
+                    { insert: '\n' },
+                    { insert: '待办事项', attributes: { list: 'bullet' } },
+                    { insert: '\n' },
+                    { insert: '富文本笔记', attributes: { list: 'bullet' } },
+                    { insert: '\n\n开始使用吧！\n' }
+                ]
+            },
+            tags: ['欢迎', '指南']
+        });
+
+        // 创建默认模板
+        await this.createTemplate(
+            '股票交易日志模板',
+            'stock',
+            {
+                ops: [
+                    { insert: '交易日志 - ', attributes: { header: 1 } },
+                    { insert: '{productName}', attributes: { header: 1, bold: true } },
+                    { insert: ' - {tradingDate}\n\n', attributes: { header: 1 } },
+                    { insert: '基本信息\n', attributes: { header: 2 } },
+                    { insert: '品种代码: {productCode}\n' },
+                    { insert: '交易方向: {direction}\n' },
+                    { insert: '成交价格: {price}\n' },
+                    { insert: '成交数量: {quantity}\n\n' },
+                    { insert: '市场分析\n', attributes: { header: 2 } },
+                    { insert: '{analysis}\n\n' },
+                    { insert: '交易逻辑\n', attributes: { header: 2 } },
+                    { insert: '{logic}\n' }
+                ]
+            },
+            [
+                { name: 'tradingDate', label: '交易日期', type: 'date', required: true },
+                { name: 'productName', label: '产品名称', type: 'text', required: true },
+                { name: 'productCode', label: '品种代码', type: 'text', required: true },
+                {
+                    name: 'direction',
+                    label: '交易方向',
+                    type: 'select',
+                    options: ['买入', '卖出'],
+                    required: true
+                },
+                { name: 'price', label: '成交价格', type: 'number', required: true },
+                { name: 'quantity', label: '成交数量', type: 'number', required: true },
+                { name: 'analysis', label: '市场分析', type: 'richtext', required: false },
+                { name: 'logic', label: '交易逻辑', type: 'richtext', required: false }
+            ]
+        );
+
+        console.log('Default data initialized');
+    }
+}
+
+// 创建全局数据库实例
+const db = new Database();

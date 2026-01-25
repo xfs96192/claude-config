@@ -1,0 +1,271 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a **Fund Classification and Portfolio Analysis System** (基金分类标签管理系统) designed for bank wealth management institutions. It's a client-side single-page application that analyzes equity exposure across multiple investment products by processing Excel holding statements and applying custom fund classifications.
+
+**Key Purpose**: Calculate and visualize equity exposure percentages across different investment styles (红利/Dividend, 均衡/Balanced, 科技成长/Tech Growth, 周期/Cyclical, 价值/Value) for multiple wealth management products.
+
+**Current Version**: v1.1.0 (智能基金检测与批量添加功能)
+
+**完整技术规格**: 详见 `prompt` 文件,包含所有计算公式、数据结构、功能模块的完整说明。
+
+## Architecture
+
+### Single-File Web Application
+- **Main file**: `fund_analysis.html` - Contains ALL functionality (HTML, CSS, JavaScript)
+- **Dependencies**:
+  - `xlsx.full.min.js` - SheetJS library for Excel file parsing
+  - `chart.js` - Chart.js v4.5.0 for data visualization
+- **Deployment**: Completely offline-capable, runs entirely in browser (designed for internal network use)
+
+### Data Flow
+1. User uploads Excel file with holding positions (持仓明细表)
+2. System parses Excel and extracts fund holdings by product
+3. **Smart Fund Detection**: Automatically identifies unclassified equity funds
+4. **Fund Matching**: Uses sophisticated key matching logic:
+   - Public funds (公募基金): Match by external code (外部代码)
+   - Outsourced investments (委外投资): Match by asset code (资产代码)
+   - Others: Match by asset name (资产简称)
+5. Calculates equity exposure using formulas:
+   ```
+   权益暴露金额 = 持仓金额 × (权益仓位 / 100)
+   产品净资产 = 总持仓金额 - 正回购金额
+   风格占比 = 该风格权益暴露金额 / 总权益暴露金额 × 100%
+   详细表格权益暴露占比 = 权益暴露金额 / 产品净资产 × 100%
+   ```
+6. Displays results in charts, matrices, and detailed tables
+
+### Fund Classification Database
+- **Storage**: Browser LocalStorage (persistent across sessions)
+- **Storage Key**: `fund_classifications_data`
+- **Structure**: JSON object mapping **match keys** (not fund names) to classification data
+- **Match Key Logic**:
+  - Public funds: Use external code (e.g., "011691.OF")
+  - Outsourced investments: Use asset code (e.g., "11PF242490")
+  - Others: Use asset name
+- **Data Fields**:
+  - `assetClass` (资产小类): Fund type category
+  - `style` (风格): Investment style (红利/均衡/科技成长/周期/价值)
+  - `equityPosition` (权益仓位): Equity position percentage (0-100)
+- **Default Database**: Contains 66 pre-configured funds in `defaultFundClassifications`
+
+## Required Excel File Format
+
+Input Excel files **must** contain these exact column names (case-sensitive):
+- `产品简称` - Product name
+- `资产代码` - Internal asset code
+- `外部代码` - External code (e.g., fund code like "011691.OF")
+- `资产简称` - Fund/asset name
+- `日终市值(元)-产品法估值` - Holding value (end-of-day market value, numeric)
+- `新版资产大类` - Asset super-class (e.g., "公募基金", "委外投资")
+- `新版资产小类` - Asset sub-class (e.g., "公募股票基金", "公募混合基金")
+
+**Important**: Column names must match exactly. The system uses these for parsing and fund matching.
+
+## Core Features (v1.1.0)
+
+### 1. Smart Fund Detection (New in v1.1.0)
+- **Auto-detection**: Automatically identifies equity funds in uploaded holdings that aren't classified
+- **Detection Rules**: Filters by asset super-class ("公募基金") and equity-related sub-classes:
+  - 公募股票基金, 普通股票型基金, 公募混合基金, 偏股混合型基金
+  - 灵活配置型基金, 二级公募债券基金, 混合债券型二级基金
+  - 其他公募基金, 被动指数型基金, 国际(QDII)被动指数型股票基金
+- **Default Equity Positions**: Auto-assigns default equity positions based on sub-class:
+  - Stock funds (股票基金): 100%
+  - Mixed funds (混合基金/偏股): 80-100%
+  - Secondary bond funds (二级债基): 20%
+- **Batch Processing**: Provides UI for bulk classification with style and position settings
+- **Status Display**: Shows detection summary with total records, classified funds, and unclassified count
+
+### 2. Fund Classification Management
+- **CRUD Operations**: Add, edit, delete fund classifications via UI
+- **Validation**: Ensures equity position is 0-100%, prevents duplicate fund keys
+- **Auto-save**: All changes automatically persisted to LocalStorage
+- **Data Export/Import**: JSON format with version tracking
+- **Update HTML Code**: Generate code snippets for newly added funds
+- **Reset to Defaults**: Restore to original 66-fund baseline
+
+### 3. Data Visualization
+- **Donut Charts**: Chart.js-based pie charts showing style distribution per product
+- **Summary Matrix**:
+  - Rows: Products (filterable)
+  - Columns: Styles (ordered: 红利, 均衡, 科技成长, 周期, 价值)
+  - Toggle: Amount (万元) ↔ Percentage (%)
+  - Formatting: Amounts rounded to integers, percentages rounded to integers (no decimals)
+- **Product Filtering**: Multi-select checkboxes with select all/deselect all
+- **Detailed Table**:
+  - Columns: Product, Fund, Asset Class, Style, Equity Position, Holding Amount, Exposure Amount, **Exposure Ratio**
+  - Sorting: Product → Style → Exposure Ratio (descending)
+  - Filtering: Shows only selected products
+
+### 4. Equity Exposure Calculation
+- **Net Asset Calculation**: `产品净资产 = ∑持仓金额 - 正回购金额`
+  - Reverse repo (正回购) entries are subtracted from net assets
+- **Exposure Calculation**: `权益暴露金额 = 持仓金额 × (权益仓位 / 100)`
+- **Style Percentage**: `风格占比 = 该风格暴露 / 总权益暴露 × 100%`
+- **Detailed Ratio**: `权益暴露占比 = 权益暴露金额 / 产品净资产 × 100%` (in detail table)
+- **Filtering**: Excludes non-equity assets and unclassified funds from calculations
+
+## Development Guidelines
+
+### Working with the HTML File
+
+Since everything is in one HTML file (`fund_analysis.html`):
+- **CSS**: Located in `<style>` tag in `<head>` (lines 10-599)
+- **JavaScript**: Located in `<script>` tag at end of `<body>` (lines 780-1977)
+- **Fund database initialization**: Hardcoded in `defaultFundClassifications` object (66 funds as of v1.1.0)
+- **No external HTML files**: All templates are generated dynamically via JavaScript
+
+### Key JavaScript Objects and Functions
+
+**Global Constants:**
+- `defaultFundClassifications` - Default 66-fund database (baseline)
+- `STORAGE_KEY` - LocalStorage key: `'fund_classifications_data'`
+- `FUND_EQUITY_SUBCLASS_RULES` - Default equity positions by asset sub-class
+- `FUND_EQUITY_SUBCLASS_NAMES` - Array of equity-related sub-class names
+
+**Global State:**
+- `fundClassifications` - Current fund classification database (loaded from LocalStorage or defaults)
+- `holdingData` - Array of parsed Excel records
+- `analysisResults` - Computed results: `{productName: {style: {amount, percentage}}}`
+- `selectedProducts` - Set of currently filtered product names
+- `matrixDisplayType` - Display mode: `'amount'` or `'percentage'`
+- `unclassifiedFunds` - Array of detected unclassified equity funds
+
+**Core Functions:**
+- `normalizeText(value)` - Text normalization (trim whitespace)
+- `getFundMatchKey(row)` - **Critical**: Generates match key based on asset type
+- `handleFileUpload(event)` - Processes uploaded Excel file
+- `processData()` - **Main data processor**: Parses Excel, detects funds, calculates exposure
+- `calculateDetailData()` - Calculates data for detailed table
+- `renderResults()` - Orchestrates all visualization rendering
+- `saveFundClassifications()` / `loadFundClassifications()` - LocalStorage persistence
+- `renderUnclassifiedFunds()` - Renders unclassified fund UI (v1.1.0)
+- `batchAddUnclassifiedFunds()` - Batch adds unclassified funds (v1.1.0)
+
+### Adding New Investment Styles
+
+If you need to add a new investment style:
+1. Update the `styleOrder` array in `renderMatrixTable()` function: `['红利', '均衡', '科技成长', '周期', '价值']`
+2. Update the `styleOrder` array in `renderProductCards()` function (same as above)
+3. Update the `<select>` options for style in:
+   - Manual add form (`newStyle` dropdown)
+   - Batch import UI (`unclassifiedStyle-${index}` dropdowns)
+   - Fund list edit UI (in `renderFundList()`)
+4. Add corresponding color in Chart.js `colors` array in `createChart()` function
+5. Test with sample data to ensure proper sorting and display
+
+### Modifying Calculations
+
+The equity exposure calculation logic is in the `processData()` function (lines 1040-1162). Key considerations:
+
+**Net Asset Calculation (lines 1056-1078):**
+- First pass: Calculate `productNetAssets` for each product
+- Check if asset name contains "正回购" (reverse repo)
+- If yes: **Subtract** from net assets (reverse repos reduce capital)
+- If no: Add to net assets
+
+**Exposure Calculation (lines 1080-1136):**
+- Generate match key using `getFundMatchKey(row)`
+- Look up fund classification using match key
+- Calculate: `equityExposure = holdingAmount × (equityPosition / 100)`
+- Group by product and style
+- Store in `productResults[productName][style]`
+
+**Percentage Calculation (lines 1138-1148):**
+- Calculate total equity exposure per product
+- For each style: `percentage = (amount / totalEquity) × 100`
+- Store both amount and percentage in results
+
+**Critical**: Do NOT change the match key logic without updating fund database keys!
+
+### Testing Locally
+
+To test changes:
+1. Open `fund_analysis.html` in a modern browser (Chrome/Firefox/Edge recommended)
+2. Ensure `xlsx.full.min.js` and `chart.js` are in the same directory
+3. Use sample Excel file: Look for files matching pattern `持仓盈亏明细列表_*.xlsx` or `基金持仓*.xlsx`
+
+## Utility Scripts
+
+Helper Python scripts for data inspection and comparison:
+- `inspect_excel.py` - Examines Excel file structure and searches for specific funds
+- `compare_fund_names.py` - Compares fund names between two Excel files to identify differences
+- `check_fund_code.py` - Checks for specific fund codes in holdings
+
+These scripts use pandas and require: `pip install pandas openpyxl`
+
+## Data Files
+
+- `基金分类数据_2026-01-12.json` - Exported fund classification database (66 funds)
+- `基金分类数据_2026-01-12.xlsx` - Excel version of classification database
+- `持仓盈亏明细列表_*.xlsx` - Sample holding statement files for testing
+- `prompt` - Original requirements specification document (in Chinese)
+
+## Important Notes
+
+- **Offline First**: System must work without internet connectivity (internal network deployment)
+  - All dependencies (`xlsx.full.min.js`, `chart.js`) must be local files
+  - No CDN references in production
+- **Data Security**: All processing happens client-side; no data leaves the browser
+- **Chinese UI**: All user-facing text is in Chinese (Simplified)
+- **Browser Support**: Targets modern browsers (Chrome 70+, Firefox 65+, Safari 12+, Edge 79+)
+- **Match Key Logic**: Uses sophisticated matching, NOT simple fund name matching:
+  - Public funds: Match by `外部代码` (external code)
+  - Outsourced investments: Match by `资产代码` (asset code)
+  - Others: Match by `资产简称` (asset name)
+  - **Critical**: Fund database keys must use the same logic!
+- **Percentage Formatting**:
+  - Matrix table: Rounded to **integers** (no decimals), e.g., "37%" not "37.1%"
+  - Detailed table: 2 decimal places for exposure ratio
+  - Product cards: Rounded to integers
+- **Style Ordering**: Red (红利) is always first column after product name
+
+## Common Modifications
+
+### Adding a New Asset Class
+1. Add to asset class dropdown in `renderFundList()` function
+2. Add to `newAssetClass` dropdown in manual add form
+3. If it's an equity-related class:
+   - Add to `FUND_EQUITY_SUBCLASS_RULES` with default equity position
+   - Regenerate `FUND_EQUITY_SUBCLASS_NAMES` array
+4. Update detection logic in `processData()` (lines 1094-1109)
+
+### Changing Chart Colors
+Chart colors are defined in the `createChart()` function (lines 1390-1429). Modify the `colors` array:
+```javascript
+const colors = [
+    '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe',
+    '#43e97b', '#fa709a', '#fee140', '#ff9a9e', '#a8edea'
+];
+```
+
+### Adjusting Default Equity Positions
+Modify `FUND_EQUITY_SUBCLASS_RULES` object (lines 896-907):
+```javascript
+const FUND_EQUITY_SUBCLASS_RULES = {
+    '二级公募债券基金': { defaultEquity: 20 },
+    '公募股票基金': { defaultEquity: 100 },
+    '偏股混合型基金': { defaultEquity: 80 },
+    // Add more...
+};
+```
+
+### Exporting Results to Excel
+To add export functionality:
+1. Use SheetJS `XLSX.utils.json_to_sheet()` to create sheets from `analysisResults`
+2. Create workbook with multiple sheets (summary, details, by product)
+3. Use `XLSX.writeFile()` to download
+4. Example already exists: `exportFundData()` for fund classifications (lines 1868-1890)
+
+### Debugging Tips
+- Check browser console for `console.log()` statements showing:
+  - Detected unclassified funds with match keys
+  - Excel column names
+  - Net asset calculations
+- Use browser DevTools LocalStorage viewer to inspect saved data
+- Test with small Excel files first (10-20 records)
+

@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sqlite3:*)",
+      "Skill(frontend-design)",
+      "Bash(open:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./download-resources.sh:*)",
+      "Bash(file:*)",
+      "Bash(grep:*)",
+      "Bash(./verify-offline.sh:*)",
+      "Skill(xlsx)",
+      "Bash(python3:*)",
+      "Bash(zip:*)",
+      "Bash(python:*)",
+      "Skill(key-product-performance)",
+      "Skill(superpowers:writing-skills)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(npm cache clean:*)"
+    ]
+  }
+}

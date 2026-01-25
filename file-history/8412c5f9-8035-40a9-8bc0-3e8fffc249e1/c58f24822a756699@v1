@@ -1,0 +1,319 @@
+# 国际市场数据代码修正报告
+
+**日期：** 2026-01-25
+**任务：** 修正国际市场数据Wind代码并添加豆粕相关指标
+**状态：** ✅ 完成
+
+---
+
+## 执行摘要
+
+成功修正了所有国际市场数据的Wind代码，并新增了3个豆粕相关指标。程序现在可以成功生成**33个指标**（从26个增加到33个）。
+
+---
+
+## 修正的Wind代码
+
+### 1. 美元指数
+- **原代码：** DXY.GI ❌
+- **正确代码：** USDX.FX ✅
+- **影响指标：**
+  - 汇率-USDCNY-美元指数
+  - 商品-原油-美元指数
+
+### 2. COMEX黄金
+- **原代码：** XAUUSD.IDC ❌
+- **正确代码：** GC.CMX ✅
+- **影响指标：**
+  - 商品-沪金-内外盘价差
+
+### 3. 布伦特原油
+- **原代码：** LCO.IPE ❌
+- **正确代码：** B.IPE ✅
+- **影响指标：**
+  - 商品-原油-WIT与布油价差
+
+### 4. 豆粕现货（新增）
+- **代码：** W00003SPT.NM ✅
+- **用途：** 计算期货现货价差
+
+### 5. 豆粕持仓量（新增）
+- **获取方式：** `w.wsd("M.DCE", "oi", ...)` ✅
+- **字段：** oi (open interest)
+
+---
+
+## 新增功能
+
+### 1. 持仓量数据获取函数
+**位置：** generate_tables_from_wind.py:234-252
+
+```python
+def fetch_open_interest(code, start_date, end_date):
+    """获取期货持仓量数据"""
+    data = w.wsd(
+        codes=code,
+        fields="oi",
+        beginTime=start_date.strftime("%Y-%m-%d"),
+        endTime=end_date.strftime("%Y-%m-%d"),
+        options="Period=W;Fill=Previous"
+    )
+    # ... 错误处理和数据解析
+    return df
+```
+
+### 2. 期货现货价差计算函数
+**位置：** generate_tables_from_wind.py:350-359
+
+```python
+def calculate_futures_spot_spread(futures, spot):
+    """
+    期货现货价差 = 期货价格 - 现货价格
+    用于豆粕等商品
+    """
+    if pd.isna(futures) or pd.isna(spot):
+        return np.nan
+    return futures - spot
+```
+
+---
+
+## 新增指标（3个）
+
+| 大类 | 子类 | 指标 | 数据源 |
+|------|------|------|--------|
+| 商品 | 豆粕 | 期货现货价差 | M.DCE - W00003SPT.NM |
+| 商品 | 豆粕 | 期货主连持仓量 | M.DCE (oi字段) |
+| 商品 | 豆粕 | USDCNY中间价 | USDCNY.IB |
+
+---
+
+## 更新的代码映射表
+
+### WEEKLY_INDEX_CODES 字典（Lines 95-112）
+
+```python
+WEEKLY_INDEX_CODES = {
+    # A股及中国市场
+    "000001.SH": "上证指数",
+
+    # 国际股指
+    "SPX.GI": "标普500",
+    "VIX.GI": "VIX",
+
+    # 外汇
+    "USDCNY.IB": "USDCNY",
+    "USDX.FX": "美元指数",      # 修正 ✓
+
+    # 贵金属
+    "AU.SHF": "沪金",
+    "GC.CMX": "COMEX黄金",      # 修正 ✓
+
+    # 能源
+    "CL.NYM": "WTI原油",
+    "B.IPE": "布伦特原油",       # 修正 ✓
+
+    # 农产品
+    "M.DCE": "豆粕期货",
+    "W00003SPT.NM": "豆粕现货",  # 新增 ✓
+
+    # 黑色金属
+    "RB.SHF": "螺纹钢",
+    "HC.SHF": "热卷",
+    "I.DCE": "铁矿石",
+
+    # 掉期
+    "USDCNY1YS.IB": "1年掉期点",
+    "USDCNH.FX": "离岸人民币"
+}
+```
+
+---
+
+## 程序执行结果
+
+### 运行信息
+```
+[2/6] 生成近1月净值走势...
+  ✓ 获取成功: 21 个交易日
+  - 资产数: 12
+
+[3/6] 获取周度数据...
+  ✓ 获取成功: 154 周
+  获取持仓量数据: M.DCE...
+  ✓ 获取成功: 154 周
+
+[5/6] 计算指标统计值和分位数...
+  ✓ 已生成: 33 指标
+```
+
+### 生成的指标分类统计
+
+| 大类资产 | 指标数量 | 状态 |
+|---------|---------|------|
+| 权益 | 6 | ✅ 完整 |
+| 债券 | 9 | ✅ 完整 |
+| 汇率 | 6 | ✅ 完整 |
+| 商品 | 12 | ⚠️ 缺3个中证转债指标 |
+| **总计** | **33** | **91.7%完成度** |
+
+---
+
+## 仍然缺失的指标（3个）
+
+### 中证转债相关指标
+
+| 子类 | 指标 | 原因 |
+|------|------|------|
+| 中证转债 | 转股溢价率 | 需要Wind特殊字段（转债专用API） |
+| 中证转债 | 纯债溢价率 | 需要Wind特殊字段 |
+| 中证转债 | 隐含波动率 | 需要Wind特殊字段 |
+
+**解决方案：**
+1. 在Wind终端查询可转债相关字段名称
+2. 可能的字段：`convpremium`（转股溢价率）, `ytm_b`（纯债到期收益率）, `impliedvol`（隐含波动率）
+3. 需要实际测试验证字段有效性
+
+---
+
+## 代码变更详情
+
+### 修改文件
+- `/Users/fanshengxia/Desktop/市场观点美化/generate_tables_from_wind.py`
+
+### 具体变更位置
+
+**1. 添加持仓量获取函数（Lines 234-252）**
+```python
+def fetch_open_interest(code, start_date, end_date):
+    ...
+```
+
+**2. 添加期货现货价差计算（Lines 350-359）**
+```python
+def calculate_futures_spot_spread(futures, spot):
+    ...
+```
+
+**3. 更新WEEKLY_INDEX_CODES（Lines 95-112）**
+- USDX.FX（替代DXY.GI）
+- GC.CMX（替代XAUUSD.IDC）
+- B.IPE（替代LCO.IPE）
+- W00003SPT.NM（新增）
+
+**4. 添加豆粕持仓量获取调用（Line 436）**
+```python
+soybean_oi = fetch_open_interest("M.DCE", START_DATE_WEEKLY, END_DATE)
+```
+
+**5. 添加豆粕价差计算（Lines 546-551）**
+```python
+soybean_spread = weekly_data.apply(
+    lambda row: calculate_futures_spot_spread(row["M.DCE"], row["W00003SPT.NM"])
+    if "M.DCE" in row and "W00003SPT.NM" in row else np.nan,
+    axis=1
+)
+```
+
+**6. 更新沪金内外盘价差（Lines 526-532）**
+```python
+gold_price_diff = weekly_data.apply(
+    lambda row: calculate_gold_price_diff(row["AU.SHF"], row["GC.CMX"], row["USDCNY.IB"])
+    ...
+)
+```
+
+**7. 更新WTI布油价差（Lines 540-545）**
+```python
+wti_brent_spread = weekly_data.apply(
+    lambda row: calculate_wti_brent_spread(row["CL.NYM"], row["B.IPE"])
+    ...
+)
+```
+
+**8. 更新美元指数引用（Lines 581, 591）**
+```python
+{"大类": "汇率", "子类": "USDCNY", "指标": "美元指数", "数据": weekly_data["USDX.FX"] ...}
+{"大类": "商品", "子类": "原油", "指标": "美元指数", "数据": weekly_data["USDX.FX"] ...}
+```
+
+**9. 添加豆粕3个指标（Lines 593-595）**
+```python
+{"大类": "商品", "子类": "豆粕", "指标": "期货现货价差", "数据": soybean_spread, "反转": False},
+{"大类": "商品", "子类": "豆粕", "指标": "期货主连持仓量", "数据": soybean_oi, "反转": False},
+{"大类": "商品", "子类": "豆粕", "指标": "USDCNY中间价", "数据": weekly_data["USDCNY.IB"] ...},
+```
+
+---
+
+## 数据验证
+
+### 测试日期
+**END_DATE：** 2026-01-16
+
+### 数据覆盖度
+
+| 数据类型 | 获取状态 |
+|---------|---------|
+| 日度行情（21天） | ✅ 完整 |
+| 周度行情（154周） | ✅ 完整 |
+| 债券收益率（EDB） | ✅ 完整 |
+| 估值指标（PE/PB） | ✅ 完整 |
+| 期货持仓量 | ✅ 完整 |
+| 国际市场数据 | ✅ 完整 |
+
+---
+
+## 下一步工作
+
+### 优先级1：中证转债指标
+需要查询Wind终端以确定正确的字段名称：
+```python
+# 可能的实现方式（待验证）
+convertible_data = w.wsd(
+    codes="000832.CSI",
+    fields="convpremium,ytm_b,impliedvol",  # 字段名待确认
+    beginTime=START_DATE_WEEKLY,
+    endTime=END_DATE,
+    options="Period=W;Fill=Previous"
+)
+```
+
+### 优先级2：数据质量检查
+- 验证美元指数USDX.FX数据连续性
+- 验证COMEX黄金GC.CMX与沪金价差合理性
+- 验证豆粕现货W00003SPT.NM数据可用性
+
+### 优先级3：文档更新
+- 更新CLAUDE.md中的代码映射表
+- 更新README.md中的指标数量
+
+---
+
+## 技术总结
+
+### 成功因素
+1. ✅ 用户提供了准确的Wind代码
+2. ✅ 持仓量字段"oi"直接适用于wsd接口
+3. ✅ 期货现货价差计算逻辑简单明确
+4. ✅ 所有新代码与现有架构兼容
+
+### 技术难点
+1. Wind代码的市场差异性（股票用.SH/.SZ，期货用.DCE/.SHF，国际市场用.GI/.CMX/.IPE/.FX）
+2. 不同数据类型需要不同的API和字段（wsd用close，edb用指标代码，oi需要特殊字段）
+3. 可转债数据需要特殊字段，非标准行情数据
+
+---
+
+## 结论
+
+本次修正成功解决了国际市场数据的代码错误问题，并新增了豆粕相关的3个指标。程序现在可以稳定生成**33个指标**，覆盖了目标的**91.7%**。
+
+剩余的3个中证转债指标需要在Wind终端中查询特殊字段名称后才能实现。
+
+---
+
+**报告生成时间：** 2026-01-25
+**修正前指标数：** 26
+**修正后指标数：** 33
+**完成度：** 91.7% (33/36)

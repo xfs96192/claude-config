@@ -1,0 +1,52 @@
+[
+  {
+    "content": "读取数据映射规则文档",
+    "status": "completed",
+    "activeForm": "正在读取数据映射规则文档"
+  },
+  {
+    "content": "检查模板文件和数据源文件是否存在",
+    "status": "completed",
+    "activeForm": "正在检查模板文件和数据源文件"
+  },
+  {
+    "content": "查看Python脚本结构",
+    "status": "completed",
+    "activeForm": "正在查看Python脚本结构"
+  },
+  {
+    "content": "读取模板文件结构",
+    "status": "in_progress",
+    "activeForm": "正在读取模板文件结构"
+  },
+  {
+    "content": "读取数据源文件",
+    "status": "pending",
+    "activeForm": "正在读取数据源文件"
+  },
+  {
+    "content": "更新常规产品数据",
+    "status": "pending",
+    "activeForm": "正在更新常规产品数据"
+  },
+  {
+    "content": "更新非标驱动产品数据",
+    "status": "pending",
+    "activeForm": "正在更新非标驱动产品数据"
+  },
+  {
+    "content": "更新汇利现金宝1号数据",
+    "status": "pending",
+    "activeForm": "正在更新汇利现金宝1号数据"
+  },
+  {
+    "content": "保存报告",
+    "status": "pending",
+    "activeForm": "正在保存报告"
+  },
+  {
+    "content": "验证输出并报告结果",
+    "status": "pending",
+    "activeForm": "正在验证输出并报告结果"
+  }
+]

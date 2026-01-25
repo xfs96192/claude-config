@@ -1,0 +1,85 @@
+import pandas as pd
+import re
+
+# 读取最新的持仓数据
+file_path = '/Users/fanshengxia/Desktop/投资助理工作/基金分类标签/持仓盈亏明细列表_1765074404831.xlsx'
+df = pd.read_excel(file_path)
+
+# 当前数据库中使用名称而不是代码的基金
+name_based_funds = [
+    "华泰柏瑞红利ETF ( 510880.SH )",
+    "景顺长城环保优势（001975.OF）",
+    "中证800交易型开放式指数证券投资基金",
+    "宝盈品质甄选混合型证券投资基金",
+    "广发主题领先灵活配置混合型证券投资基金",
+    "华商新趋势优选（166301.OF）",
+    "万家宏观择时多策略灵活配置混合型证券投资基金",
+    "易方达裕惠回报定期开放式混合型发起式证券投资基金",
+    "中泰元和价值精选混合型证券投资基金",
+    "大成科技创新混合型证券投资基金"
+]
+
+# 新增的未分类基金（从截图中看到的）
+new_funds = [
+    "大成科技创新混合C(008989.OF)",
+    "招商品质发现混合A(011690.OF)",
+    "汇丰晋信价值先锋股票A(004350.OF)",
+    "大成策略回报混合A(090007.OF)",
+    "易方达医药生物股票A(010387.OF)"
+]
+
+print("=== 分析现有使用名称的基金 ===\n")
+for name in name_based_funds:
+    # 尝试在Excel中查找
+    name_clean = name.replace("（", "(").replace("）", ")")
+
+    # 在资产简称中搜索
+    matches = df[df['资产简称'].astype(str).str.contains(name.split('(')[0][:10], na=False)]
+
+    if not matches.empty:
+        for idx, row in matches.iterrows():
+            asset_name = str(row['资产简称'])
+            external_code = str(row['外部代码']) if pd.notna(row['外部代码']) else 'N/A'
+            asset_class = str(row['新版资产大类'])
+            asset_subclass = str(row['新版资产小类'])
+
+            print(f"基金名称: {name}")
+            print(f"  Excel中资产简称: {asset_name}")
+            print(f"  外部代码: {external_code}")
+            print(f"  资产大类: {asset_class}")
+            print(f"  资产小类: {asset_subclass}")
+            print()
+            break
+    else:
+        print(f"基金名称: {name}")
+        print(f"  ⚠️ 在Excel中未找到匹配")
+        print()
+
+print("\n=== 分析新增未分类基金 ===\n")
+for fund in new_funds:
+    # 提取代码
+    code_match = re.search(r'\(([^)]+)\)', fund)
+    if code_match:
+        code = code_match.group(1)
+        name = fund.split('(')[0]
+
+        # 在Excel中查找
+        matches = df[df['外部代码'].astype(str) == code]
+
+        if not matches.empty:
+            row = matches.iloc[0]
+            asset_name = str(row['资产简称'])
+            asset_class = str(row['新版资产大类'])
+            asset_subclass = str(row['新版资产小类'])
+
+            print(f"基金: {fund}")
+            print(f"  外部代码: {code}")
+            print(f"  Excel中资产简称: {asset_name}")
+            print(f"  资产大类: {asset_class}")
+            print(f"  资产小类: {asset_subclass}")
+            print()
+        else:
+            print(f"基金: {fund}")
+            print(f"  外部代码: {code}")
+            print(f"  ⚠️ 在Excel中未找到")
+            print()

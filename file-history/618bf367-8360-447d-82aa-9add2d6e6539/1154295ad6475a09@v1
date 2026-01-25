@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# 投资经理记事本 - 内网资源下载脚本
+# 请在有网络的电脑上运行此脚本
+
+echo "======================================"
+echo "  投资经理记事本 - 资源下载工具"
+echo "======================================"
+echo ""
+
+# 创建libs目录
+mkdir -p assets/libs
+cd assets/libs
+
+echo "正在下载 Quill.js 文件..."
+echo ""
+
+# 下载Quill JavaScript
+echo "[1/2] 下载 quill.min.js ..."
+curl -L -o quill.min.js https://cdn.quilljs.com/1.3.6/quill.min.js
+
+if [ $? -eq 0 ]; then
+    echo "✓ quill.min.js 下载成功"
+else
+    echo "✗ quill.min.js 下载失败"
+    echo "  请手动访问: https://cdn.quilljs.com/1.3.6/quill.min.js"
+    echo "  并另存为: assets/libs/quill.min.js"
+fi
+
+echo ""
+
+# 下载Quill CSS
+echo "[2/2] 下载 quill.snow.css ..."
+curl -L -o quill.snow.css https://cdn.quilljs.com/1.3.6/quill.snow.css
+
+if [ $? -eq 0 ]; then
+    echo "✓ quill.snow.css 下载成功"
+else
+    echo "✗ quill.snow.css 下载失败"
+    echo "  请手动访问: https://cdn.quilljs.com/1.3.6/quill.snow.css"
+    echo "  并另存为: assets/libs/quill.snow.css"
+fi
+
+echo ""
+echo "======================================"
+echo "  下载完成！"
+echo "======================================"
+echo ""
+echo "接下来的步骤："
+echo "1. 验证文件已下载:"
+ls -lh quill.*
+echo ""
+echo "2. 使用离线版本:"
+echo "   打开 index-offline.html 而不是 index.html"
+echo ""
+echo "3. 启动服务器:"
+echo "   python3 -m http.server 8000"
+echo ""
+echo "4. 访问应用:"
+echo "   http://localhost:8000/index-offline.html"
+echo ""

@@ -1,0 +1,94 @@
+2026-01-25T04:28:59.091Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude, /Users/fanshengxia/Desktop/市场观点美化/.claude...
+2026-01-25T04:28:59.147Z [DEBUG] [init] configureGlobalMTLS starting
+2026-01-25T04:28:59.147Z [DEBUG] [init] configureGlobalMTLS complete
+2026-01-25T04:28:59.147Z [DEBUG] [init] configureGlobalAgents starting
+2026-01-25T04:28:59.147Z [DEBUG] [init] configureGlobalAgents complete
+2026-01-25T04:28:59.154Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["mcp__pencil"]
+2026-01-25T04:28:59.154Z [DEBUG] Applying permission update: Adding 22 allow rule(s) to destination 'localSettings': ["Bash(npm run dev:*)","Bash(pnpm install:*)","Bash(npm install)","Bash(npm install:*)","Bash(lsof:*)","Bash(cp:*)","Bash(curl:*)","Bash(pkill:*)","Bash(true)","Bash(node test-csv.js)","Bash(rm:*)","Bash(npm run lint)","Bash(python:*)","Bash(cat:*)","Bash(pnpm dev:*)","Bash(git init:*)","Bash(git add:*)","Bash(git remote add:*)","Bash(git branch:*)","Bash(git push:*)","Bash(ls:*)","Skill(superpowers:brainstorming)"]
+2026-01-25T04:28:59.154Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-01-25T04:28:59.178Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-01-25T04:28:59.178Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-01-25T04:28:59.178Z [DEBUG] [ToolSearch:optimistic] mode=standard, ENABLE_TOOL_SEARCH=undefined, result=false
+2026-01-25T04:28:59.179Z [DEBUG] [STARTUP] Running setup()...
+2026-01-25T04:28:59.179Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1769315339179_tp116a
+2026-01-25T04:28:59.183Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-01-25T04:28:59.216Z [ERROR] Error: Error: ENOENT: no such file or directory, scandir '/Library/Application Support/ClaudeCode/.claude/skills'
+    at Module.readdirSync (node:fs:1581:26)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:9:1766
+    at yO (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:8:35112)
+    at Object.readdirSync (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:9:1736)
+    at _D1 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:2284:369)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:2284:4279
+    at q (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:8:6814)
+    at CB2 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4920:4362)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4920:6961
+    at q (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:8:6814)
+2026-01-25T04:28:59.216Z [DEBUG] Error log sink initialized
+2026-01-25T04:28:59.227Z [DEBUG] [STARTUP] setup() completed in 48ms
+2026-01-25T04:28:59.227Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-01-25T04:28:59.231Z [DEBUG] Loaded 15 unique skills (managed: 0, user: 15, project: 0, legacy commands: 0)
+2026-01-25T04:28:59.237Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-01-25T04:28:59.243Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills...
+2026-01-25T04:28:59.248Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-01-25T04:28:59.251Z [DEBUG] [Claude in Chrome] Extension not found in any browser
+2026-01-25T04:28:59.252Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg)
+2026-01-25T04:29:01.845Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1769315339179_tp116a
+2026-01-25T04:29:01.846Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-01-25T04:29:01.846Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.1.1
+2026-01-25T04:29:01.846Z [DEBUG] Plugin superpowers@claude-plugins-official version 4.1.1 already cached at /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.1.1
+2026-01-25T04:29:01.862Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.1.1/hooks/hooks.json
+2026-01-25T04:29:01.862Z [DEBUG] Found 1 plugins (1 enabled, 0 disabled)
+2026-01-25T04:29:01.862Z [DEBUG] getPluginSkills: Processing 1 enabled plugins
+2026-01-25T04:29:01.862Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-01-25T04:29:01.862Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.1.1/skills
+2026-01-25T04:29:01.870Z [DEBUG] Loading hooks from plugin: superpowers
+2026-01-25T04:29:01.870Z [DEBUG] Registered 1 hooks from 1 plugins
+2026-01-25T04:29:01.871Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-01-25T04:29:01.871Z [DEBUG] Total plugin agents loaded: 1
+2026-01-25T04:29:01.871Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-01-25T04:29:01.871Z [DEBUG] Total plugin skills loaded: 14
+2026-01-25T04:29:01.871Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-01-25T04:29:01.871Z [DEBUG] Total plugin commands loaded: 3
+2026-01-25T04:29:01.871Z [DEBUG] getSkills returning: 15 skill dir commands, 14 plugin skills, 0 bundled skills
+2026-01-25T04:29:01.872Z [DEBUG] [STARTUP] Commands and agents loaded in 2645ms
+2026-01-25T04:29:01.872Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-01-25T04:29:01.873Z [DEBUG] [render] initYoga starting
+2026-01-25T04:29:01.880Z [DEBUG] [render] initYoga complete
+2026-01-25T04:29:01.882Z [DEBUG] [render] first ink render: 3612ms since process start
+2026-01-25T04:29:01.886Z [DEBUG] [keybindings] KeybindingSetup initialized with 99 bindings, 0 warnings
+2026-01-25T04:29:01.921Z [DEBUG] [keybindings] Skipping file watcher - user customization disabled
+2026-01-25T04:29:03.237Z [DEBUG] High write ratio: blit=928, write=1425 (60.6% writes), screen=36x184
+2026-01-25T04:29:04.268Z [ERROR] Error: Error: 1P event logging: 8 events failed to export
+    at sK6.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:689:2042)
+    at async sK6.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:689:1197)
+2026-01-25T04:29:09.115Z [DEBUG] High write ratio: blit=489, write=2127 (81.3% writes), screen=36x184
+2026-01-25T04:29:10.513Z [DEBUG] High write ratio: blit=468, write=2148 (82.1% writes), screen=36x184
+2026-01-25T04:29:13.675Z [DEBUG] High write ratio: blit=489, write=2127 (81.3% writes), screen=36x184
+2026-01-25T04:29:14.490Z [DEBUG] High write ratio: blit=499, write=2117 (80.9% writes), screen=36x184
+2026-01-25T04:29:15.625Z [DEBUG] High write ratio: blit=489, write=2127 (81.3% writes), screen=36x184
+2026-01-25T04:29:16.227Z [DEBUG] High write ratio: blit=468, write=2148 (82.1% writes), screen=36x184
+2026-01-25T04:29:17.302Z [DEBUG] High write ratio: blit=467, write=2149 (82.1% writes), screen=36x184
+2026-01-25T04:29:18.440Z [DEBUG] High write ratio: blit=471, write=2145 (82.0% writes), screen=36x184
+2026-01-25T04:29:18.678Z [DEBUG] High write ratio: blit=470, write=2146 (82.0% writes), screen=36x184
+2026-01-25T04:29:19.317Z [DEBUG] High write ratio: blit=499, write=2117 (80.9% writes), screen=36x184
+2026-01-25T04:29:20.264Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.3486.1769315360264
+2026-01-25T04:29:20.264Z [DEBUG] Preserving file permissions: 100644
+2026-01-25T04:29:20.265Z [DEBUG] Temp file written successfully, size: 35186 bytes
+2026-01-25T04:29:20.265Z [DEBUG] Applied original permissions to temp file
+2026-01-25T04:29:20.265Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.3486.1769315360264 to /Users/fanshengxia/.claude.json
+2026-01-25T04:29:20.265Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-25T04:29:20.267Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.3486.1769315360267
+2026-01-25T04:29:20.267Z [DEBUG] Preserving file permissions: 100644
+2026-01-25T04:29:20.268Z [DEBUG] Temp file written successfully, size: 35186 bytes
+2026-01-25T04:29:20.268Z [DEBUG] Applied original permissions to temp file
+2026-01-25T04:29:20.268Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.3486.1769315360267 to /Users/fanshengxia/.claude.json
+2026-01-25T04:29:20.268Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-25T04:29:25.281Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at sK6.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:689:2042)
+    at async sK6.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:689:1197)
+2026-01-25T04:29:36.107Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at sK6.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:689:2042)
+    at async sK6.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:689:1197)
+2026-01-25T04:31:03.430Z [DEBUG] Getting matching hook commands for SessionEnd with query: other
+2026-01-25T04:31:03.430Z [DEBUG] Found 0 hook matchers in settings
+2026-01-25T04:31:03.430Z [DEBUG] Matched 0 unique hooks for query "other" (0 before deduplication)

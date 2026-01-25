@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "/Users/fanshengxia/.claude/local/node_modules/.bin/claude" "$@"

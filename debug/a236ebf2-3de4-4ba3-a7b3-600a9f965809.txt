@@ -1,0 +1,14 @@
+2026-01-22T12:41:08.943Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude, /Users/fanshengxia/Desktop/市场观点美化/.claude...
+2026-01-22T12:41:08.947Z [DEBUG] [init] configureGlobalMTLS starting
+2026-01-22T12:41:08.947Z [DEBUG] [init] configureGlobalMTLS complete
+2026-01-22T12:41:08.947Z [DEBUG] [init] configureGlobalAgents starting
+2026-01-22T12:41:08.947Z [DEBUG] [init] configureGlobalAgents complete
+2026-01-22T12:41:08.955Z [DEBUG] Applying permission update: Adding 20 allow rule(s) to destination 'localSettings': ["Bash(npm run dev:*)","Bash(pnpm install:*)","Bash(npm install)","Bash(npm install:*)","Bash(lsof:*)","Bash(cp:*)","Bash(curl:*)","Bash(pkill:*)","Bash(true)","Bash(node test-csv.js)","Bash(rm:*)","Bash(npm run lint)","Bash(python:*)","Bash(cat:*)","Bash(pnpm dev:*)","Bash(git init:*)","Bash(git add:*)","Bash(git remote add:*)","Bash(git branch:*)","Bash(git push:*)"]
+2026-01-22T12:41:08.955Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-01-22T12:41:08.975Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-01-22T12:41:08.975Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-01-22T12:41:08.975Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1769085668975_yb47i2
+2026-01-22T12:41:08.980Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-01-22T12:41:08.982Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills...
+2026-01-22T12:41:08.985Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-01-22T12:41:08.992Z [DEBUG] [Claude in Chrome] Extension not found in any browser

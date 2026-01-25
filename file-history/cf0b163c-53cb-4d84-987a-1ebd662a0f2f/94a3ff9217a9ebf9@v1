@@ -1,0 +1,286 @@
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+file_0101 = '/Users/fanshengxia/Desktop/优先股和优先级持仓/资产交易余额台账20250101 权益类资产.xlsx'
+file_1231 = '/Users/fanshengxia/Desktop/优先股和优先级持仓/资产交易余额台账20251231 权益类资产.xlsx'
+
+df_0101 = pd.read_excel(file_0101)
+df_1231 = pd.read_excel(file_1231)
+
+# 只保留组合式资产（优先级资产）
+df_0101 = df_0101[df_0101['资产大类'] == '组合式资产'].copy()
+df_1231 = df_1231[df_1231['资产大类'] == '组合式资产'].copy()
+
+# 使用新版资产子类，并按资产名称汇总结算金额
+summary_0101 = df_0101.groupby(['新版资产子类', '资产名称']).agg({
+    '结算金额折人民币': 'sum'
+}).reset_index()
+summary_0101.columns = ['新版资产子类', '资产名称', '市值_0101']
+
+summary_1231 = df_1231.groupby(['新版资产子类', '资产名称']).agg({
+    '结算金额折人民币': 'sum'
+}).reset_index()
+summary_1231.columns = ['新版资产子类', '资产名称', '市值_1231']
+
+# 获取所有资产的并集
+all_assets = pd.concat([
+    summary_0101[['新版资产子类', '资产名称']],
+    summary_1231[['新版资产子类', '资产名称']]
+]).drop_duplicates(subset=['资产名称']).reset_index(drop=True)
+
+# 合并数据
+df_merged = all_assets.copy()
+df_merged = df_merged.merge(summary_1231[['资产名称', '市值_1231']], on='资产名称', how='left')
+df_merged = df_merged.merge(summary_0101[['资产名称', '市值_0101']], on='资产名称', how='left')
+
+df_merged['市值_0101'] = df_merged['市值_0101'].fillna(0)
+df_merged['市值_1231'] = df_merged['市值_1231'].fillna(0)
+
+# 转换为亿元
+df_merged['市值_0101_亿'] = df_merged['市值_0101'] / 100000000
+df_merged['市值_1231_亿'] = df_merged['市值_1231'] / 100000000
+
+# 计算变化
+df_merged['变化_亿'] = df_merged['市值_1231_亿'] - df_merged['市值_0101_亿']
+
+def get_change_desc(row):
+    if row['市值_1231_亿'] == 0:
+        return '减持'
+    elif row['市值_0101_亿'] == 0:
+        return '新增'
+    elif row['变化_亿'] > 0.01:
+        return '增持'
+    elif row['变化_亿'] < -0.01:
+        return '减持'
+    else:
+        return '持平'
+
+df_merged['持仓变化说明'] = df_merged.apply(get_change_desc, axis=1)
+
+# 排序
+df_merged = df_merged.sort_values(['新版资产子类', '资产名称']).reset_index(drop=True)
+
+# 创建Excel
+wb = Workbook()
+
+# ====== Sheet 1: 资产明细 ======
+ws1 = wb.active
+ws1.title = '资产明细'
+
+header_font = Font(bold=True, size=11)
+header_fill = PatternFill(start_color='D3D3D3', end_color='D3D3D3', fill_type='solid')
+header_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+thin_border = Border(
+    left=Side(style='thin'),
+    right=Side(style='thin'),
+    top=Side(style='thin'),
+    bottom=Side(style='thin')
+)
+
+headers = ['新版资产子类', '资产名称', '2025年12月31日市值(亿)', '2025年1月1日市值(亿)', '变化(亿)', '持仓变化说明']
+for col_idx, header in enumerate(headers, 1):
+    cell = ws1.cell(row=1, column=col_idx, value=header)
+    cell.font = header_font
+    cell.fill = header_fill
+    cell.alignment = header_align
+    cell.border = thin_border
+
+row_idx = 2
+for idx, row in df_merged.iterrows():
+    ws1.cell(row=row_idx, column=1, value=row['新版资产子类']).border = thin_border
+    ws1.cell(row=row_idx, column=2, value=row['资产名称']).border = thin_border
+
+    val_1231 = row['市值_1231_亿']
+    val_0101 = row['市值_0101_亿']
+
+    cell_1231 = ws1.cell(row=row_idx, column=3)
+    if val_1231 > 0:
+        cell_1231.value = val_1231
+        cell_1231.number_format = '0.00'
+    else:
+        cell_1231.value = '-'
+    cell_1231.border = thin_border
+
+    cell_0101 = ws1.cell(row=row_idx, column=4)
+    if val_0101 > 0:
+        cell_0101.value = val_0101
+        cell_0101.number_format = '0.00'
+    else:
+        cell_0101.value = '-'
+    cell_0101.border = thin_border
+
+    change_cell = ws1.cell(row=row_idx, column=5)
+    change_val = row['变化_亿']
+    if abs(change_val) < 0.01:
+        change_cell.value = '-'
+    else:
+        change_cell.value = change_val
+        change_cell.number_format = '0.00'
+    change_cell.border = thin_border
+
+    desc_cell = ws1.cell(row=row_idx, column=6, value=row['持仓变化说明'])
+    desc_cell.border = thin_border
+
+    row_idx += 1
+
+# 合计行
+total_row = row_idx
+ws1.cell(row=total_row, column=1, value='合计').font = Font(bold=True)
+ws1.cell(row=total_row, column=1).border = thin_border
+ws1.cell(row=total_row, column=2).border = thin_border
+
+total_1231 = ws1.cell(row=total_row, column=3)
+total_1231.value = df_merged['市值_1231_亿'].sum()
+total_1231.number_format = '0.00'
+total_1231.font = Font(bold=True)
+total_1231.border = thin_border
+
+total_0101 = ws1.cell(row=total_row, column=4)
+total_0101.value = df_merged['市值_0101_亿'].sum()
+total_0101.number_format = '0.00'
+total_0101.font = Font(bold=True)
+total_0101.border = thin_border
+
+total_change = ws1.cell(row=total_row, column=5)
+total_change.value = df_merged['变化_亿'].sum()
+total_change.number_format = '0.00'
+total_change.font = Font(bold=True)
+total_change.border = thin_border
+
+ws1.cell(row=total_row, column=6).border = thin_border
+
+# 设置列宽
+ws1.column_dimensions['A'].width = 25
+ws1.column_dimensions['B'].width = 50
+ws1.column_dimensions['C'].width = 22
+ws1.column_dimensions['D'].width = 22
+ws1.column_dimensions['E'].width = 15
+ws1.column_dimensions['F'].width = 15
+
+ws1.freeze_panes = 'A2'
+
+# ====== Sheet 2: 投资团队分布 ======
+ws2 = wb.create_sheet('投资团队分布')
+
+# 按投资团队和新版资产子类汇总12月31日数据
+team_summary = df_1231.groupby(['投资团队', '新版资产子类']).agg({
+    '结算金额折人民币': 'sum'
+}).reset_index()
+team_summary['市值_亿'] = team_summary['结算金额折人民币'] / 100000000
+team_summary = team_summary.sort_values(['投资团队', '新版资产子类'])
+
+# 按投资团队汇总
+team_total = df_1231.groupby('投资团队').agg({
+    '结算金额折人民币': 'sum'
+}).reset_index()
+team_total['市值_亿'] = team_total['结算金额折人民币'] / 100000000
+team_total = team_total.sort_values('市值_亿', ascending=False)
+
+# 表头
+headers2 = ['投资团队', '新版资产子类', '市值(亿)', '占比(%)']
+for col_idx, header in enumerate(headers2, 1):
+    cell = ws2.cell(row=1, column=col_idx, value=header)
+    cell.font = header_font
+    cell.fill = header_fill
+    cell.alignment = header_align
+    cell.border = thin_border
+
+# 填充数据
+row_idx = 2
+grand_total = team_total['市值_亿'].sum()
+
+for team in team_total['投资团队']:
+    team_data = team_summary[team_summary['投资团队'] == team]
+    team_value = team_total[team_total['投资团队'] == team]['市值_亿'].values[0]
+
+    # 投资团队小计行
+    ws2.cell(row=row_idx, column=1, value=team).font = Font(bold=True)
+    ws2.cell(row=row_idx, column=1).border = thin_border
+    ws2.cell(row=row_idx, column=2, value='小计').font = Font(bold=True)
+    ws2.cell(row=row_idx, column=2).border = thin_border
+
+    cell_value = ws2.cell(row=row_idx, column=3, value=team_value)
+    cell_value.number_format = '0.00'
+    cell_value.font = Font(bold=True)
+    cell_value.border = thin_border
+
+    cell_pct = ws2.cell(row=row_idx, column=4, value=team_value/grand_total*100)
+    cell_pct.number_format = '0.00'
+    cell_pct.font = Font(bold=True)
+    cell_pct.border = thin_border
+
+    row_idx += 1
+
+    # 各子类明细
+    for _, subrow in team_data.iterrows():
+        ws2.cell(row=row_idx, column=1, value='').border = thin_border
+        ws2.cell(row=row_idx, column=2, value=subrow['新版资产子类']).border = thin_border
+
+        cell_val = ws2.cell(row=row_idx, column=3, value=subrow['市值_亿'])
+        cell_val.number_format = '0.00'
+        cell_val.border = thin_border
+
+        cell_pct2 = ws2.cell(row=row_idx, column=4, value=subrow['市值_亿']/team_value*100)
+        cell_pct2.number_format = '0.00'
+        cell_pct2.border = thin_border
+
+        row_idx += 1
+
+# 总计行
+ws2.cell(row=row_idx, column=1, value='总计').font = Font(bold=True, size=12)
+ws2.cell(row=row_idx, column=1).border = thin_border
+ws2.cell(row=row_idx, column=2).border = thin_border
+
+total_cell = ws2.cell(row=row_idx, column=3, value=grand_total)
+total_cell.number_format = '0.00'
+total_cell.font = Font(bold=True, size=12)
+total_cell.border = thin_border
+
+pct_cell = ws2.cell(row=row_idx, column=4, value=100)
+pct_cell.number_format = '0.00'
+pct_cell.font = Font(bold=True, size=12)
+pct_cell.border = thin_border
+
+# 设置列宽
+ws2.column_dimensions['A'].width = 20
+ws2.column_dimensions['B'].width = 30
+ws2.column_dimensions['C'].width = 18
+ws2.column_dimensions['D'].width = 15
+
+ws2.freeze_panes = 'A2'
+
+# 保存文件
+output_file = '/Users/fanshengxia/Desktop/data_api/公司优先级资产持仓变化对比.xlsx'
+wb.save(output_file)
+
+print(f'Excel文件已生成: {output_file}')
+print(f'\n====== Sheet1: 资产明细 ======')
+print(f'总资产数: {len(df_merged)}')
+print(f'2025年1月1日持仓数: {(df_merged["市值_0101_亿"] > 0).sum()}')
+print(f'2025年12月31日持仓数: {(df_merged["市值_1231_亿"] > 0).sum()}')
+print(f'新增: {(df_merged["持仓变化说明"] == "新增").sum()}')
+print(f'减持: {(df_merged["持仓变化说明"] == "减持").sum()}')
+print(f'增持: {(df_merged["持仓变化说明"] == "增持").sum()}')
+print(f'持平: {(df_merged["持仓变化说明"] == "持平").sum()}')
+print(f'\n2025年1月1日总市值: {df_merged["市值_0101_亿"].sum():.2f}亿')
+print(f'2025年12月31日总市值: {df_merged["市值_1231_亿"].sum():.2f}亿')
+print(f'总变化: {df_merged["变化_亿"].sum():.2f}亿')
+
+# 计算新增和增持、减持的金额
+new_and_increase = df_merged[df_merged['变化_亿'] > 0.01]['变化_亿'].sum()
+decrease = abs(df_merged[df_merged['变化_亿'] < -0.01]['变化_亿'].sum())
+net_change = df_merged['市值_1231_亿'].sum() - df_merged['市值_0101_亿'].sum()
+
+print(f'\n新增和增持合计: {new_and_increase:.2f}亿')
+print(f'减持合计: {decrease:.2f}亿')
+print(f'净变化: {net_change:.2f}亿')
+
+print(f'\n====== Sheet2: 投资团队分布 ======')
+print(f'投资团队数: {len(team_total)}')
+print(f'\n各团队持仓:')
+for _, row in team_total.iterrows():
+    print(f'  {row["投资团队"]}: {row["市值_亿"]:.2f}亿 ({row["市值_亿"]/grand_total*100:.2f}%)')
+
+print(f'\n📊 一句话总结:')
+print(f'2025年12月31日公司优先级资产持仓{df_merged["市值_1231_亿"].sum():.2f}亿，相比2025年1月1日净{"增加" if net_change > 0 else "减少"}{abs(net_change):.2f}亿，其中新增和增持{new_and_increase:.2f}亿，减持{decrease:.2f}亿。')

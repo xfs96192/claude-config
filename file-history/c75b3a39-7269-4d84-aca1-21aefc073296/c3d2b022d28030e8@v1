@@ -1,0 +1,339 @@
+{
+  "version": "1.1.0",
+  "exportTime": "2026-01-13T00:00:00.000Z",
+  "description": "更新后的基金分类数据库 - 使用外部代码/资产代码作为匹配键",
+  "fundClassifications": {
+    "002361.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "000385.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "015805.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "016869.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "006466.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "110008.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "002351.OF": {
+      "assetClass": "二级公募债券基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "013642.OF": {
+      "assetClass": "公募股票基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "011426.OF": {
+      "assetClass": "公募股票基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "159338.SZ": {
+      "assetClass": "公募股票基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "华泰柏瑞红利ETF ( 510880.SH )": {
+      "assetClass": "公募股票基金",
+      "style": "红利",
+      "equityPosition": 100
+    },
+    "563360.SH": {
+      "assetClass": "公募股票基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "588000.SH": {
+      "assetClass": "公募股票基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "159351.SZ": {
+      "assetClass": "公募股票基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "010003.OF": {
+      "assetClass": "公募股票基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "景顺长城环保优势（001975.OF）": {
+      "assetClass": "公募股票基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "520990.SH": {
+      "assetClass": "公募股票基金",
+      "style": "红利",
+      "equityPosition": 100
+    },
+    "515100.SH": {
+      "assetClass": "公募股票基金",
+      "style": "红利",
+      "equityPosition": 100
+    },
+    "中证800交易型开放式指数证券投资基金": {
+      "assetClass": "公募股票基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "宝盈品质甄选混合型证券投资基金": {
+      "assetClass": "公募混合基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "012125.OF": {
+      "assetClass": "公募混合基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "018225.OF": {
+      "assetClass": "公募混合基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "010372.OF": {
+      "assetClass": "公募混合基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "001300.OF": {
+      "assetClass": "公募混合基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "001301.OF": {
+      "assetClass": "公募混合基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "010625.OF": {
+      "assetClass": "公募混合基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "广发主题领先灵活配置混合型证券投资基金": {
+      "assetClass": "公募混合基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "华商新趋势优选（166301.OF）": {
+      "assetClass": "公募混合基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "017043.OF": {
+      "assetClass": "公募混合基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "260101.OF": {
+      "assetClass": "公募混合基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "万家宏观择时多策略灵活配置混合型证券投资基金": {
+      "assetClass": "公募混合基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "015566.OF": {
+      "assetClass": "公募混合基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "020199.OF": {
+      "assetClass": "公募混合基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "易方达裕惠回报定期开放式混合型发起式证券投资基金": {
+      "assetClass": "公募混合基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "011691.OF": {
+      "assetClass": "公募混合基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "023452.OF": {
+      "assetClass": "公募混合基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "012778.OF": {
+      "assetClass": "公募混合基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "006567.OF": {
+      "assetClass": "公募混合基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "中泰元和价值精选混合型证券投资基金": {
+      "assetClass": "公募混合基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "513010.SH": {
+      "assetClass": "其他公募基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "009879.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "011066.OF": {
+      "assetClass": "普通股票型基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "016841.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "017750.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "515220.SH": {
+      "assetClass": "被动指数型基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "018505.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "周期",
+      "equityPosition": 100
+    },
+    "009878.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "018993.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "024919.OF": {
+      "assetClass": "灵活配置型基金",
+      "style": "红利",
+      "equityPosition": 100
+    },
+    "001258.OF": {
+      "assetClass": "混合债券型二级基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "015364.OF": {
+      "assetClass": "普通股票型基金",
+      "style": "价值",
+      "equityPosition": 100
+    },
+    "020521.OF": {
+      "assetClass": "混合债券型二级基金",
+      "style": "科技成长",
+      "equityPosition": 20
+    },
+    "001955.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "010388.OF": {
+      "assetClass": "普通股票型基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "014088.OF": {
+      "assetClass": "混合债券型二级基金",
+      "style": "科技成长",
+      "equityPosition": 20
+    },
+    "017941.OF": {
+      "assetClass": "灵活配置型基金",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "217023.OF": {
+      "assetClass": "混合债券型二级基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "014846.OF": {
+      "assetClass": "混合债券型二级基金",
+      "style": "周期",
+      "equityPosition": 20
+    },
+    "017475.OF": {
+      "assetClass": "混合债券型二级基金",
+      "style": "均衡",
+      "equityPosition": 20
+    },
+    "012228.OF": {
+      "assetClass": "偏股混合型基金",
+      "style": "均衡",
+      "equityPosition": 100
+    },
+    "80PF210158": {
+      "assetClass": "委外非现固定收益类资产",
+      "style": "均衡",
+      "equityPosition": 18
+    },
+    "80PF200133": {
+      "assetClass": "委外非现固定收益类资产",
+      "style": "价值",
+      "equityPosition": 19
+    },
+    "11PF252714": {
+      "assetClass": "委外非现固定收益类资产",
+      "style": "均衡",
+      "equityPosition": 18
+    },
+    "11PF252802": {
+      "assetClass": "委外权益类投资",
+      "style": "红利",
+      "equityPosition": 100
+    },
+    "11PF253412": {
+      "assetClass": "委外权益类投资",
+      "style": "科技成长",
+      "equityPosition": 100
+    },
+    "大成科技创新混合型证券投资基金": {
+      "assetClass": "偏股混合型基金",
+      "style": "科技成长",
+      "equityPosition": 80
+    }
+  },
+  "totalFunds": 66,
+  "updateNotes": "本次更新将公募基金的匹配键从资产简称改为外部代码，委外投资的匹配键改为资产代码，以提高匹配准确性。"
+}

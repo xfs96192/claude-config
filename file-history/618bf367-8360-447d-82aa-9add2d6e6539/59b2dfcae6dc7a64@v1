@@ -1,0 +1,531 @@
+/* ============================================
+   Quill 编辑器封装
+   ============================================ */
+
+class EditorManager {
+    constructor() {
+        this.quill = null;
+        this.currentPageId = null;
+        this.autoSaveTimeout = null;
+        this.saveDelay = 500; // 自动保存延迟（毫秒）
+    }
+
+    // 初始化编辑器
+    init() {
+        const toolbarOptions = [
+            [{ 'header': [1, 2, 3, 4, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            ['blockquote', 'code-block'],
+            ['clean']
+        ];
+
+        this.quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: toolbarOptions
+            },
+            placeholder: '开始写作...'
+        });
+
+        // 监听内容变化
+        this.quill.on('text-change', () => {
+            this.onContentChange();
+        });
+
+        // 监听粘贴事件（用于图片粘贴）
+        this.quill.root.addEventListener('paste', (e) => {
+            this.handlePaste(e);
+        });
+
+        // 自定义工具栏按钮
+        this.initCustomButtons();
+
+        console.log('Editor initialized');
+    }
+
+    // 初始化自定义工具栏按钮
+    initCustomButtons() {
+        // 插入表格按钮
+        const tableBtn = document.getElementById('btn-insert-table');
+        if (tableBtn) {
+            tableBtn.addEventListener('click', () => {
+                this.insertTable();
+            });
+        }
+
+        // 插入交易模板按钮
+        const tradeTemplateBtn = document.getElementById('btn-insert-trade-template');
+        if (tradeTemplateBtn) {
+            tradeTemplateBtn.addEventListener('click', () => {
+                this.insertTradeTemplate();
+            });
+        }
+    }
+
+    // 加载页面内容
+    async loadPage(pageId) {
+        if (!pageId) {
+            this.clear();
+            return;
+        }
+
+        try {
+            const page = await db.get('pages', pageId);
+            if (!page) {
+                console.error('Page not found:', pageId);
+                return;
+            }
+
+            this.currentPageId = pageId;
+
+            // 设置标题
+            const titleInput = document.getElementById('page-title');
+            titleInput.value = page.title || '';
+
+            // 设置内容
+            if (page.content && page.content.ops) {
+                this.quill.setContents(page.content);
+            } else {
+                this.quill.setText('');
+            }
+
+            // 更新元数据显示
+            this.updateMetadata(page);
+
+            // 更新字数统计
+            this.updateWordCount();
+
+            // 加载附件
+            await this.loadAttachments(pageId);
+
+            // 加载待办
+            await this.loadTodos(pageId);
+
+        } catch (error) {
+            console.error('Error loading page:', error);
+            showNotification('加载页面失败', 'error');
+        }
+    }
+
+    // 更新元数据显示
+    updateMetadata(page) {
+        // 更新时间
+        document.getElementById('page-updated').textContent =
+            `最后编辑: ${formatRelativeTime(page.updatedAt)}`;
+
+        // 更新右侧面板信息
+        document.getElementById('info-created').textContent = formatDateTime(page.createdAt);
+        document.getElementById('info-updated').textContent = formatDateTime(page.updatedAt);
+        document.getElementById('info-type').value = page.type || 'note';
+
+        // 更新标签
+        this.updateTagsDisplay(page.tags || []);
+    }
+
+    // 更新标签显示
+    updateTagsDisplay(tags) {
+        const container = document.getElementById('tags-container');
+        container.innerHTML = '';
+
+        tags.forEach(tag => {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'tag';
+            tagEl.textContent = tag;
+
+            // 添加删除按钮
+            const removeBtn = document.createElement('span');
+            removeBtn.textContent = ' ×';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.style.marginLeft = '4px';
+            removeBtn.onclick = () => this.removeTag(tag);
+
+            tagEl.appendChild(removeBtn);
+            container.appendChild(tagEl);
+        });
+    }
+
+    // 添加标签
+    async addTag(tag) {
+        if (!this.currentPageId || !tag.trim()) return;
+
+        try {
+            const page = await db.get('pages', this.currentPageId);
+            if (!page) return;
+
+            if (!page.tags) page.tags = [];
+            if (page.tags.includes(tag)) {
+                showNotification('标签已存在', 'warning');
+                return;
+            }
+
+            page.tags.push(tag);
+            await db.updatePage(this.currentPageId, { tags: page.tags });
+            this.updateTagsDisplay(page.tags);
+            showNotification('标签已添加', 'success');
+        } catch (error) {
+            console.error('Error adding tag:', error);
+            showNotification('添加标签失败', 'error');
+        }
+    }
+
+    // 删除标签
+    async removeTag(tag) {
+        if (!this.currentPageId) return;
+
+        try {
+            const page = await db.get('pages', this.currentPageId);
+            if (!page) return;
+
+            page.tags = (page.tags || []).filter(t => t !== tag);
+            await db.updatePage(this.currentPageId, { tags: page.tags });
+            this.updateTagsDisplay(page.tags);
+            showNotification('标签已删除', 'success');
+        } catch (error) {
+            console.error('Error removing tag:', error);
+            showNotification('删除标签失败', 'error');
+        }
+    }
+
+    // 内容变化时触发
+    onContentChange() {
+        this.updateWordCount();
+        this.scheduleSave();
+    }
+
+    // 更新字数统计
+    updateWordCount() {
+        const text = this.quill.getText();
+        const count = countWords(text);
+        document.getElementById('word-count').textContent = `${count} 字`;
+    }
+
+    // 计划保存（防抖）
+    scheduleSave() {
+        if (!this.currentPageId) return;
+
+        // 显示保存中状态
+        const saveStatus = document.getElementById('save-status');
+        saveStatus.textContent = '保存中...';
+        saveStatus.className = 'save-status saving';
+
+        // 清除之前的定时器
+        if (this.autoSaveTimeout) {
+            clearTimeout(this.autoSaveTimeout);
+        }
+
+        // 设置新的定时器
+        this.autoSaveTimeout = setTimeout(() => {
+            this.save();
+        }, this.saveDelay);
+    }
+
+    // 保存当前页面
+    async save() {
+        if (!this.currentPageId) return;
+
+        try {
+            const content = this.quill.getContents();
+            const title = document.getElementById('page-title').value || '无标题页面';
+            const type = document.getElementById('info-type').value;
+
+            await db.updatePage(this.currentPageId, {
+                title,
+                content,
+                type
+            });
+
+            // 显示保存成功
+            const saveStatus = document.getElementById('save-status');
+            saveStatus.textContent = '已保存';
+            saveStatus.className = 'save-status saved';
+
+            // 更新页面列表中的标题
+            if (window.app) {
+                window.app.updatePageListItem(this.currentPageId, title);
+            }
+
+        } catch (error) {
+            console.error('Error saving page:', error);
+            showNotification('保存失败', 'error');
+        }
+    }
+
+    // 清空编辑器
+    clear() {
+        this.currentPageId = null;
+        this.quill.setText('');
+        document.getElementById('page-title').value = '';
+        document.getElementById('page-updated').textContent = '';
+        document.getElementById('word-count').textContent = '0 字';
+
+        // 清空右侧面板
+        document.getElementById('info-created').textContent = '-';
+        document.getElementById('info-updated').textContent = '-';
+        document.getElementById('tags-container').innerHTML = '';
+        document.getElementById('attachments-list').innerHTML = '';
+        document.getElementById('todos-list').innerHTML = '';
+    }
+
+    // 处理粘贴事件
+    handlePaste(e) {
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const items = clipboardData.items;
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+
+            // 处理图片
+            if (item.type.indexOf('image') !== -1) {
+                e.preventDefault();
+                const blob = item.getAsFile();
+                this.insertImageFromFile(blob);
+                break;
+            }
+        }
+    }
+
+    // 从文件插入图片
+    async insertImageFromFile(file) {
+        try {
+            const base64 = await readFileAsBase64(file);
+
+            // 插入到编辑器
+            const range = this.quill.getSelection();
+            const index = range ? range.index : this.quill.getLength();
+            this.quill.insertEmbed(index, 'image', base64);
+
+            // 保存为附件
+            if (this.currentPageId) {
+                await db.addAttachment(
+                    this.currentPageId,
+                    file.name || 'pasted-image.png',
+                    file.type,
+                    file.size,
+                    base64
+                );
+                await this.loadAttachments(this.currentPageId);
+            }
+
+            showNotification('图片已插入', 'success');
+        } catch (error) {
+            console.error('Error inserting image:', error);
+            showNotification('插入图片失败', 'error');
+        }
+    }
+
+    // 插入表格
+    insertTable() {
+        const rows = promptDialog('请输入行数:', '3');
+        const cols = promptDialog('请输入列数:', '3');
+
+        if (!rows || !cols) return;
+
+        const rowCount = parseInt(rows);
+        const colCount = parseInt(cols);
+
+        if (isNaN(rowCount) || isNaN(colCount) || rowCount < 1 || colCount < 1) {
+            showNotification('请输入有效的行列数', 'error');
+            return;
+        }
+
+        // 生成表格HTML（简化版）
+        let tableHtml = '<table border="1" style="border-collapse: collapse; width: 100%;">\n';
+        for (let i = 0; i < rowCount; i++) {
+            tableHtml += '  <tr>\n';
+            for (let j = 0; j < colCount; j++) {
+                tableHtml += '    <td style="padding: 8px; border: 1px solid #ddd;">&nbsp;</td>\n';
+            }
+            tableHtml += '  </tr>\n';
+        }
+        tableHtml += '</table>';
+
+        // 插入表格
+        const range = this.quill.getSelection();
+        const index = range ? range.index : this.quill.getLength();
+        this.quill.clipboard.dangerouslyPasteHTML(index, tableHtml);
+
+        showNotification('表格已插入', 'success');
+    }
+
+    // 插入交易模板快速表单
+    insertTradeTemplate() {
+        const range = this.quill.getSelection();
+        const index = range ? range.index : this.quill.getLength();
+
+        // 插入预设的交易信息模板
+        const templateText = `
+交易信息
+品种代码:
+交易方向:
+成交价格:
+成交数量:
+
+市场分析
+
+
+交易逻辑
+
+`;
+
+        this.quill.insertText(index, templateText);
+        showNotification('交易模板已插入', 'success');
+    }
+
+    // 加载附件列表
+    async loadAttachments(pageId) {
+        const container = document.getElementById('attachments-list');
+        container.innerHTML = '';
+
+        try {
+            const attachments = await db.getAttachmentsByPage(pageId);
+
+            if (attachments.length === 0) {
+                container.innerHTML = '<p style="color: #9ca3af; font-size: 13px; text-align: center;">暂无附件</p>';
+                return;
+            }
+
+            attachments.forEach(attachment => {
+                const item = document.createElement('div');
+                item.className = 'attachment-item';
+
+                const icon = document.createElement('span');
+                icon.className = 'attachment-icon';
+                icon.textContent = getFileIcon(attachment.name);
+
+                const info = document.createElement('div');
+                info.className = 'attachment-info';
+
+                const name = document.createElement('div');
+                name.className = 'attachment-name';
+                name.textContent = attachment.name;
+
+                const size = document.createElement('div');
+                size.className = 'attachment-size';
+                size.textContent = formatFileSize(attachment.size);
+
+                info.appendChild(name);
+                info.appendChild(size);
+
+                item.appendChild(icon);
+                item.appendChild(info);
+
+                // 点击下载
+                item.addEventListener('click', () => {
+                    this.downloadAttachment(attachment);
+                });
+
+                container.appendChild(item);
+            });
+        } catch (error) {
+            console.error('Error loading attachments:', error);
+        }
+    }
+
+    // 下载附件
+    downloadAttachment(attachment) {
+        try {
+            // 从Base64创建Blob
+            const base64Data = attachment.data.split(',')[1];
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: attachment.type });
+
+            // 下载
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = attachment.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showNotification('附件已下载', 'success');
+        } catch (error) {
+            console.error('Error downloading attachment:', error);
+            showNotification('下载附件失败', 'error');
+        }
+    }
+
+    // 加载待办列表
+    async loadTodos(pageId) {
+        const container = document.getElementById('todos-list');
+        container.innerHTML = '';
+
+        try {
+            const todos = await db.getTodos(pageId);
+
+            if (todos.length === 0) {
+                container.innerHTML = '<p style="color: #9ca3af; font-size: 13px; text-align: center;">暂无待办事项</p>';
+                return;
+            }
+
+            todos.forEach(todo => {
+                const item = this.createTodoElement(todo);
+                container.appendChild(item);
+            });
+        } catch (error) {
+            console.error('Error loading todos:', error);
+        }
+    }
+
+    // 创建待办元素
+    createTodoElement(todo) {
+        const item = document.createElement('div');
+        item.className = 'todo-item';
+        if (todo.completed) {
+            item.classList.add('completed');
+        }
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'todo-checkbox';
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', async () => {
+            await db.updateTodo(todo.id, { completed: checkbox.checked });
+            if (checkbox.checked) {
+                item.classList.add('completed');
+            } else {
+                item.classList.remove('completed');
+            }
+        });
+
+        const content = document.createElement('div');
+        content.className = 'todo-content';
+        content.textContent = todo.content;
+
+        item.appendChild(checkbox);
+        item.appendChild(content);
+
+        return item;
+    }
+
+    // 获取当前编辑器内容
+    getContent() {
+        return this.quill.getContents();
+    }
+
+    // 获取纯文本内容
+    getText() {
+        return this.quill.getText();
+    }
+
+    // 设置内容
+    setContent(delta) {
+        this.quill.setContents(delta);
+    }
+}
+
+// 创建全局编辑器实例
+const editor = new EditorManager();

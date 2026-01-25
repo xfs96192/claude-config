@@ -1,0 +1,160 @@
+import pandas as pd
+import json
+
+# 读取最新的持仓数据
+file_path = '/Users/fanshengxia/Desktop/投资助理工作/基金分类标签/持仓盈亏明细列表_1765074404831.xlsx'
+df = pd.read_excel(file_path)
+
+# 读取更新后的基金分类数据
+with open('/Users/fanshengxia/Desktop/投资助理工作/基金分类标签/基金分类数据_v1.1.0_updated.json', 'r', encoding='utf-8') as f:
+    fund_db = json.load(f)
+
+fund_classifications = fund_db['fundClassifications']
+
+print("=" * 80)
+print("基金分类数据库验证测试")
+print("=" * 80)
+print(f"\n数据库中总基金数: {len(fund_classifications)}")
+print(f"JSON文件声明总数: {fund_db['totalFunds']}")
+print(f"是否一致: {'✓' if len(fund_classifications) == fund_db['totalFunds'] else '✗'}\n")
+
+# 模拟getFundMatchKey函数
+def get_fund_match_key(row):
+    asset_class = str(row.get('新版资产大类', '')).strip()
+    external_code = str(row.get('外部代码', '')).strip() if pd.notna(row.get('外部代码')) else ''
+    asset_code = str(row.get('资产代码', '')).strip() if pd.notna(row.get('资产代码')) else ''
+    asset_name = str(row.get('资产简称', '')).strip()
+
+    # 对于公募基金,优先使用外部代码
+    if asset_class == '公募基金' and external_code:
+        return external_code
+
+    # 对于委外投资,使用资产代码
+    if asset_class == '委外投资' and asset_code:
+        return asset_code
+
+    # 其他情况使用资产简称
+    return asset_name
+
+# 定义含权基金的资产小类
+EQUITY_SUBCLASSES = [
+    '二级公募债券基金', '混合债券型二级基金', '公募股票基金',
+    '普通股票型基金', '公募混合基金', '偏股混合型基金',
+    '灵活配置型基金', '其他公募基金', '被动指数型基金',
+    '国际(QDII)被动指数型股票基金'
+]
+
+# 筛选出含权基金
+equity_funds = df[
+    (df['新版资产大类'] == '公募基金') &
+    (df['新版资产小类'].isin(EQUITY_SUBCLASSES))
+]
+
+# 检查分类情况
+classified_count = 0
+unclassified_funds = []
+
+for idx, row in equity_funds.iterrows():
+    match_key = get_fund_match_key(row)
+    asset_name = str(row['资产简称'])
+    asset_subclass = str(row['新版资产小类'])
+
+    if match_key in fund_classifications:
+        classified_count += 1
+    else:
+        # 检查是否已存在但key不同
+        found = False
+        for db_key in fund_classifications.keys():
+            if asset_name in db_key or db_key in asset_name:
+                found = True
+                break
+
+        if not found and match_key not in [u['matchKey'] for u in unclassified_funds]:
+            unclassified_funds.append({
+                'matchKey': match_key,
+                'assetName': asset_name,
+                'assetSubClass': asset_subclass,
+                'externalCode': str(row.get('外部代码', ''))
+            })
+
+# 去重（因为同一基金可能在多个产品中出现）
+unique_funds = {}
+for fund in unclassified_funds:
+    unique_funds[fund['matchKey']] = fund
+
+unclassified_funds = list(unique_funds.values())
+
+print("=" * 80)
+print("含权基金分类检测结果")
+print("=" * 80)
+print(f"\n持仓表中含权基金记录数: {len(equity_funds)}")
+print(f"已分类的记录数: {classified_count}")
+print(f"未分类的基金数: {len(unclassified_funds)}\n")
+
+if unclassified_funds:
+    print("⚠️ 发现以下未分类基金:\n")
+    print(f"{'外部代码':<15} {'资产小类':<25} {'基金名称'}")
+    print("-" * 80)
+    for fund in unclassified_funds:
+        print(f"{fund['externalCode']:<15} {fund['assetSubClass']:<25} {fund['assetName'][:40]}")
+else:
+    print("✓ 所有含权基金都已分类!")
+
+# 验证新添加的3个基金
+print("\n" + "=" * 80)
+print("新增基金验证")
+print("=" * 80)
+
+new_funds_to_check = [
+    ('011690.OF', '招商品质发现混合型证券投资基金'),
+    ('090007.OF', '大成策略回报混合型证券投资基金'),
+    ('010387.OF', '易方达医药生物股票型证券投资基金')
+]
+
+for code, name in new_funds_to_check:
+    if code in fund_classifications:
+        fund_info = fund_classifications[code]
+        # 检查是否在持仓表中
+        in_holdings = len(df[df['外部代码'].astype(str).str.strip() == code]) > 0
+
+        print(f"\n✓ {code}")
+        print(f"  名称: {name}")
+        print(f"  资产类型: {fund_info['assetClass']}")
+        print(f"  风格: {fund_info['style']}")
+        print(f"  权益仓位: {fund_info['equityPosition']}%")
+        print(f"  在持仓表中: {'是' if in_holdings else '否'}")
+    else:
+        print(f"\n✗ {code} - 未在数据库中找到")
+
+print("\n" + "=" * 80)
+print("数据库键值类型统计")
+print("=" * 80)
+
+code_pattern_keys = 0  # 符合代码格式的键（如 110008.OF, 80PF210158）
+name_keys = 0  # 使用完整名称的键
+
+for key in fund_classifications.keys():
+    # 简单判断：包含.OF, .SH, .SZ或以数字+字母开头的视为代码
+    if ('.' in key and (key.endswith('.OF') or key.endswith('.SH') or key.endswith('.SZ'))) or \
+       (key[:2].isdigit() and key[2:4].isalpha()):
+        code_pattern_keys += 1
+    else:
+        name_keys += 1
+
+print(f"\n使用代码作为键: {code_pattern_keys} 个")
+print(f"使用名称作为键: {name_keys} 个")
+print(f"总计: {code_pattern_keys + name_keys} 个\n")
+
+if name_keys > 0:
+    print("使用名称作为键的基金列表:")
+    print("-" * 80)
+    for key in fund_classifications.keys():
+        if not (('.' in key and (key.endswith('.OF') or key.endswith('.SH') or key.endswith('.SZ'))) or \
+                (len(key) > 2 and key[:2].isdigit() and key[2:4].isalpha())):
+            fund_info = fund_classifications[key]
+            print(f"  - {key}")
+            print(f"    类型: {fund_info['assetClass']}, 风格: {fund_info['style']}, 权益仓位: {fund_info['equityPosition']}%")
+
+print("\n" + "=" * 80)
+print("测试完成")
+print("=" * 80)

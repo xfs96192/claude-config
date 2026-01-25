@@ -1,0 +1,789 @@
+/* ============================================
+   主应用逻辑
+   ============================================ */
+
+class App {
+    constructor() {
+        this.currentNotebookId = null;
+        this.currentSectionId = null;
+        this.currentPageId = null;
+        this.notebooks = [];
+        this.sections = [];
+        this.pages = [];
+    }
+
+    // 初始化应用
+    async init() {
+        try {
+            // 初始化数据库
+            await db.init();
+            console.log('Database initialized');
+
+            // 初始化默认数据
+            await db.initializeDefaultData();
+
+            // 初始化编辑器
+            editor.init();
+            console.log('Editor initialized');
+
+            // 加载数据
+            await this.loadNotebooks();
+
+            // 设置事件监听器
+            this.setupEventListeners();
+
+            // 恢复上次的状态
+            this.restoreState();
+
+            console.log('Application initialized successfully');
+            showNotification('欢迎使用投资经理记事本', 'success');
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            alert('应用初始化失败: ' + error.message);
+        }
+    }
+
+    // 加载笔记本
+    async loadNotebooks() {
+        try {
+            this.notebooks = await db.getNotebooks();
+            this.renderNotebooks();
+        } catch (error) {
+            console.error('Error loading notebooks:', error);
+            showNotification('加载笔记本失败', 'error');
+        }
+    }
+
+    // 渲染笔记本树形结构
+    renderNotebooks() {
+        const container = document.getElementById('notebook-tree');
+        container.innerHTML = '';
+
+        this.notebooks.forEach(notebook => {
+            const notebookEl = this.createNotebookElement(notebook);
+            container.appendChild(notebookEl);
+        });
+    }
+
+    // 创建笔记本元素
+    createNotebookElement(notebook) {
+        const wrapper = document.createElement('div');
+
+        // 笔记本项
+        const item = document.createElement('div');
+        item.className = 'notebook-item';
+        item.dataset.notebookId = notebook.id;
+
+        const expandIcon = document.createElement('span');
+        expandIcon.className = 'expand-icon';
+        expandIcon.textContent = '▶';
+
+        const icon = document.createElement('span');
+        icon.className = 'notebook-icon';
+        icon.textContent = notebook.icon || '📚';
+        icon.style.color = notebook.color || '#2d5a7b';
+
+        const name = document.createElement('span');
+        name.className = 'notebook-name';
+        name.textContent = notebook.name;
+
+        item.appendChild(expandIcon);
+        item.appendChild(icon);
+        item.appendChild(name);
+
+        // 点击展开/收起
+        item.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await this.toggleNotebook(notebook.id, wrapper);
+        });
+
+        wrapper.appendChild(item);
+
+        // 分区容器（初始隐藏）
+        const sectionsContainer = document.createElement('div');
+        sectionsContainer.className = 'sections-container';
+        sectionsContainer.style.display = 'none';
+        wrapper.appendChild(sectionsContainer);
+
+        return wrapper;
+    }
+
+    // 展开/收起笔记本
+    async toggleNotebook(notebookId, wrapperEl) {
+        const item = wrapperEl.querySelector('.notebook-item');
+        const expandIcon = item.querySelector('.expand-icon');
+        const sectionsContainer = wrapperEl.querySelector('.sections-container');
+
+        if (sectionsContainer.style.display === 'none') {
+            // 展开
+            expandIcon.classList.add('expanded');
+            sectionsContainer.style.display = 'block';
+
+            // 加载分区
+            await this.loadSectionsForNotebook(notebookId, sectionsContainer);
+
+            // 设置为当前笔记本
+            this.currentNotebookId = notebookId;
+
+            // 高亮当前笔记本
+            document.querySelectorAll('.notebook-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            item.classList.add('active');
+
+        } else {
+            // 收起
+            expandIcon.classList.remove('expanded');
+            sectionsContainer.style.display = 'none';
+        }
+    }
+
+    // 加载笔记本的分区
+    async loadSectionsForNotebook(notebookId, container) {
+        try {
+            const sections = await db.getSectionsByNotebook(notebookId);
+            container.innerHTML = '';
+
+            if (sections.length === 0) {
+                const empty = document.createElement('div');
+                empty.style.cssText = 'padding: 8px 16px; color: #9ca3af; font-size: 12px; margin-left: 24px;';
+                empty.textContent = '暂无分区';
+                container.appendChild(empty);
+
+                // 添加新建分区按钮
+                const addBtn = document.createElement('div');
+                addBtn.style.cssText = 'padding: 8px 16px; color: #2d5a7b; font-size: 12px; margin-left: 24px; cursor: pointer;';
+                addBtn.textContent = '+ 新建分区';
+                addBtn.addEventListener('click', () => this.showNewSectionDialog(notebookId));
+                container.appendChild(addBtn);
+                return;
+            }
+
+            sections.forEach(section => {
+                const sectionEl = this.createSectionElement(section);
+                container.appendChild(sectionEl);
+            });
+
+        } catch (error) {
+            console.error('Error loading sections:', error);
+        }
+    }
+
+    // 创建分区元素
+    createSectionElement(section) {
+        const item = document.createElement('div');
+        item.className = 'section-item';
+        item.dataset.sectionId = section.id;
+
+        const icon = document.createElement('span');
+        icon.className = 'section-icon';
+        icon.textContent = section.icon || '📁';
+
+        const name = document.createElement('span');
+        name.className = 'section-name';
+        name.textContent = section.name;
+
+        item.appendChild(icon);
+        item.appendChild(name);
+
+        // 点击加载页面列表
+        item.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await this.selectSection(section.id);
+        });
+
+        return item;
+    }
+
+    // 选择分区
+    async selectSection(sectionId) {
+        this.currentSectionId = sectionId;
+
+        // 高亮当前分区
+        document.querySelectorAll('.section-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        const sectionEl = document.querySelector(`[data-section-id="${sectionId}"]`);
+        if (sectionEl) {
+            sectionEl.classList.add('active');
+        }
+
+        // 加载页面列表
+        await this.loadPagesForSection(sectionId);
+
+        // 保存状态
+        this.saveState();
+    }
+
+    // 加载分区的页面
+    async loadPagesForSection(sectionId) {
+        try {
+            const section = await db.get('sections', sectionId);
+            const pages = await db.getPagesBySection(sectionId);
+
+            this.pages = pages;
+
+            // 更新标题
+            document.getElementById('current-section-title').textContent = section.name;
+
+            // 渲染页面列表
+            this.renderPageList(pages);
+
+        } catch (error) {
+            console.error('Error loading pages:', error);
+            showNotification('加载页面失败', 'error');
+        }
+    }
+
+    // 渲染页面列表
+    renderPageList(pages) {
+        const container = document.getElementById('page-list');
+        container.innerHTML = '';
+
+        if (pages.length === 0) {
+            container.innerHTML = '<p style="color: #9ca3af; padding: 20px; text-align: center;">暂无页面<br><br>点击上方 ➕ 按钮创建新页面</p>';
+            return;
+        }
+
+        pages.forEach(page => {
+            const item = this.createPageListItem(page);
+            container.appendChild(item);
+        });
+    }
+
+    // 创建页面列表项
+    createPageListItem(page) {
+        const item = document.createElement('div');
+        item.className = 'page-item';
+        item.dataset.pageId = page.id;
+
+        if (page.isPinned) {
+            item.innerHTML = '<span style="margin-right: 4px;">📌</span>';
+        }
+
+        const title = document.createElement('div');
+        title.className = 'page-item-title';
+        title.textContent = page.title || '无标题页面';
+
+        const meta = document.createElement('div');
+        meta.className = 'page-item-meta';
+        meta.innerHTML = `
+            <span>${formatRelativeTime(page.updatedAt)}</span>
+            <span>${this.getPageTypeLabel(page.type)}</span>
+        `;
+
+        item.appendChild(title);
+        item.appendChild(meta);
+
+        // 标签
+        if (page.tags && page.tags.length > 0) {
+            const tagsContainer = document.createElement('div');
+            tagsContainer.className = 'page-item-tags';
+
+            page.tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+
+            item.appendChild(tagsContainer);
+        }
+
+        // 点击加载页面
+        item.addEventListener('click', () => {
+            this.loadPage(page.id);
+        });
+
+        return item;
+    }
+
+    // 更新页面列表项（当标题改变时）
+    updatePageListItem(pageId, newTitle) {
+        const item = document.querySelector(`[data-page-id="${pageId}"]`);
+        if (item) {
+            const titleEl = item.querySelector('.page-item-title');
+            if (titleEl) {
+                titleEl.textContent = newTitle || '无标题页面';
+            }
+        }
+    }
+
+    // 获取页面类型标签
+    getPageTypeLabel(type) {
+        const labels = {
+            'note': '笔记',
+            'trade-log': '交易日志',
+            'todo': '待办'
+        };
+        return labels[type] || '笔记';
+    }
+
+    // 加载页面到编辑器
+    async loadPage(pageId) {
+        this.currentPageId = pageId;
+
+        // 高亮当前页面
+        document.querySelectorAll('.page-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        const pageEl = document.querySelector(`[data-page-id="${pageId}"]`);
+        if (pageEl) {
+            pageEl.classList.add('active');
+        }
+
+        // 加载到编辑器
+        await editor.loadPage(pageId);
+
+        // 保存状态
+        this.saveState();
+    }
+
+    // 设置事件监听器
+    setupEventListeners() {
+        // 顶部工具栏按钮
+        document.getElementById('btn-new-page').addEventListener('click', () => {
+            this.createNewPage();
+        });
+
+        document.getElementById('btn-new-template').addEventListener('click', () => {
+            templateManager.showTemplateDialog();
+        });
+
+        document.getElementById('btn-todos').addEventListener('click', () => {
+            this.showAllTodos();
+        });
+
+        document.getElementById('btn-export').addEventListener('click', () => {
+            exportManager.showExportDialog();
+        });
+
+        // 搜索框
+        const searchInput = document.getElementById('global-search');
+        searchInput.addEventListener('input', debounce((e) => {
+            const query = e.target.value;
+            if (query.trim()) {
+                searchManager.search(query);
+            } else {
+                searchManager.clearResults();
+            }
+        }, 300));
+
+        // 页面列表新建按钮
+        document.getElementById('btn-add-page').addEventListener('click', () => {
+            this.createNewPage();
+        });
+
+        // 笔记本新建按钮
+        document.getElementById('btn-add-notebook').addEventListener('click', () => {
+            this.showNewNotebookDialog();
+        });
+
+        // 页面标题输入
+        document.getElementById('page-title').addEventListener('input', debounce(() => {
+            editor.scheduleSave();
+        }, 500));
+
+        // 页面类型选择
+        document.getElementById('info-type').addEventListener('change', () => {
+            editor.scheduleSave();
+        });
+
+        // 标签输入
+        document.getElementById('tag-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const tag = e.target.value.trim();
+                if (tag) {
+                    editor.addTag(tag);
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // 附件上传
+        document.getElementById('btn-add-attachment').addEventListener('click', () => {
+            document.getElementById('attachment-file-input').click();
+        });
+
+        document.getElementById('attachment-file-input').addEventListener('change', async (e) => {
+            await this.handleAttachmentUpload(e.target.files);
+            e.target.value = ''; // 重置input
+        });
+
+        // 待办输入
+        document.getElementById('todo-input').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const content = e.target.value.trim();
+                if (content) {
+                    await this.createTodo(content);
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // 右侧面板标签切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.switchTab(btn.dataset.tab);
+            });
+        });
+
+        // 筛选和排序
+        document.getElementById('filter-type').addEventListener('change', () => {
+            this.applyFilters();
+        });
+
+        document.getElementById('filter-sort').addEventListener('change', () => {
+            this.applyFilters();
+        });
+
+        // 模态框相关
+        this.setupModalListeners();
+    }
+
+    // 设置模态框监听器
+    setupModalListeners() {
+        // 新建笔记本
+        document.getElementById('btn-save-notebook').addEventListener('click', async () => {
+            await this.createNotebook();
+        });
+
+        document.getElementById('btn-cancel-notebook').addEventListener('click', () => {
+            this.closeModal('modal-new-notebook');
+        });
+
+        // 新建分区
+        document.getElementById('btn-save-section').addEventListener('click', async () => {
+            await this.createSection();
+        });
+
+        document.getElementById('btn-cancel-section').addEventListener('click', () => {
+            this.closeModal('modal-new-section');
+        });
+
+        // 从模板创建
+        document.getElementById('select-template').addEventListener('change', (e) => {
+            templateManager.onTemplateSelect(e.target.value);
+        });
+
+        document.getElementById('btn-create-from-template').addEventListener('click', async () => {
+            const page = await templateManager.createFromTemplate();
+            if (page) {
+                templateManager.closeDialog();
+                await this.loadPagesForSection(this.currentSectionId);
+                await this.loadPage(page.id);
+            }
+        });
+
+        document.getElementById('btn-cancel-template').addEventListener('click', () => {
+            templateManager.closeDialog();
+        });
+
+        // 导出
+        document.getElementById('btn-do-export').addEventListener('click', async () => {
+            const scope = document.getElementById('export-scope').value;
+            const format = document.getElementById('export-format').value;
+            await exportManager.doExport(scope, format);
+            exportManager.closeDialog();
+        });
+
+        document.getElementById('btn-cancel-export').addEventListener('click', () => {
+            exportManager.closeDialog();
+        });
+
+        // 关闭按钮
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // 点击背景关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    }
+
+    // 切换标签页
+    switchTab(tabName) {
+        // 更新按钮状态
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.tab === tabName) {
+                btn.classList.add('active');
+            }
+        });
+
+        // 更新内容
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    // 显示新建笔记本对话框
+    showNewNotebookDialog() {
+        const modal = document.getElementById('modal-new-notebook');
+        document.getElementById('input-notebook-name').value = '';
+        document.getElementById('input-notebook-type').value = 'product-group';
+        document.getElementById('input-notebook-icon').value = '📚';
+        document.getElementById('input-notebook-color').value = '#2d5a7b';
+        modal.classList.add('active');
+    }
+
+    // 创建笔记本
+    async createNotebook() {
+        const name = document.getElementById('input-notebook-name').value.trim();
+        const type = document.getElementById('input-notebook-type').value;
+        const icon = document.getElementById('input-notebook-icon').value || '📚';
+        const color = document.getElementById('input-notebook-color').value;
+
+        if (!name) {
+            showNotification('请输入笔记本名称', 'error');
+            return;
+        }
+
+        try {
+            await db.createNotebook(name, type, icon, color);
+            await this.loadNotebooks();
+            this.closeModal('modal-new-notebook');
+            showNotification('笔记本已创建', 'success');
+        } catch (error) {
+            console.error('Error creating notebook:', error);
+            showNotification('创建笔记本失败', 'error');
+        }
+    }
+
+    // 显示新建分区对话框
+    showNewSectionDialog(notebookId) {
+        if (!notebookId) {
+            showNotification('请先选择一个笔记本', 'warning');
+            return;
+        }
+
+        this.currentNotebookId = notebookId;
+        const modal = document.getElementById('modal-new-section');
+        document.getElementById('input-section-name').value = '';
+        document.getElementById('input-section-icon').value = '📁';
+        modal.classList.add('active');
+    }
+
+    // 创建分区
+    async createSection() {
+        if (!this.currentNotebookId) {
+            showNotification('请先选择一个笔记本', 'warning');
+            return;
+        }
+
+        const name = document.getElementById('input-section-name').value.trim();
+        const icon = document.getElementById('input-section-icon').value || '📁';
+
+        if (!name) {
+            showNotification('请输入分区名称', 'error');
+            return;
+        }
+
+        try {
+            await db.createSection(this.currentNotebookId, name, icon);
+
+            // 重新加载当前笔记本的分区
+            const wrapper = document.querySelector(`[data-notebook-id="${this.currentNotebookId}"]`).parentElement;
+            const sectionsContainer = wrapper.querySelector('.sections-container');
+            await this.loadSectionsForNotebook(this.currentNotebookId, sectionsContainer);
+
+            this.closeModal('modal-new-section');
+            showNotification('分区已创建', 'success');
+        } catch (error) {
+            console.error('Error creating section:', error);
+            showNotification('创建分区失败', 'error');
+        }
+    }
+
+    // 创建新页面
+    async createNewPage() {
+        if (!this.currentSectionId) {
+            showNotification('请先选择一个分区', 'warning');
+            return;
+        }
+
+        try {
+            const page = await db.createPage(this.currentSectionId);
+            await this.loadPagesForSection(this.currentSectionId);
+            await this.loadPage(page.id);
+            showNotification('页面已创建', 'success');
+
+            // 聚焦到标题输入框
+            document.getElementById('page-title').focus();
+        } catch (error) {
+            console.error('Error creating page:', error);
+            showNotification('创建页面失败', 'error');
+        }
+    }
+
+    // 处理附件上传
+    async handleAttachmentUpload(files) {
+        if (!this.currentPageId) {
+            showNotification('请先选择一个页面', 'warning');
+            return;
+        }
+
+        if (!files || files.length === 0) return;
+
+        try {
+            for (const file of files) {
+                // 检查文件大小（限制5MB）
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification(`文件 ${file.name} 超过5MB限制`, 'error');
+                    continue;
+                }
+
+                const base64 = await readFileAsBase64(file);
+                await db.addAttachment(
+                    this.currentPageId,
+                    file.name,
+                    file.type,
+                    file.size,
+                    base64
+                );
+            }
+
+            await editor.loadAttachments(this.currentPageId);
+            showNotification('附件已上传', 'success');
+        } catch (error) {
+            console.error('Error uploading attachments:', error);
+            showNotification('上传附件失败', 'error');
+        }
+    }
+
+    // 创建待办
+    async createTodo(content) {
+        if (!this.currentPageId) {
+            showNotification('请先选择一个页面', 'warning');
+            return;
+        }
+
+        try {
+            await db.createTodo(content, this.currentPageId);
+            await editor.loadTodos(this.currentPageId);
+            showNotification('待办已添加', 'success');
+        } catch (error) {
+            console.error('Error creating todo:', error);
+            showNotification('添加待办失败', 'error');
+        }
+    }
+
+    // 显示所有待办
+    async showAllTodos() {
+        try {
+            const todos = await db.getTodos();
+            // TODO: 显示全局待办列表（可以在模态框中显示）
+            console.log('All todos:', todos);
+            showNotification('功能开发中', 'info');
+        } catch (error) {
+            console.error('Error loading todos:', error);
+        }
+    }
+
+    // 应用筛选和排序
+    applyFilters() {
+        const type = document.getElementById('filter-type').value;
+        const sort = document.getElementById('filter-sort').value;
+
+        let filtered = [...this.pages];
+
+        // 筛选类型
+        if (type !== 'all') {
+            filtered = filtered.filter(page => page.type === type);
+        }
+
+        // 排序
+        switch (sort) {
+            case 'updated-desc':
+                filtered.sort((a, b) => b.updatedAt - a.updatedAt);
+                break;
+            case 'created-desc':
+                filtered.sort((a, b) => b.createdAt - a.createdAt);
+                break;
+            case 'title-asc':
+                filtered.sort((a, b) => a.title.localeCompare(b.title));
+                break;
+        }
+
+        this.renderPageList(filtered);
+    }
+
+    // 关闭模态框
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('active');
+    }
+
+    // 保存应用状态
+    saveState() {
+        LocalStorage.set('app-state', {
+            currentNotebookId: this.currentNotebookId,
+            currentSectionId: this.currentSectionId,
+            currentPageId: this.currentPageId
+        });
+    }
+
+    // 恢复应用状态
+    async restoreState() {
+        const state = LocalStorage.get('app-state');
+        if (!state) {
+            // 默认展开第一个笔记本
+            if (this.notebooks.length > 0) {
+                const firstNotebook = this.notebooks[0];
+                const wrapper = document.querySelector(`[data-notebook-id="${firstNotebook.id}"]`).parentElement;
+                await this.toggleNotebook(firstNotebook.id, wrapper);
+            }
+            return;
+        }
+
+        // 恢复笔记本
+        if (state.currentNotebookId) {
+            const wrapper = document.querySelector(`[data-notebook-id="${state.currentNotebookId}"]`)?.parentElement;
+            if (wrapper) {
+                await this.toggleNotebook(state.currentNotebookId, wrapper);
+            }
+        }
+
+        // 恢复分区
+        if (state.currentSectionId) {
+            await this.selectSection(state.currentSectionId);
+        }
+
+        // 恢复页面
+        if (state.currentPageId) {
+            await this.loadPage(state.currentPageId);
+        }
+    }
+}
+
+// 应用启动
+window.app = new App();
+
+// 当DOM加载完成后初始化应用
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await window.app.init();
+    } catch (error) {
+        console.error('Failed to initialize app:', error);
+        alert('应用初始化失败，请刷新页面重试。');
+    }
+});
+
+// 在窗口卸载前保存编辑器内容
+window.addEventListener('beforeunload', () => {
+    if (editor.currentPageId) {
+        editor.save();
+    }
+});

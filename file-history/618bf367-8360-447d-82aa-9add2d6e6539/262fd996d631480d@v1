@@ -1,0 +1,169 @@
+/* ============================================
+   搜索功能
+   ============================================ */
+
+class SearchManager {
+    constructor() {
+        this.searchResults = [];
+        this.currentQuery = '';
+    }
+
+    // 执行搜索
+    async search(query) {
+        if (!query || query.trim().length === 0) {
+            this.clearResults();
+            return;
+        }
+
+        this.currentQuery = query.trim();
+
+        try {
+            const results = await db.searchPages(this.currentQuery);
+            this.searchResults = results;
+            this.displayResults(results);
+
+            // 更新状态栏
+            document.getElementById('status-left').textContent =
+                `找到 ${results.length} 个结果`;
+
+        } catch (error) {
+            console.error('Search error:', error);
+            showNotification('搜索失败', 'error');
+        }
+    }
+
+    // 显示搜索结果
+    displayResults(results) {
+        const pageList = document.getElementById('page-list');
+        const currentSectionTitle = document.getElementById('current-section-title');
+
+        // 更新标题
+        currentSectionTitle.textContent = `搜索结果: "${this.currentQuery}"`;
+
+        // 清空列表
+        pageList.innerHTML = '';
+
+        if (results.length === 0) {
+            pageList.innerHTML = '<p style="color: #9ca3af; padding: 20px; text-align: center;">未找到匹配的页面</p>';
+            return;
+        }
+
+        // 显示结果
+        results.forEach(page => {
+            const item = this.createSearchResultItem(page);
+            pageList.appendChild(item);
+        });
+    }
+
+    // 创建搜索结果项
+    createSearchResultItem(page) {
+        const item = document.createElement('div');
+        item.className = 'page-item';
+        item.dataset.pageId = page.id;
+
+        // 标题（高亮匹配）
+        const title = document.createElement('div');
+        title.className = 'page-item-title';
+        title.innerHTML = highlightText(page.title, this.currentQuery);
+
+        // 元数据
+        const meta = document.createElement('div');
+        meta.className = 'page-item-meta';
+        meta.innerHTML = `
+            <span>${formatRelativeTime(page.updatedAt)}</span>
+            <span>${this.getPageTypeLabel(page.type)}</span>
+        `;
+
+        // 内容预览
+        const preview = this.getContentPreview(page, this.currentQuery);
+        if (preview) {
+            const previewEl = document.createElement('div');
+            previewEl.style.cssText = 'font-size: 12px; color: #6b7280; margin-top: 8px; line-height: 1.4;';
+            previewEl.innerHTML = preview;
+            item.appendChild(title);
+            item.appendChild(previewEl);
+            item.appendChild(meta);
+        } else {
+            item.appendChild(title);
+            item.appendChild(meta);
+        }
+
+        // 标签
+        if (page.tags && page.tags.length > 0) {
+            const tagsContainer = document.createElement('div');
+            tagsContainer.className = 'page-item-tags';
+
+            page.tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+
+            item.appendChild(tagsContainer);
+        }
+
+        // 点击事件
+        item.addEventListener('click', () => {
+            window.app.loadPage(page.id);
+        });
+
+        return item;
+    }
+
+    // 获取内容预览
+    getContentPreview(page, query) {
+        if (!page.content || !page.content.ops) return '';
+
+        // 转换为纯文本
+        let text = page.content.ops
+            .map(op => typeof op.insert === 'string' ? op.insert : '')
+            .join('');
+
+        // 查找匹配位置
+        const lowerText = text.toLowerCase();
+        const lowerQuery = query.toLowerCase();
+        const index = lowerText.indexOf(lowerQuery);
+
+        if (index === -1) return '';
+
+        // 提取上下文 (前后50个字符)
+        const start = Math.max(0, index - 50);
+        const end = Math.min(text.length, index + query.length + 50);
+
+        let preview = text.substring(start, end);
+
+        // 添加省略号
+        if (start > 0) preview = '...' + preview;
+        if (end < text.length) preview = preview + '...';
+
+        // 高亮匹配
+        return highlightText(preview, query);
+    }
+
+    // 获取页面类型标签
+    getPageTypeLabel(type) {
+        const labels = {
+            'note': '笔记',
+            'trade-log': '交易日志',
+            'todo': '待办'
+        };
+        return labels[type] || '笔记';
+    }
+
+    // 清空搜索结果
+    clearResults() {
+        this.searchResults = [];
+        this.currentQuery = '';
+
+        // 恢复显示当前分区的页面
+        if (window.app && window.app.currentSectionId) {
+            window.app.loadPagesForSection(window.app.currentSectionId);
+        }
+
+        document.getElementById('status-left').textContent = '就绪';
+    }
+}
+
+// 创建全局搜索管理器实例
+const searchManager = new SearchManager();

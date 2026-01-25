@@ -1,0 +1,166 @@
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
+# 2024年底持仓数据
+data_2024 = [
+    ['直投', '优先股投资-无强制派息条款', '交行优1', 0.53],
+    ['直投', '优先股投资-无强制派息条款', '农行优2', 0.48],
+    ['直投', '优先股投资-有强制派息条款', '五资优3', 0.63],
+    ['直投', '优先股投资-有强制派息条款', '五资优4', 1.34],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰10号资产管理产品', 0.43],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰13号资产管理产品', 0.80],
+    ['直投', '定向增发结构化优先级投资-不带回购(差补)', '安联万泰3号资产管理产品', 0.41],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰5号资产管理产品', 1.54],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰6号资产管理产品', 0.77],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '国寿资产-乾元优势甄选2366资产管理产品', 1.98],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '国寿资产-乾元优势甄选2371资产管理产品', 0.86],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '国寿资产-乾元优势甄选2372资产管理产品', 0.32],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹第四期员工持股计划集合资金信托计划', 0.92],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹控股股东第四期2号员工持股信托计划', 1.58],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹控股股东第四期3号员工持股信托计划', 1.23],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹控股股东第四期员工持股信托计划(第一期)', 1.90],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·恒逸石化控股股东及其附属企业员工持股集合资金信托计划', 0.52],
+    ['直投', '大股东增持优先级投资-不带回购(差补)', '陕国投·金玉157号信托计划', 0.36],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·金玉193号证券投资集合资金信托计划', 0.45],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·金玉255号证券投资集合资金信托计划', 0.10],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '韦尔股份2023年员工持股计划优先级投资业务', 0.35],
+    ['专户', '委外混合类资产', '华润信托-聚优1号', 15.83],
+]
+
+# 2025年底持仓数据
+data_2025 = [
+    ['直投', '优先股投资-无强制派息条款', '交行优1', 0.29],
+    ['直投', '优先股投资-无强制派息条款', '农行优2', 0.24],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰10号资产管理产品', 0.45],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰13号资产管理产品', 0.84],
+    ['直投', '定向增发结构化优先级投资-不带回购(差补)', '安联万泰3号资产管理产品', 0.43],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰5号资产管理产品', 1.27],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '安联万泰6号资产管理产品', 0.79],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '厦门信托-致远七号结构化证券投资集合资金信托计划', 0.20],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹第二期员工持股集合资金信托计划', 3.92],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹第四期员工持股计划集合资金信托计划', 0.46],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹控股股东第四期2号员工持股信托计划', 1.41],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹控股股东第四期3号员工持股信托计划', 1.23],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·东方盛虹控股股东第四期员工持股信托计划(第一期)', 1.19],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·火山15号证券投资集合资金信托计划', 3.20],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·火山18号证券投资集合资金信托计划', 0.15],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·金玉255号证券投资集合资金信托计划', 0.10],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·金玉262号证券投资集合资金信托计划', 0.33],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·金玉322号证券投资集合资金信托计划', 0.20],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·如愿基金国风证券投资集合资金信托计划', 0.08],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·如愿基金唐风证券投资集合资金信托计划', 0.10],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·圣元环保第一期员工持股集合资金信托计划', 0.15],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·泰恩康2025年员工持股集合资金信托计划', 0.53],
+    ['直投', '员工持股计划优先级投资-不带回购(差补)', '陕国投·通威股份2022-2024年员工持股集合资金信托计划', 4.49],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '陕国投·旭辉创值2号证券投资集合资金信托计划', 0.10],
+    ['直投', '二级市场结构化证券优先级投资-不带回购(差补)', '云信瑞鑫5号集合资金信托计划', 0.70],
+    ['专户', '委外混合类资产', '华润信托-聚优1号', 9.07],
+]
+
+df_2024 = pd.DataFrame(data_2024, columns=['资产大类', '资产小类', '资产名称', '市值亿_2024'])
+df_2025 = pd.DataFrame(data_2025, columns=['资产大类', '资产小类', '资产名称', '市值亿_2025'])
+
+all_assets = pd.concat([
+    df_2024[['资产大类', '资产小类', '资产名称']],
+    df_2025[['资产大类', '资产小类', '资产名称']]
+]).drop_duplicates(subset=['资产名称']).reset_index(drop=True)
+
+df_merged = all_assets.copy()
+df_merged = df_merged.merge(df_2025[['资产名称', '市值亿_2025']], on='资产名称', how='left')
+df_merged = df_merged.merge(df_2024[['资产名称', '市值亿_2024']], on='资产名称', how='left')
+
+df_merged['市值亿_2024'] = df_merged['市值亿_2024'].fillna(0)
+df_merged['市值亿_2025'] = df_merged['市值亿_2025'].fillna(0)
+
+df_merged = df_merged.sort_values(['资产大类', '资产小类', '资产名称']).reset_index(drop=True)
+
+wb = Workbook()
+ws = wb.active
+ws.title = '持仓变化对比'
+
+header_font = Font(bold=True, size=11)
+header_fill = PatternFill(start_color='D3D3D3', end_color='D3D3D3', fill_type='solid')
+header_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+thin_border = Border(
+    left=Side(style='thin'),
+    right=Side(style='thin'),
+    top=Side(style='thin'),
+    bottom=Side(style='thin')
+)
+
+headers = ['资产大类', '资产小类', '资产名称', '2025年底市值(亿)', '2024年底市值(亿)', '变化(亿)', '持仓变化说明']
+for col_idx, header in enumerate(headers, 1):
+    cell = ws.cell(row=1, column=col_idx, value=header)
+    cell.font = header_font
+    cell.fill = header_fill
+    cell.alignment = header_align
+    cell.border = thin_border
+
+row_idx = 2
+for idx, row in df_merged.iterrows():
+    ws.cell(row=row_idx, column=1, value=row['资产大类']).border = thin_border
+    ws.cell(row=row_idx, column=2, value=row['资产小类']).border = thin_border
+    ws.cell(row=row_idx, column=3, value=row['资产名称']).border = thin_border
+
+    val_2025 = row['市值亿_2025']
+    val_2024 = row['市值亿_2024']
+
+    cell_2025 = ws.cell(row=row_idx, column=4, value=val_2025 if val_2025 > 0 else '-')
+    cell_2025.number_format = '0.00'
+    cell_2025.border = thin_border
+
+    cell_2024 = ws.cell(row=row_idx, column=5, value=val_2024 if val_2024 > 0 else '-')
+    cell_2024.number_format = '0.00'
+    cell_2024.border = thin_border
+
+    change_cell = ws.cell(row=row_idx, column=6)
+    change_cell.value = f'=D{row_idx}-E{row_idx}'
+    change_cell.number_format = '0.00;-0.00;-'
+    change_cell.border = thin_border
+
+    desc_cell = ws.cell(row=row_idx, column=7)
+    desc_cell.value = f'=IF(D{row_idx}=0,"减持",IF(E{row_idx}=0,"新增",IF(F{row_idx}>0,"增持",IF(F{row_idx}<0,"减持","持平"))))'
+    desc_cell.border = thin_border
+
+    row_idx += 1
+
+total_row = row_idx
+ws.cell(row=total_row, column=1, value='合计').font = Font(bold=True)
+ws.cell(row=total_row, column=1).border = thin_border
+ws.cell(row=total_row, column=2).border = thin_border
+ws.cell(row=total_row, column=3).border = thin_border
+
+total_2025 = ws.cell(row=total_row, column=4)
+total_2025.value = f'=SUM(D2:D{total_row-1})'
+total_2025.number_format = '0.00'
+total_2025.font = Font(bold=True)
+total_2025.border = thin_border
+
+total_2024 = ws.cell(row=total_row, column=5)
+total_2024.value = f'=SUM(E2:E{total_row-1})'
+total_2024.number_format = '0.00'
+total_2024.font = Font(bold=True)
+total_2024.border = thin_border
+
+total_change = ws.cell(row=total_row, column=6)
+total_change.value = f'=F{total_row-1}+D{total_row}-E{total_row}'
+total_change.number_format = '0.00;-0.00;-'
+total_change.font = Font(bold=True)
+total_change.border = thin_border
+
+ws.cell(row=total_row, column=7).border = thin_border
+
+ws.column_dimensions['A'].width = 12
+ws.column_dimensions['B'].width = 35
+ws.column_dimensions['C'].width = 50
+ws.column_dimensions['D'].width = 18
+ws.column_dimensions['E'].width = 18
+ws.column_dimensions['F'].width = 15
+ws.column_dimensions['G'].width = 15
+
+ws.freeze_panes = 'A2'
+
+wb.save('多资产优先股及优先级持仓变化对比.xlsx')
+print('Excel文件已生成: 多资产优先股及优先级持仓变化对比.xlsx')

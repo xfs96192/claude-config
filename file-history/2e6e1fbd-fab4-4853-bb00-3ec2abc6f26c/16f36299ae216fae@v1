@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import pandas as pd
+import json
+import numpy as np
+from datetime import datetime
+import os
+
+# 获取脚本所在目录
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
+class ExcelToJsonConverter:
+    def __init__(self):
+        # 使用 data 目录下的 Excel 文件
+        self.indicators_file = os.path.join(SCRIPT_DIR, "指标值.xlsx")
+        self.trends_file = os.path.join(SCRIPT_DIR, "近1月净值走势.xlsx")
+        
+        # 大类资产映射
+        self.category_mapping = {
+            "权益": "equity",
+            "债券": "bond", 
+            "汇率": "forex",
+            "商品": "commodity"
+        }
+        
+    def load_data(self):
+        """加载Excel数据"""
+        print("正在加载Excel数据...")
+        
+        # 读取指标值数据
+        self.df_indicators = pd.read_excel(self.indicators_file)
+        print(f"指标数据加载完成: {self.df_indicators.shape[0]} 行")
+        
+        # 读取净值走势数据
+        self.df_trends = pd.read_excel(self.trends_file)
+        print(f"走势数据加载完成: {self.df_trends.shape[0]} 行")
+        
+        return True
+    
+    def process_trends_data(self):
+        """处理净值走势数据"""
+        print("正在处理净值走势数据...")
+        
+        # 将第一列作为日期，其他列作为资产价格
+        date_column = self.df_trends.columns[0]  # 'Unnamed: 0'
+        
+        trends_data = {}
+        
+        # 遍历每个资产列（除了日期列）
+        for asset_name in self.df_trends.columns[1:]:
+            if pd.isna(self.df_trends[asset_name]).all():
+                continue
+                
+            price_series = []
+            
+            # 处理每一行的日期和价格数据
+            for idx, row in self.df_trends.iterrows():
+                date_val = row[date_column]
+                price_val = row[asset_name]
+                
+                # 跳过空值
+                if pd.isna(date_val) or pd.isna(price_val):
+                    continue
+                
+                # 处理日期格式
+                if isinstance(date_val, str):
+                    date_str = date_val
+                else:
+                    date_str = date_val.strftime('%Y-%m-%d')
+                
+                # 锁汇成本需要更高精度，其他资产保持2位小数
+                if asset_name == '锁汇成本':
+                    price = round(float(price_val), 6)  # 保留6位小数
+                else:
+                    price = round(float(price_val), 2)
+
+                price_series.append({
+                    'date': date_str,
+                    'price': price
+                })
+            
+            trends_data[asset_name] = price_series
+        
+        return trends_data
+    
+    def process_indicators_data(self):
+        """处理指标数据"""
+        print("正在处理指标数据...")
+        
+        indicators_data = {}
+        
+        # 按子类资产分组
+        for asset_name in self.df_indicators['子类资产'].unique():
+            if pd.isna(asset_name):
+                continue
+                
+            asset_indicators = self.df_indicators[self.df_indicators['子类资产'] == asset_name]
+            
+            indicators_list = []
+            category = None
+            
+            for idx, row in asset_indicators.iterrows():
+                # 获取大类资产分类
+                if pd.notna(row['大类资产']) and category is None:
+                    category = row['大类资产']
+                
+                # 计算vs_median (相对中位数的变化百分比)
+                current = float(row['当前值']) if pd.notna(row['当前值']) else 0
+                median = float(row['历史中位数']) if pd.notna(row['历史中位数']) else 1
+                vs_median = ((current / median) - 1) * 100 if median != 0 else 0
+
+                # 锁汇成本相关指标需要更高精度
+                if asset_name == '锁汇成本' and row['观察指标（近五年）'] == '锁汇成本':
+                    precision = 6  # 保留6位小数
+                else:
+                    precision = 4  # 其他指标保留4位小数
+
+                indicator_data = {
+                    "category": category or "未知",
+                    "subcategory": asset_name,
+                    "indicator": row['观察指标（近五年）'],
+                    "current": round(current, precision),
+                    "max": round(float(row['最大值']) if pd.notna(row['最大值']) else 0, precision),
+                    "min": round(float(row['最小值']) if pd.notna(row['最小值']) else 0, precision),
+                    "median": round(median, precision),
+                    "percentile": round(float(row['当前分位点']) * 100 if pd.notna(row['当前分位点']) else 0, 1),
+                    "vs_median": round(vs_median, 2)
+                }
+                
+                indicators_list.append(indicator_data)
+            
+            indicators_data[asset_name] = {
+                "indicators": indicators_list,
+                "category": category or "未知"
+            }
+        
+        return indicators_data
+    
+    def combine_data(self, indicators_data, trends_data):
+        """合并指标数据和走势数据"""
+        print("正在合并数据...")
+        
+        combined_data = {}
+        
+        # 按大类资产分组
+        categories = {}
+        
+        for asset_name, asset_data in indicators_data.items():
+            category = asset_data["category"]
+            category_en = self.category_mapping.get(category, "other")
+            
+            if category_en not in categories:
+                categories[category_en] = {}
+            
+            # 合并指标数据和走势数据
+            asset_combined = {
+                "indicators": asset_data["indicators"],
+                "price_series": trends_data.get(asset_name, [])
+            }
+            
+            categories[category_en][asset_name] = asset_combined
+        
+        # 添加时间戳
+        combined_data = categories
+        combined_data["last_updated"] = datetime.now().isoformat()
+        
+        return combined_data
+    
+    def save_json(self, data, filename):
+        """保存为JSON文件"""
+        print(f"正在保存数据到 {filename}...")
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        
+        print(f"数据已保存到 {filename}")
+    
+    def convert(self):
+        """执行转换"""
+        try:
+            # 1. 加载数据
+            self.load_data()
+            
+            # 2. 处理走势数据
+            trends_data = self.process_trends_data()
+            
+            # 3. 处理指标数据
+            indicators_data = self.process_indicators_data()
+            
+            # 4. 合并数据
+            combined_data = self.combine_data(indicators_data, trends_data)
+            
+            # 5. 保存JSON文件
+            # 保存到前端资源目录
+            frontend_data_path = "/Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard/src/assets/asset_data.json"
+            self.save_json(combined_data, frontend_data_path)
+            
+            # 也保存一份到根目录
+            root_data_path = "/Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/updated_asset_data.json"
+            self.save_json(combined_data, root_data_path)
+            
+            print("数据转换完成！")
+            print(f"前端数据文件: {frontend_data_path}")
+            print(f"备份数据文件: {root_data_path}")
+            
+            # 显示统计信息
+            total_assets = sum(len(assets) for category, assets in combined_data.items() if category != "last_updated")
+            total_indicators = sum(len(asset_data.get("indicators", [])) 
+                                 for category, assets in combined_data.items() if category != "last_updated"
+                                 for asset_name, asset_data in assets.items())
+            
+            print(f"\n统计信息:")
+            print(f"- 资产类别: {len([k for k in combined_data.keys() if k != 'last_updated'])} 个")
+            print(f"- 资产总数: {total_assets} 个")
+            print(f"- 指标总数: {total_indicators} 个")
+            
+            return True
+            
+        except Exception as e:
+            print(f"转换过程中出现错误: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+def main():
+    """主函数"""
+    converter = ExcelToJsonConverter()
+    success = converter.convert()
+    
+    if success:
+        print("\n✅ Excel数据已成功转换为JSON格式并更新到前端项目中！")
+    else:
+        print("\n❌ 数据转换失败，请检查错误信息。")
+
+if __name__ == "__main__":
+    main()

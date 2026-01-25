@@ -1,0 +1,37 @@
+[
+  {
+    "content": "Query gold price data for different time periods (1 month, 3 months, 1 year)",
+    "status": "completed",
+    "activeForm": "Querying gold price data for different time periods"
+  },
+  {
+    "content": "Calculate average prices for each period",
+    "status": "completed",
+    "activeForm": "Calculating average prices"
+  },
+  {
+    "content": "Calculate price volatility (standard deviation)",
+    "status": "completed",
+    "activeForm": "Calculating price volatility"
+  },
+  {
+    "content": "Find highest and lowest prices for each period",
+    "status": "completed",
+    "activeForm": "Finding highest and lowest prices"
+  },
+  {
+    "content": "Calculate price change percentages",
+    "status": "completed",
+    "activeForm": "Calculating price change percentages"
+  },
+  {
+    "content": "Identify notable patterns or trends",
+    "status": "in_progress",
+    "activeForm": "Analyzing patterns and trends"
+  },
+  {
+    "content": "Present analysis in clear format",
+    "status": "pending",
+    "activeForm": "Formatting analysis results"
+  }
+]

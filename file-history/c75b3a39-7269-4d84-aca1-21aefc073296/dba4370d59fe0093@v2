@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金分类标签管理系统</title>
+    <script src="xlsx.full.min.js"></script>
+    <script src="chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f7;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #5a67d8;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #5a67d8;
+            background: #e6f3ff;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #5a67d8;
+        }
+
+        .fund-settings {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .fund-list {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .fund-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 60px;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .fund-item:hover {
+            background: #f8f9ff;
+        }
+
+        .fund-item input,
+        .fund-item select {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .fund-item input:focus,
+        .fund-item select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .add-fund-form {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .product-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .style-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .style-item:last-child {
+            border-bottom: none;
+        }
+
+        .style-name {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .style-amount {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .style-percentage {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .matrix-section {
+            margin-top: 30px;
+        }
+
+        .matrix-controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-section {
+            flex: 1;
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-section h4 {
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #5a67d8;
+        }
+
+        .filter-btn.secondary {
+            background: #6b7280;
+        }
+
+        .filter-btn.secondary:hover {
+            background: #4b5563;
+        }
+
+        .filter-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-checkbox input {
+            margin: 0;
+        }
+
+        .filter-checkbox label {
+            font-size: 0.9em;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .toggle-section {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .toggle-section h4 {
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #d1d5db;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .matrix-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .matrix-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9em;
+        }
+
+        .matrix-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .matrix-table .product-name {
+            background: #f8f9ff;
+            font-weight: 600;
+            color: #374151;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .matrix-table .amount-cell {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .matrix-table .percentage-cell {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .matrix-table .zero-cell {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error {
+            color: #ef4444;
+            background: #fef2f2;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #16a34a;
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .fund-settings {
+                grid-template-columns: 1fr;
+            }
+
+            .fund-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 未分类基金样式 */
+        .unclassified-funds-container {
+            background: #fff8f0;
+            border: 2px solid #ff6b35;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .unclassified-fund-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 80px;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .unclassified-fund-item:hover {
+            background: #f8f9ff;
+            border-color: #667eea;
+        }
+
+        .unclassified-fund-item .fund-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .unclassified-fund-item .asset-type {
+            background: #ff6b35;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        .unclassified-fund-item select,
+        .unclassified-fund-item input {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .unclassified-fund-item select:focus,
+        .unclassified-fund-item input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .unclassified-fund-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 80px;
+            gap: 15px;
+            padding: 10px 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .batch-add-individual {
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .batch-add-individual:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>基金分类标签管理系统</h1>
+            <p>上传持仓明细表，自动计算各产品不同风格的权益暴露占比</p>
+        </div>
+
+        <!-- 文件上传区域 -->
+        <div class="section">
+            <h2>📁 上传持仓明细表</h2>
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 1.2em; margin-bottom: 15px;">📊 拖拽Excel文件到此处或点击上传</p>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择文件</button>
+                <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
+                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">支持 .xlsx 和 .xls 格式</p>
+            </div>
+            <div class="loading" id="loading">
+                <p>📊 正在处理数据...</p>
+            </div>
+            <div id="uploadResult"></div>
+        </div>
+
+        <!-- 基金分类设置区域 -->
+        <div class="section">
+            <h2>⚙️ 基金分类设置</h2>
+            <div class="fund-settings">
+                <div>
+                    <h3 style="margin-bottom: 15px;">当前基金分类</h3>
+                    <div class="fund-list" id="fundList">
+                        <!-- 基金列表将在这里动态生成 -->
+                    </div>
+                </div>
+                <div class="add-fund-form">
+                    <h3 style="margin-bottom: 15px;">添加新基金</h3>
+                    <div class="form-group">
+                        <label>资产小类</label>
+                        <select id="newAssetClass">
+                            <option value="二级公募债券基金">二级公募债券基金</option>
+                            <option value="公募股票基金">公募股票基金</option>
+                            <option value="公募混合基金">公募混合基金</option>
+                            <option value="其他公募基金">其他公募基金</option>
+                            <option value="委外非现固定收益类资产">委外非现固定收益类资产</option>
+                            <option value="委外混合类资产">委外混合类资产</option>
+                            <option value="委外权益类投资">委外权益类投资</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>资产简称</label>
+                        <input type="text" id="newAssetName" placeholder="输入基金名称" />
+                    </div>
+                    <div class="form-group">
+                        <label>风格</label>
+                        <select id="newStyle">
+                            <option value="均衡">均衡</option>
+                            <option value="科技成长">科技成长</option>
+                            <option value="周期">周期</option>
+                            <option value="红利">红利</option>
+                            <option value="价值">价值</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>权益仓位</label>
+                        <input type="number" id="newEquityPosition" placeholder="输入权益仓位 (0-100)" min="0" max="100" />
+                    </div>
+                    <button class="btn btn-primary" onclick="addFund()">添加基金</button>
+
+                    <!-- 数据管理功能 -->
+                    <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-bottom: 10px; color: #374151;">💾 数据管理</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn" style="background: #0ea5e9; color: white;" onclick="exportFundData()">📤
+                            导出基金分类</button>
+                        <button class="btn" style="background: #8b5cf6; color: white;"
+                            onclick="document.getElementById('importFile').click()">📥 导入基金分类</button>
+                        <button class="btn" style="background: #f59e0b; color: white;"
+                            onclick="updateHtmlWithNewFunds()">🔄 更新HTML代码</button>
+                        <button class="btn" style="background: #ef4444; color: white;" onclick="resetToDefaults()">🔄
+                            恢复默认</button>
+                    </div>
+                    <input type="file" id="importFile" style="display: none;" accept=".json"
+                        onchange="importFundData(event)" />
+                    <p style="font-size: 0.8em; color: #6b7280; margin-top: 10px;">
+                        💡 提示：数据会自动保存到浏览器，下次打开会自动加载
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 基金检测状态提示区域 -->
+        <div class="section" id="fundDetectionStatusSection" style="display: none;">
+            <div id="fundDetectionContent">
+                <!-- 检测状态内容将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 未分类基金提示区域 -->
+        <div class="section" id="unclassifiedFundsSection" style="display: none;">
+            <h2>⚠️ 发现未分类基金</h2>
+            <p style="color: #ff6b35; margin-bottom: 20px;">在持仓表中检测到以下含权益基金尚未分类，请设置其风格和权益仓位后批量添加：</p>
+            <div class="unclassified-funds-container">
+                <div class="unclassified-funds-header">
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <button class="btn btn-primary" onclick="batchAddUnclassifiedFunds()">📥 批量添加所有基金</button>
+                        <button class="btn" style="background: #6b7280; color: white;"
+                            onclick="hideUnclassifiedFunds()">❌ 暂时隐藏</button>
+                    </div>
+                </div>
+                <div class="unclassified-funds-list" id="unclassifiedFundsList">
+                    <!-- 未分类基金列表将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析结果区域 -->
+        <div class="section">
+            <h2>📊 分析结果</h2>
+            <div class="summary-stats" id="summaryStats">
+                <!-- 统计信息将在这里显示 -->
+            </div>
+
+            <!-- 矩阵表格 -->
+            <div class="matrix-section">
+                <div class="matrix-controls">
+                    <div class="filter-section">
+                        <h4>产品筛选</h4>
+                        <div class="filter-controls">
+                            <button class="filter-btn" onclick="selectAllProducts()">全选</button>
+                            <button class="filter-btn secondary" onclick="deselectAllProducts()">全不选</button>
+                        </div>
+                        <div class="filter-checkboxes" id="productFilters">
+                            <!-- 产品筛选复选框将在这里动态生成 -->
+                        </div>
+                    </div>
+                    <div class="toggle-section">
+                        <h4>显示类型</h4>
+                        <div class="toggle-buttons">
+                            <button class="toggle-btn active" onclick="toggleMatrixDisplay('amount')">金额</button>
+                            <button class="toggle-btn" onclick="toggleMatrixDisplay('percentage')">占比</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="matrix-table" id="matrixTable">
+                        <!-- 矩阵表格将在这里动态生成 -->
+                    </table>
+                </div>
+            </div>
+
+            <div class="results-grid" id="resultsGrid">
+                <!-- 分析结果将在这里显示 -->
+            </div>
+        </div>
+
+        <!-- 详细数据表格 -->
+        <div class="section">
+            <h2>📋 详细数据</h2>
+            <div class="table-container">
+                <table class="data-table" id="detailTable">
+                    <thead>
+                        <tr>
+                            <th>产品名称</th>
+                            <th>基金名称</th>
+                            <th>资产小类</th>
+                            <th>风格</th>
+                            <th>权益仓位</th>
+                            <th>持仓金额</th>
+                            <th>权益暴露金额</th>
+                            <th>权益暴露占比</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTableBody">
+                        <!-- 详细数据将在这里显示 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 默认基金分类设置（使用外部代码/资产代码作为键）
+        const defaultFundClassifications = {
+            "002361.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "000385.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "015805.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "016869.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "006466.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "110008.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "002351.OF": {
+                "assetClass": "二级公募债券基金",
+                "style": "均衡",
+                "equityPosition": 20
+            },
+            "013642.OF": {
+                "assetClass": "公募股票基金",
+                "style": "科技成长",
+                "equityPosition": 100
+            },
+            "011426.OF": {
+                "assetClass": "公募股票基金",
+                "style": "周期",
+                "equityPosition": 100
+            },
+            "159338.SZ": {
+                "assetClass": "公募股票基金",
+                "style": "均衡",
+                "equityPosition": 100
+            },
+            "华泰柏瑞红利ETF ( 510880.SH )": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+            "563360.SH": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+            "588000.SH": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+            "159351.SZ": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+            "010003.OF": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+            "景顺长城环保优势（001975.OF）": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+            "520990.SH": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+            "515100.SH": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+            "中证800交易型开放式指数证券投资基金": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+            "宝盈品质甄选混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+            "012125.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+            "018225.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+            "010372.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+            "001300.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+            "001301.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+            "010625.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+            "广发主题领先灵活配置混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+            "华商新趋势优选（166301.OF）": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+            "017043.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+            "260101.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+            "万家宏观择时多策略灵活配置混合型证券投资基金": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+            "015566.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+            "020199.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+            "易方达裕惠回报定期开放式混合型发起式证券投资基金": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+            "011691.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+            "023452.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+            "012778.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+            "006567.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+            "中泰元和价值精选混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+            "513010.SH": { "assetClass": "其他公募基金", "style": "科技成长", "equityPosition": 100 },
+            "009879.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+            "011066.OF": { "assetClass": "普通股票型基金", "style": "价值", "equityPosition": 100 },
+            "016841.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+            "017750.OF": { "assetClass": "偏股混合型基金", "style": "周期", "equityPosition": 100 },
+            "515220.SH": { "assetClass": "被动指数型基金", "style": "周期", "equityPosition": 100 },
+            "018505.OF": { "assetClass": "偏股混合型基金", "style": "周期", "equityPosition": 100 },
+            "009878.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+            "018993.OF": { "assetClass": "偏股混合型基金", "style": "科技成长", "equityPosition": 100 },
+            "024919.OF": { "assetClass": "灵活配置型基金", "style": "红利", "equityPosition": 100 },
+            "001258.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+            "015364.OF": { "assetClass": "普通股票型基金", "style": "价值", "equityPosition": 100 },
+            "020521.OF": { "assetClass": "混合债券型二级基金", "style": "科技成长", "equityPosition": 20 },
+            "001955.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+            "010388.OF": { "assetClass": "普通股票型基金", "style": "科技成长", "equityPosition": 100 },
+            "014088.OF": { "assetClass": "混合债券型二级基金", "style": "科技成长", "equityPosition": 20 },
+            "017941.OF": { "assetClass": "灵活配置型基金", "style": "科技成长", "equityPosition": 100 },
+            "217023.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+            "014846.OF": { "assetClass": "混合债券型二级基金", "style": "周期", "equityPosition": 20 },
+            "017475.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+            "012228.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+            "80PF210158": { "assetClass": "委外非现固定收益类资产", "style": "均衡", "equityPosition": 18 },
+            "80PF200133": { "assetClass": "委外非现固定收益类资产", "style": "价值", "equityPosition": 19 },
+            "11PF252714": { "assetClass": "委外非现固定收益类资产", "style": "均衡", "equityPosition": 18 },
+            "11PF252802": { "assetClass": "委外权益类投资", "style": "红利", "equityPosition": 100 },
+            "11PF253412": { "assetClass": "委外权益类投资", "style": "科技成长", "equityPosition": 100 },
+            "大成科技创新混合型证券投资基金": { "assetClass": "偏股混合型基金", "style": "科技成长", "equityPosition": 80 }
+        };
+
+        // 数据持久化管理
+        const STORAGE_KEY = 'fund_classifications_data';
+        const FUND_EQUITY_SUBCLASS_RULES = {
+            '二级公募债券基金': { defaultEquity: 20 },
+            '混合债券型二级基金': { defaultEquity: 20 },
+            '公募股票基金': { defaultEquity: 100 },
+            '普通股票型基金': { defaultEquity: 100 },
+            '公募混合基金': { defaultEquity: 100 },
+            '偏股混合型基金': { defaultEquity: 80 },
+            '灵活配置型基金': { defaultEquity: 80 },
+            '其他公募基金': { defaultEquity: 100 },
+            '被动指数型基金': { defaultEquity: 100 },
+            '国际(QDII)被动指数型股票基金': { defaultEquity: 100 }
+        };
+        const FUND_EQUITY_SUBCLASS_NAMES = Object.keys(FUND_EQUITY_SUBCLASS_RULES);
+
+        // 初始化基金分类数据（从localStorage加载或使用默认数据）
+        function loadFundClassifications() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    console.log('从本地存储加载基金分类数据，数量:', Object.keys(parsed).length);
+                    return parsed;
+                }
+            } catch (error) {
+                console.warn('加载保存的基金分类数据失败:', error);
+            }
+            console.log('使用默认基金分类数据');
+            return { ...defaultFundClassifications };
+        }
+
+        // 保存基金分类数据到localStorage
+        function saveFundClassifications() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(fundClassifications));
+                console.log('基金分类数据已保存到本地存储');
+                return true;
+            } catch (error) {
+                console.error('保存基金分类数据失败:', error);
+                return false;
+            }
+        }
+
+        // 初始化基金分类数据
+        let fundClassifications = loadFundClassifications();
+
+        let holdingData = [];
+        let analysisResults = {};
+        let selectedProducts = new Set();
+        let matrixDisplayType = 'amount';
+        let unclassifiedFunds = []; // 存储未分类的基金
+
+        function normalizeText(value) {
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'string') return value.trim();
+            return String(value).trim();
+        }
+
+        // 创建基金匹配键的函数
+        function getFundMatchKey(row) {
+            const assetClass = normalizeText(row['新版资产大类']);
+            const externalCode = normalizeText(row['外部代码']);
+            const assetCode = normalizeText(row['资产代码']);
+            const assetName = normalizeText(row['资产简称']);
+
+            // 对于公募基金,优先使用外部代码
+            if (assetClass === '公募基金' && externalCode) {
+                return externalCode;
+            }
+
+            // 对于委外投资,使用资产代码
+            if (assetClass === '委外投资' && assetCode) {
+                return assetCode;
+            }
+
+            // 其他情况使用资产简称
+            return assetName;
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            renderFundList();
+            setupFileUpload();
+        });
+
+        // 设置文件上传
+        function setupFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+
+            fileInput.addEventListener('change', handleFileUpload);
+
+            // 拖拽功能
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload({ target: { files: files } });
+                }
+            });
+        }
+
+        // 处理文件上传
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const loading = document.getElementById('loading');
+            const uploadResult = document.getElementById('uploadResult');
+
+            loading.classList.add('show');
+            uploadResult.innerHTML = '';
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    holdingData = jsonData;
+                    processData();
+
+                    loading.classList.remove('show');
+                    uploadResult.innerHTML = `<div class="success">✅ 成功上传并处理了 ${jsonData.length} 条持仓数据</div>`;
+                } catch (error) {
+                    loading.classList.remove('show');
+                    uploadResult.innerHTML = `<div class="error">❌ 文件处理失败: ${error.message}</div>`;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 处理数据
+        function processData() {
+            if (holdingData.length === 0) return;
+
+            const productResults = {};
+            const detailData = [];
+            const productNetAssets = {}; // 存储各产品的净资产
+            const detectedUnclassifiedFunds = new Set(); // 用Set来避免重复
+
+            // 清空之前的未分类基金
+            unclassifiedFunds = [];
+
+            // 调试：检查Excel文件的列名
+            if (holdingData.length > 0) {
+                console.log('Excel文件列名:', Object.keys(holdingData[0]));
+            }
+
+            // 首先计算各产品的净资产
+            holdingData.forEach(row => {
+                const productName = normalizeText(row['产品简称']);
+                const assetName = normalizeText(row['资产简称']);
+                const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+
+                if (!productName || holdingAmount === 0) return;
+
+                if (!productNetAssets[productName]) {
+                    productNetAssets[productName] = 0;
+                }
+
+                // 检查是否为正回购
+                const isRepo = assetName && assetName.includes('正回购');
+
+                if (isRepo) {
+                    // 正回购从净资产中减去
+                    productNetAssets[productName] -= holdingAmount;
+                } else {
+                    // 其他资产加入净资产
+                    productNetAssets[productName] += holdingAmount;
+                }
+            });
+
+            holdingData.forEach(row => {
+                const productName = normalizeText(row['产品简称']);
+                const assetName = normalizeText(row['资产简称']);
+                const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+                const assetClass = normalizeText(row['新版资产大类']);
+                const assetSubClass = normalizeText(row['新版资产小类']);
+
+                if (!productName || !assetName || holdingAmount === 0) return;
+
+                // 使用新的匹配键逻辑
+                const matchKey = getFundMatchKey(row);
+                const classification = fundClassifications[matchKey];
+                const equitySubclassRule = FUND_EQUITY_SUBCLASS_RULES[assetSubClass];
+
+                // 检测新的含权益基金
+                // 检查条件：新版资产大类为"公募基金"，且新版资产小类在指定分类中，且未在当前基金分类数据库中
+                if (!classification && assetClass === '公募基金' && equitySubclassRule) {
+                    if (!detectedUnclassifiedFunds.has(matchKey)) {
+                        detectedUnclassifiedFunds.add(matchKey);
+                        unclassifiedFunds.push({
+                            assetName: assetName,
+                            matchKey: matchKey,  // 保存匹配键
+                            externalCode: normalizeText(row['外部代码']),
+                            assetSubClass: assetSubClass,
+                            style: '', // 待用户设置
+                            equityPosition: equitySubclassRule.defaultEquity // 默认值
+                        });
+                        console.log('检测到未分类含权基金:', assetName, '匹配键:', matchKey, '资产大类:', assetClass, '资产小类:', assetSubClass);
+                    }
+                }
+
+                // 如果没有分类信息，跳过处理
+                if (!classification) return;
+
+                const equityExposure = holdingAmount * (classification.equityPosition / 100);
+
+                if (!productResults[productName]) {
+                    productResults[productName] = {};
+                }
+
+                if (!productResults[productName][classification.style]) {
+                    productResults[productName][classification.style] = 0;
+                }
+
+                productResults[productName][classification.style] += equityExposure;
+
+                detailData.push({
+                    productName,
+                    assetName,
+                    assetClass: classification.assetClass,
+                    style: classification.style,
+                    equityPosition: classification.equityPosition,
+                    holdingAmount,
+                    equityExposure,
+                    productNetAsset: productNetAssets[productName] // 添加产品净资产信息
+                });
+            });
+
+            // 计算占比
+            Object.keys(productResults).forEach(productName => {
+                const totalEquity = Object.values(productResults[productName]).reduce((sum, value) => sum + value, 0);
+                Object.keys(productResults[productName]).forEach(style => {
+                    const amount = productResults[productName][style];
+                    productResults[productName][style] = {
+                        amount: amount,
+                        percentage: totalEquity > 0 ? (amount / totalEquity) * 100 : 0
+                    };
+                });
+            });
+
+            analysisResults = productResults;
+
+            // 初始化选中所有产品
+            selectedProducts.clear();
+            Object.keys(productResults).forEach(product => {
+                selectedProducts.add(product);
+            });
+
+            renderResults();
+            renderDetailTable(calculateDetailData());
+            renderFundDetectionStatus(); // 渲染基金检测状态
+            renderUnclassifiedFunds(); // 渲染未分类基金提示
+        }
+
+        // 渲染结果
+        function renderResults() {
+            renderSummaryStats();
+            renderProductFilters();
+            renderMatrixTable();
+            renderProductCards();
+        }
+
+        // 渲染统计信息
+        function renderSummaryStats() {
+            const summaryStats = document.getElementById('summaryStats');
+
+            // 生成统计信息
+            const productCount = Object.keys(analysisResults).length;
+            const totalStyles = new Set();
+            let totalEquityExposure = 0;
+
+            Object.values(analysisResults).forEach(product => {
+                Object.keys(product).forEach(style => {
+                    totalStyles.add(style);
+                    totalEquityExposure += product[style].amount;
+                });
+            });
+
+            summaryStats.innerHTML = `
+                <div class="stat-card">
+                    <h4>产品数量</h4>
+                    <div class="value">${productCount}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>风格数量</h4>
+                    <div class="value">${totalStyles.size}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>总权益暴露</h4>
+                    <div class="value">${(totalEquityExposure / 100000000).toFixed(1)}亿</div>
+                </div>
+            `;
+        }
+
+        // 渲染产品筛选器
+        function renderProductFilters() {
+            const productFilters = document.getElementById('productFilters');
+            productFilters.innerHTML = '';
+
+            Object.keys(analysisResults).forEach(productName => {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'filter-checkbox';
+                checkbox.innerHTML = `
+                    <input type="checkbox" id="filter-${productName.replace(/[^a-zA-Z0-9]/g, '')}" 
+                           ${selectedProducts.has(productName) ? 'checked' : ''} 
+                           onchange="toggleProductFilter('${productName}')" />
+                    <label for="filter-${productName.replace(/[^a-zA-Z0-9]/g, '')}">${productName}</label>
+                `;
+                productFilters.appendChild(checkbox);
+            });
+        }
+
+        // 渲染矩阵表格
+        function renderMatrixTable() {
+            const matrixTable = document.getElementById('matrixTable');
+
+            // 获取所有风格并设置排序顺序
+            const allStyles = new Set();
+            Object.values(analysisResults).forEach(product => {
+                Object.keys(product).forEach(style => {
+                    allStyles.add(style);
+                });
+            });
+            // 设置风格排序顺序，红利放在第一位
+            const styleOrder = ['红利', '均衡', '科技成长', '周期', '价值'];
+            const styles = Array.from(allStyles).sort((a, b) => {
+                const indexA = styleOrder.indexOf(a);
+                const indexB = styleOrder.indexOf(b);
+                if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+                if (indexA === -1) return 1;
+                if (indexB === -1) return -1;
+                return indexA - indexB;
+            });
+
+            // 创建表头
+            let headerHtml = '<tr><th>产品名称</th>';
+            styles.forEach(style => {
+                headerHtml += `<th>${style}</th>`;
+            });
+            headerHtml += '</tr>';
+
+            // 创建表格行
+            let bodyHtml = '';
+            Array.from(selectedProducts).forEach(productName => {
+                const product = analysisResults[productName];
+                let rowHtml = `<tr><td class="product-name">${productName}</td>`;
+
+                styles.forEach(style => {
+                    const data = product[style];
+                    if (data) {
+                        if (matrixDisplayType === 'amount') {
+                            rowHtml += `<td class="amount-cell">${(data.amount / 10000).toFixed(0)}万</td>`;
+                        } else {
+                            rowHtml += `<td class="percentage-cell">${Math.round(data.percentage)}%</td>`;
+                        }
+                    } else {
+                        rowHtml += `<td class="zero-cell">-</td>`;
+                    }
+                });
+
+                rowHtml += '</tr>';
+                bodyHtml += rowHtml;
+            });
+
+            matrixTable.innerHTML = `
+                <thead>${headerHtml}</thead>
+                <tbody>${bodyHtml}</tbody>
+            `;
+        }
+
+        // 渲染产品卡片
+        function renderProductCards() {
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '';
+
+            // 只显示选中的产品
+            Array.from(selectedProducts).forEach(productName => {
+                const product = analysisResults[productName];
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+
+                // 设置风格排序顺序，红利放在第一位
+                const styleOrder = ['红利', '均衡', '科技成长', '周期', '价值'];
+                const sortedStyles = Object.keys(product).sort((a, b) => {
+                    const indexA = styleOrder.indexOf(a);
+                    const indexB = styleOrder.indexOf(b);
+                    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+                    if (indexA === -1) return 1;
+                    if (indexB === -1) return -1;
+                    return indexA - indexB;
+                });
+
+                let styleItemsHtml = '';
+                sortedStyles.forEach(style => {
+                    const data = product[style];
+                    styleItemsHtml += `
+                        <div class="style-item">
+                            <span class="style-name">${style}</span>
+                            <span class="style-amount">${(data.amount / 10000).toFixed(0)}万</span>
+                            <span class="style-percentage">${Math.round(data.percentage)}%</span>
+                        </div>
+                    `;
+                });
+
+                productCard.innerHTML = `
+                    <h3>${productName}</h3>
+                    ${styleItemsHtml}
+                    <div class="chart-container">
+                        <canvas id="chart-${productName.replace(/[^a-zA-Z0-9]/g, '')}"></canvas>
+                    </div>
+                `;
+
+                resultsGrid.appendChild(productCard);
+
+                // 创建图表
+                setTimeout(() => {
+                    createChart(productName, product);
+                }, 100);
+            });
+        }
+
+        // 切换产品筛选
+        function toggleProductFilter(productName) {
+            if (selectedProducts.has(productName)) {
+                selectedProducts.delete(productName);
+            } else {
+                selectedProducts.add(productName);
+            }
+
+            renderMatrixTable();
+            renderProductCards();
+            // 重新渲染详细数据表格以反映筛选状态
+            if (holdingData.length > 0) {
+                renderDetailTable(calculateDetailData());
+            }
+        }
+
+        // 切换矩阵显示类型
+        function toggleMatrixDisplay(type) {
+            matrixDisplayType = type;
+
+            // 更新按钮状态
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="toggleMatrixDisplay('${type}')"]`).classList.add('active');
+
+            renderMatrixTable();
+        }
+
+        // 全选产品
+        function selectAllProducts() {
+            selectedProducts.clear();
+            Object.keys(analysisResults).forEach(product => {
+                selectedProducts.add(product);
+            });
+
+            renderProductFilters();
+            renderMatrixTable();
+            renderProductCards();
+            // 重新渲染详细数据表格以反映筛选状态
+            if (holdingData.length > 0) {
+                renderDetailTable(calculateDetailData());
+            }
+        }
+
+        // 全不选产品
+        function deselectAllProducts() {
+            selectedProducts.clear();
+
+            renderProductFilters();
+            renderMatrixTable();
+            renderProductCards();
+            // 重新渲染详细数据表格以反映筛选状态
+            if (holdingData.length > 0) {
+                renderDetailTable(calculateDetailData());
+            }
+        }
+
+        // 创建图表
+        function createChart(productName, data) {
+            const canvasId = `chart-${productName.replace(/[^a-zA-Z0-9]/g, '')}`;
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+
+            const labels = Object.keys(data);
+            const values = labels.map(label => data[label].percentage);
+            const colors = [
+                '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe',
+                '#43e97b', '#fa709a', '#fee140', '#ff9a9e', '#a8edea'
+            ];
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 计算详细数据（包括产品净资产）
+        function calculateDetailData() {
+            const detailData = [];
+            const productNetAssets = {}; // 存储各产品的净资产
+
+            // 首先计算各产品的净资产
+            holdingData.forEach(row => {
+                const productName = row['产品简称'];
+                const assetName = row['资产简称'];
+                const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+
+                if (!productName || holdingAmount === 0) return;
+
+                if (!productNetAssets[productName]) {
+                    productNetAssets[productName] = 0;
+                }
+
+                // 检查是否为正回购
+                const isRepo = assetName && assetName.includes('正回购');
+
+                if (isRepo) {
+                    // 正回购从净资产中减去
+                    productNetAssets[productName] -= holdingAmount;
+                } else {
+                    // 其他资产加入净资产
+                    productNetAssets[productName] += holdingAmount;
+                }
+            });
+
+            // 然后生成详细数据
+            holdingData.forEach(row => {
+                const productName = row['产品简称'];
+                const assetName = row['资产简称'];
+                const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+
+                if (!productName || !assetName || holdingAmount === 0) return;
+
+                // 使用新的匹配键逻辑
+                const matchKey = getFundMatchKey(row);
+                const classification = fundClassifications[matchKey];
+                if (!classification) return;
+
+                const equityExposure = holdingAmount * (classification.equityPosition / 100);
+
+                detailData.push({
+                    productName,
+                    assetName,
+                    assetClass: classification.assetClass,
+                    style: classification.style,
+                    equityPosition: classification.equityPosition,
+                    holdingAmount,
+                    equityExposure,
+                    productNetAsset: productNetAssets[productName]
+                });
+            });
+
+            return detailData;
+        }
+
+        // 渲染详细数据表格
+        function renderDetailTable(data) {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+
+            // 筛选数据：只显示选中产品的数据
+            const filteredData = data.filter(row => selectedProducts.has(row.productName));
+
+            // 为筛选后的数据计算权益暴露占比
+            filteredData.forEach(row => {
+                // 使用权益暴露金额除以产品净资产计算占比
+                row.equityExposureRatio = row.productNetAsset > 0 ? (row.equityExposure / row.productNetAsset * 100) : 0;
+            });
+
+            // 按照产品名称、风格、权益暴露占比排序
+            filteredData.sort((a, b) => {
+                // 首先按产品名称排序
+                if (a.productName < b.productName) return -1;
+                if (a.productName > b.productName) return 1;
+
+                // 如果产品名称相同，按风格排序
+                if (a.style < b.style) return -1;
+                if (a.style > b.style) return 1;
+
+                // 如果产品名称和风格都相同，按权益暴露占比降序排序
+                return b.equityExposureRatio - a.equityExposureRatio;
+            });
+
+            filteredData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.productName}</td>
+                    <td>${row.assetName}</td>
+                    <td>${row.assetClass}</td>
+                    <td>${row.style}</td>
+                    <td>${row.equityPosition}%</td>
+                    <td>${(row.holdingAmount / 10000).toFixed(0)}万</td>
+                    <td>${(row.equityExposure / 10000).toFixed(0)}万</td>
+                    <td>${row.equityExposureRatio.toFixed(2)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 渲染基金列表
+        function renderFundList() {
+            const fundList = document.getElementById('fundList');
+            fundList.innerHTML = '';
+
+            Object.keys(fundClassifications).forEach(fundName => {
+                const fund = fundClassifications[fundName];
+                const fundItem = document.createElement('div');
+                fundItem.className = 'fund-item';
+
+                fundItem.innerHTML = `
+                    <input type="text" value="${fundName}" readonly style="background: #f9f9f9;" />
+                    <select onchange="updateFund('${fundName}', 'assetClass', this.value)">
+                        <option value="二级公募债券基金" ${fund.assetClass === '二级公募债券基金' ? 'selected' : ''}>二级公募债券基金</option>
+                        <option value="公募股票基金" ${fund.assetClass === '公募股票基金' ? 'selected' : ''}>公募股票基金</option>
+                        <option value="公募混合基金" ${fund.assetClass === '公募混合基金' ? 'selected' : ''}>公募混合基金</option>
+                        <option value="其他公募基金" ${fund.assetClass === '其他公募基金' ? 'selected' : ''}>其他公募基金</option>
+                        <option value="委外非现固定收益类资产" ${fund.assetClass === '委外非现固定收益类资产' ? 'selected' : ''}>委外非现固定收益类资产</option>
+                        <option value="委外混合类资产" ${fund.assetClass === '委外混合类资产' ? 'selected' : ''}>委外混合类资产</option>
+                        <option value="委外权益类投资" ${fund.assetClass === '委外权益类投资' ? 'selected' : ''}>委外权益类投资</option>
+                    </select>
+                    <select onchange="updateFund('${fundName}', 'style', this.value)">
+                        <option value="均衡" ${fund.style === '均衡' ? 'selected' : ''}>均衡</option>
+                        <option value="科技成长" ${fund.style === '科技成长' ? 'selected' : ''}>科技成长</option>
+                        <option value="周期" ${fund.style === '周期' ? 'selected' : ''}>周期</option>
+                        <option value="红利" ${fund.style === '红利' ? 'selected' : ''}>红利</option>
+                        <option value="价值" ${fund.style === '价值' ? 'selected' : ''}>价值</option>
+                    </select>
+                    <input type="number" value="${fund.equityPosition}" min="0" max="100" 
+                           onchange="updateFund('${fundName}', 'equityPosition', parseFloat(this.value))" />
+                    <button class="btn btn-danger" onclick="deleteFund('${fundName}')">删除</button>
+                `;
+
+                fundList.appendChild(fundItem);
+            });
+        }
+
+        // 更新基金信息
+        function updateFund(fundName, property, value) {
+            if (fundClassifications[fundName]) {
+                fundClassifications[fundName][property] = value;
+                // 自动保存数据
+                saveFundClassifications();
+                if (holdingData.length > 0) {
+                    processData();
+                }
+            }
+        }
+
+        // 删除基金
+        function deleteFund(fundName) {
+            if (confirm(`确定要删除 ${fundName} 吗？`)) {
+                delete fundClassifications[fundName];
+                // 自动保存数据
+                saveFundClassifications();
+                renderFundList();
+                if (holdingData.length > 0) {
+                    processData();
+                }
+            }
+        }
+
+        // 添加基金
+        function addFund() {
+            const assetClass = document.getElementById('newAssetClass').value;
+            const assetName = document.getElementById('newAssetName').value.trim();
+            const style = document.getElementById('newStyle').value;
+            const equityPosition = parseFloat(document.getElementById('newEquityPosition').value);
+
+            if (!assetName) {
+                alert('请输入基金名称');
+                return;
+            }
+
+            if (isNaN(equityPosition) || equityPosition < 0 || equityPosition > 100) {
+                alert('请输入有效的权益仓位 (0-100)');
+                return;
+            }
+
+            if (fundClassifications[assetName]) {
+                alert('该基金已存在');
+                return;
+            }
+
+            fundClassifications[assetName] = {
+                assetClass: assetClass,
+                style: style,
+                equityPosition: equityPosition
+            };
+
+            // 自动保存数据
+            saveFundClassifications();
+
+            // 清空表单
+            document.getElementById('newAssetName').value = '';
+            document.getElementById('newEquityPosition').value = '';
+
+            renderFundList();
+            if (holdingData.length > 0) {
+                processData();
+            }
+        }
+
+        // 渲染基金检测状态
+        function renderFundDetectionStatus() {
+            const statusSection = document.getElementById('fundDetectionStatusSection');
+            const statusContent = document.getElementById('fundDetectionContent');
+
+            if (!statusSection || !statusContent) return;
+
+            const detectionClassesText = FUND_EQUITY_SUBCLASS_NAMES
+                .map(name => `"${name}"`)
+                .join('、');
+
+            const totalFunds = holdingData.length;
+            const classifiedFunds = holdingData.filter(row => {
+                const assetName = normalizeText(row['资产简称']);
+                return assetName && fundClassifications[assetName];
+            }).length;
+
+            if (unclassifiedFunds.length === 0) {
+                // 没有检测到未分类基金
+                statusContent.innerHTML = `
+                    <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 12px; padding: 20px;">
+                        <h2 style="color: #059669; margin-bottom: 15px;">✅ 基金分类检测完成</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="color: #059669; font-size: 1.5em; font-weight: 600;">${totalFunds}</div>
+                                <div style="color: #6b7280; font-size: 0.9em;">总持仓记录</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="color: #059669; font-size: 1.5em; font-weight: 600;">${classifiedFunds}</div>
+                                <div style="color: #6b7280; font-size: 0.9em;">已分类基金记录</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="color: #059669; font-size: 1.5em; font-weight: 600;">0</div>
+                                <div style="color: #6b7280; font-size: 0.9em;">未分类含权基金</div>
+                            </div>
+                        </div>
+                        <p style="margin-top: 15px; color: #059669;">
+                            📊 检测条件：新版资产大类="公募基金" 且 新版资产小类∈[${detectionClassesText}]
+                        </p>
+                        <p style="margin-top: 10px; color: #6b7280; font-size: 0.9em;">
+                            所有含权益基金都已在分类数据库中，可以正常进行分析计算。
+                        </p>
+                        <button class="btn" style="background: #6b7280; color: white; margin-top: 10px;" onclick="hideFundDetectionStatus()">隐藏此提示</button>
+                    </div>
+                `;
+                statusSection.style.display = 'block';
+                console.log('基金分类检测完成：未发现需要分类的新基金');
+            } else {
+                // 隐藏状态提示，显示未分类基金区域
+                statusSection.style.display = 'none';
+                console.log(`发现 ${unclassifiedFunds.length} 个未分类含权基金`);
+            }
+        }
+
+        // 渲染未分类基金列表
+        function renderUnclassifiedFunds() {
+            const section = document.getElementById('unclassifiedFundsSection');
+            const fundsList = document.getElementById('unclassifiedFundsList');
+
+            if (!section || !fundsList) {
+                console.error('未找到未分类基金的HTML元素');
+                return;
+            }
+
+            if (unclassifiedFunds.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            // 创建表头
+            let headerHtml = `
+                <div class="unclassified-fund-header">
+                    <div>基金名称</div>
+                    <div>资产类型</div>
+                    <div>风格</div>
+                    <div>权益仓位</div>
+                    <div>操作</div>
+                </div>
+            `;
+
+            // 创建基金项
+            let itemsHtml = '';
+            unclassifiedFunds.forEach((fund, index) => {
+                itemsHtml += `
+                    <div class="unclassified-fund-item">
+                        <div class="fund-name">${fund.assetName}</div>
+                        <div class="asset-type">${fund.assetSubClass}</div>
+                        <select id="unclassifiedStyle-${index}" onchange="updateUnclassifiedFund(${index}, 'style', this.value)">
+                            <option value="">请选择风格</option>
+                            <option value="红利" ${fund.style === '红利' ? 'selected' : ''}>红利</option>
+                            <option value="均衡" ${fund.style === '均衡' ? 'selected' : ''}>均衡</option>
+                            <option value="科技成长" ${fund.style === '科技成长' ? 'selected' : ''}>科技成长</option>
+                            <option value="周期" ${fund.style === '周期' ? 'selected' : ''}>周期</option>
+                            <option value="价值" ${fund.style === '价值' ? 'selected' : ''}>价值</option>
+                        </select>
+                        <input type="number" id="unclassifiedEquity-${index}" value="${fund.equityPosition}" 
+                               min="0" max="100" placeholder="权益仓位" 
+                               onchange="updateUnclassifiedFund(${index}, 'equityPosition', parseFloat(this.value))" />
+                        <button class="batch-add-individual" onclick="addSingleUnclassifiedFund(${index})" 
+                                ${!fund.style ? 'disabled' : ''}>
+                            添加
+                        </button>
+                    </div>
+                `;
+            });
+
+            fundsList.innerHTML = headerHtml + itemsHtml;
+        }
+
+        // 更新未分类基金信息
+        function updateUnclassifiedFund(index, property, value) {
+            if (unclassifiedFunds[index]) {
+                unclassifiedFunds[index][property] = value;
+
+                // 如果设置了风格，启用添加按钮
+                const addButton = document.querySelector(`[onclick="addSingleUnclassifiedFund(${index})"]`);
+                if (addButton) {
+                    addButton.disabled = !unclassifiedFunds[index].style;
+                }
+            }
+        }
+
+        // 添加单个未分类基金
+        function addSingleUnclassifiedFund(index) {
+            const fund = unclassifiedFunds[index];
+
+            if (!fund.style) {
+                alert('请先选择基金风格');
+                return;
+            }
+
+            if (isNaN(fund.equityPosition) || fund.equityPosition < 0 || fund.equityPosition > 100) {
+                alert('请输入有效的权益仓位 (0-100)');
+                return;
+            }
+
+            // 添加到基金分类数据库，使用匹配键而不是资产简称
+            fundClassifications[fund.matchKey] = {
+                assetClass: fund.assetSubClass,
+                style: fund.style,
+                equityPosition: fund.equityPosition
+            };
+
+            // 自动保存数据
+            saveFundClassifications();
+
+            // 从未分类列表中移除
+            unclassifiedFunds.splice(index, 1);
+
+            // 重新渲染
+            renderFundList();
+
+            if (holdingData.length > 0) {
+                processData();
+            } else {
+                renderFundDetectionStatus();
+                renderUnclassifiedFunds();
+            }
+
+            alert(`基金"${fund.assetName}"已成功添加到分类数据库`);
+        }
+
+        // 批量添加所有未分类基金
+        function batchAddUnclassifiedFunds() {
+            // 检查是否所有基金都设置了风格
+            const unsetFunds = unclassifiedFunds.filter(fund => !fund.style);
+            if (unsetFunds.length > 0) {
+                alert(`还有${unsetFunds.length}个基金未设置风格，请设置后再批量添加`);
+                return;
+            }
+
+            // 检查权益仓位是否都有效
+            const invalidFunds = unclassifiedFunds.filter(fund =>
+                isNaN(fund.equityPosition) || fund.equityPosition < 0 || fund.equityPosition > 100
+            );
+            if (invalidFunds.length > 0) {
+                alert('存在无效的权益仓位设置，请检查后再批量添加');
+                return;
+            }
+
+            if (!confirm(`确定要批量添加${unclassifiedFunds.length}个基金到分类数据库吗？`)) {
+                return;
+            }
+
+            // 批量添加到基金分类数据库，使用匹配键而不是资产简称
+            let addedCount = 0;
+            unclassifiedFunds.forEach(fund => {
+                if (!fundClassifications[fund.matchKey]) {
+                    fundClassifications[fund.matchKey] = {
+                        assetClass: fund.assetSubClass,
+                        style: fund.style,
+                        equityPosition: fund.equityPosition
+                    };
+                    addedCount++;
+                }
+            });
+
+            // 自动保存数据
+            if (addedCount > 0) {
+                saveFundClassifications();
+            }
+
+            // 清空未分类列表
+            unclassifiedFunds = [];
+
+            // 重新渲染
+            renderFundList();
+
+            if (holdingData.length > 0) {
+                processData();
+            } else {
+                renderFundDetectionStatus();
+                renderUnclassifiedFunds();
+            }
+
+            alert(`成功批量添加了${addedCount}个基金到分类数据库`);
+        }
+
+        // 隐藏未分类基金区域
+        function hideUnclassifiedFunds() {
+            document.getElementById('unclassifiedFundsSection').style.display = 'none';
+        }
+
+        // 隐藏基金检测状态区域
+        function hideFundDetectionStatus() {
+            document.getElementById('fundDetectionStatusSection').style.display = 'none';
+        }
+
+        // 数据导出功能
+        function exportFundData() {
+            try {
+                const dataToExport = {
+                    version: '1.1.0',
+                    exportTime: new Date().toISOString(),
+                    fundClassifications: fundClassifications,
+                    totalFunds: Object.keys(fundClassifications).length
+                };
+
+                const dataStr = JSON.stringify(dataToExport, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `基金分类数据_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+
+                alert(`成功导出${dataToExport.totalFunds}个基金的分类数据！`);
+            } catch (error) {
+                console.error('导出数据失败:', error);
+                alert('导出数据失败，请检查控制台错误信息');
+            }
+        }
+
+        // 数据导入功能
+        function importFundData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    // 验证数据格式
+                    if (!importedData.fundClassifications) {
+                        alert('导入文件格式不正确，缺少基金分类数据');
+                        return;
+                    }
+
+                    if (confirm(`确定要导入${Object.keys(importedData.fundClassifications).length}个基金分类数据吗？这将替换当前数据。`)) {
+                        fundClassifications = importedData.fundClassifications;
+                        saveFundClassifications();
+                        renderFundList();
+
+                        if (holdingData.length > 0) {
+                            processData();
+                        }
+
+                        alert(`成功导入${Object.keys(fundClassifications).length}个基金分类数据！`);
+                    }
+                } catch (error) {
+                    console.error('导入数据失败:', error);
+                    alert('导入数据失败，请检查文件格式是否正确');
+                }
+            };
+            reader.readAsText(file);
+
+            // 重置文件输入
+            event.target.value = '';
+        }
+
+        // 更新HTML代码功能
+        function updateHtmlWithNewFunds() {
+            const newFunds = Object.keys(fundClassifications).filter(name =>
+                !defaultFundClassifications.hasOwnProperty(name)
+            );
+
+            if (newFunds.length === 0) {
+                alert('没有检测到新增的基金分类，无需更新HTML代码');
+                return;
+            }
+
+            let htmlCode = '\n        // 新增的基金分类\n';
+            newFunds.forEach(fundName => {
+                const fund = fundClassifications[fundName];
+                htmlCode += `        '${fundName}': { assetClass: '${fund.assetClass}', style: '${fund.style}', equityPosition: ${fund.equityPosition} },\n`;
+            });
+
+            const fullCode = `
+请将以下代码添加到HTML文件中的defaultFundClassifications对象中：
+${htmlCode}
+或者整个替换fundClassifications对象为：
+
+let fundClassifications = ${JSON.stringify(fundClassifications, null, 4)};
+            `;
+
+            // 复制到剪贴板
+            navigator.clipboard.writeText(fullCode).then(() => {
+                alert(`检测到${newFunds.length}个新增基金，更新代码已复制到剪贴板！\n\n新增基金：\n${newFunds.join('\n')}`);
+            }).catch(() => {
+                alert(`检测到${newFunds.length}个新增基金，请手动复制以下代码：\n${fullCode}`);
+            });
+        }
+
+        // 恢复默认数据
+        function resetToDefaults() {
+            if (confirm('确定要恢复到默认的基金分类设置吗？这将清除所有自定义添加的基金。')) {
+                fundClassifications = { ...defaultFundClassifications };
+                saveFundClassifications();
+                renderFundList();
+
+                if (holdingData.length > 0) {
+                    processData();
+                }
+
+                alert('已恢复到默认基金分类设置');
+            }
+        }
+
+    </script>
+</body>
+
+</html>

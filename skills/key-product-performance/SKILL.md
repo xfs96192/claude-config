@@ -1,0 +1,314 @@
+---
+name: key-product-performance
+description: Generate weekly key product performance reports by updating Excel templates with product metrics from multiple data sources. Use when user asks to "generate [date] performance report", "update key product performance for [date]", or "create weekly performance report for [date]". Handles special products (非标驱动 series from PDF審表, 汇利现金宝1号 from overview data) and regular products from performance data files.
+---
+
+# Key Product Performance Report Generator
+
+## Overview
+
+This skill automates the generation of weekly key product performance reports (重点产品业绩情况表) by:
+1. Copying the latest template Excel file with all formatting preserved
+2. Updating product metrics from multiple data sources based on product type
+3. Handling three types of products with different data sources
+4. Saving the updated report with the target date
+
+## Workflow
+
+### Step 1: Parse User Request
+
+When user requests a performance report, extract the target date:
+
+**Trigger phrases:**
+- "生成2026年1月15日的重点业绩情况表"
+- "更新重点产品业绩到20260115"
+- "创建20260115的部门重点产品业绩表"
+
+**Extract date in format:** `YYYYMMDD` (e.g., `20260115`)
+
+### Step 2: Determine Implementation Approach
+
+Choose between two approaches:
+
+**Approach A: Use Python Script (Recommended for complex updates)**
+- Use `scripts/update_performance.py` when you need to:
+  - Process all products systematically
+  - Handle complex Excel operations
+  - Ensure consistent formatting preservation
+
+**Approach B: Direct Excel Manipulation**
+- Use xlsx skill directly when:
+  - Making quick single-product updates
+  - User requests specific product updates only
+  - Script needs customization for this specific case
+
+**Default:** Use Approach A unless user specifically requests otherwise.
+
+### Step 3: Load Data Mapping Rules
+
+Before processing, read `references/data_mapping.md` to understand:
+- Data source paths and file naming conventions
+- Product-specific processing rules
+- Field mapping requirements
+- Special handling for 非标驱动 and 汇利现金宝1号
+
+### Step 4: Execute Report Generation
+
+#### Using Python Script (Approach A)
+
+1. **Run the script:**
+```bash
+python /Users/fanshengxia/.claude/skills/key-product-performance/scripts/update_performance.py \
+  --date YYYYMMDD
+```
+
+2. **Monitor output** for warnings about missing data
+
+3. **Handle errors:**
+   - Missing data files: Verify file exists at expected path
+   - Product code mismatches: Check data_mapping.md for special cases
+   - PDF extraction failures: May need manual intervention for 非标驱动
+
+**Note:** The current script provides a framework. You will likely need to:
+- Read the actual template Excel to understand column structure
+- Customize cell mapping based on actual template layout
+- Implement specific PDF extraction logic for 非标驱动 products
+
+#### Using Direct Manipulation (Approach B)
+
+1. **Load template using xlsx skill:**
+   - Find latest template in `/Users/fanshengxia/Desktop/重点业绩产品/`
+   - Pattern: `部门重点产品业绩v4_*.xlsx`
+
+2. **Load data sources:**
+   - Performance data: `/Users/fanshengxia/Desktop/周报V2/数据/产品业绩指标数据/内部产品业绩_{date}.xlsx`
+   - Overview data: `/Users/fanshengxia/Desktop/周报V2/数据/产品运作概览数据-母子产品/产品运作概览信息表增加指标变化_{date}.xlsx`
+
+3. **Update products by type:**
+   - **Regular products:** Match by product code, update metrics from performance data
+   - **非标驱动:** Extract from latest PDF in `/Users/fanshengxia/Desktop/周报V2/数据/合享发行送审表/`
+   - **汇利现金宝1号 (9MX00010):** Get 累计年化 from overview data, apply to all periods, set drawdowns to 0bp
+
+   **Example code for regular products:**
+   ```python
+   # Update regular products
+   perf_row = perf_df[perf_df['产品代码'] == product_code].iloc[0]
+
+   # Update return columns
+   if pd.notna(perf_row['近1月年化收益率']):
+       sheet.cell(row_idx, 7).value = perf_row['近1月年化收益率']
+   if pd.notna(perf_row['近3月年化收益率']):
+       sheet.cell(row_idx, 8).value = perf_row['近3月年化收益率']
+   if pd.notna(perf_row['近6月年化收益率']):
+       sheet.cell(row_idx, 9).value = perf_row['近6月年化收益率']
+   if pd.notna(perf_row['近1年年化收益率']):
+       sheet.cell(row_idx, 10).value = perf_row['近1年年化收益率']
+
+   # CRITICAL: Column 11 uses '2026年年化收益率', NOT '今年以来年化收益率'
+   if pd.notna(perf_row['2026年年化收益率']):
+       sheet.cell(row_idx, 11).value = perf_row['2026年年化收益率']
+
+   if pd.notna(perf_row['成立以来年化收益率']):
+       sheet.cell(row_idx, 12).value = perf_row['成立以来年化收益率']
+
+   # Update drawdowns with proper formatting
+   dd_value = perf_row['近1月最大回撤']
+   if pd.isna(dd_value) or dd_value == 0:
+       sheet.cell(row_idx, 13).value = "-"
+       sheet.cell(row_idx, 14).value = "0bp"
+   else:
+       sheet.cell(row_idx, 13).value = dd_value
+       bp_value = int(round(abs(dd_value) * 10000))
+       sheet.cell(row_idx, 14).value = f"{bp_value}bp"
+   ```
+
+4. **Save with preserved formatting:**
+   - Output: `/Users/fanshengxia/Desktop/重点业绩产品/部门重点产品业绩v4_{date}.xlsx`
+
+### Step 5: Verify and Report
+
+After generation:
+
+1. **Verify the output file exists**
+2. **Report to user:**
+   - File location
+   - Number of products updated
+   - Any warnings or special cases handled
+3. **Mention any manual steps needed** (e.g., PDF data that couldn't be auto-extracted)
+
+## Product Type Handling
+
+### Type 1: Regular Products (常规产品)
+
+**Data source:** `内部产品业绩_{date}.xlsx`
+
+**Matching:** By product code
+
+**Fields to update:**
+- 近1月/3月/6月/1年/今年以来/成立以来 年化收益率
+- 近1月 最大回撤
+
+**CRITICAL Field Mapping (Excel columns → Data source columns):**
+| Excel Column | Template Header | Data Source Field | Example |
+|--------------|----------------|-------------------|---------|
+| Column 7 | 近1月年化收益率 | `近1月年化收益率` | 0.0349 |
+| Column 8 | 近3月年化收益率 | `近3月年化收益率` | 0.0241 |
+| Column 9 | 近6月年化收益率 | `近6月年化收益率` | 0.0215 |
+| Column 10 | 近1年年化收益率 | `近1年年化收益率` | 0.0212 |
+| Column 11 | **今年以来年化收益率** | **`2026年年化收益率`** ⚠️ | 0.0199 |
+| Column 12 | 成立以来年化收益率 | `成立以来年化收益率` | 0.0260 |
+| Column 13 | 近1月最大回撤 (数值) | `近1月最大回撤` | - or -0.0003 |
+| Column 14 | 近1月最大回撤 (bp) | Calculated from `近1月最大回撤` | 0bp or 4bp |
+
+**⚠️ CRITICAL:** The "今年以来" column in the Excel template corresponds to the `2026年年化收益率` field in the data source, NOT `今年以来年化收益率` (which doesn't exist). Since we're in year 2026, "今年以来" means "2026年".
+
+**IMPORTANT:** Drawdowns must be formatted according to rules in "Data Formatting Rules" section. Do NOT write raw numeric values directly.
+
+### Type 2: 非标驱动 Series (未成立产品)
+
+**Data source:** Latest PDF in `合享发行送审表/`
+
+**Extract from PDF:**
+- 各份额业绩基准下限 → Format: "A份额2.35%；B份额2.38%；C份额2.21%；D份额2.40%；E份额2.36%"
+- 产品代码
+- 成立日、到期日
+- 计算运行天数: `到期日 - 成立日 + 1`
+
+**Note:** PDF extraction may require pdfplumber or manual review
+
+### Type 3: 汇利现金宝1号 (现金产品)
+
+**Product code:** `9MX00010`
+
+**Data source:** `产品运作概览信息表增加指标变化_{date}.xlsx`
+
+**Special handling:**
+- Use `累计年化` field for ALL period returns (近1月/3月/6月/1年/今年以来/成立以来)
+  - Column 7 (近1月) = 累计年化
+  - Column 8 (近3月) = 累计年化
+  - Column 9 (近6月) = 累计年化
+  - Column 10 (近1年) = 累计年化
+  - Column 11 (今年以来/2026年) = 累计年化
+  - Column 12 (成立以来) = 累计年化
+- Set ALL drawdowns to `"-"` (column 13) and `"0bp"` (column 14) - see "Data Formatting Rules"
+- Ignore data from 内部产品业绩 (incorrect calculation for this product)
+
+## Critical Requirements
+
+### Format Preservation
+
+**Must preserve:**
+- Cell colors and background fills
+- Font styles (family, size, weight, color)
+- Borders and gridlines
+- Merged cells
+- Column widths and row heights
+- Conditional formatting
+- Data validation rules
+
+**Only update:** Cell values/content
+
+### Data Formatting Rules
+
+**CRITICAL:** Raw data values must be formatted according to template conventions before writing to cells.
+
+#### Drawdown (最大回撤) Formatting
+
+Template has TWO drawdown columns for each period:
+- **Column 13**: Numeric representation
+- **Column 14**: Basis points (bp) representation
+
+**Formatting rules:**
+
+| Data Value | Column 13 | Column 14 | Example Products |
+|------------|-----------|-----------|------------------|
+| `0` or `NaN` | `"-"` (dash string) | `"0bp"` (string) | 9A28701A, 9A28201A, 9A28301A, 9A28601A, 9S26265A, 9W10006A |
+| Non-zero negative | Numeric value | `"{bp}bp"` where bp = abs(value) * 10000, rounded | 9K73101A: `-0.000359` → "4bp" |
+
+**Implementation:**
+```python
+if pd.isna(dd_value) or dd_value == 0:
+    ws.cell(row, 13).value = "-"
+    ws.cell(row, 14).value = "0bp"
+else:
+    ws.cell(row, 13).value = dd_value
+    bp_value = int(round(abs(dd_value) * 10000))
+    ws.cell(row, 14).value = f"{bp_value}bp"
+```
+
+**Common mistake:** Writing numeric `0` instead of string `"-"` and `"0bp"`. This breaks template formatting conventions.
+
+### File Naming
+
+**Output format:** `部门重点产品业绩v4_{YYYYMMDD}.xlsx`
+
+**Example:** `部门重点产品业绩v4_20260115.xlsx`
+
+### Error Handling
+
+If data file is missing for target date:
+1. Report which file is missing
+2. List available dates in that directory
+3. Ask user to confirm the correct date or provide the missing file
+
+## Example Usage
+
+**User:** "生成2026年1月15日的重点业绩情况表"
+
+**Response flow:**
+1. Extract date: `20260115`
+2. Read data_mapping.md for rules
+3. Choose approach (default: Python script)
+4. Execute generation
+5. Report results:
+   ```
+   ✓ 已生成 2026年1月15日的重点产品业绩报告
+
+   文件位置: /Users/fanshengxia/Desktop/重点业绩产品/部门重点产品业绩v4_20260115.xlsx
+
+   更新情况:
+   - 常规产品: XX个
+   - 非标驱动系列: 已从送审表提取
+   - 汇利现金宝1号: 已使用累计年化数据
+   ```
+
+## Common Mistakes to Avoid
+
+### ❌ WRONG: Using non-existent field name
+```python
+# This field does NOT exist in the data source!
+sheet.cell(row_idx, 11).value = perf_row['今年以来年化收益率']  # ❌ Wrong!
+```
+
+### ✅ CORRECT: Using the actual field name
+```python
+# The correct field name for year 2026 is '2026年年化收益率'
+sheet.cell(row_idx, 11).value = perf_row['2026年年化收益率']  # ✅ Correct!
+```
+
+**Why this matters:**
+- Excel template header says "今年以来" (Year-to-date)
+- But in 2026, "今年以来" means "2026年"
+- Data source uses year-specific field names: `2026年年化收益率`, `2025年年化收益率`, etc.
+- There is NO field called `今年以来年化收益率` in the data source
+
+## Extending the Script
+
+The Python script (`scripts/update_performance.py`) is a framework that needs customization:
+
+**Required customizations:**
+1. **Template column mapping:** Read template to identify which columns contain which metrics
+2. **Product identification:** Determine how to identify product rows and product types in template
+3. **PDF parsing:** Implement specific extraction logic based on actual PDF structure
+4. **Data field mapping:** Map source data columns to template columns
+
+**To customize:**
+1. Read the template Excel file to understand its structure
+2. Update the `update_*_product()` methods with actual cell references
+3. Test with a sample date to verify correctness
+4. Iterate based on results
+
+## Resources
+
+- **scripts/update_performance.py**: Python automation script (framework, needs customization)
+- **references/data_mapping.md**: Complete data source and product handling rules

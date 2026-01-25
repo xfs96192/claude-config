@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sessionId": "4d55fa27-6349-41a9-95fa-d91ed8e8e672",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop--------asset-analysis-real-data-asset-analysis-dashboard/4d55fa27-6349-41a9-95fa-d91ed8e8e672.jsonl",
+      "fileMtime": 1768798921393,
+      "firstPrompt": "使用 financial-data-processor  帮我计算历史以来股债性价比情况，方式为股票指数如上证指数或者沪深300指数市盈率倒数-10Y国债收益率",
+      "messageCount": 3,
+      "created": "2026-01-18T02:04:12.342Z",
+      "modified": "2026-01-18T02:06:44.740Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "dcdfbc61-7e90-4ab5-9641-c99b4b30dade",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop--------asset-analysis-real-data-asset-analysis-dashboard/dcdfbc61-7e90-4ab5-9641-c99b4b30dade.jsonl",
+      "fileMtime": 1768799732032,
+      "firstPrompt": "帮我安装这个skills https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+      "messageCount": 14,
+      "created": "2026-01-19T05:01:48.128Z",
+      "modified": "2026-01-19T05:15:31.838Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard",
+      "isSidechain": false
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+帮我生成一个市场指数复盘的skills，流程如下你要先执行/Users/fanshengxia/Desktop/市场观点美化/data/generate_tables_from_wind.py这个程序生成需要的数据，然后执行/Users/fanshengxia/Desktop/市场观点美化/data/excel_to_json_converter.py这个文件吧数据转换成json数据供网页提取，然后切换到/Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-d     
+                                                                                                                                                                                        
+  ata/asset-analysis-dashboard这个目录下，使用npm run dev                                                                                                                               
+                                                                                                                                                                                        
+                                                                                                                                                                                        
+  执行网页操作，生成网页，然后吧网页结果截屏存储到/Users/fanshengxia/Desktop/市场观点美化文件夹下，我把数据相关的文件重新调整到data文件夹下了，你要看看程序是否路径要调整，或者你也可以把我的项目结构和流程进行     
+                                                                                                                                                                                        优化，我最后希望比如说一下生成截止数据哪一天的市场复盘，你就会获取数据，生成网页并截图给我，注意generate_tables_from_wind.py的日期需要自动调整

@@ -1,0 +1,361 @@
+# 基金分类标签管理系统 - AI实现指令
+
+## 系统概述
+
+你是一个银行理财资管机构的投资经理,管理多个理财产品。每个产品配置了不同风格的基金。我需要你生成一个**纯前端单页应用**,通过上传持仓明细Excel表,自动计算每个产品底层不同风格的权益暴露占比。
+
+**系统版本**: v1.1.0 (智能基金检测与批量添加功能)
+
+---
+
+## 核心需求
+
+### 1. 文件上传与解析
+- 用户上传Excel持仓明细表
+- 使用SheetJS (xlsx.full.min.js)解析
+- 支持拖拽上传
+
+### 2. 基金分类管理
+- 手动添加/修改/删除基金分类
+- 每个基金包含:资产小类、风格(5种)、权益仓位(0-100%)
+- 数据保存在LocalStorage,导出/导入JSON
+
+### 3. 智能基金检测(v1.1.0新功能)
+- 自动检测Excel中未分类的含权益基金
+- 根据资产小类自动设置默认权益仓位
+- 提供批量添加界面
+
+### 4. 权益暴露计算
+- 计算每个产品在不同风格上的权益暴露金额和占比
+- 使用Chart.js绘制环形图
+- 多维度展示:矩阵表格、产品卡片、详细数据表
+
+---
+
+## 关键计算公式(必须严格遵守!)
+
+### 基金匹配键生成(getFundMatchKey)
+```javascript
+IF 新版资产大类 == '公募基金' AND 外部代码不为空:
+    匹配键 = 外部代码
+ELSE IF 新版资产大类 == '委外投资' AND 资产代码不为空:
+    匹配键 = 资产代码
+ELSE:
+    匹配键 = 资产简称
+```
+
+### 产品净资产计算
+```
+产品净资产 = Σ持仓金额 - 正回购金额
+注意:资产简称包含"正回购"的记录需要从净资产中减去
+```
+
+### 权益暴露金额
+```
+权益暴露金额 = 持仓金额 × (权益仓位 / 100)
+```
+
+### 风格权益暴露占比
+```
+风格占比 = (该风格权益暴露金额之和 / 该产品所有风格权益暴露金额之和) × 100%
+```
+
+### 详细表格权益暴露占比
+```
+权益暴露占比 = (该持仓权益暴露金额 / 产品净资产) × 100%
+```
+
+---
+
+## Excel输入文件格式
+
+**必需列名**(必须完全匹配):
+```
+产品简称                    - 产品名称
+资产代码                    - 内部资产代码
+外部代码                    - 外部代码(如基金代码)
+资产简称                    - 资产名称
+日终市值(元)-产品法估值      - 持仓金额(数值型)
+新版资产大类                - 一级分类(如"公募基金"、"委外投资")
+新版资产小类                - 二级分类(如"公募股票基金"、"公募混合基金")
+```
+
+---
+
+## 基金分类数据结构
+
+```javascript
+{
+    "011691.OF": {                    // 键:匹配键(外部代码/资产代码/资产简称)
+        "assetClass": "公募混合基金",   // 资产小类
+        "style": "均衡",               // 投资风格
+        "equityPosition": 100          // 权益仓位(0-100)
+    }
+}
+```
+
+**投资风格**(5种,固定顺序):
+```
+['红利', '均衡', '科技成长', '周期', '价值']
+```
+
+**含权益资产小类及默认仓位**:
+```javascript
+{
+    '公募股票基金': 100,
+    '普通股票型基金': 100,
+    '公募混合基金': 100,
+    '偏股混合型基金': 80,
+    '灵活配置型基金': 80,
+    '二级公募债券基金': 20,
+    '混合债券型二级基金': 20,
+    '其他公募基金': 100,
+    '被动指数型基金': 100,
+    '国际(QDII)被动指数型股票基金': 100
+}
+```
+
+---
+
+## 智能基金检测规则
+
+**检测条件**(必须同时满足):
+1. 新版资产大类 === '公募基金'
+2. 新版资产小类 ∈ [上述含权益资产小类列表]
+3. matchKey ∉ fundClassifications (未在数据库中)
+
+**自动设置默认权益仓位**: 根据资产小类从上表查询
+
+---
+
+## 界面展示要求
+
+### 1. 矩阵汇总表格
+- 行:产品名称(仅显示选中的产品)
+- 列:投资风格(按顺序:**红利、均衡、科技成长、周期、价值**)
+- 单元格:金额(万元,整数) 或 占比(**整数%,不保留小数**)
+- 可切换显示模式(金额/占比)
+
+### 2. 产品卡片
+- 每个产品显示环形图(Chart.js doughnut)
+- 列出各风格的金额(万元,整数)和占比(整数%)
+- 风格按顺序排列(红利优先)
+
+### 3. 详细数据表格
+**列**: 产品名称、基金名称、资产小类、风格、权益仓位、持仓金额(万元)、权益暴露金额(万元)、权益暴露占比(2位小数%)
+
+**排序**: 产品名称(升序) → 风格(升序) → 权益暴露占比(降序)
+
+**筛选**: 仅显示选中产品的数据
+
+### 4. 产品筛选器
+- 多选复选框
+- 全选/全不选按钮
+- 默认全选
+
+---
+
+## UI/UX规范
+
+### 颜色系统
+```css
+主色调: #667eea (紫色)
+次要色: #764ba2 (深紫)
+成功色: #16a34a (绿色)
+错误色: #ef4444 (红色)
+警告色: #ff6b35 (橙色)
+背景色: #f5f5f7 (浅灰)
+```
+
+### 设计风格
+- 渐变紫色标题栏
+- 圆角设计(8-15px)
+- 卡片阴影效果
+- 现代扁平风格
+
+### 响应式
+- 断点768px
+- 移动端单列布局
+
+---
+
+## 技术要求
+
+### 架构
+- **单HTML文件**,包含所有CSS和JavaScript
+- 完全**离线运行**,不依赖外部CDN
+- 使用LocalStorage持久化数据
+
+### 依赖库(本地文件)
+```html
+<script src="xlsx.full.min.js"></script>  <!-- Excel解析 -->
+<script src="chart.js"></script>          <!-- 图表绘制 -->
+```
+
+### 核心函数
+```javascript
+// 工具函数
+normalizeText(value)              // 文本标准化
+getFundMatchKey(row)              // 生成匹配键(核心!)
+
+// 数据处理
+processData()                     // 主处理函数
+calculateDetailData()             // 计算详细数据
+
+// UI渲染
+renderFundList()                  // 渲染基金列表
+renderResults()                   // 渲染分析结果
+renderMatrixTable()               // 渲染矩阵表格
+renderProductCards()              // 渲染产品卡片
+renderDetailTable()               // 渲染详细表格
+renderUnclassifiedFunds()         // 渲染未分类基金(v1.1.0)
+
+// 数据管理
+loadFundClassifications()         // 从LocalStorage加载
+saveFundClassifications()         // 保存到LocalStorage
+exportFundData()                  // 导出JSON
+importFundData()                  // 导入JSON
+batchAddUnclassifiedFunds()       // 批量添加未分类基金(v1.1.0)
+```
+
+---
+
+## 默认基金数据库(66个基金)
+
+```javascript
+const defaultFundClassifications = {
+    "002361.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "000385.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "015805.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "016869.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "006466.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "110008.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "002351.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "013642.OF": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "011426.OF": { "assetClass": "公募股票基金", "style": "周期", "equityPosition": 100 },
+    "159338.SZ": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "华泰柏瑞红利ETF ( 510880.SH )": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+    "563360.SH": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "588000.SH": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "159351.SZ": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "010003.OF": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "景顺长城环保优势(001975.OF)": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "520990.SH": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+    "515100.SH": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+    "中证800交易型开放式指数证券投资基金": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "宝盈品质甄选混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "012125.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "018225.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "010372.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "001300.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "001301.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "010625.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "广发主题领先灵活配置混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "华商新趋势优选(166301.OF)": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "017043.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "260101.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "万家宏观择时多策略灵活配置混合型证券投资基金": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "015566.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "020199.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "易方达裕惠回报定期开放式混合型发起式证券投资基金": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "011691.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "023452.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "012778.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "006567.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "中泰元和价值精选混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "513010.SH": { "assetClass": "其他公募基金", "style": "科技成长", "equityPosition": 100 },
+    "009879.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "011066.OF": { "assetClass": "普通股票型基金", "style": "价值", "equityPosition": 100 },
+    "016841.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "017750.OF": { "assetClass": "偏股混合型基金", "style": "周期", "equityPosition": 100 },
+    "515220.SH": { "assetClass": "被动指数型基金", "style": "周期", "equityPosition": 100 },
+    "018505.OF": { "assetClass": "偏股混合型基金", "style": "周期", "equityPosition": 100 },
+    "009878.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "018993.OF": { "assetClass": "偏股混合型基金", "style": "科技成长", "equityPosition": 100 },
+    "024919.OF": { "assetClass": "灵活配置型基金", "style": "红利", "equityPosition": 100 },
+    "001258.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+    "015364.OF": { "assetClass": "普通股票型基金", "style": "价值", "equityPosition": 100 },
+    "020521.OF": { "assetClass": "混合债券型二级基金", "style": "科技成长", "equityPosition": 20 },
+    "001955.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "010388.OF": { "assetClass": "普通股票型基金", "style": "科技成长", "equityPosition": 100 },
+    "014088.OF": { "assetClass": "混合债券型二级基金", "style": "科技成长", "equityPosition": 20 },
+    "017941.OF": { "assetClass": "灵活配置型基金", "style": "科技成长", "equityPosition": 100 },
+    "217023.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+    "014846.OF": { "assetClass": "混合债券型二级基金", "style": "周期", "equityPosition": 20 },
+    "017475.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+    "012228.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "80PF210158": { "assetClass": "委外非现固定收益类资产", "style": "均衡", "equityPosition": 18 },
+    "80PF200133": { "assetClass": "委外非现固定收益类资产", "style": "价值", "equityPosition": 19 },
+    "11PF252714": { "assetClass": "委外非现固定收益类资产", "style": "均衡", "equityPosition": 18 },
+    "11PF252802": { "assetClass": "委外权益类投资", "style": "红利", "equityPosition": 100 },
+    "11PF253412": { "assetClass": "委外权益类投资", "style": "科技成长", "equityPosition": 100 },
+    "大成科技创新混合型证券投资基金": { "assetClass": "偏股混合型基金", "style": "科技成长", "equityPosition": 80 }
+};
+```
+
+---
+
+## 验收标准
+
+### 功能完整性
+- ✅ 文件上传(点击+拖拽)
+- ✅ 基金增删改查
+- ✅ 智能检测未分类基金
+- ✅ 批量添加未分类基金
+- ✅ 导出/导入JSON
+- ✅ LocalStorage持久化
+- ✅ 产品筛选(全选/全不选/单选)
+- ✅ 矩阵表格金额/占比切换
+- ✅ 环形图显示
+- ✅ 详细表格排序
+
+### 计算准确性
+- ✅ 净资产正确扣除正回购
+- ✅ 权益暴露 = 持仓金额 × 权益仓位
+- ✅ 风格占比 = 该风格暴露 / 总暴露
+- ✅ 详细表格占比 = 暴露金额 / 产品净资产
+- ✅ **矩阵表格占比必须四舍五入到整数,不保留小数**
+
+### UI/UX
+- ✅ 界面美观,符合设计规范
+- ✅ 操作流畅
+- ✅ 错误提示清晰
+- ✅ 响应式布局
+
+---
+
+## 实现提示
+
+### 关键点
+1. **基金匹配逻辑**是核心,必须使用getFundMatchKey()生成键
+2. **正回购处理**:检查资产简称是否包含"正回购",从净资产中减去
+3. **风格排序**:红利、均衡、科技成长、周期、价值
+4. **百分比格式**:矩阵表格用Math.round(),详细表格用toFixed(2)
+5. **数据库键**:使用matchKey,不是资产简称!
+
+### 测试用例
+```javascript
+// 测试1:正回购扣除
+输入: 基金A(1000万) + 正回购(500万) + 现金(200万)
+预期净资产: 700万
+
+// 测试2:权益暴露
+输入: 二级债基,持仓100万,权益仓位20%
+预期权益暴露: 20万
+
+// 测试3:风格占比
+输入: 均衡300万 + 科技成长200万
+预期占比: 均衡60% + 科技成长40%
+```
+
+---
+
+## 参考文档
+
+- **完整技术规格**: 见 `项目完整说明书_AI复现版.md` (17章节详细文档)
+- **项目说明**: 见 `CLAUDE.md`
+- **源代码**: 见 `fund_analysis.html`
+
+---
+
+**现在开始实现吧!确保严格遵守所有计算公式和UI规范。**

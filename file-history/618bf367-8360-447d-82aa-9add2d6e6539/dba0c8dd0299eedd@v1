@@ -1,0 +1,248 @@
+/* ============================================
+   模板系统
+   ============================================ */
+
+class TemplateManager {
+    constructor() {
+        this.currentTemplate = null;
+    }
+
+    // 显示模板选择对话框
+    async showTemplateDialog() {
+        const modal = document.getElementById('modal-template');
+        const select = document.getElementById('select-template');
+        const form = document.getElementById('template-form');
+
+        // 加载模板列表
+        const templates = await db.getTemplates();
+
+        select.innerHTML = '<option value="">-- 选择模板 --</option>';
+        templates.forEach(template => {
+            const option = document.createElement('option');
+            option.value = template.id;
+            option.textContent = template.name;
+            select.appendChild(option);
+        });
+
+        // 清空表单
+        form.innerHTML = '';
+        this.currentTemplate = null;
+
+        // 显示模态框
+        modal.classList.add('active');
+    }
+
+    // 模板选择变化
+    async onTemplateSelect(templateId) {
+        if (!templateId) {
+            document.getElementById('template-form').innerHTML = '';
+            this.currentTemplate = null;
+            return;
+        }
+
+        try {
+            const template = await db.get('templates', templateId);
+            if (!template) return;
+
+            this.currentTemplate = template;
+            this.renderTemplateForm(template);
+        } catch (error) {
+            console.error('Error loading template:', error);
+            showNotification('加载模板失败', 'error');
+        }
+    }
+
+    // 渲染模板表单
+    renderTemplateForm(template) {
+        const form = document.getElementById('template-form');
+        form.innerHTML = '';
+
+        if (!template.fields || template.fields.length === 0) {
+            form.innerHTML = '<p style="color: #9ca3af;">此模板没有定义字段</p>';
+            return;
+        }
+
+        template.fields.forEach(field => {
+            const formGroup = document.createElement('div');
+            formGroup.className = 'form-group';
+
+            const label = document.createElement('label');
+            label.textContent = field.label + (field.required ? ' *' : '');
+
+            let input;
+
+            switch (field.type) {
+                case 'text':
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-input';
+                    input.name = field.name;
+                    input.required = field.required;
+                    break;
+
+                case 'number':
+                    input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'form-input';
+                    input.name = field.name;
+                    input.step = 'any';
+                    input.required = field.required;
+                    break;
+
+                case 'date':
+                    input = document.createElement('input');
+                    input.type = 'date';
+                    input.className = 'form-input';
+                    input.name = field.name;
+                    input.value = formatDate(Date.now());
+                    input.required = field.required;
+                    break;
+
+                case 'select':
+                    input = document.createElement('select');
+                    input.className = 'form-input';
+                    input.name = field.name;
+                    input.required = field.required;
+
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '-- 请选择 --';
+                    input.appendChild(defaultOption);
+
+                    if (field.options) {
+                        field.options.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt;
+                            option.textContent = opt;
+                            input.appendChild(option);
+                        });
+                    }
+                    break;
+
+                case 'richtext':
+                    input = document.createElement('textarea');
+                    input.className = 'form-input';
+                    input.name = field.name;
+                    input.rows = 4;
+                    input.required = field.required;
+                    break;
+
+                default:
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-input';
+                    input.name = field.name;
+                    input.required = field.required;
+            }
+
+            formGroup.appendChild(label);
+            formGroup.appendChild(input);
+            form.appendChild(formGroup);
+        });
+    }
+
+    // 从模板创建页面
+    async createFromTemplate() {
+        if (!this.currentTemplate) {
+            showNotification('请先选择模板', 'warning');
+            return null;
+        }
+
+        const form = document.getElementById('template-form');
+        const inputs = form.querySelectorAll('input, select, textarea');
+
+        // 收集表单数据
+        const data = {};
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (input.required && !input.value) {
+                isValid = false;
+                input.style.borderColor = '#c94f4f';
+            } else {
+                input.style.borderColor = '';
+                data[input.name] = input.value;
+            }
+        });
+
+        if (!isValid) {
+            showNotification('请填写所有必填字段', 'error');
+            return null;
+        }
+
+        try {
+            // 生成页面标题
+            let title = this.currentTemplate.name;
+            if (data.productName && data.tradingDate) {
+                title = `${data.productName} - ${data.tradingDate}`;
+            } else if (data.productName) {
+                title = data.productName;
+            }
+
+            // 处理模板内容，替换占位符
+            const content = this.processTemplate(this.currentTemplate.content, data);
+
+            // 创建页面
+            // 获取当前选中的分区
+            const currentSectionId = window.app ? window.app.currentSectionId : null;
+            if (!currentSectionId) {
+                showNotification('请先选择一个分区', 'error');
+                return null;
+            }
+
+            const page = await db.createPage(currentSectionId, title, 'trade-log');
+
+            // 更新页面内容和元数据
+            await db.updatePage(page.id, {
+                content,
+                metadata: {
+                    ...data,
+                    templateId: this.currentTemplate.id
+                },
+                tags: [this.currentTemplate.productType]
+            });
+
+            showNotification('页面已创建', 'success');
+            return page;
+
+        } catch (error) {
+            console.error('Error creating page from template:', error);
+            showNotification('创建页面失败', 'error');
+            return null;
+        }
+    }
+
+    // 处理模板内容，替换占位符
+    processTemplate(templateContent, data) {
+        if (!templateContent || !templateContent.ops) {
+            return { ops: [] };
+        }
+
+        const newOps = templateContent.ops.map(op => {
+            if (typeof op.insert === 'string') {
+                let text = op.insert;
+
+                // 替换占位符 {fieldName}
+                Object.keys(data).forEach(key => {
+                    const placeholder = `{${key}}`;
+                    text = text.replace(new RegExp(placeholder, 'g'), data[key] || '');
+                });
+
+                return { ...op, insert: text };
+            }
+            return op;
+        });
+
+        return { ops: newOps };
+    }
+
+    // 关闭模板对话框
+    closeDialog() {
+        const modal = document.getElementById('modal-template');
+        modal.classList.remove('active');
+        this.currentTemplate = null;
+    }
+}
+
+// 创建全局模板管理器实例
+const templateManager = new TemplateManager();

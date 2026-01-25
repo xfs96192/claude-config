@@ -1,0 +1,1518 @@
+2026-01-12T09:53:53.742Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude...
+2026-01-12T09:53:53.747Z [DEBUG] [init] configureGlobalMTLS starting
+2026-01-12T09:53:53.747Z [DEBUG] [init] configureGlobalMTLS complete
+2026-01-12T09:53:53.747Z [DEBUG] [init] configureGlobalAgents starting
+2026-01-12T09:53:53.747Z [DEBUG] [init] configureGlobalAgents complete
+2026-01-12T09:53:53.753Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-01-12T09:53:53.753Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-01-12T09:53:53.753Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-01-12T09:53:53.759Z [DEBUG] Applying permission update: Adding 6 allow rule(s) to destination 'localSettings': ["Bash(python:*)","Bash(curl:*)","Bash(rm:*)","Bash(git init:*)","Bash(git add:*)","Bash(exit)"]
+2026-01-12T09:53:53.759Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-01-12T09:53:53.775Z [DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+2026-01-12T09:53:53.775Z [DEBUG] Total LSP servers loaded: 0
+2026-01-12T09:53:53.775Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-01-12T09:53:53.775Z [DEBUG] LSP manager initialized with 0 servers
+2026-01-12T09:53:53.775Z [DEBUG] [STARTUP] MCP configs loaded in 16ms
+2026-01-12T09:53:53.775Z [DEBUG] LSP server manager initialized successfully
+2026-01-12T09:53:53.776Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-01-12T09:53:53.776Z [DEBUG] [STARTUP] Running setup()...
+2026-01-12T09:53:53.786Z [DEBUG] Stats cache is up to date
+2026-01-12T09:53:53.789Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-01-12T09:53:53.798Z [DEBUG] installed_plugins.json doesn't exist, returning empty V2 object
+2026-01-12T09:53:53.801Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768211633801
+2026-01-12T09:53:53.801Z [DEBUG] Temp file written successfully, size: 2 bytes
+2026-01-12T09:53:53.801Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768211633801 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T09:53:53.802Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T09:53:53.808Z [DEBUG] getPluginSkills: Processing 0 enabled plugins
+2026-01-12T09:53:53.808Z [DEBUG] Total plugin skills loaded: 0
+2026-01-12T09:53:53.808Z [DEBUG] Total plugin commands loaded: 0
+2026-01-12T09:53:53.808Z [DEBUG] Registered 0 hooks from 0 plugins
+2026-01-12T09:53:53.811Z [DEBUG] [STARTUP] setup() completed in 35ms
+2026-01-12T09:53:53.811Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-01-12T09:53:53.820Z [DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, legacy commands: 0)
+2026-01-12T09:53:53.821Z [DEBUG] getSkills returning: 0 skill dir commands, 0 plugin skills, 0 bundled skills
+2026-01-12T09:53:53.829Z [DEBUG] Creating shell snapshot for zsh (/bin/zsh)
+2026-01-12T09:53:53.829Z [DEBUG] Looking for shell config file: /Users/fanshengxia/.zshrc
+2026-01-12T09:53:53.829Z [DEBUG] Snapshots directory: /Users/fanshengxia/.claude/shell-snapshots
+2026-01-12T09:53:53.830Z [DEBUG] Creating snapshot at: /Users/fanshengxia/.claude/shell-snapshots/snapshot-zsh-1768211633829-5psywv.sh
+2026-01-12T09:53:53.830Z [DEBUG] Shell binary exists: true
+2026-01-12T09:53:53.830Z [DEBUG] Execution timeout: 10000ms
+2026-01-12T09:53:53.845Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg)
+2026-01-12T09:53:53.865Z [DEBUG] Total plugin agents loaded: 0
+2026-01-12T09:53:53.865Z [DEBUG] [STARTUP] Commands and agents loaded in 54ms
+2026-01-12T09:53:53.865Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-01-12T09:53:53.866Z [DEBUG] [render] initYoga starting
+2026-01-12T09:53:53.876Z [DEBUG] [render] initYoga complete
+2026-01-12T09:53:53.881Z [DEBUG] [keybindings] KeybindingSetup initialized with 39 bindings, 0 warnings
+2026-01-12T09:53:53.907Z [DEBUG] [keybindings] Skipping file watcher - user customization disabled
+2026-01-12T09:53:54.726Z [DEBUG] Shell snapshot created successfully (1596 bytes)
+2026-01-12T09:53:55.293Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.22523.1768211635293
+2026-01-12T09:53:55.293Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:53:55.293Z [DEBUG] Temp file written successfully, size: 29018 bytes
+2026-01-12T09:53:55.293Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:53:55.293Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.22523.1768211635293 to /Users/fanshengxia/.claude.json
+2026-01-12T09:53:55.294Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-12T09:53:55.308Z [DEBUG] [STARTUP] showSetupScreens() completed in 1443ms
+2026-01-12T09:53:55.319Z [DEBUG] MCP server "zen": Starting connection with timeout of 30000ms
+2026-01-12T09:53:55.321Z [DEBUG] MCP server "n8n-mcp": Starting connection with timeout of 30000ms
+2026-01-12T09:53:55.328Z [DEBUG] Initialized versioned plugins system with 0 plugins
+2026-01-12T09:53:55.332Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.22523.1768211635332
+2026-01-12T09:53:55.332Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:53:55.332Z [DEBUG] Temp file written successfully, size: 29018 bytes
+2026-01-12T09:53:55.332Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:53:55.332Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.22523.1768211635332 to /Users/fanshengxia/.claude.json
+2026-01-12T09:53:55.332Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-12T09:53:55.335Z [DEBUG] Getting matching hook commands for SessionStart with query: startup
+2026-01-12T09:53:55.335Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:53:55.335Z [DEBUG] Matched 0 unique hooks for query "startup" (0 before deduplication)
+2026-01-12T09:53:55.336Z [DEBUG] [render] initYoga starting
+2026-01-12T09:53:55.336Z [DEBUG] [render] initYoga complete
+2026-01-12T09:53:55.337Z [DEBUG] MCP server "zen": Connection failed after 22ms: spawn /Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python ENOENT
+2026-01-12T09:53:55.337Z [ERROR] MCP server "zen" Connection failed: spawn /Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python ENOENT
+2026-01-12T09:53:55.345Z [DEBUG] [keybindings] KeybindingSetup initialized with 39 bindings, 0 warnings
+2026-01-12T09:53:55.447Z [DEBUG] [keybindings] Skipping file watcher - user customization disabled
+2026-01-12T09:53:55.447Z [DEBUG] [REPL:mount] REPL mounted, disabled=false
+2026-01-12T09:53:55.455Z [DEBUG] Official marketplace auto-install skipped: already_attempted
+2026-01-12T09:53:55.456Z [DEBUG] performStartupChecks called
+2026-01-12T09:53:55.456Z [DEBUG] Starting background plugin installations
+2026-01-12T09:53:55.456Z [DEBUG] performBackgroundPluginInstallations called
+2026-01-12T09:53:55.570Z [DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+2026-01-12T09:53:55.570Z [DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+2026-01-12T09:53:55.596Z [DEBUG] Git remote URL: null
+2026-01-12T09:53:55.596Z [DEBUG] No git remote URL found
+2026-01-12T09:53:55.596Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2026-01-12T09:53:55.647Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-12T09:53:55.657Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.22523.1768211635657
+2026-01-12T09:53:55.657Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:53:55.657Z [DEBUG] Temp file written successfully, size: 29199 bytes
+2026-01-12T09:53:55.658Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:53:55.658Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.22523.1768211635657 to /Users/fanshengxia/.claude.json
+2026-01-12T09:53:55.658Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-12T09:53:55.661Z [DEBUG] Getting matching hook commands for SubagentStart with query: Explore
+2026-01-12T09:53:55.661Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:53:55.661Z [DEBUG] Matched 0 unique hooks for query "Explore" (0 before deduplication)
+2026-01-12T09:53:55.662Z [DEBUG] Getting matching hook commands for SubagentStart with query: Plan
+2026-01-12T09:53:55.662Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:53:55.662Z [DEBUG] Matched 0 unique hooks for query "Plan" (0 before deduplication)
+2026-01-12T09:53:55.662Z [DEBUG] Getting matching hook commands for SubagentStart with query: Bash
+2026-01-12T09:53:55.662Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:53:55.662Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:53:55.740Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:53:55.740Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T09:53:55.740Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T09:53:55.747Z [DEBUG] Skills and commands included in Skill tool:
+2026-01-12T09:53:55.749Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:53:55.749Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:53:55.750Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:53:55.753Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:53:55.753Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:53:55.755Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:53:55.755Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:53:55.757Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:53:55.757Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:53:55.789Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:53:55.790Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:53:55.790Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:53:55.790Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:53:55.861Z [DEBUG] Successfully refreshed marketplace: claude-plugins-official
+2026-01-12T09:53:55.862Z [DEBUG] Plugin autoupdate: checking installed plugins
+2026-01-12T09:53:56.938Z [ERROR] AxiosError: AxiosError: Request failed with status code 401
+    at Py (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:56:1138)
+    at IncomingMessage.<anonymous> (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:57:9861)
+    at IncomingMessage.emit (node:events:519:35)
+    at IncomingMessage.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1696:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at e$A.request (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:59:2132)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async liA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:121:2907)
+    at async yt5 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:3039:59152)
+2026-01-12T09:53:57.591Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:53:57.671Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:53:57.695Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-12T09:53:57.695Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:53:57.695Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T09:53:57.697Z [ERROR] MCP server "n8n-mcp" Server stderr: npm warn exec The following package was not found and will be installed: n8n-mcp@2.33.1
+2026-01-12T09:53:57.864Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:53:57.867Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:53:59.573Z [ERROR] Error: Error: 1P event logging: 59 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:53:59.573Z [ERROR] Error: Error: {"stack":"Error: Failed to export 59 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 59 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:04.976Z [DEBUG] [Agent: Explore] Reached max turns limit (1)
+2026-01-12T09:54:05.605Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T09:54:05.605Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T09:54:05.605Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T09:54:05.605Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T09:54:05.625Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2026-01-12T09:54:05.625Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:05.625Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T09:54:05.627Z [DEBUG] FileHistory: Added snapshot for d26bcd01-bb08-4980-9634-f25b45f85b06, tracking 0 files
+2026-01-12T09:54:05.638Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:54:05.639Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:05.639Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:05.640Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:05.640Z [DEBUG] Total plugin output styles loaded: 0
+2026-01-12T09:54:05.649Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T09:54:05.657Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:05.657Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:05.657Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:05.823Z [DEBUG] [Agent: Plan] Reached max turns limit (1)
+2026-01-12T09:54:07.318Z [ERROR] Error: Error: 1P event logging: 49 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:07.318Z [ERROR] Error: Error: {"stack":"Error: Failed to export 49 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 49 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:08.501Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:09.714Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:14.354Z [DEBUG] MCP server "n8n-mcp": Successfully connected to undefined server in 19034ms
+2026-01-12T09:54:14.354Z [DEBUG] MCP server "n8n-mcp": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"serverVersion":{"name":"n8n-documentation-mcp","version":"2.33.1"}}
+2026-01-12T09:54:14.361Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T09:54:14.364Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:14.364Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:14.364Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:14.801Z [ERROR] Error: Error: 1P event logging: 1 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:14.802Z [ERROR] Error: Error: {"stack":"Error: Failed to export 1 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 1 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:15.135Z [ERROR] Error: Error: 404 没找到对象
+    at C9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33688)
+    at qP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:914:2195)
+    at qP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:914:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1165:3881
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1065:2223
+    at async fa8 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1064:101083)
+    at async lsB (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1065:2156)
+    at async ehA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:3255:9779)
+    at async AgA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:3255:10474)
+2026-01-12T09:54:15.135Z [DEBUG] countTokensWithFallback: API returned null, trying haiku fallback (17 tools)
+2026-01-12T09:54:15.135Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:15.135Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:15.135Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:20.283Z [ERROR] Error: Error: 1P event logging: 4 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:20.283Z [ERROR] Error: Error: {"stack":"Error: Failed to export 4 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 4 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:26.270Z [DEBUG] executePreToolHooks called for tool: TodoWrite
+2026-01-12T09:54:26.275Z [DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+2026-01-12T09:54:26.275Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:26.275Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T09:54:26.287Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768211666287
+2026-01-12T09:54:26.287Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:54:26.288Z [DEBUG] Temp file written successfully, size: 537 bytes
+2026-01-12T09:54:26.288Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:54:26.288Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768211666287 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T09:54:26.288Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T09:54:26.293Z [DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+2026-01-12T09:54:26.293Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:26.293Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T09:54:26.301Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T09:54:26.301Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T09:54:26.301Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T09:54:26.301Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T09:54:26.311Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T09:54:26.316Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:26.316Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:26.316Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:30.080Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:31.491Z [ERROR] Error: Error: 1P event logging: 14 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:31.491Z [ERROR] Error: Error: {"stack":"Error: Failed to export 14 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 14 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:34.757Z [DEBUG] executePreToolHooks called for tool: Task
+2026-01-12T09:54:34.761Z [DEBUG] Getting matching hook commands for PreToolUse with query: Task
+2026-01-12T09:54:34.761Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:34.761Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2026-01-12T09:54:34.793Z [DEBUG] Getting matching hook commands for SubagentStart with query: general-purpose
+2026-01-12T09:54:34.793Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:34.793Z [DEBUG] Matched 0 unique hooks for query "general-purpose" (0 before deduplication)
+2026-01-12T09:54:34.821Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:54:34.823Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:34.823Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:34.823Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:36.565Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:40.314Z [ERROR] Error: Error: 1P event logging: 13 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:40.314Z [ERROR] Error: Error: {"stack":"Error: Failed to export 13 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 13 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:41.300Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:54:41.302Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:41.302Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:41.303Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:42.988Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:46.149Z [ERROR] Error: Error: 1P event logging: 14 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:46.149Z [ERROR] Error: Error: {"stack":"Error: Failed to export 14 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 14 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:54:54.175Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T09:54:54.181Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T09:54:54.181Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:54.181Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:54:54.192Z [DEBUG] tree-sitter: WASM files not found
+2026-01-12T09:54:54.200Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:54:54.201Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:54:54.201Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:54.201Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:54.202Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:54:54.202Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:54:54.202Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:54.202Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:54:55.406Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:55.945Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:54:55.954Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "python3:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2026-01-12T09:54:55.969Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2026-01-12T09:54:55.974Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2026-01-12T09:54:55.974Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:54:55.974Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:54:59.800Z [ERROR] Error: Error: 1P event logging: 25 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:54:59.800Z [ERROR] Error: Error: {"stack":"Error: Failed to export 25 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 25 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:55:00.607Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2026-01-12T09:55:00.607Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2026-01-12T09:55:00.613Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768211700613
+2026-01-12T09:55:00.614Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:55:00.615Z [DEBUG] Temp file written successfully, size: 259 bytes
+2026-01-12T09:55:00.615Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:55:00.615Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768211700613 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json
+2026-01-12T09:55:00.615Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json written atomically
+2026-01-12T09:55:00.619Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(python3:*)"]
+2026-01-12T09:55:00.626Z [DEBUG] No session environment scripts found
+2026-01-12T09:55:00.786Z [DEBUG] Getting matching hook commands for PostToolUseFailure with query: Bash
+2026-01-12T09:55:00.786Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:55:00.786Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:55:00.829Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:55:00.831Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:55:00.831Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:55:00.831Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:55:00.840Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-12T09:55:02.909Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:55:05.958Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T09:55:05.963Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T09:55:05.963Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:55:05.963Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:55:05.975Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:55:05.976Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:55:05.976Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:55:05.976Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:55:06.185Z [ERROR] Error: Error: 1P event logging: 14 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:55:06.185Z [ERROR] Error: Error: {"stack":"Error: Failed to export 14 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 14 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:55:06.912Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:55:06.919Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "pip install:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2026-01-12T09:55:06.928Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2026-01-12T09:55:06.932Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2026-01-12T09:55:06.932Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:55:06.932Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:55:11.869Z [ERROR] Error: Error: 1P event logging: 15 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:55:11.869Z [ERROR] Error: Error: {"stack":"Error: Failed to export 15 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 15 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:55:12.935Z [DEBUG] Getting matching hook commands for Notification with query: permission_prompt
+2026-01-12T09:55:12.935Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:55:12.935Z [DEBUG] Matched 0 unique hooks for query "permission_prompt" (0 before deduplication)
+2026-01-12T09:55:18.062Z [ERROR] Error: Error: 1P event logging: 1 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:55:18.062Z [ERROR] Error: Error: {"stack":"Error: Failed to export 1 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 1 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:55:47.452Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2026-01-12T09:55:47.452Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2026-01-12T09:55:47.454Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768211747454
+2026-01-12T09:55:47.454Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:55:47.455Z [DEBUG] Temp file written successfully, size: 288 bytes
+2026-01-12T09:55:47.455Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:55:47.455Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768211747454 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json
+2026-01-12T09:55:47.455Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json written atomically
+2026-01-12T09:55:47.459Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(pip install:*)"]
+2026-01-12T09:55:47.651Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-12T09:55:50.431Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:55:50.432Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:55:50.432Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:55:50.432Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:55:50.440Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T09:55:50.440Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:55:50.440Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:55:50.480Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:55:50.482Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:55:50.482Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:55:50.482Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:55:52.671Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:55:52.735Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:55:53.093Z [ERROR] Error: Error: 1P event logging: 22 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:55:53.093Z [ERROR] Error: Error: {"stack":"Error: Failed to export 22 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 22 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:55:59.025Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:55:59.025Z [ERROR] Error: Error: {"stack":"Error: Failed to export 2 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 2 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:56:36.782Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T09:56:36.787Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T09:56:36.787Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:36.787Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:56:36.929Z [DEBUG] Getting matching hook commands for PostToolUseFailure with query: Bash
+2026-01-12T09:56:36.929Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:36.929Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:56:36.974Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:56:36.976Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:56:36.976Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:56:36.976Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:56:39.029Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:56:41.606Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T09:56:41.611Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T09:56:41.611Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:41.611Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:56:41.662Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:56:41.662Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:56:41.663Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:56:41.663Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:56:41.669Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T09:56:41.669Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:41.669Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:56:41.706Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:56:41.708Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:56:41.708Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:56:41.708Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:56:42.418Z [ERROR] Error: Error: 1P event logging: 40 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:56:42.418Z [ERROR] Error: Error: {"stack":"Error: Failed to export 40 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 40 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:56:43.544Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:56:44.322Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:56:46.097Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T09:56:46.104Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T09:56:46.104Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:46.104Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:56:46.113Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:56:46.114Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:56:46.114Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:56:46.114Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:56:48.040Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:56:48.050Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "/opt/homebrew/bin/python3 -m pip:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2026-01-12T09:56:48.064Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2026-01-12T09:56:48.069Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2026-01-12T09:56:48.069Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:48.069Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:56:49.433Z [ERROR] Error: Error: 1P event logging: 17 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:56:49.434Z [ERROR] Error: Error: {"stack":"Error: Failed to export 17 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 17 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:56:54.070Z [DEBUG] Getting matching hook commands for Notification with query: permission_prompt
+2026-01-12T09:56:54.070Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:56:54.070Z [DEBUG] Matched 0 unique hooks for query "permission_prompt" (0 before deduplication)
+2026-01-12T09:56:59.654Z [ERROR] Error: Error: 1P event logging: 1 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:56:59.655Z [ERROR] Error: Error: {"stack":"Error: Failed to export 1 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 1 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:57:37.877Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2026-01-12T09:57:37.877Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2026-01-12T09:57:37.882Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768211857882
+2026-01-12T09:57:37.882Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T09:57:37.883Z [DEBUG] Temp file written successfully, size: 338 bytes
+2026-01-12T09:57:37.883Z [DEBUG] Applied original permissions to temp file
+2026-01-12T09:57:37.883Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768211857882 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json
+2026-01-12T09:57:37.883Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json written atomically
+2026-01-12T09:57:37.886Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(/opt/homebrew/bin/python3 -m pip:*)"]
+2026-01-12T09:57:38.101Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-12T09:57:38.685Z [DEBUG] Getting matching hook commands for PostToolUseFailure with query: Bash
+2026-01-12T09:57:38.685Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:57:38.685Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:57:38.722Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:57:38.724Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:57:38.724Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:57:38.724Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:57:41.200Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:57:43.565Z [ERROR] Error: Error: 1P event logging: 15 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:57:43.565Z [ERROR] Error: Error: {"stack":"Error: Failed to export 15 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 15 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:58:34.664Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T09:58:34.670Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T09:58:34.670Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:58:34.670Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:58:34.685Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:58:34.685Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T09:58:34.686Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:58:34.686Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:58:34.686Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T09:58:34.686Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T09:58:34.687Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:58:34.687Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T09:58:36.728Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:58:36.970Z [DEBUG] Stream started - received first chunk
+2026-01-12T09:58:36.981Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "/Users/fanshengxia/opt/anaconda3/bin/python3:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2026-01-12T09:58:37.003Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2026-01-12T09:58:37.008Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2026-01-12T09:58:37.008Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:58:37.008Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T09:58:40.313Z [ERROR] Error: Error: 1P event logging: 24 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:58:40.314Z [ERROR] Error: Error: {"stack":"Error: Failed to export 24 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 24 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:58:43.010Z [DEBUG] Getting matching hook commands for Notification with query: permission_prompt
+2026-01-12T09:58:43.010Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T09:58:43.010Z [DEBUG] Matched 0 unique hooks for query "permission_prompt" (0 before deduplication)
+2026-01-12T09:58:48.589Z [ERROR] Error: Error: 1P event logging: 1 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T09:58:48.589Z [ERROR] Error: Error: {"stack":"Error: Failed to export 1 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 1 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T09:58:56.546Z [DEBUG] Failed to check metrics opt-out status: Request failed with status code 401
+2026-01-12T09:58:56.546Z [ERROR] AxiosError: AxiosError: Request failed with status code 401
+    at Py (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:56:1138)
+    at IncomingMessage.<anonymous> (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:57:9861)
+    at IncomingMessage.emit (node:events:519:35)
+    at IncomingMessage.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1696:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at e$A.request (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:59:2132)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async S_5 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:35194)
+    at async G (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:116:26697)
+    at async wX1 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:35748)
+    at async VF0.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:36561)
+2026-01-12T09:58:56.546Z [DEBUG] Metrics export disabled by organization setting
+2026-01-12T10:00:28.811Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2026-01-12T10:00:28.811Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2026-01-12T10:00:28.814Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768212028814
+2026-01-12T10:00:28.814Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:00:28.814Z [DEBUG] Temp file written successfully, size: 400 bytes
+2026-01-12T10:00:28.814Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:00:28.814Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json.tmp.22523.1768212028814 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json
+2026-01-12T10:00:28.814Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/.claude/settings.local.json written atomically
+2026-01-12T10:00:28.816Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(/Users/fanshengxia/opt/anaconda3/bin/python3:*)"]
+2026-01-12T10:00:29.021Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-12T10:00:31.542Z [DEBUG] Getting matching hook commands for PostToolUseFailure with query: Bash
+2026-01-12T10:00:31.542Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:00:31.542Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:00:31.575Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:00:31.578Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:00:31.578Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:00:31.578Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:00:33.348Z [ERROR] Error: Error: 1P event logging: 16 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:00:33.348Z [ERROR] Error: Error: {"stack":"Error: Failed to export 16 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 16 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:00:34.072Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:00:55.098Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:00:55.105Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:00:55.105Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:00:55.105Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:00:56.739Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:00:56.740Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:00:56.740Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:00:56.740Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:00:56.748Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:00:56.748Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:00:56.748Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:00:56.786Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:00:56.788Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:00:56.788Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:00:56.788Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:00:58.649Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:00:58.904Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:01:00.226Z [ERROR] Error: Error: 1P event logging: 22 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:01:00.226Z [ERROR] Error: Error: {"stack":"Error: Failed to export 22 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 22 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:01:07.494Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:01:07.494Z [ERROR] Error: Error: {"stack":"Error: Failed to export 2 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 2 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:01:23.234Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:01:23.239Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:01:23.239Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:01:23.239Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:01:25.343Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:01:25.344Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:01:25.344Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:01:25.344Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:01:25.355Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:01:25.355Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:01:25.355Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:01:25.391Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:01:25.393Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:01:25.393Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:01:25.393Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:01:26.849Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:01:27.898Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:01:28.410Z [ERROR] Error: Error: 1P event logging: 23 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:01:28.410Z [ERROR] Error: Error: {"stack":"Error: Failed to export 23 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 23 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:01:36.559Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:01:36.560Z [ERROR] Error: Error: {"stack":"Error: Failed to export 2 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 2 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:02:13.898Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-12T10:02:13.898Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:13.898Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T10:02:13.909Z [DEBUG] Getting matching hook commands for PostToolUse with query: Task
+2026-01-12T10:02:13.909Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:13.909Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2026-01-12T10:02:13.929Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:02:13.929Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:02:13.929Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:02:13.929Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:02:13.945Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:02:13.951Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:02:13.951Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:02:13.951Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:02:16.415Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:02:19.559Z [ERROR] Error: Error: 1P event logging: 12 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:02:19.559Z [ERROR] Error: Error: {"stack":"Error: Failed to export 12 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 12 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:02:24.504Z [DEBUG] executePreToolHooks called for tool: TodoWrite
+2026-01-12T10:02:24.510Z [DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+2026-01-12T10:02:24.510Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:24.510Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:02:24.523Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212144523
+2026-01-12T10:02:24.523Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:02:24.524Z [DEBUG] Temp file written successfully, size: 550 bytes
+2026-01-12T10:02:24.524Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:02:24.524Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212144523 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T10:02:24.524Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T10:02:24.529Z [DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+2026-01-12T10:02:24.529Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:24.529Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:02:24.536Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:02:24.536Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:02:24.536Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:02:24.536Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:02:24.544Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:02:24.551Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:02:24.551Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:02:24.551Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:02:26.193Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:02:30.226Z [DEBUG] executePreToolHooks called for tool: Task
+2026-01-12T10:02:30.229Z [DEBUG] Getting matching hook commands for PreToolUse with query: Task
+2026-01-12T10:02:30.229Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:30.229Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2026-01-12T10:02:30.252Z [DEBUG] Getting matching hook commands for SubagentStart with query: general-purpose
+2026-01-12T10:02:30.252Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:30.252Z [DEBUG] Matched 0 unique hooks for query "general-purpose" (0 before deduplication)
+2026-01-12T10:02:30.285Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:02:30.287Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:02:30.287Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:02:30.287Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:02:30.296Z [ERROR] Error: Error: 1P event logging: 15 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:02:30.296Z [ERROR] Error: Error: {"stack":"Error: Failed to export 15 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 15 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:02:32.124Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:02:35.927Z [ERROR] Error: Error: 1P event logging: 12 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:02:35.927Z [ERROR] Error: Error: {"stack":"Error: Failed to export 12 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 12 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:02:36.776Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:02:36.778Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:02:36.778Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:02:36.778Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:02:38.580Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:02:42.879Z [ERROR] Error: Error: 1P event logging: 13 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:02:42.879Z [ERROR] Error: Error: {"stack":"Error: Failed to export 13 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 13 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:02:43.129Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:02:43.141Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:02:43.141Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:43.141Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:02:45.928Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:02:45.929Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:02:45.929Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:02:45.929Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:02:45.936Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:02:45.936Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:02:45.936Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:02:45.971Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:02:45.973Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:02:45.973Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:02:45.973Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:02:47.529Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:02:48.586Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:02:48.777Z [ERROR] Error: Error: 1P event logging: 24 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:02:48.777Z [ERROR] Error: Error: {"stack":"Error: Failed to export 24 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 24 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:02:54.355Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:02:54.355Z [ERROR] Error: Error: {"stack":"Error: Failed to export 2 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 2 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:03:55.305Z [DEBUG] Metrics export disabled by organization setting
+2026-01-12T10:03:57.996Z [DEBUG] executePreToolHooks called for tool: Write
+2026-01-12T10:03:58.001Z [DEBUG] Getting matching hook commands for PreToolUse with query: Write
+2026-01-12T10:03:58.001Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:03:58.001Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:03:58.042Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/analyze_excel.py.tmp.22523.1768212238042
+2026-01-12T10:03:58.042Z [DEBUG] Temp file written successfully, size: 2673 bytes
+2026-01-12T10:03:58.042Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/analyze_excel.py.tmp.22523.1768212238042 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/analyze_excel.py
+2026-01-12T10:03:58.042Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/analyze_excel.py written atomically
+2026-01-12T10:03:58.048Z [DEBUG] Getting matching hook commands for PostToolUse with query: Write
+2026-01-12T10:03:58.048Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:03:58.048Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:03:58.084Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:03:58.086Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:03:58.086Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:03:58.086Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:04:00.711Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:04:03.424Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:04:03.433Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:04:03.433Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:04:03.433Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:04:03.570Z [ERROR] Error: Error: 1P event logging: 18 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:04:03.570Z [ERROR] Error: Error: {"stack":"Error: Failed to export 18 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 18 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:04:06.551Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:04:06.552Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:04:06.552Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:04:06.552Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:04:06.561Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:04:06.561Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:04:06.561Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:04:06.595Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:04:06.597Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:04:06.597Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:04:06.597Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:04:08.706Z [ERROR] Error: Error: 1P event logging: 24 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:04:08.706Z [ERROR] Error: Error: {"stack":"Error: Failed to export 24 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 24 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:04:09.853Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:04:10.109Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:04:18.881Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:04:18.881Z [ERROR] Error: Error: {"stack":"Error: Failed to export 2 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 2 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:05:57.231Z [DEBUG] executePreToolHooks called for tool: Write
+2026-01-12T10:05:57.235Z [DEBUG] Getting matching hook commands for PreToolUse with query: Write
+2026-01-12T10:05:57.235Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:05:57.235Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:05:57.245Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/detailed_analysis.py.tmp.22523.1768212357245
+2026-01-12T10:05:57.246Z [DEBUG] Temp file written successfully, size: 3591 bytes
+2026-01-12T10:05:57.246Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/detailed_analysis.py.tmp.22523.1768212357245 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/detailed_analysis.py
+2026-01-12T10:05:57.246Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/detailed_analysis.py written atomically
+2026-01-12T10:05:57.256Z [DEBUG] Getting matching hook commands for PostToolUse with query: Write
+2026-01-12T10:05:57.256Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:05:57.256Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:05:57.291Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:05:57.294Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:05:57.294Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:05:57.294Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:06:00.191Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:06:00.972Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:06:00.977Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:06:00.977Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:06:00.977Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:06:02.870Z [ERROR] Error: Error: 1P event logging: 22 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:06:02.870Z [ERROR] Error: Error: {"stack":"Error: Failed to export 22 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 22 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:06:03.044Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:06:03.045Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:06:03.045Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:06:03.045Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:06:03.053Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:06:03.053Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:06:03.053Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:06:03.095Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:06:03.097Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:06:03.097Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:06:03.097Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:06:05.506Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:06:06.661Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:06:08.573Z [ERROR] Error: Error: 1P event logging: 19 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:06:08.574Z [ERROR] Error: Error: {"stack":"Error: Failed to export 19 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 19 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:06:09.688Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:06:09.693Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:06:09.693Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:06:09.693Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:06:09.757Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:06:09.758Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:06:09.758Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:06:09.758Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:06:09.765Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:06:09.765Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:06:09.765Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:06:09.798Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:06:09.800Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:06:09.800Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:06:09.800Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:06:11.627Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:06:12.029Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:06:14.182Z [ERROR] Error: Error: 1P event logging: 28 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:06:14.182Z [ERROR] Error: Error: {"stack":"Error: Failed to export 28 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 28 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:00.475Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-12T10:07:00.475Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:00.475Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T10:07:00.485Z [DEBUG] Getting matching hook commands for PostToolUse with query: Task
+2026-01-12T10:07:00.485Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:00.485Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2026-01-12T10:07:00.496Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:00.496Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:00.496Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:00.496Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:00.504Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:00.511Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:00.511Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:00.511Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:02.899Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:06.072Z [ERROR] Error: Error: 1P event logging: 11 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:07:06.072Z [ERROR] Error: Error: {"stack":"Error: Failed to export 11 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 11 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:12.332Z [DEBUG] executePreToolHooks called for tool: TodoWrite
+2026-01-12T10:07:12.336Z [DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+2026-01-12T10:07:12.336Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:12.336Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:07:12.349Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212432349
+2026-01-12T10:07:12.349Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:07:12.350Z [DEBUG] Temp file written successfully, size: 555 bytes
+2026-01-12T10:07:12.350Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:07:12.350Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212432349 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T10:07:12.351Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T10:07:12.357Z [DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+2026-01-12T10:07:12.357Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:12.357Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:07:12.366Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:12.366Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:12.366Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:12.366Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:12.382Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:12.388Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:12.388Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:12.388Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:14.345Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:14.384Z [DEBUG] executePreToolHooks called for tool: Glob
+2026-01-12T10:07:14.389Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2026-01-12T10:07:14.389Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:14.389Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2026-01-12T10:07:14.427Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2026-01-12T10:07:14.427Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:14.427Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2026-01-12T10:07:14.433Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:14.433Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:14.433Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:14.433Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:14.440Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:14.444Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:14.444Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:14.444Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:16.227Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:16.259Z [DEBUG] executePreToolHooks called for tool: Glob
+2026-01-12T10:07:16.262Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2026-01-12T10:07:16.262Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:16.262Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2026-01-12T10:07:16.288Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2026-01-12T10:07:16.288Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:16.288Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2026-01-12T10:07:16.295Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:16.295Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:16.295Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:16.295Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:16.301Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:16.305Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:16.305Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:16.305Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:17.468Z [ERROR] Error: Error: 1P event logging: 42 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:07:17.468Z [ERROR] Error: Error: {"stack":"Error: Failed to export 42 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 42 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:18.099Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:19.928Z [DEBUG] executePreToolHooks called for tool: Read
+2026-01-12T10:07:19.931Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2026-01-12T10:07:19.931Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:19.931Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2026-01-12T10:07:19.946Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2026-01-12T10:07:19.946Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:19.946Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2026-01-12T10:07:19.954Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:19.954Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:19.954Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:19.954Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:19.962Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:19.966Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:19.966Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:19.966Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:21.947Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:23.232Z [DEBUG] executePreToolHooks called for tool: Read
+2026-01-12T10:07:23.236Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2026-01-12T10:07:23.236Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:23.236Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2026-01-12T10:07:23.256Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2026-01-12T10:07:23.256Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:23.256Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2026-01-12T10:07:23.263Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:23.263Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:23.263Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:23.263Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:23.271Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:23.276Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:23.276Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:23.276Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:25.387Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:25.605Z [ERROR] Error: Error: 1P event logging: 32 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:07:25.606Z [ERROR] Error: Error: {"stack":"Error: Failed to export 32 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 32 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:28.592Z [DEBUG] executePreToolHooks called for tool: Grep
+2026-01-12T10:07:28.597Z [DEBUG] Getting matching hook commands for PreToolUse with query: Grep
+2026-01-12T10:07:28.597Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:28.597Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:28.624Z [DEBUG] Getting matching hook commands for PostToolUse with query: Grep
+2026-01-12T10:07:28.624Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:28.624Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:28.631Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:28.631Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:28.631Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:28.631Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:28.639Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:28.644Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:28.644Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:28.644Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:30.623Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:33.333Z [DEBUG] executePreToolHooks called for tool: Grep
+2026-01-12T10:07:33.336Z [DEBUG] Getting matching hook commands for PreToolUse with query: Grep
+2026-01-12T10:07:33.336Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:33.336Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:33.357Z [DEBUG] Getting matching hook commands for PostToolUse with query: Grep
+2026-01-12T10:07:33.357Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:33.357Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:33.364Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:33.364Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:33.364Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:33.364Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:33.371Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:33.376Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:33.376Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:33.376Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:34.213Z [ERROR] Error: Error: 1P event logging: 26 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:07:34.213Z [ERROR] Error: Error: {"stack":"Error: Failed to export 26 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 26 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:35.214Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:38.622Z [DEBUG] executePreToolHooks called for tool: Grep
+2026-01-12T10:07:38.627Z [DEBUG] Getting matching hook commands for PreToolUse with query: Grep
+2026-01-12T10:07:38.627Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:38.627Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:38.650Z [DEBUG] Getting matching hook commands for PostToolUse with query: Grep
+2026-01-12T10:07:38.650Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:38.650Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:38.657Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:38.657Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:38.657Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:38.657Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:38.668Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:38.674Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:38.674Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:38.674Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:41.094Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:44.253Z [ERROR] Error: Error: 1P event logging: 14 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:07:44.253Z [ERROR] Error: Error: {"stack":"Error: Failed to export 14 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 14 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:44.303Z [DEBUG] executePreToolHooks called for tool: Grep
+2026-01-12T10:07:44.308Z [DEBUG] Getting matching hook commands for PreToolUse with query: Grep
+2026-01-12T10:07:44.308Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:44.308Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:44.331Z [DEBUG] Getting matching hook commands for PostToolUse with query: Grep
+2026-01-12T10:07:44.331Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:44.331Z [DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+2026-01-12T10:07:44.338Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:44.338Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:44.338Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:44.338Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:44.346Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:44.351Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:44.351Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:44.352Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:46.310Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:07:49.441Z [ERROR] Error: Error: 1P event logging: 13 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:07:49.441Z [ERROR] Error: Error: {"stack":"Error: Failed to export 13 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 13 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:07:55.664Z [DEBUG] executePreToolHooks called for tool: TodoWrite
+2026-01-12T10:07:55.667Z [DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+2026-01-12T10:07:55.667Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:55.667Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:07:55.679Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212475679
+2026-01-12T10:07:55.679Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:07:55.680Z [DEBUG] Temp file written successfully, size: 557 bytes
+2026-01-12T10:07:55.680Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:07:55.680Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212475679 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T10:07:55.680Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T10:07:55.685Z [DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+2026-01-12T10:07:55.685Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:07:55.685Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:07:55.691Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:07:55.691Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:07:55.691Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:07:55.691Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:07:55.698Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:07:55.705Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:07:55.705Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:07:55.705Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:07:57.322Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:08:01.326Z [ERROR] Error: Error: 1P event logging: 15 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:08:01.326Z [ERROR] Error: Error: {"stack":"Error: Failed to export 15 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 15 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:08:04.103Z [DEBUG] executePreToolHooks called for tool: Task
+2026-01-12T10:08:04.107Z [DEBUG] Getting matching hook commands for PreToolUse with query: Task
+2026-01-12T10:08:04.107Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:08:04.107Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2026-01-12T10:08:04.128Z [DEBUG] Getting matching hook commands for SubagentStart with query: general-purpose
+2026-01-12T10:08:04.128Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:08:04.128Z [DEBUG] Matched 0 unique hooks for query "general-purpose" (0 before deduplication)
+2026-01-12T10:08:04.160Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:08:04.161Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:08:04.161Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:08:04.161Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:08:05.774Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:08:09.846Z [ERROR] Error: Error: 1P event logging: 12 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:08:09.846Z [ERROR] Error: Error: {"stack":"Error: Failed to export 12 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 12 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:08:11.871Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:08:11.873Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:08:11.873Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:08:11.873Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:08:14.315Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:08:17.044Z [ERROR] Error: Error: 1P event logging: 13 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:08:17.044Z [ERROR] Error: Error: {"stack":"Error: Failed to export 13 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 13 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:08:55.302Z [DEBUG] Metrics export disabled by organization setting
+2026-01-12T10:10:43.625Z [DEBUG] executePreToolHooks called for tool: Write
+2026-01-12T10:10:43.628Z [DEBUG] Getting matching hook commands for PreToolUse with query: Write
+2026-01-12T10:10:43.628Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:10:43.628Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:10:43.637Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/compare_fund_names.py.tmp.22523.1768212643637
+2026-01-12T10:10:43.638Z [DEBUG] Temp file written successfully, size: 5635 bytes
+2026-01-12T10:10:43.638Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/compare_fund_names.py.tmp.22523.1768212643637 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/compare_fund_names.py
+2026-01-12T10:10:43.638Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/compare_fund_names.py written atomically
+2026-01-12T10:10:43.648Z [DEBUG] Getting matching hook commands for PostToolUse with query: Write
+2026-01-12T10:10:43.648Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:10:43.648Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:10:43.678Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:10:43.681Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:10:43.681Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:10:43.681Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:10:45.463Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:10:48.683Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:10:48.687Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:10:48.687Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:10:48.687Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:10:49.247Z [ERROR] Error: Error: 1P event logging: 17 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:10:49.247Z [ERROR] Error: Error: {"stack":"Error: Failed to export 17 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 17 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:10:51.507Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:10:51.508Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:10:51.508Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:10:51.508Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:10:51.516Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:10:51.516Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:10:51.516Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:10:51.552Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:10:51.554Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:10:51.554Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:10:51.554Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:10:53.408Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:10:54.137Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:10:54.865Z [ERROR] Error: Error: 1P event logging: 25 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:10:54.865Z [ERROR] Error: Error: {"stack":"Error: Failed to export 25 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 25 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:10:55.810Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-01-12T10:10:55.815Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-01-12T10:10:55.815Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:10:55.815Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:10:58.794Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-12T10:10:58.795Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:10:58.795Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:10:58.795Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:10:58.803Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-01-12T10:10:58.803Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:10:58.803Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-12T10:10:58.840Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:10:58.842Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:10:58.842Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:10:58.842Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:11:00.815Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:11:00.963Z [ERROR] Error: Error: 1P event logging: 23 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:11:00.963Z [ERROR] Error: Error: {"stack":"Error: Failed to export 23 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 23 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:11:02.413Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:11:08.804Z [ERROR] Error: Error: 1P event logging: 2 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:11:08.804Z [ERROR] Error: Error: {"stack":"Error: Failed to export 2 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 2 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:11:39.659Z [DEBUG] executePreToolHooks called for tool: Write
+2026-01-12T10:11:39.664Z [DEBUG] Getting matching hook commands for PreToolUse with query: Write
+2026-01-12T10:11:39.664Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:11:39.664Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:11:39.672Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/fund_comparison_summary.md.tmp.22523.1768212699672
+2026-01-12T10:11:39.672Z [DEBUG] Temp file written successfully, size: 906 bytes
+2026-01-12T10:11:39.672Z [DEBUG] Renaming /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/fund_comparison_summary.md.tmp.22523.1768212699672 to /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/fund_comparison_summary.md
+2026-01-12T10:11:39.673Z [DEBUG] File /Users/fanshengxia/Desktop/投资助理工作/基金分类标签/fund_comparison_summary.md written atomically
+2026-01-12T10:11:39.682Z [DEBUG] Getting matching hook commands for PostToolUse with query: Write
+2026-01-12T10:11:39.682Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:11:39.682Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2026-01-12T10:11:39.716Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:11:39.719Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:11:39.719Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:11:39.720Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:11:42.395Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:11:45.315Z [ERROR] Error: Error: 1P event logging: 19 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:11:45.315Z [ERROR] Error: Error: {"stack":"Error: Failed to export 19 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 19 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:11:58.999Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-12T10:11:58.999Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:11:58.999Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T10:11:59.009Z [DEBUG] Getting matching hook commands for PostToolUse with query: Task
+2026-01-12T10:11:59.009Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:11:59.009Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2026-01-12T10:11:59.019Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:11:59.019Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:11:59.019Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:11:59.019Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:11:59.026Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:11:59.032Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:11:59.032Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:11:59.032Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:12:00.950Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:12:04.189Z [ERROR] Error: Error: 1P event logging: 11 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:12:04.189Z [ERROR] Error: Error: {"stack":"Error: Failed to export 11 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 11 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:12:10.590Z [DEBUG] executePreToolHooks called for tool: TodoWrite
+2026-01-12T10:12:10.593Z [DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+2026-01-12T10:12:10.593Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:12:10.593Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:12:10.605Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212730605
+2026-01-12T10:12:10.605Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:12:10.605Z [DEBUG] Temp file written successfully, size: 559 bytes
+2026-01-12T10:12:10.605Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:12:10.605Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212730605 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T10:12:10.606Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T10:12:10.611Z [DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+2026-01-12T10:12:10.611Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:12:10.611Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:12:10.616Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:12:10.616Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:12:10.616Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:12:10.616Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:12:10.624Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:12:10.629Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:12:10.629Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:12:10.629Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:12:12.198Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:12:16.146Z [ERROR] Error: Error: 1P event logging: 13 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:12:16.146Z [ERROR] Error: Error: {"stack":"Error: Failed to export 13 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 13 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:12:33.218Z [DEBUG] executePreToolHooks called for tool: TodoWrite
+2026-01-12T10:12:33.222Z [DEBUG] Getting matching hook commands for PreToolUse with query: TodoWrite
+2026-01-12T10:12:33.222Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:12:33.222Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:12:33.233Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212753233
+2026-01-12T10:12:33.233Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:12:33.233Z [DEBUG] Temp file written successfully, size: 2 bytes
+2026-01-12T10:12:33.233Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:12:33.233Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json.tmp.22523.1768212753233 to /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json
+2026-01-12T10:12:33.234Z [DEBUG] File /Users/fanshengxia/.claude/todos/949eff29-6583-43aa-9e70-116b124884c1-agent-949eff29-6583-43aa-9e70-116b124884c1.json written atomically
+2026-01-12T10:12:33.238Z [DEBUG] Getting matching hook commands for PostToolUse with query: TodoWrite
+2026-01-12T10:12:33.238Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:12:33.238Z [DEBUG] Matched 0 unique hooks for query "TodoWrite" (0 before deduplication)
+2026-01-12T10:12:33.244Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-01-12T10:12:33.244Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-01-12T10:12:33.244Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-01-12T10:12:33.244Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-01-12T10:12:33.250Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:12:33.256Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:12:33.256Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:12:33.256Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:12:34.736Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:12:38.362Z [ERROR] Error: Error: 1P event logging: 14 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:12:38.362Z [ERROR] Error: Error: {"stack":"Error: Failed to export 14 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 14 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:12:41.796Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2026-01-12T10:12:41.796Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:12:41.796Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T10:12:41.796Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-12T10:12:41.814Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-12T10:12:41.814Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-12T10:12:41.814Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-12T10:12:42.351Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.22523.1768212762351
+2026-01-12T10:12:42.351Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:12:42.351Z [DEBUG] Temp file written successfully, size: 29234 bytes
+2026-01-12T10:12:42.351Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:12:42.351Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.22523.1768212762351 to /Users/fanshengxia/.claude.json
+2026-01-12T10:12:42.351Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-12T10:12:42.354Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.22523.1768212762354
+2026-01-12T10:12:42.354Z [DEBUG] Preserving file permissions: 100644
+2026-01-12T10:12:42.354Z [DEBUG] Temp file written successfully, size: 29234 bytes
+2026-01-12T10:12:42.354Z [DEBUG] Applied original permissions to temp file
+2026-01-12T10:12:42.354Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.22523.1768212762354 to /Users/fanshengxia/.claude.json
+2026-01-12T10:12:42.354Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-12T10:12:42.940Z [DEBUG] Stream started - received first chunk
+2026-01-12T10:12:42.948Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-12T10:12:42.948Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:12:42.948Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-12T10:12:47.447Z [ERROR] Error: Error: 1P event logging: 11 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:12:47.447Z [ERROR] Error: Error: {"stack":"Error: Failed to export 11 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 11 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:13:41.817Z [DEBUG] Getting matching hook commands for Notification with query: idle_prompt
+2026-01-12T10:13:41.817Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T10:13:41.818Z [DEBUG] Matched 0 unique hooks for query "idle_prompt" (0 before deduplication)
+2026-01-12T10:13:47.483Z [ERROR] Error: Error: 1P event logging: 1 events failed to export
+    at wn1.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:2038)
+    at async wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1195)
+2026-01-12T10:13:47.484Z [ERROR] Error: Error: {"stack":"Error: Failed to export 1 events\n    at wn1.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:262:1297)","message":"Failed to export 1 events","name":"Error"}
+    at WF0.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1899:34862)
+    at ul1.error (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:10503)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:41528
+    at Bf3 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:256:42074)
+    at file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:257:20245
+2026-01-12T10:13:55.304Z [DEBUG] Metrics export disabled by organization setting
+2026-01-12T11:50:43.268Z [DEBUG] npm view failed with code 1
+2026-01-12T11:50:43.268Z [DEBUG] npm stderr: (empty)
+2026-01-12T12:24:19.506Z [DEBUG] npm view failed with code 1
+2026-01-12T12:24:19.506Z [DEBUG] npm stderr: (empty)
+2026-01-12T13:10:58.510Z [DEBUG] npm view failed with code 1
+2026-01-12T13:10:58.510Z [DEBUG] npm stderr: (empty)
+2026-01-12T13:43:32.293Z [DEBUG] npm view failed with code 1
+2026-01-12T13:43:32.294Z [DEBUG] npm stderr: (empty)
+2026-01-12T14:32:15.613Z [DEBUG] npm view failed with code 1
+2026-01-12T14:32:15.613Z [DEBUG] npm stderr: (empty)
+2026-01-12T15:04:46.704Z [DEBUG] Getting matching hook commands for SessionEnd with query: other
+2026-01-12T15:04:46.705Z [DEBUG] Found 0 hook matchers in settings
+2026-01-12T15:04:46.705Z [DEBUG] Matched 0 unique hooks for query "other" (0 before deduplication)

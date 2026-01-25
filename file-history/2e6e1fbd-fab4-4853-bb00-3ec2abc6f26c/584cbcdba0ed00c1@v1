@@ -1,0 +1,103 @@
+---
+name: market-review
+description: 生成市场指数复盘报告。自动执行Wind数据获取、Excel生成、JSON转换、前端展示和截图保存的完整流程。当用户要求"生成市场复盘"、"市场回顾"、"生成截止某日期的市场复盘"、"市场数据更新"时使用此技能。
+---
+
+# 市场指数复盘
+
+自动化生成多资产市场复盘仪表板，包括权益、债券、汇率、商品四大类资产的行情数据和分位数分析。
+
+## 前置条件
+
+1. **Wind终端已登录** - 必须确保 Wind 金融终端已安装并登录
+2. **Python环境就绪** - 需要 pandas, numpy, openpyxl, WindPy
+3. **前端依赖已安装** - dashboard 目录需要已运行过 `pnpm install`
+
+## 执行流程
+
+### 步骤 1: 解析用户请求的日期
+
+从用户输入中提取截止日期。如果未指定，使用当天日期。
+
+日期格式: `YYYY-MM-DD`
+
+### 步骤 2: 生成 Wind 数据
+
+```bash
+cd /Users/fanshengxia/Desktop/市场观点美化/data
+python generate_tables_from_wind.py --date YYYY-MM-DD
+```
+
+生成文件:
+- `指标值.xlsx` - 37个指标的当前值、历史统计和分位数
+- `近1月净值走势.xlsx` - 最近1个月日度行情
+
+### 步骤 3: 转换 Excel 为 JSON
+
+```bash
+cd /Users/fanshengxia/Desktop/市场观点美化/data
+python excel_to_json_converter.py
+```
+
+输出文件:
+- `data/asset_data.json` - 数据备份
+- `asset-analysis-real-data/asset-analysis-dashboard/src/assets/asset_data.json` - 前端数据
+
+### 步骤 4: 启动前端服务
+
+```bash
+cd /Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard
+pnpm dev
+```
+
+前端服务启动后访问: http://localhost:5173
+
+### 步骤 5: 截图保存
+
+等待前端完全加载后，对仪表板进行截图。
+
+截图保存路径: `/Users/fanshengxia/Desktop/市场观点美化/市场复盘_YYYY-MM-DD.png`
+
+使用浏览器自动化工具或手动截图。
+
+### 步骤 6: 关闭前端服务
+
+完成截图后，使用 Ctrl+C 或关闭终端来停止前端开发服务器。
+
+## 项目路径
+
+| 路径 | 说明 |
+|------|------|
+| `/Users/fanshengxia/Desktop/市场观点美化` | 项目根目录 |
+| `data/` | 数据脚本和生成的文件 |
+| `data/generate_tables_from_wind.py` | Wind 数据生成脚本 |
+| `data/excel_to_json_converter.py` | Excel 转 JSON 脚本 |
+| `asset-analysis-real-data/asset-analysis-dashboard/` | React 前端项目 |
+
+## 示例用法
+
+用户: "生成截止2026年1月25日的市场复盘"
+
+响应流程:
+1. 提取日期: 2026-01-25
+2. 运行 Wind 数据生成: `python generate_tables_from_wind.py --date 2026-01-25`
+3. 运行 JSON 转换: `python excel_to_json_converter.py`
+4. 启动前端: `pnpm dev`
+5. 截图保存为: `市场复盘_2026-01-25.png`
+
+## 错误处理
+
+| 错误 | 解决方案 |
+|------|----------|
+| Wind未连接 | 确保 Wind 终端已登录，重新启动 Wind |
+| EDB代码错误 | 检查 Wind 代码是否有效 |
+| 前端启动失败 | 运行 `pnpm install` 安装依赖 |
+| 截图失败 | 手动在浏览器中截图保存 |
+
+## 辅助脚本
+
+提供一键执行脚本（不含截图）:
+
+```bash
+/Users/fanshengxia/.claude/skills/market-review/scripts/run_market_review.sh 2026-01-25
+```

@@ -1,0 +1,42 @@
+[
+  {
+    "content": "Read data mapping rules",
+    "status": "completed",
+    "activeForm": "Reading data mapping rules"
+  },
+  {
+    "content": "Load template Excel file",
+    "status": "in_progress",
+    "activeForm": "Loading template Excel file"
+  },
+  {
+    "content": "Load performance data for 20260115",
+    "status": "pending",
+    "activeForm": "Loading performance data for 20260115"
+  },
+  {
+    "content": "Load overview data for 20260115",
+    "status": "pending",
+    "activeForm": "Loading overview data for 20260115"
+  },
+  {
+    "content": "Update regular products",
+    "status": "pending",
+    "activeForm": "Updating regular products"
+  },
+  {
+    "content": "Update 非标驱动 products from PDF",
+    "status": "pending",
+    "activeForm": "Updating 非标驱动 products from PDF"
+  },
+  {
+    "content": "Update 汇利现金宝1号",
+    "status": "pending",
+    "activeForm": "Updating 汇利现金宝1号"
+  },
+  {
+    "content": "Save the updated report",
+    "status": "pending",
+    "activeForm": "Saving the updated report"
+  }
+]

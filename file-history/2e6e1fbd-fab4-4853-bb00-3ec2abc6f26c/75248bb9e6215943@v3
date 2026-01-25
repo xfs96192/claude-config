@@ -1,0 +1,57 @@
+#!/bin/bash
+# 市场指数复盘自动化脚本
+# 用法: ./run_market_review.sh [YYYY-MM-DD]
+# 如果不提供日期，则使用当天日期
+
+set -e
+
+# 项目根目录
+PROJECT_ROOT="/Users/fanshengxia/Desktop/市场观点美化"
+DATA_DIR="${PROJECT_ROOT}/data"
+DASHBOARD_DIR="${PROJECT_ROOT}/asset-analysis-real-data/asset-analysis-dashboard"
+
+# 获取日期参数
+if [ -n "$1" ]; then
+    TARGET_DATE="$1"
+else
+    TARGET_DATE=$(date +%Y-%m-%d)
+fi
+
+echo "=================================================="
+echo "市场指数复盘 - 自动化流程 v2.2"
+echo "截止日期: ${TARGET_DATE}"
+echo "数据范围: 完整31天"
+echo "=================================================="
+
+# 第一步：生成 Wind 数据
+echo ""
+echo "[1/3] 生成 Wind 数据..."
+cd "${DATA_DIR}"
+python generate_tables_from_wind.py --date "${TARGET_DATE}"
+
+# 第二步：转换为 JSON
+echo ""
+echo "[2/3] 转换 Excel 为 JSON..."
+python excel_to_json_converter.py
+
+# 第三步：启动前端并截图
+echo ""
+echo "[3/3] 前端服务提示..."
+echo "请在另一个终端执行以下命令启动前端："
+echo "  cd ${DASHBOARD_DIR}"
+echo "  ./node_modules/.bin/vite"
+echo ""
+echo "注意: 使用 ./node_modules/.bin/vite 而不是 pnpm dev，避免环境变量问题"
+echo ""
+echo "然后使用浏览器打开 http://localhost:5173 并手动截图保存"
+echo "或等待 Claude 为您自动处理截图"
+
+echo ""
+echo "=================================================="
+echo "数据生成完成!"
+echo "生成的文件："
+echo "  - ${DATA_DIR}/指标值.xlsx"
+echo "  - ${DATA_DIR}/近1月净值走势.xlsx"
+echo "  - ${DATA_DIR}/asset_data.json"
+echo "  - ${DASHBOARD_DIR}/src/assets/asset_data.json"
+echo "=================================================="

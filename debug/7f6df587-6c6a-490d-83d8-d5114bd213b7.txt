@@ -1,0 +1,511 @@
+2026-01-09T05:09:45.064Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/Desktop/胜率测算/winrate/.claude...
+2026-01-09T05:09:45.075Z [DEBUG] [init] configureGlobalMTLS starting
+2026-01-09T05:09:45.075Z [DEBUG] [init] configureGlobalMTLS complete
+2026-01-09T05:09:45.075Z [DEBUG] [init] configureGlobalAgents starting
+2026-01-09T05:09:45.075Z [DEBUG] [init] configureGlobalAgents complete
+2026-01-09T05:09:45.088Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935385088
+2026-01-09T05:09:45.088Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:45.088Z [DEBUG] Temp file written successfully, size: 50590 bytes
+2026-01-09T05:09:45.088Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:45.088Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935385088 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:45.088Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:45.090Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935385090
+2026-01-09T05:09:45.090Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:45.091Z [DEBUG] Temp file written successfully, size: 50625 bytes
+2026-01-09T05:09:45.091Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:45.091Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935385090 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:45.091Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:45.093Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935385093
+2026-01-09T05:09:45.093Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:45.093Z [DEBUG] Temp file written successfully, size: 50662 bytes
+2026-01-09T05:09:45.093Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:45.093Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935385093 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:45.094Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:45.099Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-01-09T05:09:45.099Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-01-09T05:09:45.099Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-01-09T05:09:45.101Z [DEBUG] Applying permission update: Adding 5 allow rule(s) to destination 'localSettings': ["mcp__ide__executeCode","Bash(python3:*)","Bash(pip3:*)","Bash(source:*)","Bash(pip install:*)"]
+2026-01-09T05:09:45.101Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-01-09T05:09:45.117Z [DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+2026-01-09T05:09:45.117Z [DEBUG] Total LSP servers loaded: 0
+2026-01-09T05:09:45.117Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-01-09T05:09:45.117Z [DEBUG] LSP manager initialized with 0 servers
+2026-01-09T05:09:45.117Z [DEBUG] [STARTUP] MCP configs loaded in 16ms
+2026-01-09T05:09:45.117Z [DEBUG] LSP server manager initialized successfully
+2026-01-09T05:09:45.117Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-01-09T05:09:45.118Z [DEBUG] [STARTUP] Running setup()...
+2026-01-09T05:09:45.126Z [DEBUG] Stats cache does not exist, returning empty cache
+2026-01-09T05:09:45.126Z [DEBUG] Stats cache empty, processing all historical data in background
+2026-01-09T05:09:45.130Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-01-09T05:09:45.136Z [DEBUG] installed_plugins.json doesn't exist, returning empty V2 object
+2026-01-09T05:09:45.139Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/7f6df587-6c6a-490d-83d8-d5114bd213b7-agent-7f6df587-6c6a-490d-83d8-d5114bd213b7.json.tmp.6665.1767935385139
+2026-01-09T05:09:45.139Z [DEBUG] Temp file written successfully, size: 2 bytes
+2026-01-09T05:09:45.139Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/7f6df587-6c6a-490d-83d8-d5114bd213b7-agent-7f6df587-6c6a-490d-83d8-d5114bd213b7.json.tmp.6665.1767935385139 to /Users/fanshengxia/.claude/todos/7f6df587-6c6a-490d-83d8-d5114bd213b7-agent-7f6df587-6c6a-490d-83d8-d5114bd213b7.json
+2026-01-09T05:09:45.140Z [DEBUG] File /Users/fanshengxia/.claude/todos/7f6df587-6c6a-490d-83d8-d5114bd213b7-agent-7f6df587-6c6a-490d-83d8-d5114bd213b7.json written atomically
+2026-01-09T05:09:45.177Z [DEBUG] getPluginSkills: Processing 0 enabled plugins
+2026-01-09T05:09:45.177Z [DEBUG] Total plugin skills loaded: 0
+2026-01-09T05:09:45.177Z [DEBUG] Total plugin commands loaded: 0
+2026-01-09T05:09:45.178Z [DEBUG] Registered 0 hooks from 0 plugins
+2026-01-09T05:09:45.179Z [DEBUG] [STARTUP] setup() completed in 61ms
+2026-01-09T05:09:45.179Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-01-09T05:09:45.190Z [DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, legacy commands: 0)
+2026-01-09T05:09:45.190Z [DEBUG] getSkills returning: 0 skill dir commands, 0 plugin skills, 0 bundled skills
+2026-01-09T05:09:45.200Z [DEBUG] Creating shell snapshot for zsh (/bin/zsh)
+2026-01-09T05:09:45.200Z [DEBUG] Looking for shell config file: /Users/fanshengxia/.zshrc
+2026-01-09T05:09:45.200Z [DEBUG] Snapshots directory: /Users/fanshengxia/.claude/shell-snapshots
+2026-01-09T05:09:45.201Z [DEBUG] Creating snapshot at: /Users/fanshengxia/.claude/shell-snapshots/snapshot-zsh-1767935385200-lj23oo.sh
+2026-01-09T05:09:45.201Z [DEBUG] Shell binary exists: true
+2026-01-09T05:09:45.201Z [DEBUG] Execution timeout: 10000ms
+2026-01-09T05:09:45.207Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935385207
+2026-01-09T05:09:45.207Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:45.207Z [DEBUG] Temp file written successfully, size: 26509 bytes
+2026-01-09T05:09:45.207Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:45.207Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935385207 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:45.207Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:45.219Z [DEBUG] Stats cache saved successfully (lastComputedDate: 2026-01-08)
+2026-01-09T05:09:45.219Z [DEBUG] Stats cache updated with 5 sessions
+2026-01-09T05:09:45.718Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg)
+2026-01-09T05:09:45.733Z [DEBUG] Total plugin agents loaded: 0
+2026-01-09T05:09:45.733Z [DEBUG] [STARTUP] Commands and agents loaded in 554ms
+2026-01-09T05:09:45.733Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-01-09T05:09:45.734Z [DEBUG] [render] initYoga starting
+2026-01-09T05:09:45.743Z [DEBUG] [render] initYoga complete
+2026-01-09T05:09:46.173Z [DEBUG] Shell snapshot created successfully (1713 bytes)
+2026-01-09T05:09:46.416Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386416
+2026-01-09T05:09:46.416Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.417Z [DEBUG] Temp file written successfully, size: 26546 bytes
+2026-01-09T05:09:46.417Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.417Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386416 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.417Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.493Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386493
+2026-01-09T05:09:46.493Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.493Z [DEBUG] Temp file written successfully, size: 26722 bytes
+2026-01-09T05:09:46.493Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.493Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386493 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.493Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.494Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386494
+2026-01-09T05:09:46.494Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.494Z [DEBUG] Temp file written successfully, size: 26757 bytes
+2026-01-09T05:09:46.494Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.494Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386494 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.494Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.496Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386496
+2026-01-09T05:09:46.496Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.496Z [DEBUG] Temp file written successfully, size: 26809 bytes
+2026-01-09T05:09:46.496Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.496Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386496 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.496Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.498Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386498
+2026-01-09T05:09:46.498Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.498Z [DEBUG] Temp file written successfully, size: 26847 bytes
+2026-01-09T05:09:46.498Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.498Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386498 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.498Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.499Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386499
+2026-01-09T05:09:46.499Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.499Z [DEBUG] Temp file written successfully, size: 26883 bytes
+2026-01-09T05:09:46.499Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.499Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386499 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.499Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.500Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386500
+2026-01-09T05:09:46.500Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.501Z [DEBUG] Temp file written successfully, size: 26922 bytes
+2026-01-09T05:09:46.501Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.501Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386500 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.501Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.502Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386502
+2026-01-09T05:09:46.502Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.502Z [DEBUG] Temp file written successfully, size: 26952 bytes
+2026-01-09T05:09:46.502Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.502Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386502 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.502Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.503Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386503
+2026-01-09T05:09:46.503Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.503Z [DEBUG] Temp file written successfully, size: 26998 bytes
+2026-01-09T05:09:46.503Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.503Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386503 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.503Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.506Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386506
+2026-01-09T05:09:46.506Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.506Z [DEBUG] Temp file written successfully, size: 27055 bytes
+2026-01-09T05:09:46.506Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.506Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386506 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.506Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.507Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386507
+2026-01-09T05:09:46.507Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.508Z [DEBUG] Temp file written successfully, size: 27085 bytes
+2026-01-09T05:09:46.508Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.508Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386507 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.508Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.509Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386509
+2026-01-09T05:09:46.509Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.509Z [DEBUG] Temp file written successfully, size: 27110 bytes
+2026-01-09T05:09:46.509Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.509Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386509 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.509Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:46.512Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935386512
+2026-01-09T05:09:46.512Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:46.513Z [DEBUG] Temp file written successfully, size: 27110 bytes
+2026-01-09T05:09:46.513Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:46.513Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935386512 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:46.513Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:49.905Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935389905
+2026-01-09T05:09:49.905Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:49.905Z [DEBUG] Temp file written successfully, size: 27109 bytes
+2026-01-09T05:09:49.905Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:49.905Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935389905 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:49.906Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:49.923Z [DEBUG] [STARTUP] showSetupScreens() completed in 4190ms
+2026-01-09T05:09:49.923Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:49.923Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:49.934Z [DEBUG] MCP server "zen": Starting connection with timeout of 30000ms
+2026-01-09T05:09:49.936Z [DEBUG] MCP server "n8n-mcp": Starting connection with timeout of 30000ms
+2026-01-09T05:09:49.941Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:49.945Z [DEBUG] Initialized versioned plugins system with 0 plugins
+2026-01-09T05:09:49.949Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935389949
+2026-01-09T05:09:49.949Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:49.949Z [DEBUG] Temp file written successfully, size: 27109 bytes
+2026-01-09T05:09:49.949Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:49.949Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935389949 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:49.949Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:49.952Z [DEBUG] Getting matching hook commands for SessionStart with query: startup
+2026-01-09T05:09:49.952Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:49.952Z [DEBUG] Matched 0 unique hooks for query "startup" (0 before deduplication)
+2026-01-09T05:09:49.954Z [DEBUG] [render] initYoga starting
+2026-01-09T05:09:49.955Z [DEBUG] [render] initYoga complete
+2026-01-09T05:09:49.959Z [DEBUG] MCP server "zen": Connection failed after 28ms: spawn /Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python ENOENT
+2026-01-09T05:09:49.959Z [ERROR] MCP server "zen" Connection failed: spawn /Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python ENOENT
+2026-01-09T05:09:49.998Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935389998
+2026-01-09T05:09:49.998Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:49.998Z [DEBUG] Temp file written successfully, size: 27107 bytes
+2026-01-09T05:09:49.998Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:49.998Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935389998 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:49.999Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.000Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390000
+2026-01-09T05:09:50.000Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.000Z [DEBUG] Temp file written successfully, size: 27107 bytes
+2026-01-09T05:09:50.000Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.000Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390000 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.000Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.002Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390002
+2026-01-09T05:09:50.002Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.002Z [DEBUG] Temp file written successfully, size: 27189 bytes
+2026-01-09T05:09:50.002Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.002Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390002 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.003Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.006Z [DEBUG] [REPL:mount] REPL mounted, disabled=false
+2026-01-09T05:09:50.008Z [DEBUG] performStartupChecks called
+2026-01-09T05:09:50.008Z [DEBUG] Starting background plugin installations
+2026-01-09T05:09:50.008Z [DEBUG] performBackgroundPluginInstallations called
+2026-01-09T05:09:50.070Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390070
+2026-01-09T05:09:50.070Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.071Z [DEBUG] Temp file written successfully, size: 27262 bytes
+2026-01-09T05:09:50.071Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.071Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390070 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.071Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.072Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390072
+2026-01-09T05:09:50.072Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.072Z [DEBUG] Temp file written successfully, size: 27310 bytes
+2026-01-09T05:09:50.072Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.072Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390072 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.072Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.098Z [DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+2026-01-09T05:09:50.098Z [DEBUG] Attempting to auto-install official marketplace
+2026-01-09T05:09:50.101Z [DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+2026-01-09T05:09:50.105Z [DEBUG] Git remote URL: null
+2026-01-09T05:09:50.105Z [DEBUG] No git remote URL found
+2026-01-09T05:09:50.105Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2026-01-09T05:09:50.109Z [DEBUG] Getting matching hook commands for SubagentStart with query: Explore
+2026-01-09T05:09:50.109Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:50.109Z [DEBUG] Matched 0 unique hooks for query "Explore" (0 before deduplication)
+2026-01-09T05:09:50.115Z [DEBUG] Getting matching hook commands for SubagentStart with query: Plan
+2026-01-09T05:09:50.115Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:50.115Z [DEBUG] Matched 0 unique hooks for query "Plan" (0 before deduplication)
+2026-01-09T05:09:50.119Z [DEBUG] Getting matching hook commands for SubagentStart with query: Bash
+2026-01-09T05:09:50.119Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:50.119Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-01-09T05:09:50.141Z [DEBUG] MCP server "ide": Starting connection with timeout of 30000ms
+2026-01-09T05:09:50.150Z [DEBUG] Summarizing all 37 messages (~6885 tokens)
+2026-01-09T05:09:50.152Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-09T05:09:50.153Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390153
+2026-01-09T05:09:50.153Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.154Z [DEBUG] Temp file written successfully, size: 27360 bytes
+2026-01-09T05:09:50.154Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.154Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390153 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.154Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.156Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:50.156Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:50.156Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:50.157Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390157
+2026-01-09T05:09:50.157Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.158Z [DEBUG] Temp file written successfully, size: 27406 bytes
+2026-01-09T05:09:50.158Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.158Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390157 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.158Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.186Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390186
+2026-01-09T05:09:50.186Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.186Z [DEBUG] Temp file written successfully, size: 27587 bytes
+2026-01-09T05:09:50.186Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.186Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390186 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.186Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.196Z [DEBUG] MCP server "ide": Successfully connected to ws-ide server in 60ms
+2026-01-09T05:09:50.196Z [DEBUG] MCP server "ide": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"serverVersion":{"name":"Claude Code Trae MCP","version":"2.1.1"}}
+2026-01-09T05:09:50.209Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-09T05:09:50.249Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390249
+2026-01-09T05:09:50.249Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.249Z [DEBUG] Temp file written successfully, size: 27633 bytes
+2026-01-09T05:09:50.249Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.249Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390249 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.250Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:50.250Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-09T05:09:50.251Z [DEBUG] Tool search disabled: MCPSearchTool is not available (may have been disallowed via disallowedTools).
+2026-01-09T05:09:50.252Z [DEBUG] Auto tool search disabled: 0 chars (threshold: 50000, 10% of context)
+2026-01-09T05:09:50.255Z [DEBUG] Skills and commands included in Skill tool:
+2026-01-09T05:09:50.256Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:50.256Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:50.257Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:50.260Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:50.260Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:50.261Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:50.261Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:50.262Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:50.262Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:50.375Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935390375
+2026-01-09T05:09:50.375Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:50.375Z [DEBUG] Temp file written successfully, size: 27633 bytes
+2026-01-09T05:09:50.375Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:50.375Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935390375 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:50.376Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:51.244Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935391244
+2026-01-09T05:09:51.244Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:51.245Z [DEBUG] Temp file written successfully, size: 27671 bytes
+2026-01-09T05:09:51.245Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:51.245Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935391244 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:51.245Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:51.680Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9wLLrAc1tWH9DSdr5"}
+2026-01-09T05:09:51.680Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:51.680Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:51.680Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:51.729Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9vuJFSoiDpsbH4JtR"}
+2026-01-09T05:09:51.729Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:51.729Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:51.729Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:51.849Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9x8ibW8LGfMecLX9b"}
+2026-01-09T05:09:51.849Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:51.849Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:51.849Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:51.951Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9xLsJLpwTBEcFBdMR"}
+2026-01-09T05:09:51.951Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:51.951Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:51.951Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:52.193Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9yPd51u8jj4Hyu95T"}
+2026-01-09T05:09:52.194Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9yPd51u8jj4Hyu95T"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async B81.model (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6367)
+    at async B81 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1076:37599)
+    at async rF9 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6521)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3557
+    at async D70 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:1998)
+    at async Mp (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3528)
+2026-01-09T05:09:52.196Z [DEBUG] Summarizing all 8 messages (~889 tokens)
+2026-01-09T05:09:52.196Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-01-09T05:09:52.197Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:52.197Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:52.197Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:52.365Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9zLRpPYhrMtNhZ8GK"}
+2026-01-09T05:09:52.365Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9zLRpPYhrMtNhZ8GK"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async B81.model (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6367)
+    at async B81 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1076:37599)
+    at async rF9 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6521)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3799
+    at async D70 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:1998)
+    at async vFA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3769)
+2026-01-09T05:09:52.378Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9yCiNUVHSC6EqDTwj"}
+2026-01-09T05:09:52.378Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwE9yCiNUVHSC6EqDTwj"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async B81.model (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6367)
+    at async B81 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1076:37599)
+    at async rF9 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6521)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3799
+    at async D70 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:1998)
+    at async vFA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3769)
+2026-01-09T05:09:52.389Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-09T05:09:52.389Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:52.389Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-09T05:09:52.400Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-09T05:09:52.400Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:52.400Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-09T05:09:52.556Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA1A2xZVuapT9dUtmt"}
+2026-01-09T05:09:52.556Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA1A2xZVuapT9dUtmt"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async B81.model (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6367)
+    at async B81 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1076:37599)
+    at async rF9 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6521)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3799
+    at async D70 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:1998)
+    at async vFA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3769)
+2026-01-09T05:09:52.575Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2026-01-09T05:09:52.575Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:09:52.575Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-01-09T05:09:52.596Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA18nxrFnVrAV3M6Wz"}
+2026-01-09T05:09:52.596Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:52.596Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:52.596Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:52.700Z [INFO] SSH not configured for GitHub, using HTTPS for anthropics/claude-plugins-official
+2026-01-09T05:09:52.895Z [DEBUG] MCP server "n8n-mcp": Successfully connected to undefined server in 2959ms
+2026-01-09T05:09:52.895Z [DEBUG] MCP server "n8n-mcp": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"serverVersion":{"name":"n8n-documentation-mcp","version":"2.33.0"}}
+2026-01-09T05:09:52.904Z [DEBUG] Auto tool search disabled: 0 chars (threshold: 50000, 10% of context)
+2026-01-09T05:09:52.906Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:52.906Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:52.906Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:53.129Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA33e3KKkLs7ZVee7j"}
+2026-01-09T05:09:53.129Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA33e3KKkLs7ZVee7j"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async B81.model (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6367)
+    at async B81 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1076:37599)
+    at async rF9 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4476:6521)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3557
+    at async D70 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:1998)
+    at async Mp (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:4474:3528)
+2026-01-09T05:09:53.597Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA5WyD4SZANv1E6d12"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1177:3866
+    at async file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:2223
+    at async Ln8 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1076:41049)
+    at async srB (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1077:2156)
+    at async hkA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:2622:3177)
+    at async gkA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:2622:3872)
+2026-01-09T05:09:53.597Z [DEBUG] countTokensWithFallback: API returned null, trying haiku fallback (18 tools)
+2026-01-09T05:09:53.598Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-01-09T05:09:53.598Z [DEBUG] [API:auth] OAuth token check starting
+2026-01-09T05:09:53.598Z [DEBUG] [API:auth] OAuth token check complete
+2026-01-09T05:09:54.199Z [DEBUG] countTokensWithFallback: haiku fallback failed: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA87jp6moHvVZeZ7Su"}
+2026-01-09T05:09:54.199Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth authentication is currently not allowed for this organization."},"request_id":"req_011CWwEA87jp6moHvVZeZ7Su"}
+    at I9.generate (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:492:33653)
+    at IP.makeStatusError (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:2195)
+    at IP.makeRequest (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:927:5420)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async XsB (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:1177:4557)
+    at async hkA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:2622:3448)
+    at async gkA (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:2622:3872)
+    at async S79 (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:3362:540)
+2026-01-09T05:09:54.199Z [DEBUG] countToolDefinitionTokens returned null for 18 tools: Task, TaskOutput, Bash, Glob, Grep, ExitPlanMode, Read, Edit, Write, NotebookEdit, WebFetch, TodoWri...
+2026-01-09T05:09:55.579Z [DEBUG] Added marketplace source: claude-plugins-official
+2026-01-09T05:09:55.579Z [DEBUG] Successfully auto-installed official marketplace
+2026-01-09T05:09:55.581Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935395581
+2026-01-09T05:09:55.581Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:09:55.582Z [DEBUG] Temp file written successfully, size: 27766 bytes
+2026-01-09T05:09:55.582Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:09:55.582Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935395581 to /Users/fanshengxia/.claude.json
+2026-01-09T05:09:55.582Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:09:55.582Z [DEBUG] Showing marketplace installation success notification
+2026-01-09T05:10:06.524Z [DEBUG] UserCommandMessage rendering: "status" (args: "none")
+2026-01-09T05:10:06.524Z [DEBUG] isSkillFormat: false
+2026-01-09T05:10:06.680Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-09T05:10:06.755Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935406755
+2026-01-09T05:10:06.755Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:10:06.755Z [DEBUG] Temp file written successfully, size: 27796 bytes
+2026-01-09T05:10:06.755Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:10:06.755Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935406755 to /Users/fanshengxia/.claude.json
+2026-01-09T05:10:06.756Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:10:06.782Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935406782
+2026-01-09T05:10:06.782Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:10:06.782Z [DEBUG] Temp file written successfully, size: 27825 bytes
+2026-01-09T05:10:06.782Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:10:06.782Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935406782 to /Users/fanshengxia/.claude.json
+2026-01-09T05:10:06.782Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:10:06.787Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935406787
+2026-01-09T05:10:06.787Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:10:06.787Z [DEBUG] Temp file written successfully, size: 27855 bytes
+2026-01-09T05:10:06.787Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:10:06.787Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935406787 to /Users/fanshengxia/.claude.json
+2026-01-09T05:10:06.787Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:10:27.874Z [DEBUG] FileHistory: Added snapshot for cc322a08-156e-4000-935b-4032c5e6ab01, tracking 0 files
+2026-01-09T05:10:27.880Z [DEBUG] UserCommandMessage rendering: "mobile" (args: "none")
+2026-01-09T05:10:27.880Z [DEBUG] isSkillFormat: false
+2026-01-09T05:10:28.066Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-09T05:10:28.401Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935428401
+2026-01-09T05:10:28.401Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:10:28.401Z [DEBUG] Temp file written successfully, size: 27891 bytes
+2026-01-09T05:10:28.401Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:10:28.401Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935428401 to /Users/fanshengxia/.claude.json
+2026-01-09T05:10:28.401Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:10:28.404Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935428404
+2026-01-09T05:10:28.404Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:10:28.404Z [DEBUG] Temp file written successfully, size: 27923 bytes
+2026-01-09T05:10:28.404Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:10:28.404Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935428404 to /Users/fanshengxia/.claude.json
+2026-01-09T05:10:28.404Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:10:28.410Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935428410
+2026-01-09T05:10:28.410Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:10:28.410Z [DEBUG] Temp file written successfully, size: 27954 bytes
+2026-01-09T05:10:28.410Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:10:28.410Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935428410 to /Users/fanshengxia/.claude.json
+2026-01-09T05:10:28.410Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:11:41.473Z [DEBUG] UserCommandMessage rendering: "status" (args: "none")
+2026-01-09T05:11:41.473Z [DEBUG] isSkillFormat: false
+2026-01-09T05:11:41.617Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-09T05:11:41.694Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935501694
+2026-01-09T05:11:41.694Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:11:41.694Z [DEBUG] Temp file written successfully, size: 27978 bytes
+2026-01-09T05:11:41.694Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:11:41.694Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935501694 to /Users/fanshengxia/.claude.json
+2026-01-09T05:11:41.694Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:11:41.702Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935501702
+2026-01-09T05:11:41.702Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:11:41.702Z [DEBUG] Temp file written successfully, size: 27998 bytes
+2026-01-09T05:11:41.703Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:11:41.703Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935501702 to /Users/fanshengxia/.claude.json
+2026-01-09T05:11:41.703Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:11:41.707Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935501707
+2026-01-09T05:11:41.707Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:11:41.707Z [DEBUG] Temp file written successfully, size: 28021 bytes
+2026-01-09T05:11:41.707Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:11:41.707Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935501707 to /Users/fanshengxia/.claude.json
+2026-01-09T05:11:41.707Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:11:46.100Z [DEBUG] Getting matching hook commands for SessionEnd with query: prompt_input_exit
+2026-01-09T05:11:46.100Z [DEBUG] Found 0 hook matchers in settings
+2026-01-09T05:11:46.100Z [DEBUG] Matched 0 unique hooks for query "prompt_input_exit" (0 before deduplication)
+2026-01-09T05:11:46.103Z [DEBUG] Cleaned up session snapshot: /Users/fanshengxia/.claude/shell-snapshots/snapshot-zsh-1767935385200-lj23oo.sh
+2026-01-09T05:11:46.104Z [DEBUG] MCP server "ide": WebSocket transport closed/disconnected, attempting automatic reconnection
+2026-01-09T05:11:46.105Z [DEBUG] LSP server manager shut down successfully
+2026-01-09T05:11:46.110Z [DEBUG] MCP server "ide": Starting connection with timeout of 30000ms
+2026-01-09T05:11:46.113Z [DEBUG] FileHistory: Making snapshot for message 760668ec-f2ec-4af6-acbb-ea27d02f5101
+2026-01-09T05:11:46.113Z [DEBUG] FileHistory: Added snapshot for 760668ec-f2ec-4af6-acbb-ea27d02f5101, tracking 0 files
+2026-01-09T05:11:46.114Z [DEBUG] UserCommandMessage rendering: "exit" (args: "none")
+2026-01-09T05:11:46.114Z [DEBUG] isSkillFormat: false
+2026-01-09T05:11:46.137Z [DEBUG] MCP server "ide": Successfully connected to ws-ide server in 31ms
+2026-01-09T05:11:46.137Z [DEBUG] MCP server "ide": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"serverVersion":{"name":"Claude Code Trae MCP","version":"2.1.1"}}
+2026-01-09T05:11:46.143Z [DEBUG] MCP server "ide": WebSocket reconnection successful after 38ms (attempt 1)
+2026-01-09T05:11:46.247Z [DEBUG] AutoUpdaterWrapper: Installation type: npm-global
+2026-01-09T05:11:46.370Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935506370
+2026-01-09T05:11:46.370Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:11:46.370Z [DEBUG] Temp file written successfully, size: 28021 bytes
+2026-01-09T05:11:46.370Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:11:46.370Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935506370 to /Users/fanshengxia/.claude.json
+2026-01-09T05:11:46.370Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-09T05:11:46.374Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.6665.1767935506374
+2026-01-09T05:11:46.375Z [DEBUG] Preserving file permissions: 100644
+2026-01-09T05:11:46.375Z [DEBUG] Temp file written successfully, size: 28021 bytes
+2026-01-09T05:11:46.375Z [DEBUG] Applied original permissions to temp file
+2026-01-09T05:11:46.375Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.6665.1767935506374 to /Users/fanshengxia/.claude.json
+2026-01-09T05:11:46.375Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically

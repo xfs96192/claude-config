@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sessionId": "27896546-73cb-4e27-babd-1811c49b439f",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/27896546-73cb-4e27-babd-1811c49b439f.jsonl",
+      "fileMtime": 1769076028201,
+      "firstPrompt": "git保存和上传本项目到我的github",
+      "summary": "GitHub项目上传、Excel数据分析、Wind数据获取程序开发",
+      "messageCount": 33,
+      "created": "2026-01-22T08:25:58.716Z",
+      "modified": "2026-01-22T09:34:10.826Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "339ec09a-260a-4aff-b346-cd6b3d26a63a",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/339ec09a-260a-4aff-b346-cd6b3d26a63a.jsonl",
+      "fileMtime": 1769308841481,
+      "firstPrompt": "使用 /key-product-performance  帮我生成1月22日的重点产品业绩表",
+      "summary": "Generate Jan 22 product performance report",
+      "messageCount": 25,
+      "created": "2026-01-23T09:45:50.457Z",
+      "modified": "2026-01-23T12:54:12.938Z",
+      "gitBranch": "",
+      "projectPath": "/Users/fanshengxia/Desktop/重点业绩产品",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "f93e1a54-04d9-421c-894c-8868dd1774dd",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/f93e1a54-04d9-421c-894c-8868dd1774dd.jsonl",
+      "fileMtime": 1769314348236,
+      "firstPrompt": "请把上证指数修改为万得全A指数，将近3年的分位数调整为计算近5年的分位数，万得全A代码是881001.WI",
+      "summary": "Wind市场数据生成与中证转债指标完善",
+      "messageCount": 48,
+      "created": "2026-01-25T03:05:11.735Z",
+      "modified": "2026-01-25T04:11:57.273Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "67fff60a-22f7-40fe-ab52-95977c578631",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/67fff60a-22f7-40fe-ab52-95977c578631.jsonl",
+      "fileMtime": 1769314403962,
+      "firstPrompt": "No prompt",
+      "summary": "Claude Skill Creator Guide and Documentation",
+      "messageCount": 2,
+      "created": "2026-01-25T04:12:17.046Z",
+      "modified": "2026-01-25T04:12:25.211Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "789f76ea-fd1a-46d7-927e-5d28f8704288",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/789f76ea-fd1a-46d7-927e-5d28f8704288.jsonl",
+      "fileMtime": 1769314764973,
+      "firstPrompt": "No prompt",
+      "summary": "Skill Creator: Guide to Creating Effective Claude Skills",
+      "messageCount": 2,
+      "created": "2026-01-25T04:13:17.117Z",
+      "modified": "2026-01-25T04:13:22.381Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "6b7cff30-5248-4173-8310-bb64be6353dd",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/6b7cff30-5248-4173-8310-bb64be6353dd.jsonl",
+      "fileMtime": 1769314869268,
+      "firstPrompt": "No prompt",
+      "summary": "You've hit your limit · resets 3pm (Asia/Shanghai)",
+      "messageCount": 2,
+      "created": "2026-01-25T04:17:25.380Z",
+      "modified": "2026-01-25T04:19:22.275Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "9fd96885-035a-4ab6-b701-ccfc0c220402",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/9fd96885-035a-4ab6-b701-ccfc0c220402.jsonl",
+      "fileMtime": 1769314925764,
+      "firstPrompt": "No prompt",
+      "summary": "User exits, AI responds.",
+      "messageCount": 2,
+      "created": "2026-01-25T04:21:02.294Z",
+      "modified": "2026-01-25T04:21:39.738Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    }
+  ],
+  "originalPath": "/Users/fanshengxia/Desktop/市场观点美化"
+}

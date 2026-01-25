@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投资经理记事本</title>
+
+    <!-- Quill.js CSS (本地版本 - 内网兼容) -->
+    <link href="assets/libs/quill.snow.css" rel="stylesheet">
+
+    <!-- 使用系统字体（内网兼容，无需Google Fonts） -->
+    <style>
+        :root {
+            --font-heading: Georgia, 'Times New Roman', 'STSong', 'SimSun', serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            --font-mono: 'Courier New', Consolas, 'Microsoft YaHei Mono', monospace;
+        }
+    </style>
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <!-- 顶部工具栏 -->
+    <header class="top-toolbar">
+        <div class="toolbar-left">
+            <h1 class="app-title">📊 投资经理记事本</h1>
+        </div>
+        <div class="toolbar-center">
+            <div class="search-box">
+                <input type="text" id="global-search" placeholder="搜索笔记..." />
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="toolbar-btn" id="btn-new-page" title="新建页面">
+                <span>📄</span> 新建
+            </button>
+            <button class="toolbar-btn" id="btn-new-template" title="从模板创建">
+                <span>📋</span> 模板
+            </button>
+            <button class="toolbar-btn" id="btn-todos" title="待办事项">
+                <span>✅</span> 待办
+            </button>
+            <button class="toolbar-btn" id="btn-export" title="导出数据">
+                <span>💾</span> 导出
+            </button>
+            <button class="toolbar-btn" id="btn-settings" title="设置">
+                <span>⚙️</span> 设置
+            </button>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-container">
+        <!-- 左侧：笔记本导航 -->
+        <aside class="sidebar-left" id="sidebar-left">
+            <div class="sidebar-header">
+                <h2>笔记本</h2>
+                <button class="icon-btn" id="btn-add-notebook" title="新建笔记本">➕</button>
+            </div>
+            <div class="notebook-tree" id="notebook-tree">
+                <!-- 笔记本树形结构将在这里动态生成 -->
+            </div>
+            <div class="sidebar-footer">
+                <button class="collapse-btn" id="btn-collapse-left">
+                    <span>◀</span> 折叠
+                </button>
+            </div>
+        </aside>
+
+        <!-- 中间：页面列表 -->
+        <section class="page-list-panel" id="page-list-panel">
+            <div class="panel-header">
+                <h2 id="current-section-title">所有页面</h2>
+                <button class="icon-btn" id="btn-add-page" title="新建页面">➕</button>
+            </div>
+
+            <div class="filter-bar">
+                <select id="filter-type" class="filter-select">
+                    <option value="all">全部类型</option>
+                    <option value="trade-log">交易日志</option>
+                    <option value="note">笔记</option>
+                    <option value="todo">待办</option>
+                </select>
+                <select id="filter-sort" class="filter-select">
+                    <option value="updated-desc">最近修改</option>
+                    <option value="created-desc">最近创建</option>
+                    <option value="title-asc">标题 A-Z</option>
+                </select>
+            </div>
+
+            <div class="page-list" id="page-list">
+                <!-- 页面列表将在这里动态生成 -->
+            </div>
+        </section>
+
+        <!-- 右中：编辑器区域 -->
+        <section class="editor-panel" id="editor-panel">
+            <div class="editor-header">
+                <input type="text" id="page-title" class="page-title-input" placeholder="无标题页面" />
+                <div class="page-meta">
+                    <span id="page-updated" class="meta-text"></span>
+                </div>
+            </div>
+
+            <div class="editor-toolbar-wrapper">
+                <div id="editor-toolbar">
+                    <!-- Quill工具栏 -->
+                    <span class="ql-formats">
+                        <select class="ql-header">
+                            <option value="1">标题1</option>
+                            <option value="2">标题2</option>
+                            <option value="3">标题3</option>
+                            <option value="4">标题4</option>
+                            <option selected>正文</option>
+                        </select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-color"></select>
+                        <select class="ql-background"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                        <button class="ql-list" value="check"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-indent" value="-1"></button>
+                        <button class="ql-indent" value="+1"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-align"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-link"></button>
+                        <button class="ql-image"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-blockquote"></button>
+                        <button class="ql-code-block"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button id="btn-insert-table" title="插入表格">📊</button>
+                        <button id="btn-insert-trade-template" title="插入交易模板">💹</button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-clean"></button>
+                    </span>
+                </div>
+            </div>
+
+            <div id="editor-container" class="editor-content">
+                <!-- Quill编辑器将在这里初始化 -->
+            </div>
+
+            <div class="editor-footer">
+                <span id="save-status" class="save-status">已保存</span>
+                <span class="word-count" id="word-count">0 字</span>
+            </div>
+        </section>
+
+        <!-- 右侧：信息面板 -->
+        <aside class="sidebar-right" id="sidebar-right">
+            <div class="panel-tabs">
+                <button class="tab-btn active" data-tab="info">📋 信息</button>
+                <button class="tab-btn" data-tab="attachments">📎 附件</button>
+                <button class="tab-btn" data-tab="todos">✅ 待办</button>
+            </div>
+
+            <!-- 页面信息标签 -->
+            <div class="tab-content active" id="tab-info">
+                <div class="info-section">
+                    <h3>页面信息</h3>
+                    <div class="info-item">
+                        <label>创建时间:</label>
+                        <span id="info-created">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>最后修改:</label>
+                        <span id="info-updated">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>类型:</label>
+                        <select id="info-type" class="info-select">
+                            <option value="note">笔记</option>
+                            <option value="trade-log">交易日志</option>
+                            <option value="todo">待办</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>标签</h3>
+                    <div id="tags-container" class="tags-container">
+                        <!-- 标签将在这里显示 -->
+                    </div>
+                    <input type="text" id="tag-input" placeholder="添加标签..." class="tag-input" />
+                </div>
+            </div>
+
+            <!-- 附件标签 -->
+            <div class="tab-content" id="tab-attachments">
+                <div class="attachments-header">
+                    <h3>附件</h3>
+                    <button class="icon-btn" id="btn-add-attachment" title="添加附件">➕</button>
+                </div>
+                <div id="attachments-list" class="attachments-list">
+                    <!-- 附件列表将在这里显示 -->
+                </div>
+                <input type="file" id="attachment-file-input" style="display: none;" multiple />
+            </div>
+
+            <!-- 待办标签 -->
+            <div class="tab-content" id="tab-todos">
+                <div class="todos-header">
+                    <h3>待办事项</h3>
+                </div>
+                <div class="todo-input-wrapper">
+                    <input type="text" id="todo-input" placeholder="添加待办事项..." class="todo-input" />
+                </div>
+                <div id="todos-list" class="todos-list">
+                    <!-- 待办事项列表将在这里显示 -->
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="collapse-btn" id="btn-collapse-right">
+                    折叠 <span>▶</span>
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- 状态栏 -->
+    <footer class="status-bar">
+        <span id="status-left">就绪</span>
+        <span id="status-center"></span>
+        <span id="status-right"></span>
+    </footer>
+
+    <!-- 模态框：新建笔记本 -->
+    <div class="modal" id="modal-new-notebook">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>新建笔记本</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>笔记本名称:</label>
+                    <input type="text" id="input-notebook-name" class="form-input" placeholder="例如: 权益组合" />
+                </div>
+                <div class="form-group">
+                    <label>类型:</label>
+                    <select id="input-notebook-type" class="form-input">
+                        <option value="product-group">产品组</option>
+                        <option value="general">通用笔记本</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>图标:</label>
+                    <input type="text" id="input-notebook-icon" class="form-input" value="📚" maxlength="2" />
+                </div>
+                <div class="form-group">
+                    <label>颜色:</label>
+                    <input type="color" id="input-notebook-color" class="form-input" value="#2d5a7b" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-notebook">取消</button>
+                <button class="btn btn-primary" id="btn-save-notebook">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：新建分区 -->
+    <div class="modal" id="modal-new-section">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>新建分区</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>分区名称:</label>
+                    <input type="text" id="input-section-name" class="form-input" placeholder="例如: 2024年Q1" />
+                </div>
+                <div class="form-group">
+                    <label>图标:</label>
+                    <input type="text" id="input-section-icon" class="form-input" value="📁" maxlength="2" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-section">取消</button>
+                <button class="btn btn-primary" id="btn-save-section">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：从模板创建 -->
+    <div class="modal" id="modal-template">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>从模板创建交易日志</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="template-selector">
+                    <label>选择模板:</label>
+                    <select id="select-template" class="form-input">
+                        <option value="">-- 选择模板 --</option>
+                        <!-- 模板列表将动态加载 -->
+                    </select>
+                </div>
+                <div id="template-form" class="template-form">
+                    <!-- 模板字段将在这里动态生成 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-template">取消</button>
+                <button class="btn btn-primary" id="btn-create-from-template">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：导出 -->
+    <div class="modal" id="modal-export">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>导出数据</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>导出范围:</label>
+                    <select id="export-scope" class="form-input">
+                        <option value="current-page">当前页面</option>
+                        <option value="current-section">当前分区</option>
+                        <option value="current-notebook">当前笔记本</option>
+                        <option value="all">全部数据</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>导出格式:</label>
+                    <select id="export-format" class="form-input">
+                        <option value="json">JSON (完整数据)</option>
+                        <option value="markdown">Markdown (纯文本)</option>
+                        <option value="html">HTML (网页格式)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-export">取消</button>
+                <button class="btn btn-primary" id="btn-do-export">导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript库 -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- 应用脚本 -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/editor.js"></script>
+    <script src="assets/js/template.js"></script>
+    <script src="assets/js/search.js"></script>
+    <script src="assets/js/export.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

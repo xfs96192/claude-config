@@ -1,0 +1,78 @@
+2026-01-19T08:04:47.144Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude, /Users/fanshengxia/.claude, /Users/fanshengxia/.claude...
+2026-01-19T08:04:47.148Z [DEBUG] [init] configureGlobalMTLS starting
+2026-01-19T08:04:47.148Z [DEBUG] [init] configureGlobalMTLS complete
+2026-01-19T08:04:47.148Z [DEBUG] [init] configureGlobalAgents starting
+2026-01-19T08:04:47.149Z [DEBUG] [init] configureGlobalAgents complete
+2026-01-19T08:04:47.157Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-01-19T08:04:47.157Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-01-19T08:04:47.157Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-01-19T08:04:47.169Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(sqlite3:*)"]
+2026-01-19T08:04:47.170Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-01-19T08:04:47.206Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-01-19T08:04:47.206Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-01-19T08:04:47.207Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1768809887207_wg3lym
+2026-01-19T08:04:47.261Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-01-19T08:04:47.274Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills, /Users/fanshengxia/.claude/skills...
+2026-01-19T08:04:47.280Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-01-19T08:04:47.293Z [DEBUG] [Claude in Chrome] Extension not found in any browser
+2026-01-19T08:04:50.620Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1768809887207_wg3lym
+2026-01-19T08:04:50.621Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-01-19T08:04:50.621Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.0.3
+2026-01-19T08:04:50.628Z [DEBUG] Plugin superpowers@claude-plugins-official version 4.0.3 already cached at /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.0.3
+2026-01-19T08:04:50.657Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.0.3/hooks/hooks.json
+2026-01-19T08:04:50.657Z [DEBUG] Found 1 plugins (1 enabled, 0 disabled)
+2026-01-19T08:04:50.657Z [DEBUG] [STARTUP] MCP configs loaded in 3487ms
+2026-01-19T08:04:50.658Z [DEBUG] [STARTUP] Running setup()...
+2026-01-19T08:04:50.663Z [DEBUG] Stats cache is up to date
+2026-01-19T08:04:50.668Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-01-19T08:04:50.689Z [DEBUG] Loaded 1 installed plugins from /Users/fanshengxia/.claude/plugins/installed_plugins.json
+2026-01-19T08:04:50.691Z [DEBUG] Error log sink initialized
+2026-01-19T08:04:50.696Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude/todos/a8aaf848-0356-4491-91c1-c833d1428191-agent-a8aaf848-0356-4491-91c1-c833d1428191.json.tmp.29227.1768809890696
+2026-01-19T08:04:50.697Z [DEBUG] Temp file written successfully, size: 2 bytes
+2026-01-19T08:04:50.697Z [DEBUG] Renaming /Users/fanshengxia/.claude/todos/a8aaf848-0356-4491-91c1-c833d1428191-agent-a8aaf848-0356-4491-91c1-c833d1428191.json.tmp.29227.1768809890696 to /Users/fanshengxia/.claude/todos/a8aaf848-0356-4491-91c1-c833d1428191-agent-a8aaf848-0356-4491-91c1-c833d1428191.json
+2026-01-19T08:04:50.697Z [DEBUG] File /Users/fanshengxia/.claude/todos/a8aaf848-0356-4491-91c1-c833d1428191-agent-a8aaf848-0356-4491-91c1-c833d1428191.json written atomically
+2026-01-19T08:04:50.708Z [DEBUG] getPluginSkills: Processing 1 enabled plugins
+2026-01-19T08:04:50.708Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-01-19T08:04:50.708Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.0.3/skills
+2026-01-19T08:04:50.725Z [DEBUG] Loading hooks from plugin: superpowers
+2026-01-19T08:04:50.725Z [DEBUG] Registered 1 hooks from 1 plugins
+2026-01-19T08:04:50.726Z [DEBUG] [STARTUP] setup() completed in 68ms
+2026-01-19T08:04:50.726Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-01-19T08:04:50.740Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-01-19T08:04:50.740Z [DEBUG] Total plugin skills loaded: 14
+2026-01-19T08:04:50.740Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-01-19T08:04:50.740Z [DEBUG] Total plugin commands loaded: 3
+2026-01-19T08:04:50.761Z [DEBUG] Loaded 2 unique skills (managed: 0, user: 2, project: 0, legacy commands: 0)
+2026-01-19T08:04:50.761Z [DEBUG] getSkills returning: 2 skill dir commands, 14 plugin skills, 0 bundled skills
+2026-01-19T08:04:50.776Z [DEBUG] Total LSP servers loaded: 0
+2026-01-19T08:04:50.776Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-01-19T08:04:50.776Z [DEBUG] LSP manager initialized with 0 servers
+2026-01-19T08:04:50.776Z [DEBUG] LSP server manager initialized successfully
+2026-01-19T08:04:50.776Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-01-19T08:04:50.806Z [DEBUG] Session index: added 4, updated 0, removed 0 (total: 4)
+2026-01-19T08:04:50.827Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg)
+2026-01-19T08:04:50.843Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-01-19T08:04:50.843Z [DEBUG] Total plugin agents loaded: 1
+2026-01-19T08:04:50.843Z [DEBUG] [STARTUP] Commands and agents loaded in 117ms
+2026-01-19T08:04:50.843Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-01-19T08:04:50.844Z [DEBUG] [render] initYoga starting
+2026-01-19T08:04:50.860Z [DEBUG] [render] initYoga complete
+2026-01-19T08:04:50.865Z [DEBUG] [keybindings] KeybindingSetup initialized with 45 bindings, 0 warnings
+2026-01-19T08:04:50.916Z [DEBUG] [keybindings] Skipping file watcher - user customization disabled
+2026-01-19T08:04:52.744Z [DEBUG] Successfully refreshed marketplace: claude-plugins-official
+2026-01-19T08:04:52.744Z [DEBUG] Plugin autoupdate: checking installed plugins
+2026-01-19T08:04:52.746Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1768809892746_w85ngy
+2026-01-19T08:04:55.069Z [DEBUG] Skipping SessionEnd:other hook execution - workspace trust not accepted
+2026-01-19T08:04:55.083Z [DEBUG] LSP server manager shut down successfully
+2026-01-19T08:04:55.885Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1768809892746_w85ngy
+2026-01-19T08:04:55.885Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-01-19T08:04:55.885Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.0.3
+2026-01-19T08:04:56.797Z [ERROR] Error: Error: 1P event logging: 7 events failed to export
+    at oA0.queueFailedEvents (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:669:2038)
+    at async oA0.doExport (file:///Users/fanshengxia/.npm-global/lib/node_modules/@anthropic-ai/claude-code/cli.js:669:1195)
+2026-01-19T08:04:57.730Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-01-19T08:04:57.739Z [DEBUG] [STARTUP] showSetupScreens() completed in 6896ms
+2026-01-19T08:04:57.739Z [DEBUG] Graceful shutdown initiated, skipping further initialization
+2026-01-19T08:04:57.768Z [DEBUG] Git remote URL: null
+2026-01-19T08:04:57.768Z [DEBUG] No git remote URL found
+2026-01-19T08:04:57.768Z [DEBUG] Not in a GitHub repository, skipping path mapping update

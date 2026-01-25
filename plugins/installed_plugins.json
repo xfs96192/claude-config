@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "plugins": {
+    "superpowers@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.1.1",
+        "version": "4.1.1",
+        "installedAt": "2026-01-19T05:02:57.248Z",
+        "lastUpdated": "2026-01-24T03:58:20.726Z",
+        "gitCommitSha": "ac471e69c2a672f50e491a45f6ff56b104d0e562"
+      }
+    ]
+  }
+}

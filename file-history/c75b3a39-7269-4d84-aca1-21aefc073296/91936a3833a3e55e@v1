@@ -1,0 +1,47 @@
+import pandas as pd
+
+# 读取最新的持仓数据
+file_path = '/Users/fanshengxia/Desktop/投资助理工作/基金分类标签/持仓盈亏明细列表_1765074404831.xlsx'
+df = pd.read_excel(file_path)
+
+# 检查是否有这些代码
+codes_to_check = ['008989.OF', '004350.OF', '011690.OF', '090007.OF', '010387.OF']
+
+print("=== 检查外部代码 ===\n")
+for code in codes_to_check:
+    matches = df[df['外部代码'].astype(str).str.strip() == code]
+    if not matches.empty:
+        row = matches.iloc[0]
+        print(f"✓ 找到: {code}")
+        print(f"  资产简称: {row['资产简称']}")
+        print(f"  资产大类: {row['新版资产大类']}")
+        print(f"  资产小类: {row['新版资产小类']}")
+        print()
+    else:
+        print(f"✗ 未找到: {code}")
+        # 尝试在资产简称中搜索部分名称
+        if code == '008989.OF':
+            search_term = '大成科技创新'
+        elif code == '004350.OF':
+            search_term = '汇丰晋信价值先锋'
+        else:
+            search_term = None
+
+        if search_term:
+            matches = df[df['资产简称'].astype(str).str.contains(search_term, na=False)]
+            if not matches.empty:
+                print(f"  但找到类似名称:")
+                for idx, row in matches.head(3).iterrows():
+                    print(f"    - {row['资产简称']} (外部代码: {row['外部代码']})")
+            print()
+
+# 列出所有公募基金的外部代码，看看是否有遗漏
+print("\n=== 所有公募基金的外部代码（包含'偏股混合'或'普通股票'）===\n")
+equity_funds = df[
+    (df['新版资产大类'] == '公募基金') &
+    (df['新版资产小类'].isin(['偏股混合型基金', '普通股票型基金', '灵活配置型基金']))
+]
+
+print(f"共找到 {len(equity_funds)} 个符合条件的基金\n")
+for idx, row in equity_funds.iterrows():
+    print(f"{row['外部代码']}: {row['资产简称']} ({row['新版资产小类']})")

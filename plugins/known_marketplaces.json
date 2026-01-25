@@ -1,0 +1,18 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-01-25T07:43:50.226Z"
+  },
+  "superpowers-marketplace": {
+    "source": {
+      "source": "github",
+      "repo": "obra/superpowers-marketplace"
+    },
+    "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/superpowers-marketplace",
+    "lastUpdated": "2026-01-19T05:01:48.108Z"
+  }
+}

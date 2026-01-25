@@ -1,0 +1,427 @@
+/* ============================================
+   工具函数
+   ============================================ */
+
+// 生成UUID
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+// 格式化日期时间
+function formatDateTime(timestamp) {
+    if (!timestamp) return '-';
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+// 格式化日期
+function formatDate(timestamp) {
+    if (!timestamp) return '-';
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// 相对时间格式化 (例如: 5分钟前, 2小时前)
+function formatRelativeTime(timestamp) {
+    if (!timestamp) return '-';
+    const now = Date.now();
+    const diff = now - timestamp;
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 7) {
+        return formatDate(timestamp);
+    } else if (days > 0) {
+        return `${days}天前`;
+    } else if (hours > 0) {
+        return `${hours}小时前`;
+    } else if (minutes > 0) {
+        return `${minutes}分钟前`;
+    } else {
+        return '刚刚';
+    }
+}
+
+// 格式化文件大小
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// 节流函数
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// 深拷贝对象
+function deepClone(obj) {
+    if (obj === null || typeof obj !== 'object') return obj;
+    if (obj instanceof Date) return new Date(obj.getTime());
+    if (obj instanceof Array) return obj.map(item => deepClone(item));
+    if (obj instanceof Object) {
+        const clonedObj = {};
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                clonedObj[key] = deepClone(obj[key]);
+            }
+        }
+        return clonedObj;
+    }
+}
+
+// 文本高亮
+function highlightText(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+// 转义正则表达式特殊字符
+function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// 下载文件
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+// 读取文件为Base64
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// 读取文件为文本
+function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsText(file);
+    });
+}
+
+// 从Base64获取文件扩展名和MIME类型
+function getMimeFromBase64(base64) {
+    const match = base64.match(/^data:([^;]+);base64,/);
+    return match ? match[1] : 'application/octet-stream';
+}
+
+// 从文件名获取图标emoji
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const iconMap = {
+        'jpg': '🖼️',
+        'jpeg': '🖼️',
+        'png': '🖼️',
+        'gif': '🖼️',
+        'bmp': '🖼️',
+        'svg': '🖼️',
+        'pdf': '📄',
+        'doc': '📝',
+        'docx': '📝',
+        'xls': '📊',
+        'xlsx': '📊',
+        'ppt': '📊',
+        'pptx': '📊',
+        'txt': '📃',
+        'zip': '📦',
+        'rar': '📦',
+        '7z': '📦',
+        'mp3': '🎵',
+        'wav': '🎵',
+        'mp4': '🎬',
+        'avi': '🎬',
+        'mov': '🎬'
+    };
+    return iconMap[ext] || '📎';
+}
+
+// 统计文本字数
+function countWords(text) {
+    if (!text) return 0;
+    // 移除HTML标签
+    text = text.replace(/<[^>]*>/g, '');
+    // 移除空白字符并计数
+    text = text.trim();
+    if (!text) return 0;
+
+    // 中文字符 + 英文单词
+    const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+    const englishWords = text.match(/[a-zA-Z]+/g) || [];
+
+    return chineseChars.length + englishWords.length;
+}
+
+// 显示通知消息
+function showNotification(message, type = 'info', duration = 3000) {
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    // 添加样式
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 12px 20px;
+        background-color: ${type === 'success' ? '#4a7c59' : type === 'error' ? '#c94f4f' : '#2d5a7b'};
+        color: white;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        font-size: 14px;
+        max-width: 400px;
+    `;
+
+    document.body.appendChild(notification);
+
+    // 自动移除
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, duration);
+}
+
+// 添加通知动画样式
+if (!document.getElementById('notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// 确认对话框
+function confirmDialog(message) {
+    return confirm(message);
+}
+
+// 提示对话框
+function promptDialog(message, defaultValue = '') {
+    return prompt(message, defaultValue);
+}
+
+// 本地存储辅助函数
+const LocalStorage = {
+    set(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch (e) {
+            console.error('LocalStorage.set error:', e);
+            return false;
+        }
+    },
+
+    get(key, defaultValue = null) {
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (e) {
+            console.error('LocalStorage.get error:', e);
+            return defaultValue;
+        }
+    },
+
+    remove(key) {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (e) {
+            console.error('LocalStorage.remove error:', e);
+            return false;
+        }
+    },
+
+    clear() {
+        try {
+            localStorage.clear();
+            return true;
+        } catch (e) {
+            console.error('LocalStorage.clear error:', e);
+            return false;
+        }
+    }
+};
+
+// Quill Delta 转 Markdown
+function deltaToMarkdown(delta) {
+    if (!delta || !delta.ops) return '';
+
+    let markdown = '';
+
+    delta.ops.forEach(op => {
+        if (typeof op.insert !== 'string') {
+            if (op.insert.image) {
+                markdown += `![image](${op.insert.image})\n`;
+            }
+            return;
+        }
+
+        let text = op.insert;
+
+        if (op.attributes) {
+            if (op.attributes.bold) text = `**${text}**`;
+            if (op.attributes.italic) text = `*${text}*`;
+            if (op.attributes.code) text = `\`${text}\``;
+            if (op.attributes.strike) text = `~~${text}~~`;
+            if (op.attributes.link) text = `[${text}](${op.attributes.link})`;
+
+            if (op.attributes.header) {
+                const level = op.attributes.header;
+                text = '#'.repeat(level) + ' ' + text;
+            }
+
+            if (op.attributes.blockquote) {
+                text = '> ' + text;
+            }
+
+            if (op.attributes.list) {
+                if (op.attributes.list === 'ordered') {
+                    text = '1. ' + text;
+                } else if (op.attributes.list === 'bullet') {
+                    text = '- ' + text;
+                } else if (op.attributes.list === 'check') {
+                    text = '- [ ] ' + text;
+                }
+            }
+        }
+
+        markdown += text;
+    });
+
+    return markdown;
+}
+
+// Quill Delta 转 HTML
+function deltaToHtml(delta) {
+    if (!delta || !delta.ops) return '';
+
+    let html = '';
+
+    delta.ops.forEach(op => {
+        if (typeof op.insert !== 'string') {
+            if (op.insert.image) {
+                html += `<img src="${op.insert.image}" />`;
+            }
+            return;
+        }
+
+        let text = op.insert.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        text = text.replace(/\n/g, '<br>');
+
+        if (op.attributes) {
+            if (op.attributes.bold) text = `<strong>${text}</strong>`;
+            if (op.attributes.italic) text = `<em>${text}</em>`;
+            if (op.attributes.underline) text = `<u>${text}</u>`;
+            if (op.attributes.strike) text = `<s>${text}</s>`;
+            if (op.attributes.code) text = `<code>${text}</code>`;
+            if (op.attributes.link) text = `<a href="${op.attributes.link}">${text}</a>`;
+
+            if (op.attributes.header) {
+                const level = op.attributes.header;
+                text = `<h${level}>${text}</h${level}>`;
+            }
+
+            if (op.attributes.blockquote) {
+                text = `<blockquote>${text}</blockquote>`;
+            }
+
+            if (op.attributes.list) {
+                if (op.attributes.list === 'ordered') {
+                    text = `<ol><li>${text}</li></ol>`;
+                } else if (op.attributes.list === 'bullet') {
+                    text = `<ul><li>${text}</li></ul>`;
+                }
+            }
+
+            if (op.attributes.color) {
+                text = `<span style="color: ${op.attributes.color}">${text}</span>`;
+            }
+
+            if (op.attributes.background) {
+                text = `<span style="background-color: ${op.attributes.background}">${text}</span>`;
+            }
+        }
+
+        html += text;
+    });
+
+    return html;
+}

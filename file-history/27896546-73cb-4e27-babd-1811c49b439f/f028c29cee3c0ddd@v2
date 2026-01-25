@@ -1,0 +1,739 @@
+"""
+市场观点美化 - 数据生成程序
+
+基于Wind API生成以下两个Excel文件:
+1. 近1月净值走势.xlsx - 最近1个月各类资产的日度行情数据
+2. 指标值.xlsx - 各类资产的最新指标值、历史统计和分位数
+
+作者: Claude
+日期: 2026-01-22
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from typing import Dict, List, Tuple
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill
+
+try:
+    from WindPy import w
+    WIND_AVAILABLE = True
+except ImportError:
+    WIND_AVAILABLE = False
+    print("警告: WindPy未安装，将使用模拟数据")
+
+
+# ==================== Wind代码配置 ====================
+
+# 指数行情代码
+EQUITY_CODES = {
+    "上证指数": "000001.SH",
+    "中证转债": "000832.CSI",
+    "标普500": "SPX.GI"
+}
+
+BOND_CODES = {
+    "7-10年国开": "931472.CSI",
+    "1-3年高信用等级债券财富": "CBA01921.CS",
+    "10年期美国国债收益率": "10yrnote.gbm"
+}
+
+FX_CODES = {
+    "USDCNY": "USDCNY.IB",
+    "USDCNY1YS": "USDCNY1YS.IB",  # 美元兑人民币1年掉期点
+    "USDCNH": "USDCNH.FX"  # 美元兑离岸人民币
+}
+
+COMMODITY_CODES = {
+    "沪金": "AU.SHF",
+    "螺纹钢": "RB.SHF",
+    "原油": "SC.INE",  # 上海原油
+    "豆粕": "M.DCE"
+}
+
+# 债券收益率EDB代码(需替换为实际的Wind EDB代码)
+BOND_YIELD_EDB = {
+    "中债国债10年": "M1004263",
+    "中债国开债10年": "M1004264",
+    "中债国开债1年": "M1004265",
+    "中债AAA 2年": "M1004266",
+    "中债AAA 1年": "M1004267",
+    "中债国债2年": "M1004268",
+    "美国10年国债": "G0000886",
+    "美国1年国债": "G0000887"
+}
+
+# 指标字段
+VALUATION_FIELDS = {
+    "PE": "pe_ttm",
+    "PB": "pb_lf"
+}
+
+
+# ==================== 数据获取函数 ====================
+
+class WindDataFetcher:
+    """Wind数据获取类"""
+
+    def __init__(self):
+        if WIND_AVAILABLE:
+            w.start()
+            print("Wind API已初始化")
+        else:
+            print("Wind API不可用，将生成模拟数据")
+
+    def get_daily_prices(self, codes: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+        """
+        获取日度收盘价数据
+
+        Args:
+            codes: Wind代码列表
+            start_date: 开始日期 "YYYY-MM-DD"
+            end_date: 结束日期 "YYYY-MM-DD"
+
+        Returns:
+            DataFrame with dates as index, codes as columns
+        """
+        if not WIND_AVAILABLE:
+            return self._generate_mock_daily_prices(codes, start_date, end_date)
+
+        try:
+            data = w.wsd(
+                codes=",".join(codes),
+                fields="close",
+                beginTime=start_date,
+                endTime=end_date,
+                options="Period=D;PriceAdj=F"
+            )
+
+            if data.ErrorCode != 0:
+                raise Exception(f"Wind API错误: {data.ErrorCode}")
+
+            df = pd.DataFrame(
+                data=np.array(data.Data).T,
+                index=data.Times,
+                columns=codes
+            )
+            return df
+
+        except Exception as e:
+            print(f"获取数据失败: {e}, 使用模拟数据")
+            return self._generate_mock_daily_prices(codes, start_date, end_date)
+
+    def get_weekly_data(self, codes: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+        """
+        获取周度数据(近3年)
+
+        Args:
+            codes: Wind代码列表
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            DataFrame with weekly data
+        """
+        if not WIND_AVAILABLE:
+            return self._generate_mock_weekly_data(codes, start_date, end_date)
+
+        try:
+            data = w.wsd(
+                codes=",".join(codes),
+                fields="close",
+                beginTime=start_date,
+                endTime=end_date,
+                options="Period=W;PriceAdj=F"
+            )
+
+            if data.ErrorCode != 0:
+                raise Exception(f"Wind API错误: {data.ErrorCode}")
+
+            df = pd.DataFrame(
+                data=np.array(data.Data).T,
+                index=data.Times,
+                columns=codes
+            )
+            return df
+
+        except Exception as e:
+            print(f"获取数据失败: {e}, 使用模拟数据")
+            return self._generate_mock_weekly_data(codes, start_date, end_date)
+
+    def get_valuation_data(self, codes: List[str], start_date: str, end_date: str) -> Dict[str, pd.DataFrame]:
+        """
+        获取估值指标(PE, PB)的周度数据
+
+        Returns:
+            Dict with 'PE' and 'PB' DataFrames
+        """
+        if not WIND_AVAILABLE:
+            return self._generate_mock_valuation_data(codes, start_date, end_date)
+
+        result = {}
+        for metric, field in VALUATION_FIELDS.items():
+            try:
+                data = w.wsd(
+                    codes=",".join(codes),
+                    fields=field,
+                    beginTime=start_date,
+                    endTime=end_date,
+                    options="Period=W"
+                )
+
+                if data.ErrorCode == 0:
+                    df = pd.DataFrame(
+                        data=np.array(data.Data).T,
+                        index=data.Times,
+                        columns=codes
+                    )
+                    result[metric] = df
+            except Exception as e:
+                print(f"获取{metric}数据失败: {e}")
+                result[metric] = self._generate_mock_weekly_data(codes, start_date, end_date)
+
+        return result
+
+    def get_edb_data(self, edb_codes: Dict[str, str], start_date: str, end_date: str) -> pd.DataFrame:
+        """
+        获取经济数据库(EDB)指标
+
+        Args:
+            edb_codes: {指标名称: EDB代码}
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            DataFrame with weekly bond yield data
+        """
+        if not WIND_AVAILABLE:
+            return self._generate_mock_bond_yields(list(edb_codes.keys()), start_date, end_date)
+
+        try:
+            codes = list(edb_codes.values())
+            data = w.edb(
+                codes=",".join(codes),
+                beginTime=start_date,
+                endTime=end_date,
+                options="Fill=Previous"
+            )
+
+            if data.ErrorCode != 0:
+                raise Exception(f"Wind API错误: {data.ErrorCode}")
+
+            df = pd.DataFrame(
+                data=np.array(data.Data).T,
+                index=data.Times,
+                columns=list(edb_codes.keys())
+            )
+            return df
+
+        except Exception as e:
+            print(f"获取EDB数据失败: {e}, 使用模拟数据")
+            return self._generate_mock_bond_yields(list(edb_codes.keys()), start_date, end_date)
+
+    # ========== 模拟数据生成函数 ==========
+
+    def _generate_mock_daily_prices(self, codes: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+        """生成模拟日度价格数据"""
+        dates = pd.bdate_range(start=start_date, end=end_date)
+        data = {}
+
+        base_prices = {
+            "000001.SH": 3800,
+            "000832.CSI": 480,
+            "SPX.GI": 6700,
+            "931472.CSI": 186,
+            "CBA01921.CS": 227,
+            "10yrnote.gbm": 4.2,
+            "USDCNY.IB": 7.04,
+            "AU.SHF": 980,
+            "RB.SHF": 3100,
+            "DINIW.IPE": 430,
+            "M.DCE": 2750
+        }
+
+        for code in codes:
+            base = base_prices.get(code, 100)
+            volatility = 0.02
+            data[code] = base * (1 + np.cumsum(np.random.randn(len(dates)) * volatility))
+
+        return pd.DataFrame(data, index=dates)
+
+    def _generate_mock_weekly_data(self, codes: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+        """生成模拟周度数据"""
+        weeks = pd.date_range(start=start_date, end=end_date, freq='W')
+        data = {}
+
+        base_prices = {
+            "000001.SH": 3800,
+            "000832.CSI": 480,
+            "SPX.GI": 6700
+        }
+
+        for code in codes:
+            base = base_prices.get(code, 100)
+            data[code] = base * (1 + np.cumsum(np.random.randn(len(weeks)) * 0.02))
+
+        return pd.DataFrame(data, index=weeks)
+
+    def _generate_mock_valuation_data(self, codes: List[str], start_date: str, end_date: str) -> Dict[str, pd.DataFrame]:
+        """生成模拟估值数据"""
+        weeks = pd.date_range(start=start_date, end=end_date, freq='W')
+
+        pe_base = {"000001.SH": 13, "SPX.GI": 26}
+        pb_base = {"000001.SH": 1.3, "SPX.GI": 4.8}
+
+        pe_data = {code: pe_base.get(code, 15) * (1 + np.cumsum(np.random.randn(len(weeks)) * 0.01)) for code in codes}
+        pb_data = {code: pb_base.get(code, 2) * (1 + np.cumsum(np.random.randn(len(weeks)) * 0.01)) for code in codes}
+
+        return {
+            "PE": pd.DataFrame(pe_data, index=weeks),
+            "PB": pd.DataFrame(pb_data, index=weeks)
+        }
+
+    def _generate_mock_bond_yields(self, names: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+        """生成模拟债券收益率数据"""
+        weeks = pd.date_range(start=start_date, end=end_date, freq='W')
+
+        base_yields = {
+            "中债国债10年": 1.8,
+            "中债国开债10年": 2.0,
+            "中债国开债1年": 1.6,
+            "中债AAA 2年": 1.8,
+            "中债AAA 1年": 1.7,
+            "中债国债2年": 1.4,
+            "美国10年国债": 4.2,
+            "美国1年国债": 3.5
+        }
+
+        data = {}
+        for name in names:
+            base = base_yields.get(name, 2.0)
+            data[name] = base + np.cumsum(np.random.randn(len(weeks)) * 0.01)
+
+        return pd.DataFrame(data, index=weeks)
+
+
+# ==================== 指标计算函数 ====================
+
+def calculate_equity_bond_ratio(pe: float, bond_yield: float) -> float:
+    """
+    计算股债性价比
+
+    Args:
+        pe: 市盈率
+        bond_yield: 10年期国债收益率(%)
+
+    Returns:
+        股债性价比 = (1/PE) - (国债收益率/100)
+    """
+    if pe == 0 or pd.isna(pe):
+        return np.nan
+    return (1 / pe) - (bond_yield / 100)
+
+
+def calculate_credit_spread(credit_yield: float, treasury_yield: float) -> float:
+    """
+    计算信用利差(bp)
+
+    Args:
+        credit_yield: 信用债收益率(%)
+        treasury_yield: 国债收益率(%)
+
+    Returns:
+        信用利差(基点)
+    """
+    return (credit_yield - treasury_yield) * 100
+
+
+def calculate_term_spread(long_yield: float, short_yield: float) -> float:
+    """
+    计算期限利差(bp)
+
+    Args:
+        long_yield: 长期收益率(%)
+        short_yield: 短期收益率(%)
+
+    Returns:
+        期限利差(基点)
+    """
+    return (long_yield - short_yield) * 100
+
+
+def calculate_fx_hedging_cost(swap_points: float, cnh_rate: float) -> float:
+    """
+    计算锁汇成本
+
+    Args:
+        swap_points: 美元兑人民币1年掉期点 (USDCNY1YS.IB)
+        cnh_rate: 美元兑离岸人民币即期汇率 (USDCNH.FX)
+
+    Returns:
+        锁汇成本 = -掉期点/10000/离岸人民币汇率
+    """
+    if pd.isna(swap_points) or pd.isna(cnh_rate) or cnh_rate == 0:
+        return np.nan
+    return -swap_points / 10000 / cnh_rate
+
+
+def calculate_percentile(series: pd.Series, value: float, reverse: bool = False) -> float:
+    """
+    计算分位数
+
+    Args:
+        series: 历史数据序列
+        value: 当前值
+        reverse: 是否反转(对于越低越好的指标)
+
+    Returns:
+        分位数(0-1)
+    """
+    if pd.isna(value) or len(series.dropna()) == 0:
+        return np.nan
+
+    valid_series = series.dropna()
+    percentile = (valid_series < value).sum() / len(valid_series)
+
+    if reverse:
+        percentile = 1 - percentile
+
+    return percentile
+
+
+# ==================== 主要生成函数 ====================
+
+def generate_recent_prices_file(fetcher: WindDataFetcher, output_path: str):
+    """
+    生成近1月净值走势.xlsx
+
+    包含最近1个月各类资产的日度行情数据
+    """
+    print("\n开始生成: 近1月净值走势.xlsx")
+
+    # 计算日期范围(最近1个月)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=30)
+
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = end_date.strftime("%Y-%m-%d")
+
+    print(f"日期范围: {start_str} 至 {end_str}")
+
+    # 获取所有资产的日度数据
+    all_codes = []
+    all_codes.extend(EQUITY_CODES.values())
+    all_codes.extend(BOND_CODES.values())
+    all_codes.extend(FX_CODES.values())
+    all_codes.extend(COMMODITY_CODES.values())
+
+    print(f"获取 {len(all_codes)} 个资产的行情数据...")
+    df = fetcher.get_daily_prices(all_codes, start_str, end_str)
+
+    # 重命名列为中文名称
+    code_to_name = {}
+    code_to_name.update({v: k for k, v in EQUITY_CODES.items()})
+    code_to_name.update({v: k for k, v in BOND_CODES.items()})
+    code_to_name.update({v: k for k, v in FX_CODES.items()})
+    code_to_name.update({v: k for k, v in COMMODITY_CODES.items()})
+
+    df.columns = [code_to_name.get(col, col) for col in df.columns]
+
+    # 计算锁汇成本(如果有必要的数据)
+    if 'USDCNY1YS' in df.columns and 'USDCNH' in df.columns:
+        df['锁汇成本'] = df.apply(
+            lambda row: calculate_fx_hedging_cost(row['USDCNY1YS'], row['USDCNH']),
+            axis=1
+        )
+        # 移除中间列
+        df = df.drop(columns=['USDCNY1YS', 'USDCNH'])
+
+    # 保存为Excel
+    df.index.name = '日期'
+    df.to_excel(output_path)
+
+    print(f"✓ 已生成: {output_path}")
+    print(f"  - 行数: {len(df)}")
+    print(f"  - 列数: {len(df.columns)}")
+
+
+def generate_indicators_file(fetcher: WindDataFetcher, output_path: str):
+    """
+    生成指标值.xlsx
+
+    包含各类资产的最新指标值、历史统计(最大/最小/中位数)和分位数
+    """
+    print("\n开始生成: 指标值.xlsx")
+
+    # 计算日期范围(近3年周度数据)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=365*3)
+
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = end_date.strftime("%Y-%m-%d")
+
+    print(f"日期范围: {start_str} 至 {end_str} (周度数据)")
+
+    # 1. 获取股票估值数据
+    print("获取股票估值数据...")
+    equity_codes = [EQUITY_CODES["上证指数"], EQUITY_CODES["标普500"]]
+    valuation_data = fetcher.get_valuation_data(equity_codes, start_str, end_str)
+
+    # 2. 获取债券收益率数据
+    print("获取债券收益率数据...")
+    bond_yields = fetcher.get_edb_data(BOND_YIELD_EDB, start_str, end_str)
+
+    # 3. 计算衍生指标
+    print("计算衍生指标...")
+
+    # 股债性价比
+    equity_bond_ratio_sh = pd.Series(
+        [calculate_equity_bond_ratio(pe, yield_val)
+         for pe, yield_val in zip(
+             valuation_data['PE'][EQUITY_CODES["上证指数"]],
+             bond_yields["中债国债10年"]
+         )],
+        index=valuation_data['PE'].index
+    )
+
+    equity_bond_ratio_sp = pd.Series(
+        [calculate_equity_bond_ratio(pe, yield_val)
+         for pe, yield_val in zip(
+             valuation_data['PE'][EQUITY_CODES["标普500"]],
+             bond_yields["美国10年国债"]
+         )],
+        index=valuation_data['PE'].index
+    )
+
+    # 债券利差
+    credit_spread_10y = bond_yields.apply(
+        lambda row: calculate_credit_spread(row["中债国开债10年"], row["中债国债10年"]),
+        axis=1
+    )
+
+    term_spread_10y = bond_yields.apply(
+        lambda row: calculate_term_spread(row["中债国开债10年"], row["中债国开债1年"]),
+        axis=1
+    )
+
+    # 4. 构建指标列表
+    indicators = []
+
+    # ===== 权益类指标 =====
+
+    # 上证指数
+    indicators.extend([
+        {
+            "大类资产": "权益",
+            "子类资产": "上证指数",
+            "观察指标": "PE",
+            "历史数据": valuation_data['PE'][EQUITY_CODES["上证指数"]],
+            "reverse": False
+        },
+        {
+            "大类资产": "权益",
+            "子类资产": "上证指数",
+            "观察指标": "PB",
+            "历史数据": valuation_data['PB'][EQUITY_CODES["上证指数"]],
+            "reverse": False
+        },
+        {
+            "大类资产": "权益",
+            "子类资产": "上证指数",
+            "观察指标": "股债性价比",
+            "历史数据": equity_bond_ratio_sh,
+            "reverse": True  # 越低越好,需要反转
+        }
+    ])
+
+    # 标普500
+    indicators.extend([
+        {
+            "大类资产": "权益",
+            "子类资产": "标普500",
+            "观察指标": "PE",
+            "历史数据": valuation_data['PE'][EQUITY_CODES["标普500"]],
+            "reverse": False
+        },
+        {
+            "大类资产": "权益",
+            "子类资产": "标普500",
+            "观察指标": "PB",
+            "历史数据": valuation_data['PB'][EQUITY_CODES["标普500"]],
+            "reverse": False
+        },
+        {
+            "大类资产": "权益",
+            "子类资产": "标普500",
+            "观察指标": "股债性价比",
+            "历史数据": equity_bond_ratio_sp,
+            "reverse": True
+        }
+    ])
+
+    # ===== 债券类指标 =====
+
+    indicators.extend([
+        {
+            "大类资产": "债券",
+            "子类资产": "7-10年国开",
+            "观察指标": "收益率",
+            "历史数据": bond_yields["中债国开债10年"],
+            "reverse": False
+        },
+        {
+            "大类资产": "债券",
+            "子类资产": "7-10年国开",
+            "观察指标": "信用利差",
+            "历史数据": credit_spread_10y,
+            "reverse": False
+        },
+        {
+            "大类资产": "债券",
+            "子类资产": "7-10年国开",
+            "观察指标": "期限利差",
+            "历史数据": term_spread_10y,
+            "reverse": False
+        }
+    ])
+
+    # 5. 计算统计指标
+    print("计算统计指标...")
+
+    results = []
+    for ind in indicators:
+        series = ind["历史数据"].dropna()
+
+        if len(series) == 0:
+            continue
+
+        current_value = series.iloc[-1]
+        max_value = series.max()
+        min_value = series.min()
+        median_value = series.median()
+        percentile = calculate_percentile(series, current_value, ind["reverse"])
+
+        results.append({
+            "大类资产": ind["大类资产"],
+            "子类资产": ind["子类资产"],
+            "观察指标（近三年）": ind["观察指标"],
+            "当前值": current_value,
+            "最大值": max_value,
+            "最小值": min_value,
+            "历史中位数": median_value,
+            "当前分位点": percentile
+        })
+
+    # 6. 生成DataFrame并保存
+    df = pd.DataFrame(results)
+
+    # 格式化数值
+    df["当前值"] = df["当前值"].round(4)
+    df["最大值"] = df["最大值"].round(4)
+    df["最小值"] = df["最小值"].round(4)
+    df["历史中位数"] = df["历史中位数"].round(4)
+    df["当前分位点"] = df["当前分位点"].round(3)
+
+    # 保存为Excel
+    df.to_excel(output_path, index=False)
+
+    print(f"✓ 已生成: {output_path}")
+    print(f"  - 指标数量: {len(df)}")
+
+    return df
+
+
+# ==================== 美化Excel格式 ====================
+
+def format_excel_file(file_path: str):
+    """
+    美化Excel文件格式
+
+    - 添加表头格式
+    - 调整列宽
+    - 设置数字格式
+    """
+    wb = openpyxl.load_workbook(file_path)
+    ws = wb.active
+
+    # 表头格式
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+
+    # 自动调整列宽
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+
+        for cell in column:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    # 冻结首行
+    ws.freeze_panes = "A2"
+
+    wb.save(file_path)
+    print(f"✓ 已美化格式: {file_path}")
+
+
+# ==================== 主程序 ====================
+
+def main():
+    """主程序入口"""
+    print("=" * 60)
+    print("市场观点美化 - 数据生成程序")
+    print("=" * 60)
+
+    # 初始化Wind数据获取器
+    fetcher = WindDataFetcher()
+
+    # 输出路径
+    output_dir = "/Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data"
+
+    # 生成文件
+    try:
+        # 1. 生成近1月净值走势
+        recent_prices_path = f"{output_dir}/近1月净值走势.xlsx"
+        generate_recent_prices_file(fetcher, recent_prices_path)
+        format_excel_file(recent_prices_path)
+
+        # 2. 生成指标值
+        indicators_path = f"{output_dir}/指标值.xlsx"
+        generate_indicators_file(fetcher, indicators_path)
+        format_excel_file(indicators_path)
+
+        print("\n" + "=" * 60)
+        print("✓ 所有文件生成完成!")
+        print("=" * 60)
+        print(f"\n输出文件:")
+        print(f"  1. {recent_prices_path}")
+        print(f"  2. {indicators_path}")
+
+        if not WIND_AVAILABLE:
+            print("\n⚠️ 注意: 由于Wind API不可用,以上文件使用模拟数据生成")
+            print("   请安装WindPy并登录Wind终端后重新运行以获取真实数据")
+
+    except Exception as e:
+        print(f"\n❌ 错误: {e}")
+        import traceback
+        traceback.print_exc()
+
+    finally:
+        if WIND_AVAILABLE:
+            w.stop()
+            print("\nWind API已关闭")
+
+
+if __name__ == "__main__":
+    main()

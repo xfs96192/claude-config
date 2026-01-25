@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多资产投资部 - 系列产品运作看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Financial Color Palette */
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #121826;
+            --bg-card: #1a1f35;
+            --bg-card-hover: #1f2540;
+
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-purple: #8b5cf6;
+
+            --text-primary: #f0f4f8;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --border-color: #2d3548;
+            --border-bright: #3d4558;
+
+            /* Trend colors */
+            --trend-up: #10b981;
+            --trend-down: #ef4444;
+            --trend-neutral: #6b7280;
+
+            /* Shadows */
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Typography */
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header Section */
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-box {
+            position: relative;
+        }
+
+        .upload-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            cursor: pointer;
+            background: var(--bg-card);
+            border: 2px dashed var(--border-bright);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-card-hover);
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-input-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            letter-spacing: 0.02em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.5);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-card-hover);
+            border-color: var(--border-bright);
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .scale-badge {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .scale-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .scale-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 0.5rem;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* Metric Item */
+        .metric {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .metric:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-bright);
+        }
+
+        .metric-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .icon-duration { background: var(--accent-blue); }
+        .icon-leverage { background: var(--accent-green); }
+        .icon-equity { background: var(--accent-red); }
+        .icon-derivatives { background: var(--accent-yellow); }
+
+        .metric-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        /* Change Indicator */
+        .change-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .change-up {
+            color: var(--trend-up);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .change-down {
+            color: var(--trend-down);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .change-neutral {
+            color: var(--trend-neutral);
+            background: rgba(107, 114, 128, 0.1);
+        }
+
+        /* Arrow Icons */
+        .arrow {
+            font-size: 1rem;
+            font-weight: 700;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .upload-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Stagger animation delays */
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+        .product-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>多资产投资部产品运作看板</h1>
+            <p class="subtitle">Multi-Asset Investment Department Performance Dashboard</p>
+        </header>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <label class="upload-label">当期产品运作表 (Excel)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="currentFile" accept=".xlsx, .xls">
+                        <div class="file-input-icon">📊</div>
+                        <div class="file-input-text">点击选择文件或拖拽到此处</div>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <label class="upload-label">对比期产品运作表 (Excel)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="compareFile" accept=".xlsx, .xls">
+                        <div class="file-input-icon">📈</div>
+                        <div class="file-input-text">点击选择文件或拖拽到此处</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="processFiles()" class="btn btn-primary">
+                    <span>🚀 生成分析看板</span>
+                </button>
+                <button onclick="exportToExcel()" id="exportBtn" class="btn btn-success hidden">
+                    <span>📥 导出 Excel</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <div class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <div class="empty-state-text">上传文件以生成产品运作分析看板</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const MAPPING = [
+            { key: '悦动稳享短持', name: '稳享' },
+            { key: '丰利/增盈', name: '合享' },
+            { key: '逸动短持', name: '逸动' },
+            { key: '悦动短持/定开', name: '悦动' },
+            { key: '灵动短持', name: '灵动' },
+            { key: '兴动短持', name: '兴动' }
+        ];
+
+        const COLS = {
+            CATEGORY: '母分类',
+            NET_ASSETS: '净资产(亿)',
+            DURATION: '组合久期',
+            LEVERAGE: '杠杆',
+            EQUITY: '权益仓位',
+            DERIVATIVES: '衍生品仓位',
+            FLAG: '母子标志'
+        };
+
+        let generatedData = [];
+
+        async function readExcel(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                        const normalizedData = jsonData.map(row => {
+                            const newRow = {};
+                            Object.keys(row).forEach(key => {
+                                newRow[key.trim()] = row[key];
+                            });
+                            return newRow;
+                        });
+
+                        resolve(normalizedData);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function extractDateFromFilename(filename) {
+            const match = filename.match(/(\d{4}[-年]?\d{2}[-月]?\d{2})/);
+            return match ? match[0] : '当期';
+        }
+
+        async function processFiles() {
+            const currentFile = document.getElementById('currentFile').files[0];
+            const compareFile = document.getElementById('compareFile').files[0];
+
+            if (!currentFile || !compareFile) {
+                alert("请上传两个文件！");
+                return;
+            }
+
+            try {
+                let currentData = await readExcel(currentFile);
+                let compareData = await readExcel(compareFile);
+
+                const filterData = (data) => {
+                    return data.filter(row => {
+                        const flag = row[COLS.FLAG];
+                        if (!flag) return false;
+                        const val = String(flag).trim();
+                        return val === '母产品' || val === '非母子产品';
+                    });
+                };
+
+                currentData = filterData(currentData);
+                compareData = filterData(compareData);
+
+                const currentDate = extractDateFromFilename(currentFile.name);
+                const compareDate = extractDateFromFilename(compareFile.name);
+
+                generateDashboard(currentData, compareData, currentDate, compareDate);
+                document.getElementById('exportBtn').classList.remove('hidden');
+
+                window.currentDateStr = currentDate;
+                window.compareDateStr = compareDate;
+            } catch (error) {
+                console.error(error);
+                alert("处理文件时出错: " + error.message);
+            }
+        }
+
+        const parseNum = (val) => {
+            if (typeof val === 'number') return val;
+            if (typeof val === 'string') {
+                val = val.trim();
+                if (val.endsWith('%')) {
+                    return parseFloat(val) / 100;
+                }
+                return parseFloat(val);
+            }
+            return 0;
+        };
+
+        function calculateTotalScale(data, categoryKey) {
+            const items = data.filter(row => row[COLS.CATEGORY] === categoryKey);
+            let totalAssets = 0;
+            items.forEach(row => {
+                let assets = row[COLS.NET_ASSETS];
+                assets = parseNum(assets) || 0;
+                totalAssets += assets;
+            });
+            return totalAssets;
+        }
+
+        function calculateWeightedAvg(data, categoryKey, metricKey) {
+            const items = data.filter(row => row[COLS.CATEGORY] === categoryKey);
+            if (items.length === 0) return null;
+
+            let totalWeighted = 0;
+            let totalAssets = 0;
+
+            items.forEach(row => {
+                let assets = row[COLS.NET_ASSETS];
+                let metric = row[metricKey];
+
+                assets = parseNum(assets) || 0;
+                metric = parseNum(metric) || 0;
+
+                totalWeighted += metric * assets;
+                totalAssets += assets;
+            });
+
+            return totalAssets === 0 ? 0 : totalWeighted / totalAssets;
+        }
+
+        function formatValue(value, type) {
+            if (value === null || value === undefined || isNaN(value)) return '-';
+            if (Math.abs(value) < 0.000001) return '-';
+
+            if (type === 'percent') {
+                return (value * 100).toFixed(2) + '%';
+            } else if (type === 'percent_int') {
+                return (value * 100).toFixed(0) + '%';
+            } else if (type === 'decimal') {
+                return value.toFixed(2);
+            }
+            return value;
+        }
+
+        function getChangeIndicator(change, type) {
+            if (change === null || change === undefined || isNaN(change) || Math.abs(change) < 0.000001) {
+                return `<span class="change-indicator change-neutral">-</span>`;
+            }
+
+            const formattedChange = formatValue(Math.abs(change), type);
+            const sign = change > 0 ? '+' : '-';
+            const arrow = change > 0 ? '↑' : '↓';
+            const className = change > 0 ? 'change-up' : 'change-down';
+
+            return `
+                <span class="change-indicator ${className}">
+                    <span class="arrow">${arrow}</span>
+                    <span>${sign}${formattedChange}</span>
+                </span>
+            `;
+        }
+
+        function generateDashboard(currentData, compareData, currentDate, compareDate) {
+            generatedData = [];
+
+            const cards = MAPPING.map(item => {
+                const rowData = { series: item.name };
+
+                // Scale
+                rowData.scale = calculateTotalScale(currentData, item.key);
+
+                // Duration
+                const curDur = calculateWeightedAvg(currentData, item.key, COLS.DURATION);
+                const oldDur = calculateWeightedAvg(compareData, item.key, COLS.DURATION);
+                rowData.dur = curDur;
+                rowData.durChg = (curDur !== null && oldDur !== null) ? curDur - oldDur : null;
+
+                // Leverage
+                const curLev = calculateWeightedAvg(currentData, item.key, COLS.LEVERAGE);
+                const oldLev = calculateWeightedAvg(compareData, item.key, COLS.LEVERAGE);
+                rowData.lev = curLev;
+                rowData.levChg = (curLev !== null && oldLev !== null) ? curLev - oldLev : null;
+
+                // Equity
+                const curEq = calculateWeightedAvg(currentData, item.key, COLS.EQUITY);
+                const oldEq = calculateWeightedAvg(compareData, item.key, COLS.EQUITY);
+                rowData.eq = curEq;
+                rowData.eqChg = (curEq !== null && oldEq !== null) ? curEq - oldEq : null;
+
+                // Derivatives
+                const curDer = calculateWeightedAvg(currentData, item.key, COLS.DERIVATIVES);
+                const oldDer = calculateWeightedAvg(compareData, item.key, COLS.DERIVATIVES);
+                rowData.der = curDer;
+                rowData.derChg = (curDer !== null && oldDer !== null) ? curDer - oldDer : null;
+
+                generatedData.push(rowData);
+
+                return `
+                    <div class="product-card animate-in">
+                        <div class="card-header">
+                            <h2 class="product-name">${item.name}</h2>
+                            <div class="scale-badge">
+                                <span class="scale-value">${formatValue(rowData.scale, 'decimal')}</span>
+                                <span class="scale-label">亿元</span>
+                            </div>
+                        </div>
+
+                        <div class="metrics-grid">
+                            <!-- Duration -->
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <span class="metric-icon icon-duration"></span>
+                                    <span>久期</span>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value">${formatValue(rowData.dur, 'decimal')}</div>
+                                    ${getChangeIndicator(rowData.durChg, 'decimal')}
+                                </div>
+                            </div>
+
+                            <!-- Leverage -->
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <span class="metric-icon icon-leverage"></span>
+                                    <span>杠杆</span>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value">${formatValue(rowData.lev, 'percent_int')}</div>
+                                    ${getChangeIndicator(rowData.levChg, 'percent_int')}
+                                </div>
+                            </div>
+
+                            <!-- Equity -->
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <span class="metric-icon icon-equity"></span>
+                                    <span>权益仓位</span>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value">${formatValue(rowData.eq, 'percent')}</div>
+                                    ${getChangeIndicator(rowData.eqChg, 'percent')}
+                                </div>
+                            </div>
+
+                            <!-- Derivatives -->
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <span class="metric-icon icon-derivatives"></span>
+                                    <span>衍生品仓位</span>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value">${formatValue(rowData.der, 'percent')}</div>
+                                    ${getChangeIndicator(rowData.derChg, 'percent')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('dashboard').innerHTML = cards;
+        }
+
+        function exportToExcel() {
+            const currentDate = window.currentDateStr || '当期';
+            const compareDate = window.compareDateStr || '对比期';
+            const diffLabel = `（相比于${compareDate}）`;
+
+            const wsData = [
+                [
+                    "产品系列",
+                    "规模(亿)",
+                    `${currentDate}久期`, `久期变化${diffLabel}`,
+                    `${currentDate}杠杆`, `杠杆变化${diffLabel}`,
+                    `${currentDate}权益仓位`, `权益仓位变化${diffLabel}`,
+                    `${currentDate}衍生品仓位`, `衍生品仓位变化${diffLabel}`
+                ]
+            ];
+
+            generatedData.forEach(row => {
+                wsData.push([
+                    row.series,
+                    formatValue(row.scale, 'decimal'),
+                    formatValue(row.dur, 'decimal'),
+                    formatValue(row.durChg, 'decimal'),
+                    formatValue(row.lev, 'percent_int'),
+                    formatValue(row.levChg, 'percent_int'),
+                    formatValue(row.eq, 'percent'),
+                    formatValue(row.eqChg, 'percent'),
+                    formatValue(row.der, 'percent'),
+                    formatValue(row.derChg, 'percent')
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            const borderStyle = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+            const alignCenter = { horizontal: "center", vertical: "center", wrapText: true };
+
+            const colorBlue = "4472C4";
+            const colorGreen = "548235";
+            const colorRed = "C00000";
+            const colorYellow = "FFC000";
+            const colorWhite = "FFFFFF";
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cell_address]) continue;
+
+                    let cellStyle = {
+                        border: borderStyle,
+                        alignment: alignCenter,
+                        font: { name: "Calibri", sz: 11 }
+                    };
+
+                    if (R === 0) {
+                        cellStyle.font.bold = true;
+                        cellStyle.font.color = { rgb: colorWhite };
+
+                        let bgColor = null;
+                        if (C <= 3) bgColor = colorBlue;
+                        else if (C <= 5) bgColor = colorGreen;
+                        else if (C <= 7) bgColor = colorRed;
+                        else if (C <= 9) bgColor = colorYellow;
+
+                        if (bgColor) {
+                            cellStyle.fill = { fgColor: { rgb: bgColor } };
+                        }
+                    } else {
+                        if (C === 0) {
+                            cellStyle.font.bold = true;
+                        }
+
+                        if ([3, 5, 7, 9].includes(C)) {
+                            cellStyle.font.color = { rgb: colorRed };
+                            cellStyle.font.bold = true;
+                        }
+                    }
+
+                    ws[cell_address].s = cellStyle;
+                }
+            }
+
+            ws['!cols'] = [
+                { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 15 },
+                { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 15 },
+                { wch: 15 }, { wch: 15 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "产品运作概览");
+
+            const date = new Date();
+            const dateStr = date.toISOString().split('T')[0];
+            XLSX.writeFile(wb, `产品运作概览信息表_${dateStr}.xlsx`);
+        }
+    </script>
+</body>
+
+</html>

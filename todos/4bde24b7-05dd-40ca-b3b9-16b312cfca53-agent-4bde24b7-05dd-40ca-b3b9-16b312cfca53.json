@@ -1,0 +1,37 @@
+[
+  {
+    "content": "Parse target date and read data mapping rules",
+    "status": "in_progress",
+    "activeForm": "Parsing target date and reading data mapping rules"
+  },
+  {
+    "content": "Verify data source files exist for 20260115",
+    "status": "pending",
+    "activeForm": "Verifying data source files exist for 20260115"
+  },
+  {
+    "content": "Load the latest template Excel file",
+    "status": "pending",
+    "activeForm": "Loading the latest template Excel file"
+  },
+  {
+    "content": "Update regular products from performance data",
+    "status": "pending",
+    "activeForm": "Updating regular products from performance data"
+  },
+  {
+    "content": "Process 非标驱动 series from PDF",
+    "status": "pending",
+    "activeForm": "Processing 非标驱动 series from PDF"
+  },
+  {
+    "content": "Handle 汇利现金宝1号 special case",
+    "status": "pending",
+    "activeForm": "Handling 汇利现金宝1号 special case"
+  },
+  {
+    "content": "Save report with preserved formatting",
+    "status": "pending",
+    "activeForm": "Saving report with preserved formatting"
+  }
+]

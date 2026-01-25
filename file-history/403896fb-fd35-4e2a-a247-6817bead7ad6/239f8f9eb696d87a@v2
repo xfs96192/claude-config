@@ -1,0 +1,1679 @@
+# 基金分类标签管理系统 - AI完整复现指南
+
+> **文档用途**: 本文档提供给AI工具(Claude、ChatGPT、Cursor等),确保能够100%准确复现系统的所有功能和计算逻辑
+> **系统版本**: v1.1.0
+> **最后更新**: 2026-01-20
+
+---
+
+## 📋 目录
+
+1. [系统概述](#1-系统概述)
+2. [技术架构](#2-技术架构)
+3. [数据结构规范](#3-数据结构规范)
+4. [核心计算逻辑](#4-核心计算逻辑)
+5. [功能实现详解](#5-功能实现详解)
+6. [UI界面规范](#6-ui界面规范)
+7. [完整代码框架](#7-完整代码框架)
+8. [测试验证](#8-测试验证)
+
+---
+
+## 1. 系统概述
+
+### 1.1 项目定位
+**基金分类标签管理系统**是一个专为银行理财资管机构设计的纯前端单页应用,用于分析和可视化多个理财产品的权益暴露情况。
+
+### 1.2 业务场景
+某银行理财部门管理多个理财产品(如"丰利逸动1个月增强型"、"丰利逸动10个月增强型"等),每个产品投资了不同的基金。需要:
+1. 上传Excel持仓明细表
+2. 自动识别每个产品持有的基金
+3. 根据基金的"风格"(红利/均衡/科技成长/周期/价值)和"权益仓位"
+4. 计算每个产品在不同风格上的权益暴露金额和占比
+5. 多维度可视化展示结果
+
+### 1.3 核心价值
+- **自动化**: 从手工Excel计算到一键上传自动分析
+- **智能化**: 自动检测新基金,提示用户分类
+- **可视化**: 图表+矩阵+详表多维度展示
+- **离线化**: 完全离线运行,适合内网环境
+
+### 1.4 技术栈
+```
+前端: 纯HTML + CSS + JavaScript (ES6)
+Excel解析: SheetJS (xlsx.full.min.js)
+图表: Chart.js v4.5.0+
+存储: LocalStorage
+部署: 单HTML文件,无需服务器
+```
+
+---
+
+## 2. 技术架构
+
+### 2.1 文件结构
+```
+项目目录/
+├── fund_analysis.html      (主文件,包含所有HTML/CSS/JS)
+├── xlsx.full.min.js        (Excel解析库,离线)
+├── chart.js                (图表库,离线)
+├── 基金分类数据.json        (可选,备份数据)
+└── 持仓明细表.xlsx          (用户上传的Excel文件)
+```
+
+### 2.2 单HTML架构
+整个系统在一个HTML文件中实现:
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>基金分类标签管理系统</title>
+    <script src="xlsx.full.min.js"></script>
+    <script src="chart.js"></script>
+    <style>
+        /* 所有CSS样式 */
+    </style>
+</head>
+<body>
+    <!-- 所有HTML结构 -->
+    <script>
+        /* 所有JavaScript代码 */
+    </script>
+</body>
+</html>
+```
+
+### 2.3 数据流图
+```
+┌─────────────┐
+│ 用户上传Excel │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│ FileReader读取   │
+│ XLSX.read解析   │
+└──────┬──────────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ processData() 主处理函数  │
+├──────────────────────────┤
+│ 1. 计算产品净资产        │
+│    (总持仓 - 正回购)     │
+│ 2. 检测未分类基金        │
+│ 3. 匹配基金分类          │
+│ 4. 计算权益暴露          │
+│ 5. 按风格分组汇总        │
+│ 6. 计算占比              │
+└──────┬───────────────────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ 多维度渲染               │
+├──────────────────────────┤
+│ • 汇总统计卡片           │
+│ • 矩阵表格(产品×风格)    │
+│ • 产品卡片+环形图        │
+│ • 详细数据表格           │
+└──────────────────────────┘
+```
+
+### 2.4 核心全局变量
+```javascript
+// 常量
+const defaultFundClassifications = { ... };  // 默认66个基金数据库
+const STORAGE_KEY = 'fund_classifications_data';
+const FUND_EQUITY_SUBCLASS_RULES = { ... };  // 权益类资产规则
+
+// 运行时状态
+let fundClassifications = {};     // 当前基金分类数据
+let holdingData = [];             // Excel解析后的数组
+let analysisResults = {};         // {产品名: {风格: {amount, percentage}}}
+let selectedProducts = new Set(); // 选中的产品
+let matrixDisplayType = 'amount'; // 矩阵显示模式
+let unclassifiedFunds = [];       // 未分类基金
+```
+
+---
+
+## 3. 数据结构规范
+
+### 3.1 Excel输入文件格式
+
+**必需列名**(大小写敏感,必须完全匹配):
+```
+产品简称                    - 产品名称,如"丰利逸动1个月最短持有期日开1号增强型"
+资产代码                    - 内部资产代码,如"80PF2216281"
+外部代码                    - 外部标识码,如"011691.OF"
+资产简称                    - 资产名称,如"招商品质发现混合型证券投资基金"
+日终市值(元)-产品法估值      - 持仓金额,数值型,如 2760134.15
+新版资产大类                - 一级分类,如"公募基金"、"委外投资"
+新版资产小类                - 二级分类,如"公募混合基金"、"公募股票基金"
+```
+
+**Excel数据示例**:
+| 产品简称 | 资产代码 | 外部代码 | 资产简称 | 日终市值(元)-产品法估值 | 新版资产大类 | 新版资产小类 |
+|---------|---------|---------|---------|----------------------|------------|------------|
+| 丰利逸动1个月... | 80PF2216281 | 011691.OF | 招商品质发现混合... | 2760134.15 | 公募基金 | 公募混合基金 |
+| 丰利逸动1个月... | SECREPO250715... | | 正回购 | 10000000.00 | 正回购 | 正回购 |
+| 丰利逸动10个月... | 80PF2216594 | 013642.OF | 博道成长智航股票... | 2070156.79 | 公募基金 | 公募股票基金 |
+
+### 3.2 基金分类数据结构
+
+**存储在LocalStorage中的JSON对象**:
+```javascript
+{
+    "011691.OF": {                      // 键:匹配键(外部代码/资产代码/资产简称)
+        "assetClass": "公募混合基金",    // 资产小类
+        "style": "均衡",                 // 投资风格(5选1)
+        "equityPosition": 100            // 权益仓位(0-100整数)
+    },
+    "002361.OF": {
+        "assetClass": "二级公募债券基金",
+        "style": "均衡",
+        "equityPosition": 20
+    },
+    "11PF242490": {                      // 委外投资使用资产代码作为键
+        "assetClass": "委外非现固定收益类资产",
+        "style": "均衡",
+        "equityPosition": 18
+    }
+}
+```
+
+**投资风格枚举**(5种,固定顺序):
+```javascript
+const STYLES = ['红利', '均衡', '科技成长', '周期', '价值'];
+```
+
+**资产小类枚举**(含权益的):
+```javascript
+const EQUITY_ASSET_CLASSES = [
+    '公募股票基金',              // 100%
+    '普通股票型基金',            // 100%
+    '公募混合基金',              // 100%
+    '偏股混合型基金',            // 80%
+    '灵活配置型基金',            // 80%
+    '二级公募债券基金',          // 20%
+    '混合债券型二级基金',        // 20%
+    '其他公募基金',              // 100%
+    '被动指数型基金',            // 100%
+    '国际(QDII)被动指数型股票基金' // 100%
+];
+```
+
+### 3.3 未分类基金对象
+```javascript
+{
+    assetName: "新检测基金名称",      // 资产简称
+    matchKey: "123456.OF",          // 匹配键
+    externalCode: "123456.OF",      // 外部代码
+    assetSubClass: "公募股票基金",   // 资产小类
+    style: "",                      // 待用户设置
+    equityPosition: 100             // 根据资产小类自动设置默认值
+}
+```
+
+### 3.4 分析结果数据结构
+```javascript
+analysisResults = {
+    "丰利逸动1个月...": {
+        "红利": {
+            amount: 5000000,           // 权益暴露金额(元)
+            percentage: 25.5           // 占比(%)
+        },
+        "均衡": {
+            amount: 10000000,
+            percentage: 51.0
+        },
+        "科技成长": {
+            amount: 4600000,
+            percentage: 23.5
+        }
+    },
+    "丰利逸动10个月...": { ... }
+}
+```
+
+---
+
+## 4. 核心计算逻辑
+
+### 4.1 基金匹配键生成(getFundMatchKey)
+
+**这是系统最关键的逻辑之一!**
+
+```javascript
+function getFundMatchKey(row) {
+    const assetClass = normalizeText(row['新版资产大类']);
+    const externalCode = normalizeText(row['外部代码']);
+    const assetCode = normalizeText(row['资产代码']);
+    const assetName = normalizeText(row['资产简称']);
+
+    // 规则1: 公募基金优先使用外部代码
+    if (assetClass === '公募基金' && externalCode) {
+        return externalCode;
+    }
+
+    // 规则2: 委外投资使用资产代码
+    if (assetClass === '委外投资' && assetCode) {
+        return assetCode;
+    }
+
+    // 规则3: 其他情况使用资产简称
+    return assetName;
+}
+```
+
+**匹配示例**:
+```
+输入: {新版资产大类:'公募基金', 外部代码:'011691.OF', 资产简称:'招商品质发现...'}
+输出: "011691.OF"
+
+输入: {新版资产大类:'委外投资', 资产代码:'11PF242490', 资产简称:'兴业信托...'}
+输出: "11PF242490"
+
+输入: {新版资产大类:'其他', 外部代码:'', 资产简称:'华泰柏瑞红利ETF ( 510880.SH )'}
+输出: "华泰柏瑞红利ETF ( 510880.SH )"
+```
+
+### 4.2 产品净资产计算
+
+**公式**: 产品净资产 = Σ持仓金额 - 正回购金额
+
+**代码实现**:
+```javascript
+// 第一遍循环:计算各产品净资产
+const productNetAssets = {};
+holdingData.forEach(row => {
+    const productName = normalizeText(row['产品简称']);
+    const assetName = normalizeText(row['资产简称']);
+    const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+
+    if (!productName || holdingAmount === 0) return;
+
+    if (!productNetAssets[productName]) {
+        productNetAssets[productName] = 0;
+    }
+
+    // 关键:检测正回购
+    const isRepo = assetName && assetName.includes('正回购');
+
+    if (isRepo) {
+        // 正回购减去(注意:正回购金额本身可能是负数)
+        productNetAssets[productName] -= holdingAmount;
+    } else {
+        // 其他资产加上
+        productNetAssets[productName] += holdingAmount;
+    }
+});
+```
+
+**计算示例**:
+```
+产品A持仓明细:
+1. 招商品质发现基金:    2,760,134.15元
+2. 博道盛彦基金:        2,804,248.70元
+3. 托管账户:           17,263,030.00元
+4. 正回购(银行间):     10,000,000.00元  ← 注意这里
+
+计算过程:
+净资产 = 2,760,134.15 + 2,804,248.70 + 17,263,030 - 10,000,000
+      = 12,827,412.85元
+```
+
+### 4.3 权益暴露金额计算
+
+**公式**: 权益暴露金额 = 持仓金额 × (权益仓位 / 100)
+
+**代码实现**:
+```javascript
+holdingData.forEach(row => {
+    const productName = normalizeText(row['产品简称']);
+    const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+
+    // 生成匹配键
+    const matchKey = getFundMatchKey(row);
+
+    // 查找分类
+    const classification = fundClassifications[matchKey];
+    if (!classification) return; // 跳过未分类基金
+
+    // 计算权益暴露
+    const equityExposure = holdingAmount * (classification.equityPosition / 100);
+
+    // 按产品和风格分组累加
+    if (!productResults[productName]) {
+        productResults[productName] = {};
+    }
+    if (!productResults[productName][classification.style]) {
+        productResults[productName][classification.style] = 0;
+    }
+    productResults[productName][classification.style] += equityExposure;
+});
+```
+
+**计算示例**:
+```
+案例1: 招商品质发现混合基金
+持仓金额: 2,760,134.15元
+权益仓位: 100%
+权益暴露 = 2,760,134.15 × (100/100) = 2,760,134.15元
+
+案例2: 景顺长城景颐双利(二级债基)
+持仓金额: 5,080,751.37元
+权益仓位: 20%
+权益暴露 = 5,080,751.37 × (20/100) = 1,016,150.27元
+```
+
+### 4.4 风格权益暴露占比计算
+
+**公式**: 风格占比 = (该风格权益暴露金额之和 / 该产品所有风格权益暴露金额之和) × 100%
+
+**代码实现**:
+```javascript
+// 第三步:计算占比
+Object.keys(productResults).forEach(productName => {
+    // 计算总权益暴露
+    const totalEquity = Object.values(productResults[productName])
+        .reduce((sum, amount) => sum + amount, 0);
+
+    // 计算各风格占比
+    Object.keys(productResults[productName]).forEach(style => {
+        const amount = productResults[productName][style];
+        const percentage = totalEquity > 0 ? (amount / totalEquity) * 100 : 0;
+
+        productResults[productName][style] = {
+            amount: amount,
+            percentage: percentage
+        };
+    });
+});
+```
+
+**计算示例**:
+```
+产品A基金持仓(已计算权益暴露):
+1. 招商品质发现(均衡,100%):     持仓276万 → 权益暴露276万
+2. 博道盛彦(科技成长,100%):      持仓280万 → 权益暴露280万
+3. 景顺景颐双利(均衡,20%):       持仓508万 → 权益暴露101.6万
+
+按风格汇总:
+  均衡风格 = 276 + 101.6 = 377.6万
+  科技成长 = 280万
+
+总权益暴露 = 377.6 + 280 = 657.6万
+
+风格占比:
+  均衡占比 = (377.6 / 657.6) × 100% = 57.4%
+  科技成长占比 = (280 / 657.6) × 100% = 42.6%
+```
+
+### 4.5 详细表格权益暴露占比
+
+**公式**: 权益暴露占比 = (该持仓权益暴露金额 / 产品净资产) × 100%
+
+**注意**: 这个占比与风格占比不同!
+
+**代码实现**:
+```javascript
+filteredData.forEach(row => {
+    // 使用产品净资产计算
+    row.equityExposureRatio = row.productNetAsset > 0
+        ? (row.equityExposure / row.productNetAsset * 100)
+        : 0;
+});
+```
+
+**计算示例**:
+```
+招商品质发现混合基金:
+  持仓金额: 2,760,134.15元
+  权益仓位: 100%
+  权益暴露金额: 2,760,134.15元
+  产品净资产: 12,827,412.85元
+  权益暴露占比 = (2,760,134.15 / 12,827,412.85) × 100% = 21.51%
+```
+
+### 4.6 智能基金检测规则
+
+**检测条件**(必须同时满足):
+```
+条件1: 新版资产大类 === '公募基金'
+条件2: 新版资产小类 ∈ [公募股票基金, 普通股票型基金, 公募混合基金,
+                      偏股混合型基金, 灵活配置型基金, 二级公募债券基金,
+                      混合债券型二级基金, 其他公募基金, 被动指数型基金,
+                      国际(QDII)被动指数型股票基金]
+条件3: matchKey ∉ fundClassifications (未在数据库中)
+```
+
+**默认权益仓位规则**:
+```javascript
+const FUND_EQUITY_SUBCLASS_RULES = {
+    '公募股票基金': { defaultEquity: 100 },
+    '普通股票型基金': { defaultEquity: 100 },
+    '公募混合基金': { defaultEquity: 100 },
+    '偏股混合型基金': { defaultEquity: 80 },
+    '灵活配置型基金': { defaultEquity: 80 },
+    '二级公募债券基金': { defaultEquity: 20 },
+    '混合债券型二级基金': { defaultEquity: 20 },
+    '其他公募基金': { defaultEquity: 100 },
+    '被动指数型基金': { defaultEquity: 100 },
+    '国际(QDII)被动指数型股票基金': { defaultEquity: 100 }
+};
+```
+
+**检测示例**:
+```
+检测到:
+  资产简称: "新基金ABC"
+  外部代码: "999999.OF"
+  新版资产大类: "公募基金"
+  新版资产小类: "公募股票基金"
+
+判断:
+  ✓ 是公募基金
+  ✓ 小类在检测范围内
+  ✓ "999999.OF"不在fundClassifications中
+
+结果: 识别为未分类基金,默认权益仓位100%
+```
+
+---
+
+## 5. 功能实现详解
+
+### 5.1 文件上传模块
+
+**HTML结构**:
+```html
+<div class="upload-area" id="uploadArea">
+    <p>📊 拖拽Excel文件到此处或点击上传</p>
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+        选择文件
+    </button>
+    <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
+</div>
+```
+
+**JavaScript实现**:
+```javascript
+// 设置文件上传
+function setupFileUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+
+    // 点击上传
+    fileInput.addEventListener('change', handleFileUpload);
+
+    // 拖拽上传
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload({ target: { files: files } });
+        }
+    });
+}
+
+// 处理文件上传
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const loading = document.getElementById('loading');
+    loading.classList.add('show');
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            // 解析Excel
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+            holdingData = jsonData;
+            processData(); // 处理数据
+
+            loading.classList.remove('show');
+            document.getElementById('uploadResult').innerHTML =
+                `<div class="success">✅ 成功上传并处理了 ${jsonData.length} 条持仓数据</div>`;
+        } catch (error) {
+            loading.classList.remove('show');
+            document.getElementById('uploadResult').innerHTML =
+                `<div class="error">❌ 文件处理失败: ${error.message}</div>`;
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+```
+
+### 5.2 基金分类管理模块
+
+**HTML结构**:
+```html
+<div class="fund-settings">
+    <div>
+        <!-- 左侧:基金列表 -->
+        <div class="fund-list" id="fundList">
+            <!-- 动态生成基金项 -->
+        </div>
+    </div>
+    <div class="add-fund-form">
+        <!-- 右侧:添加表单 -->
+        <div class="form-group">
+            <label>资产小类</label>
+            <select id="newAssetClass">
+                <option value="二级公募债券基金">二级公募债券基金</option>
+                <option value="公募股票基金">公募股票基金</option>
+                <!-- 更多选项 -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label>资产简称</label>
+            <input type="text" id="newAssetName" placeholder="输入基金名称" />
+        </div>
+        <div class="form-group">
+            <label>风格</label>
+            <select id="newStyle">
+                <option value="均衡">均衡</option>
+                <option value="科技成长">科技成长</option>
+                <option value="周期">周期</option>
+                <option value="红利">红利</option>
+                <option value="价值">价值</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>权益仓位</label>
+            <input type="number" id="newEquityPosition"
+                   placeholder="输入权益仓位 (0-100)" min="0" max="100" />
+        </div>
+        <button class="btn btn-primary" onclick="addFund()">添加基金</button>
+    </div>
+</div>
+```
+
+**JavaScript函数**:
+```javascript
+// 渲染基金列表
+function renderFundList() {
+    const fundList = document.getElementById('fundList');
+    fundList.innerHTML = '';
+
+    Object.keys(fundClassifications).forEach(fundKey => {
+        const fund = fundClassifications[fundKey];
+        const fundItem = document.createElement('div');
+        fundItem.className = 'fund-item';
+
+        fundItem.innerHTML = `
+            <input type="text" value="${fundKey}" readonly style="background: #f9f9f9;" />
+            <select onchange="updateFund('${fundKey}', 'assetClass', this.value)">
+                <option value="二级公募债券基金" ${fund.assetClass === '二级公募债券基金' ? 'selected' : ''}>二级公募债券基金</option>
+                <option value="公募股票基金" ${fund.assetClass === '公募股票基金' ? 'selected' : ''}>公募股票基金</option>
+                <!-- 更多选项 -->
+            </select>
+            <select onchange="updateFund('${fundKey}', 'style', this.value)">
+                <option value="均衡" ${fund.style === '均衡' ? 'selected' : ''}>均衡</option>
+                <option value="科技成长" ${fund.style === '科技成长' ? 'selected' : ''}>科技成长</option>
+                <option value="周期" ${fund.style === '周期' ? 'selected' : ''}>周期</option>
+                <option value="红利" ${fund.style === '红利' ? 'selected' : ''}>红利</option>
+                <option value="价值" ${fund.style === '价值' ? 'selected' : ''}>价值</option>
+            </select>
+            <input type="number" value="${fund.equityPosition}" min="0" max="100"
+                   onchange="updateFund('${fundKey}', 'equityPosition', parseFloat(this.value))" />
+            <button class="btn btn-danger" onclick="deleteFund('${fundKey}')">删除</button>
+        `;
+
+        fundList.appendChild(fundItem);
+    });
+}
+
+// 添加基金
+function addFund() {
+    const assetClass = document.getElementById('newAssetClass').value;
+    const assetName = document.getElementById('newAssetName').value.trim();
+    const style = document.getElementById('newStyle').value;
+    const equityPosition = parseFloat(document.getElementById('newEquityPosition').value);
+
+    // 验证
+    if (!assetName) {
+        alert('请输入基金名称');
+        return;
+    }
+    if (isNaN(equityPosition) || equityPosition < 0 || equityPosition > 100) {
+        alert('请输入有效的权益仓位 (0-100)');
+        return;
+    }
+    if (fundClassifications[assetName]) {
+        alert('该基金已存在');
+        return;
+    }
+
+    // 添加
+    fundClassifications[assetName] = {
+        assetClass: assetClass,
+        style: style,
+        equityPosition: equityPosition
+    };
+
+    saveFundClassifications(); // 保存到LocalStorage
+
+    // 清空表单
+    document.getElementById('newAssetName').value = '';
+    document.getElementById('newEquityPosition').value = '';
+
+    renderFundList();
+    if (holdingData.length > 0) {
+        processData(); // 重新计算
+    }
+}
+
+// 更新基金
+function updateFund(fundKey, property, value) {
+    if (fundClassifications[fundKey]) {
+        fundClassifications[fundKey][property] = value;
+        saveFundClassifications();
+        if (holdingData.length > 0) {
+            processData();
+        }
+    }
+}
+
+// 删除基金
+function deleteFund(fundKey) {
+    if (confirm(`确定要删除 ${fundKey} 吗?`)) {
+        delete fundClassifications[fundKey];
+        saveFundClassifications();
+        renderFundList();
+        if (holdingData.length > 0) {
+            processData();
+        }
+    }
+}
+```
+
+### 5.3 智能基金检测模块
+
+**HTML结构**:
+```html
+<!-- 检测状态区域 -->
+<div class="section" id="fundDetectionStatusSection" style="display: none;">
+    <div id="fundDetectionContent"></div>
+</div>
+
+<!-- 未分类基金区域 -->
+<div class="section" id="unclassifiedFundsSection" style="display: none;">
+    <h2>⚠️ 发现未分类基金</h2>
+    <p style="color: #ff6b35;">
+        在持仓表中检测到以下含权益基金尚未分类,请设置其风格和权益仓位后批量添加:
+    </p>
+    <div class="unclassified-funds-container">
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <button class="btn btn-primary" onclick="batchAddUnclassifiedFunds()">
+                📥 批量添加所有基金
+            </button>
+            <button class="btn" style="background: #6b7280; color: white;"
+                    onclick="hideUnclassifiedFunds()">
+                ❌ 暂时隐藏
+            </button>
+        </div>
+        <div class="unclassified-funds-list" id="unclassifiedFundsList"></div>
+    </div>
+</div>
+```
+
+**JavaScript实现**:
+```javascript
+// 在processData()中检测未分类基金
+function processData() {
+    // ... 前面的代码 ...
+
+    const detectedUnclassifiedFunds = new Set();
+    unclassifiedFunds = [];
+
+    holdingData.forEach(row => {
+        const assetClass = normalizeText(row['新版资产大类']);
+        const assetSubClass = normalizeText(row['新版资产小类']);
+        const matchKey = getFundMatchKey(row);
+        const classification = fundClassifications[matchKey];
+        const equitySubclassRule = FUND_EQUITY_SUBCLASS_RULES[assetSubClass];
+
+        // 检测条件
+        if (!classification &&
+            assetClass === '公募基金' &&
+            equitySubclassRule) {
+
+            if (!detectedUnclassifiedFunds.has(matchKey)) {
+                detectedUnclassifiedFunds.add(matchKey);
+                unclassifiedFunds.push({
+                    assetName: normalizeText(row['资产简称']),
+                    matchKey: matchKey,
+                    externalCode: normalizeText(row['外部代码']),
+                    assetSubClass: assetSubClass,
+                    style: '',
+                    equityPosition: equitySubclassRule.defaultEquity
+                });
+            }
+        }
+    });
+
+    // ... 后面的代码 ...
+
+    renderFundDetectionStatus();
+    renderUnclassifiedFunds();
+}
+
+// 渲染未分类基金列表
+function renderUnclassifiedFunds() {
+    const section = document.getElementById('unclassifiedFundsSection');
+    const fundsList = document.getElementById('unclassifiedFundsList');
+
+    if (unclassifiedFunds.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    let html = `
+        <div class="unclassified-fund-header">
+            <div>基金名称</div>
+            <div>资产类型</div>
+            <div>风格</div>
+            <div>权益仓位</div>
+            <div>操作</div>
+        </div>
+    `;
+
+    unclassifiedFunds.forEach((fund, index) => {
+        html += `
+            <div class="unclassified-fund-item">
+                <div class="fund-name">${fund.assetName}</div>
+                <div class="asset-type">${fund.assetSubClass}</div>
+                <select id="unclassifiedStyle-${index}"
+                        onchange="updateUnclassifiedFund(${index}, 'style', this.value)">
+                    <option value="">请选择风格</option>
+                    <option value="红利">红利</option>
+                    <option value="均衡">均衡</option>
+                    <option value="科技成长">科技成长</option>
+                    <option value="周期">周期</option>
+                    <option value="价值">价值</option>
+                </select>
+                <input type="number" value="${fund.equityPosition}" min="0" max="100"
+                       onchange="updateUnclassifiedFund(${index}, 'equityPosition', parseFloat(this.value))" />
+                <button class="batch-add-individual"
+                        onclick="addSingleUnclassifiedFund(${index})"
+                        ${!fund.style ? 'disabled' : ''}>
+                    添加
+                </button>
+            </div>
+        `;
+    });
+
+    fundsList.innerHTML = html;
+}
+
+// 批量添加未分类基金
+function batchAddUnclassifiedFunds() {
+    // 检查风格是否都已设置
+    const unsetFunds = unclassifiedFunds.filter(fund => !fund.style);
+    if (unsetFunds.length > 0) {
+        alert(`还有${unsetFunds.length}个基金未设置风格,请设置后再批量添加`);
+        return;
+    }
+
+    // 检查权益仓位
+    const invalidFunds = unclassifiedFunds.filter(fund =>
+        isNaN(fund.equityPosition) || fund.equityPosition < 0 || fund.equityPosition > 100
+    );
+    if (invalidFunds.length > 0) {
+        alert('存在无效的权益仓位设置,请检查后再批量添加');
+        return;
+    }
+
+    if (!confirm(`确定要批量添加${unclassifiedFunds.length}个基金到分类数据库吗?`)) {
+        return;
+    }
+
+    // 批量添加(使用matchKey作为键!)
+    let addedCount = 0;
+    unclassifiedFunds.forEach(fund => {
+        if (!fundClassifications[fund.matchKey]) {
+            fundClassifications[fund.matchKey] = {
+                assetClass: fund.assetSubClass,
+                style: fund.style,
+                equityPosition: fund.equityPosition
+            };
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) {
+        saveFundClassifications();
+    }
+
+    unclassifiedFunds = [];
+    renderFundList();
+    processData();
+
+    alert(`成功批量添加了${addedCount}个基金到分类数据库`);
+}
+```
+
+### 5.4 数据可视化模块
+
+#### 5.4.1 矩阵汇总表格
+```javascript
+function renderMatrixTable() {
+    const matrixTable = document.getElementById('matrixTable');
+
+    // 获取所有风格并排序(红利优先)
+    const styleOrder = ['红利', '均衡', '科技成长', '周期', '价值'];
+    const allStyles = new Set();
+    Object.values(analysisResults).forEach(product => {
+        Object.keys(product).forEach(style => allStyles.add(style));
+    });
+    const styles = Array.from(allStyles).sort((a, b) => {
+        const indexA = styleOrder.indexOf(a);
+        const indexB = styleOrder.indexOf(b);
+        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    });
+
+    // 创建表头
+    let headerHtml = '<tr><th>产品名称</th>';
+    styles.forEach(style => {
+        headerHtml += `<th>${style}</th>`;
+    });
+    headerHtml += '</tr>';
+
+    // 创建表格行
+    let bodyHtml = '';
+    Array.from(selectedProducts).forEach(productName => {
+        const product = analysisResults[productName];
+        let rowHtml = `<tr><td class="product-name">${productName}</td>`;
+
+        styles.forEach(style => {
+            const data = product[style];
+            if (data) {
+                if (matrixDisplayType === 'amount') {
+                    // 金额模式:四舍五入到整数
+                    rowHtml += `<td class="amount-cell">${(data.amount / 10000).toFixed(0)}万</td>`;
+                } else {
+                    // 占比模式:四舍五入到整数,不保留小数
+                    rowHtml += `<td class="percentage-cell">${Math.round(data.percentage)}%</td>`;
+                }
+            } else {
+                rowHtml += `<td class="zero-cell">-</td>`;
+            }
+        });
+
+        rowHtml += '</tr>';
+        bodyHtml += rowHtml;
+    });
+
+    matrixTable.innerHTML = `
+        <thead>${headerHtml}</thead>
+        <tbody>${bodyHtml}</tbody>
+    `;
+}
+```
+
+#### 5.4.2 产品卡片与环形图
+```javascript
+function renderProductCards() {
+    const resultsGrid = document.getElementById('resultsGrid');
+    resultsGrid.innerHTML = '';
+
+    Array.from(selectedProducts).forEach(productName => {
+        const product = analysisResults[productName];
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+
+        // 排序风格(红利优先)
+        const styleOrder = ['红利', '均衡', '科技成长', '周期', '价值'];
+        const sortedStyles = Object.keys(product).sort((a, b) => {
+            const indexA = styleOrder.indexOf(a);
+            const indexB = styleOrder.indexOf(b);
+            if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+
+        let styleItemsHtml = '';
+        sortedStyles.forEach(style => {
+            const data = product[style];
+            styleItemsHtml += `
+                <div class="style-item">
+                    <span class="style-name">${style}</span>
+                    <span class="style-amount">${(data.amount / 10000).toFixed(0)}万</span>
+                    <span class="style-percentage">${Math.round(data.percentage)}%</span>
+                </div>
+            `;
+        });
+
+        productCard.innerHTML = `
+            <h3>${productName}</h3>
+            ${styleItemsHtml}
+            <div class="chart-container">
+                <canvas id="chart-${productName.replace(/[^a-zA-Z0-9]/g, '')}"></canvas>
+            </div>
+        `;
+
+        resultsGrid.appendChild(productCard);
+
+        // 延迟创建图表
+        setTimeout(() => createChart(productName, product), 100);
+    });
+}
+
+function createChart(productName, data) {
+    const canvasId = `chart-${productName.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const labels = Object.keys(data);
+    const values = labels.map(label => data[label].percentage);
+    const colors = [
+        '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe',
+        '#43e97b', '#fa709a', '#fee140', '#ff9a9e', '#a8edea'
+    ];
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+```
+
+#### 5.4.3 详细数据表格
+```javascript
+function renderDetailTable(data) {
+    const tbody = document.getElementById('detailTableBody');
+    tbody.innerHTML = '';
+
+    // 筛选:只显示选中产品
+    const filteredData = data.filter(row => selectedProducts.has(row.productName));
+
+    // 计算权益暴露占比
+    filteredData.forEach(row => {
+        row.equityExposureRatio = row.productNetAsset > 0
+            ? (row.equityExposure / row.productNetAsset * 100)
+            : 0;
+    });
+
+    // 排序:产品名→风格→权益暴露占比(降序)
+    filteredData.sort((a, b) => {
+        if (a.productName < b.productName) return -1;
+        if (a.productName > b.productName) return 1;
+        if (a.style < b.style) return -1;
+        if (a.style > b.style) return 1;
+        return b.equityExposureRatio - a.equityExposureRatio;
+    });
+
+    filteredData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${row.productName}</td>
+            <td>${row.assetName}</td>
+            <td>${row.assetClass}</td>
+            <td>${row.style}</td>
+            <td>${row.equityPosition}%</td>
+            <td>${(row.holdingAmount / 10000).toFixed(0)}万</td>
+            <td>${(row.equityExposure / 10000).toFixed(0)}万</td>
+            <td>${row.equityExposureRatio.toFixed(2)}%</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+```
+
+### 5.5 数据持久化模块
+
+```javascript
+// 存储键
+const STORAGE_KEY = 'fund_classifications_data';
+
+// 加载
+function loadFundClassifications() {
+    try {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        if (savedData) {
+            return JSON.parse(savedData);
+        }
+    } catch (error) {
+        console.warn('加载保存的基金分类数据失败:', error);
+    }
+    return { ...defaultFundClassifications };
+}
+
+// 保存
+function saveFundClassifications() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(fundClassifications));
+        return true;
+    } catch (error) {
+        console.error('保存基金分类数据失败:', error);
+        return false;
+    }
+}
+
+// 导出JSON
+function exportFundData() {
+    const dataToExport = {
+        version: '1.1.0',
+        exportTime: new Date().toISOString(),
+        fundClassifications: fundClassifications,
+        totalFunds: Object.keys(fundClassifications).length
+    };
+
+    const dataStr = JSON.stringify(dataToExport, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `基金分类数据_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+}
+
+// 导入JSON
+function importFundData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            if (!importedData.fundClassifications) {
+                alert('导入文件格式不正确');
+                return;
+            }
+
+            if (confirm(`确定要导入${Object.keys(importedData.fundClassifications).length}个基金分类数据吗?`)) {
+                fundClassifications = importedData.fundClassifications;
+                saveFundClassifications();
+                renderFundList();
+                if (holdingData.length > 0) {
+                    processData();
+                }
+                alert(`成功导入${Object.keys(fundClassifications).length}个基金分类数据!`);
+            }
+        } catch (error) {
+            alert('导入数据失败,请检查文件格式');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+```
+
+---
+
+## 6. UI界面规范
+
+### 6.1 颜色系统
+```css
+:root {
+    --primary-color: #667eea;        /* 主色 */
+    --secondary-color: #764ba2;      /* 次色 */
+    --success-color: #16a34a;        /* 成功 */
+    --error-color: #ef4444;          /* 错误 */
+    --warning-color: #ff6b35;        /* 警告 */
+    --info-color: #0ea5e9;           /* 信息 */
+    --background: #f5f5f7;           /* 背景 */
+    --card-bg: #ffffff;              /* 卡片 */
+    --border-color: #e2e8f0;         /* 边框 */
+}
+```
+
+### 6.2 关键CSS样式
+```css
+/* 渐变标题 */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 上传区域 */
+.upload-area {
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    background: #f8f9ff;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: #5a67d8;
+    background: #f0f2ff;
+}
+
+/* 基金列表项(5列网格) */
+.fund-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 60px;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* 矩阵表格 */
+.matrix-table th {
+    background: #667eea;
+    color: white;
+    padding: 12px;
+    text-align: center;
+}
+
+.matrix-table .product-name {
+    background: #f8f9ff;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 15px;
+}
+
+.matrix-table .amount-cell {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.matrix-table .percentage-cell {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+/* 未分类基金项 */
+.unclassified-fund-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 80px;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+}
+```
+
+### 6.3 响应式设计
+```css
+@media (max-width: 768px) {
+    .fund-settings {
+        grid-template-columns: 1fr;
+    }
+
+    .fund-item,
+    .unclassified-fund-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
+```
+
+---
+
+## 7. 完整代码框架
+
+### 7.1 HTML骨架
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金分类标签管理系统</title>
+    <script src="xlsx.full.min.js"></script>
+    <script src="chart.js"></script>
+    <style>
+        /* 复制fund_analysis.html中的所有CSS */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 1. 标题区域 -->
+        <div class="header">
+            <h1>基金分类标签管理系统</h1>
+            <p>上传持仓明细表,自动计算各产品不同风格的权益暴露占比</p>
+        </div>
+
+        <!-- 2. 文件上传区域 -->
+        <div class="section">
+            <h2>📁 上传持仓明细表</h2>
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 1.2em; margin-bottom: 15px;">📊 拖拽Excel文件到此处或点击上传</p>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择文件</button>
+                <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
+            </div>
+            <div class="loading" id="loading"><p>📊 正在处理数据...</p></div>
+            <div id="uploadResult"></div>
+        </div>
+
+        <!-- 3. 基金分类设置区域 -->
+        <div class="section">
+            <h2>⚙️ 基金分类设置</h2>
+            <div class="fund-settings">
+                <div>
+                    <h3>当前基金分类</h3>
+                    <div class="fund-list" id="fundList"></div>
+                </div>
+                <div class="add-fund-form">
+                    <h3>添加新基金</h3>
+                    <!-- 表单字段 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 基金检测状态区域 -->
+        <div class="section" id="fundDetectionStatusSection" style="display: none;">
+            <div id="fundDetectionContent"></div>
+        </div>
+
+        <!-- 5. 未分类基金区域 -->
+        <div class="section" id="unclassifiedFundsSection" style="display: none;">
+            <h2>⚠️ 发现未分类基金</h2>
+            <div class="unclassified-funds-container">
+                <div class="unclassified-funds-list" id="unclassifiedFundsList"></div>
+            </div>
+        </div>
+
+        <!-- 6. 分析结果区域 -->
+        <div class="section">
+            <h2>📊 分析结果</h2>
+            <div class="summary-stats" id="summaryStats"></div>
+            <div class="matrix-section">
+                <div class="matrix-controls">
+                    <div class="filter-section">
+                        <h4>产品筛选</h4>
+                        <div class="filter-checkboxes" id="productFilters"></div>
+                    </div>
+                    <div class="toggle-section">
+                        <h4>显示类型</h4>
+                        <div class="toggle-buttons">
+                            <button class="toggle-btn active" onclick="toggleMatrixDisplay('amount')">金额</button>
+                            <button class="toggle-btn" onclick="toggleMatrixDisplay('percentage')">占比</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="matrix-table" id="matrixTable"></table>
+            </div>
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+
+        <!-- 7. 详细数据表格 -->
+        <div class="section">
+            <h2>📋 详细数据</h2>
+            <table class="data-table" id="detailTable">
+                <thead>
+                    <tr>
+                        <th>产品名称</th>
+                        <th>基金名称</th>
+                        <th>资产小类</th>
+                        <th>风格</th>
+                        <th>权益仓位</th>
+                        <th>持仓金额</th>
+                        <th>权益暴露金额</th>
+                        <th>权益暴露占比</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        /* 所有JavaScript代码 */
+    </script>
+</body>
+</html>
+```
+
+### 7.2 JavaScript主流程
+```javascript
+// ========== 1. 全局常量和变量 ==========
+const defaultFundClassifications = {
+    // 66个默认基金数据
+};
+
+const STORAGE_KEY = 'fund_classifications_data';
+const FUND_EQUITY_SUBCLASS_RULES = { /* ... */ };
+const FUND_EQUITY_SUBCLASS_NAMES = Object.keys(FUND_EQUITY_SUBCLASS_RULES);
+
+let fundClassifications = {};
+let holdingData = [];
+let analysisResults = {};
+let selectedProducts = new Set();
+let matrixDisplayType = 'amount';
+let unclassifiedFunds = [];
+
+// ========== 2. 初始化 ==========
+document.addEventListener('DOMContentLoaded', function() {
+    fundClassifications = loadFundClassifications();
+    renderFundList();
+    setupFileUpload();
+});
+
+// ========== 3. 工具函数 ==========
+function normalizeText(value) {
+    if (value === null || value === undefined) return '';
+    return String(value).trim();
+}
+
+function getFundMatchKey(row) {
+    // 实现匹配键逻辑
+}
+
+// ========== 4. 文件上传 ==========
+function setupFileUpload() { /* ... */ }
+function handleFileUpload(event) { /* ... */ }
+
+// ========== 5. 数据处理(核心) ==========
+function processData() {
+    // 步骤1: 计算净资产
+    // 步骤2: 检测未分类基金
+    // 步骤3: 计算权益暴露
+    // 步骤4: 计算占比
+    // 步骤5: 渲染结果
+}
+
+// ========== 6. 基金管理 ==========
+function renderFundList() { /* ... */ }
+function addFund() { /* ... */ }
+function updateFund(fundKey, property, value) { /* ... */ }
+function deleteFund(fundKey) { /* ... */ }
+
+// ========== 7. 智能检测 ==========
+function renderUnclassifiedFunds() { /* ... */ }
+function updateUnclassifiedFund(index, property, value) { /* ... */ }
+function addSingleUnclassifiedFund(index) { /* ... */ }
+function batchAddUnclassifiedFunds() { /* ... */ }
+
+// ========== 8. 可视化渲染 ==========
+function renderResults() {
+    renderSummaryStats();
+    renderProductFilters();
+    renderMatrixTable();
+    renderProductCards();
+}
+
+function renderSummaryStats() { /* ... */ }
+function renderProductFilters() { /* ... */ }
+function renderMatrixTable() { /* ... */ }
+function renderProductCards() { /* ... */ }
+function createChart(productName, data) { /* ... */ }
+function renderDetailTable(data) { /* ... */ }
+
+// ========== 9. 交互控制 ==========
+function toggleProductFilter(productName) { /* ... */ }
+function toggleMatrixDisplay(type) { /* ... */ }
+function selectAllProducts() { /* ... */ }
+function deselectAllProducts() { /* ... */ }
+
+// ========== 10. 数据持久化 ==========
+function loadFundClassifications() { /* ... */ }
+function saveFundClassifications() { /* ... */ }
+function exportFundData() { /* ... */ }
+function importFundData(event) { /* ... */ }
+function resetToDefaults() { /* ... */ }
+```
+
+---
+
+## 8. 测试验证
+
+### 8.1 功能测试清单
+```
+□ 文件上传
+  □ 点击上传正常
+  □ 拖拽上传正常
+  □ 上传成功显示记录数
+  □ 上传失败显示错误
+
+□ 基金管理
+  □ 添加基金成功
+  □ 修改基金自动保存
+  □ 删除基金确认
+  □ 表单验证正确
+
+□ 智能检测
+  □ 检测到未分类基金
+  □ 默认权益仓位正确
+  □ 批量添加成功
+  □ 单个添加成功
+
+□ 数据计算
+  □ 净资产扣除正回购
+  □ 权益暴露计算正确
+  □ 风格占比计算正确
+  □ 详细表格占比正确
+
+□ 可视化
+  □ 矩阵表格显示正确
+  □ 金额/占比切换正常
+  □ 环形图显示正确
+  □ 详细表格排序正确
+
+□ 产品筛选
+  □ 全选/全不选正常
+  □ 单选产品正常
+  □ 筛选后表格同步更新
+
+□ 数据持久化
+  □ 刷新页面数据保留
+  □ 导出JSON成功
+  □ 导入JSON成功
+```
+
+### 8.2 计算验证测试用例
+
+**测试用例1: 正回购扣除**
+```
+输入数据:
+  产品A:
+    - 基金A: 10,000,000元
+    - 正回购: 5,000,000元
+    - 现金: 2,000,000元
+
+预期结果:
+  净资产 = 10,000,000 - 5,000,000 + 2,000,000 = 7,000,000元
+```
+
+**测试用例2: 权益暴露计算**
+```
+输入数据:
+  基金A(二级债基):
+    持仓金额: 10,000,000元
+    权益仓位: 20%
+
+预期结果:
+  权益暴露 = 10,000,000 × 0.2 = 2,000,000元
+```
+
+**测试用例3: 风格占比计算**
+```
+输入数据:
+  产品A:
+    均衡风格暴露: 3,000,000元
+    科技成长暴露: 2,000,000元
+
+预期结果:
+  总暴露 = 5,000,000元
+  均衡占比 = 3,000,000 / 5,000,000 = 60%
+  科技成长占比 = 2,000,000 / 5,000,000 = 40%
+```
+
+### 8.3 边界测试
+```
+□ 空Excel文件
+□ 无匹配基金的Excel
+□ 全部未分类基金
+□ 权益仓位为0
+□ 权益仓位为100
+□ 产品名称特殊字符
+□ 基金名称超长
+```
+
+---
+
+## 附录A: 默认66个基金数据
+
+```javascript
+const defaultFundClassifications = {
+    "002361.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "000385.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "015805.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "016869.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "006466.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "110008.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "002351.OF": { "assetClass": "二级公募债券基金", "style": "均衡", "equityPosition": 20 },
+    "013642.OF": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "011426.OF": { "assetClass": "公募股票基金", "style": "周期", "equityPosition": 100 },
+    "159338.SZ": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "华泰柏瑞红利ETF ( 510880.SH )": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+    "563360.SH": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "588000.SH": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "159351.SZ": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "010003.OF": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "景顺长城环保优势(001975.OF)": { "assetClass": "公募股票基金", "style": "科技成长", "equityPosition": 100 },
+    "520990.SH": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+    "515100.SH": { "assetClass": "公募股票基金", "style": "红利", "equityPosition": 100 },
+    "中证800交易型开放式指数证券投资基金": { "assetClass": "公募股票基金", "style": "均衡", "equityPosition": 100 },
+    "宝盈品质甄选混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "012125.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "018225.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "010372.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "001300.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "001301.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "010625.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "广发主题领先灵活配置混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "华商新趋势优选(166301.OF)": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "017043.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "260101.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "万家宏观择时多策略灵活配置混合型证券投资基金": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "015566.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "020199.OF": { "assetClass": "公募混合基金", "style": "周期", "equityPosition": 100 },
+    "易方达裕惠回报定期开放式混合型发起式证券投资基金": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "011691.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "023452.OF": { "assetClass": "公募混合基金", "style": "科技成长", "equityPosition": 100 },
+    "012778.OF": { "assetClass": "公募混合基金", "style": "均衡", "equityPosition": 100 },
+    "006567.OF": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "中泰元和价值精选混合型证券投资基金": { "assetClass": "公募混合基金", "style": "价值", "equityPosition": 100 },
+    "513010.SH": { "assetClass": "其他公募基金", "style": "科技成长", "equityPosition": 100 },
+    "009879.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "011066.OF": { "assetClass": "普通股票型基金", "style": "价值", "equityPosition": 100 },
+    "016841.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "017750.OF": { "assetClass": "偏股混合型基金", "style": "周期", "equityPosition": 100 },
+    "515220.SH": { "assetClass": "被动指数型基金", "style": "周期", "equityPosition": 100 },
+    "018505.OF": { "assetClass": "偏股混合型基金", "style": "周期", "equityPosition": 100 },
+    "009878.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "018993.OF": { "assetClass": "偏股混合型基金", "style": "科技成长", "equityPosition": 100 },
+    "024919.OF": { "assetClass": "灵活配置型基金", "style": "红利", "equityPosition": 100 },
+    "001258.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+    "015364.OF": { "assetClass": "普通股票型基金", "style": "价值", "equityPosition": 100 },
+    "020521.OF": { "assetClass": "混合债券型二级基金", "style": "科技成长", "equityPosition": 20 },
+    "001955.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "010388.OF": { "assetClass": "普通股票型基金", "style": "科技成长", "equityPosition": 100 },
+    "014088.OF": { "assetClass": "混合债券型二级基金", "style": "科技成长", "equityPosition": 20 },
+    "017941.OF": { "assetClass": "灵活配置型基金", "style": "科技成长", "equityPosition": 100 },
+    "217023.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+    "014846.OF": { "assetClass": "混合债券型二级基金", "style": "周期", "equityPosition": 20 },
+    "017475.OF": { "assetClass": "混合债券型二级基金", "style": "均衡", "equityPosition": 20 },
+    "012228.OF": { "assetClass": "偏股混合型基金", "style": "均衡", "equityPosition": 100 },
+    "80PF210158": { "assetClass": "委外非现固定收益类资产", "style": "均衡", "equityPosition": 18 },
+    "80PF200133": { "assetClass": "委外非现固定收益类资产", "style": "价值", "equityPosition": 19 },
+    "11PF252714": { "assetClass": "委外非现固定收益类资产", "style": "均衡", "equityPosition": 18 },
+    "11PF252802": { "assetClass": "委外权益类投资", "style": "红利", "equityPosition": 100 },
+    "11PF253412": { "assetClass": "委外权益类投资", "style": "科技成长", "equityPosition": 100 },
+    "大成科技创新混合型证券投资基金": { "assetClass": "偏股混合型基金", "style": "科技成长", "equityPosition": 80 }
+};
+```
+
+---
+
+## 附录B: AI复现指令模板
+
+将本文档提供给AI工具时,使用以下指令:
+
+```
+你是一个高级前端开发AI助手。请根据以下完整技术规格说明书,实现一个基金分类标签管理系统。
+
+【要求】
+1. 严格遵循文档中的所有计算公式(第4章),确保数值计算100%准确
+2. 完整实现所有功能模块(第5章),不得遗漏任何功能
+3. UI/UX严格符合第6章设计规范,包括颜色、布局、响应式
+4. 生成单一HTML文件,包含所有CSS和JavaScript
+5. 确保完全离线可运行,不依赖任何外部CDN
+6. 实现第7章的完整代码框架
+7. 实现所有错误处理和边界情况
+8. 确保通过第8章的所有测试用例
+
+【关键注意事项】
+- 基金匹配逻辑(getFundMatchKey)是核心,必须完全按照文档实现
+- 净资产计算必须正确扣除正回购
+- 矩阵表格占比必须四舍五入到整数,不保留小数
+- 风格排序必须是:红利、均衡、科技成长、周期、价值
+- 智能检测必须使用matchKey作为数据库键,不是资产简称
+
+【文档内容】
+[粘贴本文档完整内容]
+
+请开始实现,确保每一个细节都符合规格。
+```
+
+---
+
+**文档结束**
+
+**版本**: v1.1.0
+**日期**: 2026-01-20
+**作者**: 基金分类标签管理系统开发团队
+**用途**: AI工具完整复现系统
+
+如有任何疑问,请参考 fund_analysis.html 源代码或 CLAUDE.md 项目说明。

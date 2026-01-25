@@ -1,0 +1,341 @@
+/* ============================================
+   导出功能
+   ============================================ */
+
+class ExportManager {
+    constructor() {
+        this.exportScope = 'current-page';
+        this.exportFormat = 'json';
+    }
+
+    // 显示导出对话框
+    showExportDialog() {
+        const modal = document.getElementById('modal-export');
+        modal.classList.add('active');
+    }
+
+    // 执行导出
+    async doExport(scope, format) {
+        this.exportScope = scope;
+        this.exportFormat = format;
+
+        try {
+            let data;
+            let filename;
+
+            switch (scope) {
+                case 'current-page':
+                    data = await this.exportCurrentPage();
+                    filename = `page-${formatDate(Date.now())}`;
+                    break;
+
+                case 'current-section':
+                    data = await this.exportCurrentSection();
+                    filename = `section-${formatDate(Date.now())}`;
+                    break;
+
+                case 'current-notebook':
+                    data = await this.exportCurrentNotebook();
+                    filename = `notebook-${formatDate(Date.now())}`;
+                    break;
+
+                case 'all':
+                    data = await this.exportAll();
+                    filename = `investment-notebook-${formatDate(Date.now())}`;
+                    break;
+
+                default:
+                    throw new Error('Invalid export scope');
+            }
+
+            if (!data) {
+                showNotification('没有可导出的数据', 'warning');
+                return;
+            }
+
+            // 根据格式导出
+            switch (format) {
+                case 'json':
+                    this.exportAsJson(data, filename);
+                    break;
+
+                case 'markdown':
+                    this.exportAsMarkdown(data, filename);
+                    break;
+
+                case 'html':
+                    this.exportAsHtml(data, filename);
+                    break;
+
+                default:
+                    throw new Error('Invalid export format');
+            }
+
+            showNotification('导出成功', 'success');
+
+        } catch (error) {
+            console.error('Export error:', error);
+            showNotification('导出失败: ' + error.message, 'error');
+        }
+    }
+
+    // 导出当前页面
+    async exportCurrentPage() {
+        const pageId = editor.currentPageId;
+        if (!pageId) return null;
+
+        const page = await db.get('pages', pageId);
+        const attachments = await db.getAttachmentsByPage(pageId);
+        const todos = await db.getTodos(pageId);
+
+        return {
+            page,
+            attachments,
+            todos
+        };
+    }
+
+    // 导出当前分区
+    async exportCurrentSection() {
+        const sectionId = window.app ? window.app.currentSectionId : null;
+        if (!sectionId) return null;
+
+        const section = await db.get('sections', sectionId);
+        const pages = await db.getPagesBySection(sectionId);
+
+        const pagesWithData = [];
+        for (const page of pages) {
+            const attachments = await db.getAttachmentsByPage(page.id);
+            const todos = await db.getTodos(page.id);
+            pagesWithData.push({ page, attachments, todos });
+        }
+
+        return {
+            section,
+            pages: pagesWithData
+        };
+    }
+
+    // 导出当前笔记本
+    async exportCurrentNotebook() {
+        const notebookId = window.app ? window.app.currentNotebookId : null;
+        if (!notebookId) return null;
+
+        const notebook = await db.get('notebooks', notebookId);
+        const sections = await db.getSectionsByNotebook(notebookId);
+
+        const sectionsWithData = [];
+        for (const section of sections) {
+            const pages = await db.getPagesBySection(section.id);
+            const pagesWithData = [];
+
+            for (const page of pages) {
+                const attachments = await db.getAttachmentsByPage(page.id);
+                const todos = await db.getTodos(page.id);
+                pagesWithData.push({ page, attachments, todos });
+            }
+
+            sectionsWithData.push({ section, pages: pagesWithData });
+        }
+
+        return {
+            notebook,
+            sections: sectionsWithData
+        };
+    }
+
+    // 导出所有数据
+    async exportAll() {
+        return await db.exportAll();
+    }
+
+    // 导出为JSON
+    exportAsJson(data, filename) {
+        const json = JSON.stringify(data, null, 2);
+        downloadFile(json, `${filename}.json`, 'application/json');
+    }
+
+    // 导出为Markdown
+    exportAsMarkdown(data, filename) {
+        let markdown = '';
+
+        if (data.page) {
+            // 单个页面
+            markdown = this.pageToMarkdown(data.page);
+        } else if (data.section) {
+            // 分区
+            markdown = `# ${data.section.name}\n\n`;
+            data.pages.forEach(({ page }) => {
+                markdown += this.pageToMarkdown(page);
+                markdown += '\n\n---\n\n';
+            });
+        } else if (data.notebook) {
+            // 笔记本
+            markdown = `# ${data.notebook.name}\n\n`;
+            data.sections.forEach(({ section, pages }) => {
+                markdown += `## ${section.name}\n\n`;
+                pages.forEach(({ page }) => {
+                    markdown += this.pageToMarkdown(page);
+                    markdown += '\n\n---\n\n';
+                });
+            });
+        } else {
+            // 全部数据
+            markdown = '# 投资经理记事本导出\n\n';
+            markdown += `导出时间: ${formatDateTime(Date.now())}\n\n`;
+            markdown += '此文件包含所有笔记本、分区和页面的数据。\n\n';
+        }
+
+        downloadFile(markdown, `${filename}.md`, 'text/markdown');
+    }
+
+    // 页面转Markdown
+    pageToMarkdown(page) {
+        let md = `# ${page.title}\n\n`;
+        md += `创建时间: ${formatDateTime(page.createdAt)}\n`;
+        md += `最后修改: ${formatDateTime(page.updatedAt)}\n`;
+
+        if (page.tags && page.tags.length > 0) {
+            md += `标签: ${page.tags.join(', ')}\n`;
+        }
+
+        md += '\n---\n\n';
+
+        if (page.content && page.content.ops) {
+            md += deltaToMarkdown(page.content);
+        }
+
+        return md;
+    }
+
+    // 导出为HTML
+    exportAsHtml(data, filename) {
+        let html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${filename}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #1a1a1a;
+        }
+        h1 { color: #2d5a7b; border-bottom: 2px solid #2d5a7b; padding-bottom: 10px; }
+        h2 { color: #4a7c59; margin-top: 30px; }
+        h3 { color: #c97d60; }
+        .meta { color: #6b7280; font-size: 14px; margin-bottom: 20px; }
+        .tags { margin: 10px 0; }
+        .tag {
+            display: inline-block;
+            background-color: #c97d60;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        hr { border: none; border-top: 1px solid #e0e0e0; margin: 40px 0; }
+        blockquote {
+            border-left: 4px solid #c97d60;
+            padding-left: 16px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        code {
+            background-color: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f1f3f5;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+`;
+
+        if (data.page) {
+            // 单个页面
+            html += this.pageToHtml(data.page);
+        } else if (data.section) {
+            // 分区
+            html += `<h1>${data.section.name}</h1>\n`;
+            data.pages.forEach(({ page }) => {
+                html += this.pageToHtml(page);
+                html += '<hr>\n';
+            });
+        } else if (data.notebook) {
+            // 笔记本
+            html += `<h1>${data.notebook.name}</h1>\n`;
+            data.sections.forEach(({ section, pages }) => {
+                html += `<h2>${section.name}</h2>\n`;
+                pages.forEach(({ page }) => {
+                    html += this.pageToHtml(page);
+                    html += '<hr>\n';
+                });
+            });
+        }
+
+        html += `
+</body>
+</html>
+`;
+
+        downloadFile(html, `${filename}.html`, 'text/html');
+    }
+
+    // 页面转HTML
+    pageToHtml(page) {
+        let html = `<h1>${page.title}</h1>\n`;
+        html += `<div class="meta">`;
+        html += `创建时间: ${formatDateTime(page.createdAt)} | `;
+        html += `最后修改: ${formatDateTime(page.updatedAt)}`;
+        html += `</div>\n`;
+
+        if (page.tags && page.tags.length > 0) {
+            html += `<div class="tags">`;
+            page.tags.forEach(tag => {
+                html += `<span class="tag">${tag}</span>`;
+            });
+            html += `</div>\n`;
+        }
+
+        if (page.content && page.content.ops) {
+            html += deltaToHtml(page.content);
+        }
+
+        return html;
+    }
+
+    // 关闭导出对话框
+    closeDialog() {
+        const modal = document.getElementById('modal-export');
+        modal.classList.remove('active');
+    }
+}
+
+// 创建全局导出管理器实例
+const exportManager = new ExportManager();
