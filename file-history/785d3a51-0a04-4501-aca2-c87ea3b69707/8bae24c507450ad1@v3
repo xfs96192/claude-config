@@ -1,0 +1,21 @@
+# Memory Notes
+
+## Weekly Report Skill Created (2026-02-08)
+- Skill at `~/.claude/skills/weekly-report/`
+- Automates the full pipeline: config update → Python scripts → Excel link update → screenshots → Word/PDF generation
+- Key files: SKILL.md + references/bookmark_mapping.md
+- The Excel VBA workbook has 68 sheets, Word template has 66 bookmarks
+- VBA workbook uses VLOOKUP formulas referencing external files by date - need to replace old date strings with new ones
+- Steps 4-5 BOTTLENECK: VBA workbook has 43 sheets with VLOOKUP to external files - openpyxl cannot compute these formulas. Need to either: (a) open in Excel and refresh links first, or (b) install LibreOffice (`brew install --cask libreoffice`) to compute formulas headlessly
+- 16 sheets can be directly screenshot from Python output; 43 require VBA workbook with refreshed external links
+- Playwright screenshot pipeline works: HTML generation + Python playwright async screenshot = 59 sheets in ~30 seconds
+- config.py YUNZUOGAILAN_DATE at ~line 46 is the master date that drives everything
+- Step 3 (Excel link update) works well with openpyxl: update 链接数据表 B/C columns, replace date strings in formulas, update 周报生成流程 dates
+
+## Project Architecture
+- `generate_report.py` is the main script (~1800 lines), generates 40+ sheets
+- `load_data.py` has NAV caching in `.nav_cache/` - first run slow (~30min), cached runs fast
+- `market_data_provider.py` wraps Wind API - singleton pattern
+- All config in `config.py` via `Config` class with auto-calculated dates
+- 链接数据表 sheet in Excel workbook tracks 6 external file references
+- 书签表 sheet maps Excel sheet names → Word bookmark names

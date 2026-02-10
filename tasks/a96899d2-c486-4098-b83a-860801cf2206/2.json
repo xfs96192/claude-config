@@ -1,0 +1,9 @@
+{
+  "id": "2",
+  "subject": "Refactor 周报结果表生成.py with clear section structure",
+  "description": "Reorganize 周报结果表生成.py with:\n- Import load_data module\n- Clear section headers with numbered comments for each output sheet\n- Improved code formatting and readability\n- Logical grouping of related functionality",
+  "activeForm": "Refactoring main report script",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

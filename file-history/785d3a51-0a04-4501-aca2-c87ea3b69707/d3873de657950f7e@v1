@@ -1,0 +1,1465 @@
+#!/usr/bin/env python3
+"""
+Generate a comprehensive web dashboard for the weekly report.
+Reads data from the extracted JSON and generates a self-contained HTML file.
+Matches the structure and formatting of the PDF weekly report.
+"""
+import json
+import os
+import math
+import re
+
+# ─── Configuration ───
+JSON_PATH = '/tmp/weekly_report_data.json'
+OUTPUT_HTML = '/Users/fanshengxia/Desktop/周报V2/输出结果/周报仪表板-20260205.html'
+REPORT_DATE = '2026-02-05'
+REPORT_TITLE = '多资产投资部理财产品运作周报'
+
+# ─── Load Data ───
+with open(JSON_PATH, 'r', encoding='utf-8') as f:
+    raw_data = json.load(f)
+
+output_sheets = raw_data['output_file']
+vba_sheets = raw_data['vba_workbook']
+
+# ─── Sheets that should use integer display with parentheses for negatives ───
+SCALE_INT_SHEETS = {
+    '2、产品规模',
+    '1、分渠道余额',
+    '投资经理维度产品规模和数量',
+    '不同形态产品规模和数量',
+    '13.不同周期产品规模',
+    '14.狭义客户周期和最短持有期的产品规模跟踪',
+    '10.未来全年产品到期情况',
+    '10.未来全年产品到期情况-定开',
+}
+
+# ─── Sheets with percentage values already in percentage form (e.g., 1.87 = 1.87%) ───
+PCT_RAW_SHEETS = {
+    '15.市场指数收益',
+}
+
+# ─── Sheets with percentage values in decimal form (e.g., 0.0187 = 1.87%) ───
+PCT_DECIMAL_SHEETS = {
+    '系列产品业绩-费后加权',
+    '系列产品业绩-费后平均',
+    '系列产品业绩-费前加权',
+    '系列产品业绩-费前平均',
+    '5.2 最短持有期产品业绩表现1',
+    '5.2 最短持有期产品业绩表现2',
+}
+
+
+# ─── Helper Functions ───
+
+def is_numeric(val):
+    if val is None:
+        return False
+    if isinstance(val, (int, float)):
+        return not (isinstance(val, float) and (math.isnan(val) or math.isinf(val)))
+    if isinstance(val, str):
+        try:
+            float(val)
+            return True
+        except:
+            return False
+    return False
+
+
+def to_float(val):
+    if val is None:
+        return None
+    if isinstance(val, (int, float)):
+        if isinstance(val, float) and (math.isnan(val) or math.isinf(val)):
+            return None
+        return float(val)
+    if isinstance(val, str):
+        if val in ('nan', 'inf', '-inf', ''):
+            return None
+        try:
+            return float(val)
+        except:
+            return None
+    return None
+
+
+def escape_html(s):
+    if s is None:
+        return ''
+    s = str(s)
+    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+
+
+def detect_column_types(sheet_data, sheet_name=''):
+    """Detect which columns contain percentages, basis points, or regular numbers."""
+    data = sheet_data['data']
+    headers = data[0] if data else []
+    col_types = {}
+
+    for ci in range(len(headers)):
+        h = str(headers[ci] or '')
+        h_lower = h.lower()
+
+        # Force override for known sheet types
+        if sheet_name in PCT_RAW_SHEETS:
+            is_pct_header = '年化' in h or '收益率' in h or '波动率' in h or '占比' in h
+            if is_pct_header:
+                col_types[ci] = 'percent_raw'
+                continue
+
+        if sheet_name in PCT_DECIMAL_SHEETS:
+            is_pct_header = '年化' in h or '收益率' in h or '波动率' in h or '占比' in h
+            if is_pct_header:
+                col_types[ci] = 'percent'
+                continue
+
+        if 'bp' in h_lower or '净值变化bp' in h:
+            col_types[ci] = 'bps'
+            continue
+
+        is_pct_header = '年化' in h or '收益率' in h or '波动率' in h or '占比' in h or '比例' in h
+
+        if is_pct_header:
+            numeric_vals = []
+            for ri in range(1, min(len(data), 20)):
+                if ci < len(data[ri]):
+                    v = to_float(data[ri][ci])
+                    if v is not None and v != 0:
+                        numeric_vals.append(abs(v))
+            if numeric_vals:
+                avg = sum(numeric_vals) / len(numeric_vals)
+                if avg > 0.5:
+                    col_types[ci] = 'percent_raw'
+                else:
+                    col_types[ci] = 'percent'
+            else:
+                col_types[ci] = 'percent'
+        else:
+            # Auto-detect percentage columns by value range
+            numeric_vals = []
+            for ri in range(1, min(len(data), 20)):
+                if ci < len(data[ri]):
+                    v = to_float(data[ri][ci])
+                    if v is not None and v != 0:
+                        numeric_vals.append(abs(v))
+            if len(numeric_vals) >= 2:
+                avg = sum(numeric_vals) / len(numeric_vals)
+                max_v = max(numeric_vals)
+                if 0 < avg < 0.5 and max_v < 1.5:
+                    col_types[ci] = 'percent'
+
+    return col_types
+
+
+def format_cell_value(val, col_type=None, use_parens=False):
+    """Format a cell value based on its type.
+    use_parens: if True, show negatives as (N) instead of -N, and use integer display for scale values.
+    """
+    if val is None:
+        return ''
+    if isinstance(val, str):
+        if val in ('nan', 'inf', '-inf'):
+            return ''
+        try:
+            fval = float(val)
+            val = fval
+        except:
+            return escape_html(val)
+
+    if isinstance(val, bool):
+        return str(val)
+    if not isinstance(val, (int, float)):
+        return escape_html(str(val))
+    if math.isnan(val) or math.isinf(val):
+        return ''
+
+    if col_type == 'percent':
+        pct = val * 100
+        return f'{pct:.2f}%'
+    elif col_type == 'percent_raw':
+        return f'{val:.2f}%'
+    elif col_type == 'bps':
+        return f'{val:.2f}'
+
+    # Scale integer mode: show rounded integers with parentheses for negatives
+    if use_parens:
+        # For very small values close to 0
+        if abs(val) < 0.05:
+            return '-'
+        # Small decimals (< 1): show one decimal place
+        if abs(val) < 1 and abs(val) >= 0.05:
+            if val < 0:
+                return f'({abs(val):.1f})'
+            return f'{val:.1f}'
+        # Integer display for values >= 1
+        rounded = round(val)
+        if rounded == 0:
+            return '-'
+        if rounded < 0:
+            return f'({abs(rounded):,})'
+        return f'{rounded:,}'
+
+    # Default formatting
+    if isinstance(val, int) or (isinstance(val, float) and val == int(val) and abs(val) < 10000):
+        return str(int(val))
+    elif abs(val) < 0.0001 and val != 0:
+        return f'{val:.6f}'
+    elif abs(val) < 0.01 and val != 0:
+        return f'{val:.4f}'
+    elif abs(val) < 100:
+        return f'{val:.2f}'
+    elif abs(val) < 100000:
+        return f'{val:,.2f}'
+    else:
+        return f'{val:,.0f}'
+
+
+def get_cell_class(val, col_type=None, header=''):
+    """Get CSS class for conditional formatting."""
+    classes = []
+    if val is None:
+        return ''
+
+    fval = to_float(val)
+    if fval is None:
+        return ''
+
+    h = str(header).lower()
+
+    is_change = any(kw in h for kw in ['变化', '较上周', '较上月', '较上年', 'bp'])
+    is_return = any(kw in h for kw in ['年化', '收益率'])
+
+    if is_change:
+        if fval > 0:
+            classes.append('val-positive')
+        elif fval < 0:
+            classes.append('val-negative')
+
+    if is_return and col_type == 'percent':
+        if fval < 0:
+            classes.append('val-negative')
+
+    # Heatmap intensity for change columns
+    if is_change and fval != 0:
+        if col_type == 'percent':
+            intensity = min(abs(fval) * 20, 1)
+        elif col_type == 'percent_raw':
+            intensity = min(abs(fval) / 5, 1)
+        elif 'bp' in h:
+            intensity = min(abs(fval) / 50, 1)
+        else:
+            intensity = min(abs(fval) / 20, 1)
+        level = min(int(intensity * 5) + 1, 5)
+        if fval > 0:
+            classes.append(f'heat-pos-{level}')
+        else:
+            classes.append(f'heat-neg-{level}')
+
+    return ' '.join(classes)
+
+
+def parse_merged_cells(merged_list):
+    """Parse merged cell ranges into a dict of (row,col) -> (rowspan, colspan)."""
+    merges = {}
+    skip = set()
+    for m in merged_list:
+        match = re.match(r'([A-Z]+)(\d+):([A-Z]+)(\d+)', m)
+        if not match:
+            continue
+        c1 = col_letter_to_num(match.group(1))
+        r1 = int(match.group(2))
+        c2 = col_letter_to_num(match.group(3))
+        r2 = int(match.group(4))
+        rowspan = r2 - r1 + 1
+        colspan = c2 - c1 + 1
+        merges[(r1, c1)] = (rowspan, colspan)
+        for r in range(r1, r2 + 1):
+            for c in range(c1, c2 + 1):
+                if (r, c) != (r1, c1):
+                    skip.add((r, c))
+    return merges, skip
+
+
+def col_letter_to_num(letters):
+    num = 0
+    for ch in letters:
+        num = num * 26 + (ord(ch) - ord('A') + 1)
+    return num
+
+
+# ─── Data Preprocessing ───
+def preprocess_sheets():
+    """Add computed subtotal rows and fix data where needed."""
+
+    # 1. Add subtotal rows to 分渠道余额
+    sheet = output_sheets.get('1、分渠道余额')
+    if sheet and sheet.get('data'):
+        data = sheet['data']
+        new_data = list(data[:3])  # Keep headers (rows 0-2)
+
+        # Group rows by 总分类
+        groups = {}
+        current_group = None
+        for ri in range(3, len(data)):
+            row = data[ri]
+            if row[0] is not None:
+                current_group = str(row[0])
+            if current_group:
+                if current_group not in groups:
+                    groups[current_group] = []
+                groups[current_group].append(row)
+
+        grand_total = [0, 0, 0]
+
+        for group_name in ['中低波稳健产品', '中高波市值产品', '外币产品']:
+            rows = groups.get(group_name, [])
+            subtotal = [0, 0]  # 行内, 行外
+            for row in rows:
+                v_inner = to_float(row[2])
+                v_outer = to_float(row[3])
+                if v_inner:
+                    subtotal[0] += v_inner
+                if v_outer:
+                    subtotal[1] += v_outer
+                new_data.append(row)
+
+            total_val = subtotal[0] + subtotal[1]
+            # Add subtotal row
+            label = f'{group_name}合计'
+            new_data.append([None, label, round(subtotal[0]), round(subtotal[1])])
+            grand_total[0] += subtotal[0]
+            grand_total[1] += subtotal[1]
+
+        # Add 合计 column header
+        if len(new_data[0]) == 4:
+            new_data[0] = [None, None, '保有规模', None, None]
+            new_data[1] = [None, '渠道-行内外', '行内', '行外', '合计']
+            new_data[2] = ['总分类', '母分类', None, None, None]
+
+        # Add 合计 column to each data row
+        for ri in range(3, len(new_data)):
+            row = new_data[ri]
+            if len(row) == 4:
+                v1 = to_float(row[2]) or 0
+                v2 = to_float(row[3]) or 0
+                row.append(round(v1 + v2))
+            elif len(row) == 5:
+                pass  # already has 合计
+
+        # Add 总计 row
+        new_data.append([None, '总计', round(grand_total[0]), round(grand_total[1]),
+                         round(grand_total[0] + grand_total[1])])
+
+        sheet['data'] = new_data
+        sheet['col_count'] = 5
+
+    # 2. Add 合计 row to 产品规模
+    sheet = output_sheets.get('2、产品规模')
+    if sheet and sheet.get('data'):
+        data = sheet['data']
+        # Check if 合计 row already exists
+        has_total = any(str(row[0] or '').strip() in ('合计', '总计') for row in data[1:])
+        if not has_total:
+            totals = [0] * len(data[0])
+            for row in data[1:]:
+                for ci in range(2, len(row)):
+                    v = to_float(row[ci])
+                    if v is not None:
+                        totals[ci] += v
+            total_row = ['', '合计']
+            for ci in range(2, len(data[0])):
+                total_row.append(round(totals[ci]))
+            while len(total_row) < len(data[0]):
+                total_row.append(None)
+            data.append(total_row)
+
+    # 3. Add 合计 row to 投资经理维度
+    sheet = output_sheets.get('投资经理维度产品规模和数量')
+    if sheet and sheet.get('data'):
+        data = sheet['data']
+        has_total = any(str(row[0] or '').strip() in ('合计', '总计') for row in data[1:])
+        if not has_total:
+            totals = [0] * len(data[0])
+            for row in data[1:]:
+                for ci in range(1, len(row)):
+                    v = to_float(row[ci])
+                    if v is not None:
+                        totals[ci] += v
+            total_row = ['合计']
+            for ci in range(1, len(data[0])):
+                total_row.append(round(totals[ci], 1))
+            while len(total_row) < len(data[0]):
+                total_row.append(None)
+            data.append(total_row)
+
+
+preprocess_sheets()
+
+
+# ─── Section Definitions (matching PDF TOC order) ───
+SECTIONS = [
+    {
+        'id': 'overview',
+        'title': '报告概览',
+        'icon': '&#9670;',
+        'sheets': ['总结文字'],
+        'type': 'overview'
+    },
+    # ─── 一、规模及发行情况 ───
+    {
+        'id': 'channel-aum',
+        'title': '1. 渠道代销规模',
+        'icon': '&#9632;',
+        'sheets': ['1、分渠道余额', '渠道明细'],
+        'type': 'tables'
+    },
+    {
+        'id': 'product-scale',
+        'title': '2. 产品规模',
+        'icon': '&#9632;',
+        'sheets': ['2、产品规模', '不同形态产品规模和数量', '13.不同周期产品规模',
+                   '14.狭义客户周期和最短持有期的产品规模跟踪'],
+        'type': 'tables'
+    },
+    {
+        'id': 'scale-changes',
+        'title': '3. 在售产品销售情况',
+        'icon': '&#9632;',
+        'sheets': ['3、本月定开或客户周期产品规模变化', '本周新发产品', '待售产品'],
+        'type': 'tables'
+    },
+    {
+        'id': 'pm-metrics',
+        'title': '4. 投资经理维度',
+        'icon': '&#9632;',
+        'sheets': ['投资经理维度产品规模和数量'],
+        'type': 'tables'
+    },
+    {
+        'id': 'maturity',
+        'title': '5. 产品到期情况',
+        'icon': '&#9670;',
+        'sheets': ['10.未来全年产品到期情况', '10.未来全年产品到期情况-定开', '10.下周到期产品清单'],
+        'type': 'tables'
+    },
+    # ─── 二、产品业绩 ───
+    {
+        'id': 'break-even',
+        'title': '6. 破净情况',
+        'icon': '&#9670;',
+        'sheets': ['破净结果'],
+        'type': 'tables'
+    },
+    {
+        'id': 'market-index',
+        'title': '7. 市场指数收益',
+        'icon': '&#9670;',
+        'sheets': ['15.市场指数收益'],
+        'type': 'tables'
+    },
+    {
+        'id': 'series-perf',
+        'title': '8. 系列产品业绩',
+        'icon': '&#9670;',
+        'sheets': ['系列产品业绩-费前加权', '系列产品业绩-费后加权', '系列产品业绩-费前平均', '系列产品业绩-费后平均'],
+        'type': 'tabs'
+    },
+    {
+        'id': 'min-hold-perf',
+        'title': '9. 最短持有期业绩',
+        'icon': '&#9670;',
+        'sheets': ['5.2 最短持有期产品业绩表现1', '5.2 最短持有期产品业绩表现2'],
+        'type': 'tables'
+    },
+    {
+        'id': 'underperform',
+        'title': '10. 不达基准清单',
+        'icon': '&#9888;',
+        'sheets': ['招商在售产品不达基准', '封闭及定开产品100日内不大业绩产品清单',
+                   '合享及悦动稳享临近到期预测不达标产品清单'],
+        'type': 'tables'
+    },
+    {
+        'id': 'high-vol',
+        'title': '11. 高波动产品',
+        'icon': '&#9888;',
+        'sheets': ['12.周净值高波动产品清单'],
+        'type': 'tables'
+    },
+    # ─── 资产与持仓 ───
+    {
+        'id': 'asset-alloc',
+        'title': '12. 资产维度数据统计',
+        'icon': '&#9679;',
+        'sheets': ['8.资产大表'],
+        'type': 'tables'
+    },
+    {
+        'id': 'fee-income',
+        'title': '13. 中收监控',
+        'icon': '&#9679;',
+        'sheets': ['9.中收监控'],
+        'type': 'tables'
+    },
+    {
+        'id': 'public-strategy',
+        'title': '14. 公共策略专户',
+        'icon': '&#9679;',
+        'sheets': ['公共策略持仓概况'],
+        'type': 'tables'
+    },
+    {
+        'id': 'xinghe',
+        'title': '15. 兴合产品持仓',
+        'icon': '&#9679;',
+        'sheets': ['11.兴合产品持仓明细'],
+        'type': 'tables'
+    },
+    {
+        'id': 'bond-holdings',
+        'title': '16. 可转债/量化持仓',
+        'icon': '&#9679;',
+        'sheets': ['11.1 可转债专户持仓明细', '11.2量化和可转债持仓明细'],
+        'type': 'tables'
+    },
+    {
+        'id': 'outsource',
+        'title': '17. 委外专户配置',
+        'icon': '&#9679;',
+        'sheets': ['11.2.1其他委外专户金额配置情况', '11.2.2其他委外专户配置占比情况',
+                   '11.2.3其他委外专户配置占比情况-除以系列规模'],
+        'type': 'tables'
+    },
+    {
+        'id': 'derivatives',
+        'title': '18. 衍生品/非标持仓',
+        'icon': '&#9679;',
+        'sheets': ['11.4其他衍生品专户持仓明细', '11.5全部衍生品专户持仓占比', '11.6非标持仓占比'],
+        'type': 'tables'
+    },
+    {
+        'id': 'gold-equity',
+        'title': '19. 黄金/权益持仓',
+        'icon': '&#9679;',
+        'sheets': ['黄金持仓', '权益专户持仓'],
+        'type': 'tables'
+    },
+]
+
+
+# ─── Compute Overview Stats ───
+def compute_overview_stats():
+    stats = {}
+
+    ps = output_sheets.get('2、产品规模', {})
+    if ps.get('data'):
+        total_aum = 0
+        total_count = 0
+        total_aum_m = 0
+        total_aum_y = 0
+        for row in ps['data'][1:]:
+            first = str(row[0] or '').strip() if row[0] else ''
+            second = str(row[1] or '').strip() if len(row) > 1 else ''
+            # Skip the 合计 row we added
+            if first in ('合计', '总计') or second in ('合计', '总计'):
+                continue
+            v = to_float(row[2]) if len(row) > 2 else None
+            if v is not None:
+                total_aum += v
+            v = to_float(row[5]) if len(row) > 5 else None
+            if v is not None:
+                total_count += v
+            v = to_float(row[3]) if len(row) > 3 else None
+            if v is not None:
+                total_aum_m += v
+            v = to_float(row[4]) if len(row) > 4 else None
+            if v is not None:
+                total_aum_y += v
+        stats['total_aum'] = total_aum
+        stats['total_count'] = total_count
+        stats['aum_vs_month'] = total_aum_m
+        stats['aum_vs_year'] = total_aum_y
+
+    text_sheet = output_sheets.get('总结文字', {})
+    if text_sheet.get('data'):
+        for row in text_sheet['data'][1:]:
+            if len(row) >= 2 and row[0] and row[1]:
+                key = str(row[0])
+                val = str(row[1])
+                if '规模' in key:
+                    stats['guimo_text'] = val
+                elif '中收' in key:
+                    stats['zhongshou_text'] = val
+                elif '到期' in key:
+                    stats['daoqi_text'] = val
+
+    bp_sheet = output_sheets.get('破净结果', {})
+    if bp_sheet.get('data'):
+        data_rows = [r for r in bp_sheet['data'][1:] if any(v is not None for v in r)]
+        stats['broken_count'] = len(data_rows)
+
+    up_sheet = output_sheets.get('招商在售产品不达基准', {})
+    if up_sheet.get('data'):
+        stats['underperform_count'] = len(up_sheet['data']) - 1
+
+    hv_sheet = output_sheets.get('12.周净值高波动产品清单', {})
+    if hv_sheet.get('data'):
+        stats['high_vol_count'] = len(hv_sheet['data']) - 1
+
+    return stats
+
+
+# ─── Generate HTML Table ───
+def generate_table_html(sheet_name, sheet_data, table_id=''):
+    """Generate an HTML table from sheet data with formatting."""
+    if not sheet_data or not sheet_data.get('data'):
+        return f'<div class="empty-state">暂无数据</div>'
+
+    data = sheet_data['data']
+    merged_cells = sheet_data.get('merged_cells', [])
+    merges, skip_cells = parse_merged_cells(merged_cells)
+    col_types = detect_column_types(sheet_data, sheet_name)
+    use_parens = sheet_name in SCALE_INT_SHEETS
+
+    rows_html = []
+    num_cols = sheet_data.get('col_count', 0)
+
+    for ri, row in enumerate(data):
+        is_header = ri == 0
+        # Check if this is a sub-header row (mostly text, not data)
+        is_subheader = False
+        if ri in (1, 2) and ri < len(data):
+            row_vals = [v for v in row if v is not None]
+            numeric_count = sum(1 for v in row_vals if is_numeric(v))
+            text_count = len(row_vals) - numeric_count
+            if row_vals and text_count > numeric_count and text_count >= 2:
+                is_subheader = True
+
+        cells_html = []
+        for ci in range(min(len(row), num_cols)):
+            if (ri + 1, ci + 1) in skip_cells:
+                continue
+
+            val = row[ci]
+            merge_info = merges.get((ri + 1, ci + 1))
+
+            tag = 'th' if is_header or (is_subheader and ri < 3) else 'td'
+
+            col_header = str(data[0][ci] or '') if ci < len(data[0]) else ''
+            col_type = col_types.get(ci)
+
+            # Format value
+            if is_header or (is_subheader and ri < 3):
+                display = escape_html(str(val)) if val is not None else ''
+            else:
+                display = format_cell_value(val, col_type, use_parens=use_parens)
+
+            # Build attributes
+            attrs = []
+            css_classes = []
+
+            if merge_info:
+                rs, cs = merge_info
+                if rs > 1:
+                    attrs.append(f'rowspan="{rs}"')
+                if cs > 1:
+                    attrs.append(f'colspan="{cs}"')
+
+            if not is_header and not is_subheader:
+                cell_class = get_cell_class(val, col_type, col_header)
+                if cell_class:
+                    css_classes.append(cell_class)
+                fval = to_float(val)
+                if fval is not None:
+                    css_classes.append('num-cell')
+
+            if css_classes:
+                attrs.append(f'class="{" ".join(css_classes)}"')
+
+            attrs_str = ' ' + ' '.join(attrs) if attrs else ''
+            cells_html.append(f'<{tag}{attrs_str}>{display}</{tag}>')
+
+        # Determine row class
+        row_class = 'header-row' if is_header else ('subheader-row' if is_subheader and ri < 3 else '')
+        if not is_header and row:
+            first_val = str(row[0] or '').strip()
+            second_val = str(row[1] or '').strip() if len(row) > 1 else ''
+            if first_val in ('合计', '总计', '总合计', '汇总', '总规模') or \
+               second_val in ('合计', '总计', '汇总'):
+                row_class = 'total-row'
+            # Subtotal rows (e.g., "中低波稳健产品合计")
+            elif '合计' in second_val:
+                row_class = 'subtotal-row'
+            # Check any of first 3 cells for 合计
+            elif any('合计' in str(v or '') for v in row[:3]):
+                row_class = 'total-row'
+
+        row_class_attr = f' class="{row_class}"' if row_class else ''
+        rows_html.append(f'<tr{row_class_attr}>{"".join(cells_html)}</tr>')
+
+    tid = f' id="{table_id}"' if table_id else ''
+    return f'''<div class="table-wrapper">
+<table{tid}>
+{"".join(rows_html)}
+</table>
+</div>'''
+
+
+# ─── Generate Section HTML ───
+def generate_section_html(section):
+    parts = []
+
+    if section['type'] == 'overview':
+        stats = compute_overview_stats()
+        parts.append(generate_overview_html(stats))
+
+    elif section['type'] == 'tabs':
+        tab_names = []
+        tab_contents = []
+        for i, sn in enumerate(section['sheets']):
+            sd = output_sheets.get(sn)
+            if not sd:
+                continue
+            # Create display-friendly tab names
+            short = sn.replace('系列产品业绩-', '')
+            tab_names.append(short)
+            active = 'active' if i == 0 else ''
+            tab_contents.append(
+                f'<div class="tab-content {active}" data-tab="{section["id"]}-tab-{i}">'
+                f'{generate_table_html(sn, sd)}</div>')
+
+        tabs_html = ''.join(
+            f'<button class="tab-btn {"active" if i == 0 else ""}" '
+            f'onclick="switchTab(\'{section["id"]}\', {i})" '
+            f'data-tabgroup="{section["id"]}" data-tabidx="{i}">{tn}</button>'
+            for i, tn in enumerate(tab_names)
+        )
+        parts.append(
+            f'<div class="tabs-container"><div class="tab-buttons">{tabs_html}</div>'
+            f'{"".join(tab_contents)}</div>')
+
+    elif section['type'] == 'tables':
+        for sn in section['sheets']:
+            sd = output_sheets.get(sn)
+            if not sd:
+                continue
+            # Display-friendly subtitle
+            subtitle = sn
+            parts.append(f'<h3 class="sheet-title">{escape_html(subtitle)}</h3>')
+            parts.append(generate_table_html(sn, sd))
+
+    return '\n'.join(parts)
+
+
+def generate_overview_html(stats):
+    aum = stats.get('total_aum')
+    aum_str = f'{aum:,.0f}亿' if aum and aum > 100 else (f'{aum:,.2f}亿' if aum else 'N/A')
+    count = stats.get('total_count')
+    count_str = f'{int(count)}只' if count else 'N/A'
+    aum_m = stats.get('aum_vs_month')
+    aum_m_str = f'{aum_m:+.0f}亿' if aum_m is not None else 'N/A'
+    aum_m_class = 'stat-positive' if aum_m and aum_m > 0 else ('stat-negative' if aum_m and aum_m < 0 else '')
+    aum_y = stats.get('aum_vs_year')
+    aum_y_str = f'{aum_y:+.0f}亿' if aum_y is not None else 'N/A'
+    aum_y_class = 'stat-positive' if aum_y and aum_y > 0 else ('stat-negative' if aum_y and aum_y < 0 else '')
+
+    broken = stats.get('broken_count', 0)
+    broken_class = 'stat-alert' if broken > 0 else 'stat-ok'
+    broken_str = f'{broken}只' if broken > 0 else '无'
+
+    underperf = stats.get('underperform_count', 0)
+    high_vol = stats.get('high_vol_count', 0)
+
+    text_cards = ''
+    for key, label in [('guimo_text', '规模概况'), ('zhongshou_text', '中收概况'), ('daoqi_text', '到期概况')]:
+        text = stats.get(key, '')
+        if text:
+            text_display = escape_html(text).replace('\n', '<br>')
+            text_cards += f'''<div class="text-card">
+<div class="text-card-label">{label}</div>
+<div class="text-card-content">{text_display}</div>
+</div>'''
+
+    # Build bar chart from 产品规模 data
+    ps = output_sheets.get('2、产品规模', {})
+    bar_items = []
+    if ps.get('data'):
+        max_aum = 0
+        for row in ps['data'][1:]:
+            second = str(row[1] or '').strip() if len(row) > 1 else ''
+            if second in ('合计', '总计'):
+                continue
+            v = to_float(row[2]) if len(row) > 2 else None
+            if v and v > max_aum:
+                max_aum = v
+        for row in ps['data'][1:]:
+            name = str(row[1] or '')
+            if name in ('合计', '总计'):
+                continue
+            v = to_float(row[2]) if len(row) > 2 else 0
+            chg = to_float(row[3]) if len(row) > 3 else 0
+            if v and name:
+                pct = (v / max_aum * 100) if max_aum > 0 else 0
+                color = 'var(--positive)' if chg and chg > 0 else (
+                    'var(--negative)' if chg and chg < 0 else 'var(--accent-blue)')
+                bar_items.append(f'''<div class="bar-row">
+  <div class="bar-label" title="{escape_html(name)}">{escape_html(name[:8])}</div>
+  <div class="bar-track"><div class="bar-fill" style="width:{pct:.1f}%;background:{color}"></div></div>
+  <div class="bar-value">{v:.0f}</div>
+</div>''')
+
+    bars_html = '\n'.join(bar_items) if bar_items else ''
+
+    return f'''
+<div class="overview-grid">
+  <div class="stat-card stat-primary">
+    <div class="stat-label">管理规模</div>
+    <div class="stat-value">{aum_str}</div>
+    <div class="stat-sub">
+      <span class="{aum_m_class}">较上月 {aum_m_str}</span>
+      <span class="{aum_y_class}">较年初 {aum_y_str}</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">产品数量</div>
+    <div class="stat-value">{count_str}</div>
+  </div>
+  <div class="stat-card {broken_class}">
+    <div class="stat-label">破净产品</div>
+    <div class="stat-value">{broken_str}</div>
+  </div>
+  <div class="stat-card {"stat-alert" if underperf > 3 else ""}">
+    <div class="stat-label">不达基准</div>
+    <div class="stat-value">{underperf}只</div>
+  </div>
+  <div class="stat-card {"stat-alert" if high_vol > 20 else ""}">
+    <div class="stat-label">高波动产品</div>
+    <div class="stat-value">{high_vol}只</div>
+  </div>
+</div>
+<div class="overview-grid" style="grid-template-columns: 1fr 1fr;">
+  <div class="stat-card" style="padding:14px 18px;">
+    <div class="stat-label" style="margin-bottom:10px;">各系列规模分布 (亿)</div>
+    <div class="bar-chart">{bars_html}</div>
+  </div>
+  <div class="stat-card" style="padding:14px 18px;">
+    <div class="stat-label" style="margin-bottom:6px;">AI 摘要</div>
+    <div class="text-cards-inline">
+{text_cards}
+    </div>
+  </div>
+</div>
+'''
+
+
+# ─── CSS Styles ───
+CSS = '''
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Source+Han+Sans+SC:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-primary: #050a18;
+  --bg-secondary: #0c1425;
+  --bg-card: #111c32;
+  --bg-card-hover: #162040;
+  --bg-table-header: #0f1b33;
+  --bg-table-row-alt: #0a1226;
+  --bg-sidebar: #080e1f;
+  --bg-sidebar-active: #1a2744;
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-header: #f1f5f9;
+
+  --accent-gold: #f59e0b;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+
+  --positive: #10b981;
+  --positive-bg: rgba(16, 185, 129, 0.08);
+  --negative: #ef4444;
+  --negative-bg: rgba(239, 68, 68, 0.08);
+  --alert: #f97316;
+  --alert-bg: rgba(249, 115, 22, 0.08);
+
+  --border: #1e293b;
+  --border-light: #1a2540;
+
+  --sidebar-width: 260px;
+  --header-height: 56px;
+
+  --heat-pos-1: rgba(16, 185, 129, 0.1);
+  --heat-pos-2: rgba(16, 185, 129, 0.2);
+  --heat-pos-3: rgba(16, 185, 129, 0.3);
+  --heat-pos-4: rgba(16, 185, 129, 0.45);
+  --heat-pos-5: rgba(16, 185, 129, 0.6);
+  --heat-neg-1: rgba(239, 68, 68, 0.1);
+  --heat-neg-2: rgba(239, 68, 68, 0.2);
+  --heat-neg-3: rgba(239, 68, 68, 0.3);
+  --heat-neg-4: rgba(239, 68, 68, 0.45);
+  --heat-neg-5: rgba(239, 68, 68, 0.6);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 13px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Header */
+.top-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-height);
+  background: linear-gradient(135deg, #0a1628 0%, #0f1d35 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+
+.header-logo {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent-gold), #d97706);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: #0a0f1c;
+}
+
+.header-title {
+  font-family: "Noto Serif SC", serif;
+  font-size: 16px; font-weight: 700;
+  color: var(--text-header);
+  letter-spacing: 1px;
+}
+
+.header-date {
+  margin-left: auto;
+  font-size: 12px; color: var(--text-secondary);
+  background: var(--bg-card);
+  padding: 4px 12px; border-radius: 4px;
+  border: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: var(--header-height); left: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px 0; z-index: 90;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-section { padding: 4px 0; }
+
+.sidebar-group-label {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 20px 4px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px;
+  color: var(--text-secondary);
+  text-decoration: none; font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+
+.nav-item.active {
+  color: var(--accent-gold);
+  background: var(--bg-sidebar-active);
+  border-left-color: var(--accent-gold);
+}
+
+.nav-icon { font-size: 8px; opacity: 0.6; width: 14px; text-align: center; }
+
+/* Main Content */
+.main-content {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  padding: 24px 28px;
+  min-height: calc(100vh - var(--header-height));
+}
+
+.section {
+  margin-bottom: 36px;
+  scroll-margin-top: calc(var(--header-height) + 20px);
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.section-header {
+  font-family: "Noto Serif SC", serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--text-header);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent-gold);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.section-header::before {
+  content: '';
+  width: 4px; height: 20px;
+  background: var(--accent-gold);
+  border-radius: 2px;
+}
+
+.sheet-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--accent-cyan);
+  margin: 16px 0 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--accent-cyan);
+}
+
+/* Overview Cards */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+.stat-card.stat-primary {
+  border-color: var(--accent-gold);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), var(--bg-card));
+}
+.stat-card.stat-alert {
+  border-color: var(--negative);
+  background: linear-gradient(135deg, var(--negative-bg), var(--bg-card));
+}
+.stat-card.stat-ok {
+  border-color: var(--positive);
+  background: linear-gradient(135deg, var(--positive-bg), var(--bg-card));
+}
+
+.stat-label {
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 22px; font-weight: 700;
+  color: var(--text-header);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-sub { margin-top: 8px; display: flex; gap: 14px; font-size: 11px; }
+.stat-positive { color: var(--positive); }
+.stat-negative { color: var(--negative); }
+
+.text-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.text-card-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 8px;
+}
+
+.text-card-content {
+  font-size: 12.5px; line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* Bar Chart */
+.bar-chart { display: flex; flex-direction: column; gap: 4px; }
+.bar-row { display: flex; align-items: center; gap: 8px; height: 18px; }
+.bar-label {
+  width: 80px; font-size: 10.5px;
+  color: var(--text-secondary);
+  text-align: right; flex-shrink: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.bar-track {
+  flex: 1; height: 10px;
+  background: var(--bg-secondary);
+  border-radius: 3px; overflow: hidden;
+}
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; min-width: 2px; }
+.bar-value {
+  width: 45px; font-size: 10.5px;
+  color: var(--text-muted);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+
+.text-cards-inline {
+  display: flex; flex-direction: column; gap: 8px;
+  max-height: 320px; overflow-y: auto;
+}
+.text-cards-inline .text-card { padding: 10px 14px; border-radius: 6px; }
+
+/* Tables */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 8px 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.table-wrapper::-webkit-scrollbar { height: 6px; }
+.table-wrapper::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+th, td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-light);
+  text-align: left;
+}
+
+th {
+  background: var(--bg-table-header);
+  color: var(--text-secondary);
+  font-weight: 600; font-size: 11px;
+  letter-spacing: 0.3px;
+  position: sticky; top: 0; z-index: 2;
+}
+
+tr:nth-child(even) td { background: var(--bg-table-row-alt); }
+tr:hover td { background: var(--bg-card-hover) !important; }
+
+.num-cell {
+  text-align: right;
+  font-family: "SF Mono", "Cascadia Code", "JetBrains Mono", monospace;
+  font-size: 11.5px;
+}
+
+.val-positive { color: var(--positive); }
+.val-negative { color: var(--negative); }
+
+.total-row td {
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.06) !important;
+  border-top: 2px solid var(--accent-gold);
+}
+
+.subtotal-row td {
+  font-weight: 600;
+  background: rgba(6, 182, 212, 0.04) !important;
+  border-top: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+td[rowspan] {
+  background: var(--bg-table-header) !important;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  border-right: 2px solid var(--accent-cyan);
+  vertical-align: middle;
+}
+
+th[colspan] {
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg-table-header), rgba(15, 27, 51, 0.9));
+}
+
+/* Heatmap */
+.heat-pos-1 { background: var(--heat-pos-1) !important; }
+.heat-pos-2 { background: var(--heat-pos-2) !important; }
+.heat-pos-3 { background: var(--heat-pos-3) !important; }
+.heat-pos-4 { background: var(--heat-pos-4) !important; }
+.heat-pos-5 { background: var(--heat-pos-5) !important; }
+.heat-neg-1 { background: var(--heat-neg-1) !important; }
+.heat-neg-2 { background: var(--heat-neg-2) !important; }
+.heat-neg-3 { background: var(--heat-neg-3) !important; }
+.heat-neg-4 { background: var(--heat-neg-4) !important; }
+.heat-neg-5 { background: var(--heat-neg-5) !important; }
+
+/* Tabs */
+.tabs-container { margin: 8px 0 20px; }
+
+.tab-buttons {
+  display: flex; gap: 0;
+  margin-bottom: -1px;
+  position: relative; z-index: 3;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  color: var(--text-secondary);
+  font-size: 12px; cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+.tab-btn.active {
+  color: var(--accent-gold);
+  background: var(--bg-card);
+  border-color: var(--accent-gold);
+  border-bottom: 1px solid var(--bg-card);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.empty-state {
+  padding: 32px; text-align: center;
+  color: var(--text-muted); font-size: 13px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+}
+
+/* Search */
+.search-bar { display: flex; align-items: center; margin-left: 24px; }
+
+.search-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 12px; font-size: 12px;
+  border-radius: 6px; width: 200px;
+  outline: none; transition: border-color 0.2s;
+}
+
+.search-input:focus { border-color: var(--accent-blue); }
+.search-input::placeholder { color: var(--text-muted); }
+
+/* Print */
+@media print {
+  .sidebar, .top-header { display: none; }
+  .main-content { margin: 0; padding: 10px; }
+  table { font-size: 9px; }
+  th, td { padding: 3px 5px; }
+  .stat-card { break-inside: avoid; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+}
+'''
+
+# ─── JavaScript ───
+JS = '''
+function switchTab(groupId, tabIdx) {
+  document.querySelectorAll(`[data-tabgroup="${groupId}"]`).forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll(`[data-tab^="${groupId}-tab-"]`).forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-tabgroup="${groupId}"][data-tabidx="${tabIdx}"]`).classList.add('active');
+  document.querySelector(`[data-tab="${groupId}-tab-${tabIdx}"]`).classList.add('active');
+}
+
+function initNavHighlight() {
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '-80px 0px -50% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  // Sidebar click handler for smooth scrolling
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = item.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        const headerHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 56;
+        const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        history.pushState(null, null, '#' + targetId);
+      }
+    });
+  });
+}
+
+function initSearch() {
+  const input = document.getElementById('global-search');
+  if (!input) return;
+  input.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('table').forEach(table => {
+      table.querySelectorAll('tr:not(.header-row):not(.subheader-row)').forEach(row => {
+        if (!query) { row.style.display = ''; return; }
+        row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
+    });
+  });
+}
+
+function initTableSort() {
+  document.querySelectorAll('th').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      const table = th.closest('table');
+      const idx = Array.from(th.parentNode.children).indexOf(th);
+      const tbody = table.querySelector('tbody') || table;
+      const rows = Array.from(tbody.querySelectorAll('tr')).filter(r =>
+        !r.classList.contains('header-row') && !r.classList.contains('subheader-row') &&
+        !r.classList.contains('total-row') && !r.classList.contains('subtotal-row'));
+      const isAsc = th.getAttribute('data-sort') !== 'asc';
+      th.setAttribute('data-sort', isAsc ? 'asc' : 'desc');
+      rows.sort((a, b) => {
+        const aVal = a.children[idx]?.textContent?.trim()?.replace(/[()]/g, '') || '';
+        const bVal = b.children[idx]?.textContent?.trim()?.replace(/[()]/g, '') || '';
+        const aNum = parseFloat(aVal.replace(/[,%亿万只]/g, ''));
+        const bNum = parseFloat(bVal.replace(/[,%亿万只]/g, ''));
+        if (!isNaN(aNum) && !isNaN(bNum)) return isAsc ? aNum - bNum : bNum - aNum;
+        return isAsc ? aVal.localeCompare(bVal, 'zh') : bVal.localeCompare(aVal, 'zh');
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initNavHighlight();
+  initSearch();
+  initTableSort();
+});
+'''
+
+
+# ─── Assemble HTML ───
+def generate_html():
+    # Sidebar navigation - grouped to match PDF structure
+    groups = {
+        '一、规模及发行': ['overview', 'channel-aum', 'product-scale', 'scale-changes', 'pm-metrics', 'maturity'],
+        '二、产品业绩': ['break-even', 'market-index', 'series-perf', 'min-hold-perf', 'underperform', 'high-vol'],
+        '三、资产与持仓': ['asset-alloc', 'fee-income', 'public-strategy', 'xinghe', 'bond-holdings',
+                     'outsource', 'derivatives', 'gold-equity'],
+    }
+
+    section_map = {s['id']: s for s in SECTIONS}
+
+    nav_html = ''
+    for group_name, section_ids in groups.items():
+        nav_html += f'<div class="sidebar-section"><div class="sidebar-group-label">{group_name}</div>'
+        for sid in section_ids:
+            sec = section_map.get(sid)
+            if sec:
+                nav_html += (f'<a class="nav-item" href="#{sid}">'
+                             f'<span class="nav-icon">{sec["icon"]}</span>{sec["title"]}</a>')
+        nav_html += '</div>'
+
+    # Main content sections
+    content_html = ''
+    for section in SECTIONS:
+        section_content = generate_section_html(section)
+        content_html += f'''<div class="section" id="{section['id']}">
+<h2 class="section-header">{escape_html(section['title'])}</h2>
+{section_content}
+</div>'''
+
+    from datetime import datetime
+    now = datetime.now().strftime('%Y-%m-%d %H:%M')
+
+    html = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{REPORT_TITLE} - {REPORT_DATE}</title>
+<style>
+{CSS}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <div class="header-logo">XY</div>
+    <div class="header-title">{REPORT_TITLE}</div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="global-search" class="search-input" placeholder="搜索产品/经理/代码...">
+  </div>
+  <div class="header-date">数据截止 {REPORT_DATE}</div>
+</header>
+
+<nav class="sidebar">
+{nav_html}
+</nav>
+
+<main class="main-content">
+{content_html}
+<footer style="text-align:center;padding:24px;color:var(--text-muted);font-size:11px;border-top:1px solid var(--border);margin-top:40px;">
+  兴银理财多资产投资部 | 数据截止 {REPORT_DATE} | 仪表板生成于 {now}
+</footer>
+</main>
+
+<script>
+{JS}
+</script>
+</body>
+</html>'''
+
+    return html
+
+
+# ─── Main ───
+if __name__ == '__main__':
+    print('Generating dashboard HTML...')
+    html = generate_html()
+
+    with open(OUTPUT_HTML, 'w', encoding='utf-8') as f:
+        f.write(html)
+
+    file_size = os.path.getsize(OUTPUT_HTML)
+    print(f'Dashboard generated: {OUTPUT_HTML}')
+    print(f'File size: {file_size:,} bytes ({file_size/1024:.1f} KB)')
+    print(f'Sections: {len(SECTIONS)}')
+    print(f'Total sheets displayed: {sum(len(s["sheets"]) for s in SECTIONS)}')

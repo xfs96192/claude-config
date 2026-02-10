@@ -20,7 +20,8 @@
       "Skill(superpowers:writing-skills)",
       "Bash(find:*)",
       "Bash(cat:*)",
-      "Bash(npm cache clean:*)"
+      "Bash(npm cache clean:*)",
+      "WebFetch(domain:docs.molt.bot)"
     ]
   }
 }

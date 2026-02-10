@@ -1,0 +1,97 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+A standalone single-page web application for fund classification and portfolio equity exposure analysis. Used by bank wealth management departments to analyze multiple financial products' underlying fund compositions and calculate equity exposure by investment style.
+
+**Key characteristics:**
+- Pure HTML/CSS/JavaScript (no build step, no backend)
+- Completely offline-capable - all libraries bundled locally
+- Chinese UI and data
+- Data stored in browser LocalStorage
+
+## Running the Application
+
+```bash
+# Option 1: Open directly in browser
+open fund_analysis.html
+
+# Option 2: Serve via HTTP (optional)
+python3 -m http.server 8000
+# Visit http://localhost:8000/fund_analysis.html
+```
+
+## Architecture
+
+### Main File
+`fund_analysis.html` (~1600 lines) contains everything: HTML structure, embedded CSS (~600 lines), and JavaScript logic (~600 lines).
+
+### Libraries (bundled locally)
+- `xlsx.full.min.js` - SheetJS for Excel parsing
+- `chart.js` - Chart.js v4.5.0 for doughnut charts
+
+### Core Data Flow
+```
+Excel Upload → Parse → Match Funds → Calculate Exposure → Render Results
+```
+
+### Key Global Variables
+- `classificationData` - Raw parsed classification data
+- `fundClassifications` - Fund code → {assetClass, style, equityPosition} map
+- `productResults` - Product → style → amount aggregation
+- `detailData` - Array of processed holdings with calculated exposures
+- `selectedProducts` - Set of currently filtered products
+
+### Critical Business Logic
+
+**Fund Matching** (`getFundMatchKey()`):
+- Uses external code (外部代码) or asset code (资产代码), NOT asset name
+- Critical for accurate fund-to-classification matching
+
+**Equity Exposure Calculation**:
+```
+Product Net Assets = Sum(Holdings) - Buyback Amounts ("正回购" detection)
+Equity Exposure = Holding Amount × (Equity Position % / 100)
+Style Distribution % = Style Total / Product Total × 100
+```
+
+**5 Investment Styles** (fixed order):
+红利、均衡、科技成长、周期、价值
+
+### Key Functions by Domain
+
+**File Processing:** `handleClassificationUpload()`, `handleFileUpload()`, `processData()`
+
+**Calculation:** `calculateDetailData()`, `getFundMatchKey()`, `normalizeText()`
+
+**Rendering:** `renderResults()`, `renderSummaryStats()`, `renderMatrixTable()`, `renderProductCards()`, `renderDetailTable()`
+
+**Export:** `exportResultsToExcel()` - generates 3-sheet Excel
+
+## Excel File Requirements
+
+**Holdings file columns (exact names required):**
+- 产品简称, 资产代码, 外部代码, 资产简称, 日终市值, 新版资产大类, 新版资产小类
+
+**Classification file:**
+- Must contain fund codes and their style/position data
+
+## Styling System
+
+- Primary: #667eea (purple)
+- Secondary: #764ba2
+- Success: #16a34a (green)
+- Error: #ef4444 (red)
+- Warning: #ff6b35 (orange)
+- Border radius: 8-15px
+- Responsive breakpoint: 768px
+
+## Testing
+
+Manual testing workflow:
+1. Upload classification Excel
+2. Upload holdings Excel
+3. Verify: repo buyback deduction, exposure calculations, style percentages
+4. Test filters, chart rendering, Excel export

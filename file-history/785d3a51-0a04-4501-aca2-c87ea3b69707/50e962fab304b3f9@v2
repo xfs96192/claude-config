@@ -1,0 +1,329 @@
+---
+name: weekly-report
+description: 端到端自动生成兴银理财多资产投资部产品运作周报。完整流程包括：(1)更新config日期配置，(2)运行Python数据处理管线(移动文件、AI产品分类、生成结果表、计算基准、收益预测)，(3)用openpyxl更新Excel链接工作簿中的外部文件路径和公式引用，(4)将Excel表格截图并按书签顺序插入Word模版生成最终docx/pdf周报。当用户说"生成XX日期的周报"、"生成本周周报"、"周报自动化"、"run weekly report for YYYYMMDD"时触发。
+---
+
+# 多资产投资部产品运作周报 - 端到端自动化
+
+## 前置条件
+
+1. **Wind终端已登录** (业绩基准计算需要)
+2. **Python环境** - pandas, numpy, openpyxl, openai, pyarrow, WindPy
+3. **数据文件已就位** - 本周的产品净值、业绩指标、运作概览等原始文件已下载到 `~/Downloads` 或对应目录
+
+## 执行流程概览
+
+```
+步骤1: 更新config日期 → 步骤2: Python数据处理管线(5个脚本)
+→ 步骤3: 更新Excel链接工作簿 → 步骤4: Excel表格截图
+→ 步骤5: 生成Word/PDF周报
+```
+
+## 步骤 1: 解析日期并更新配置
+
+从用户输入中提取报告日期 (格式: `YYYYMMDD`)。
+
+**更新 config.py:**
+```python
+# /Users/fanshengxia/Desktop/周报V2/config.py 中第46行左右
+YUNZUOGAILAN_DATE = 'YYYYMMDD'  # 改为用户指定的日期
+```
+
+其他日期 (LASTW, LASTM, LASTY, WEEK_MON 等) 由 Config 类从此日期自动计算，无需手动改。
+
+**验证:** 改完后用 Python 快速验证日期计算:
+```bash
+cd /Users/fanshengxia/Desktop/周报V2 && python -c "from config import Config; print(f'报告日期:{Config.YUNZUOGAILAN_DATE}, 上周:{Config.LASTW}, 上月:{Config.LASTM}')"
+```
+
+## 步骤 2: 运行 Python 数据处理管线
+
+按顺序执行5个脚本。可使用主控脚本一键运行，也可逐个执行:
+
+### 方式 A: 一键执行 (推荐)
+```bash
+cd /Users/fanshengxia/Desktop/周报V2
+echo "y" | python run_weekly_report.py
+```
+
+### 方式 B: 逐步执行
+```bash
+cd /Users/fanshengxia/Desktop/周报V2
+
+# 2.1 移动数据源文件到正确目录
+python move_files.py
+
+# 2.2 AI产品分类 (新产品自动归类)
+python update_new_product_catgoery.py
+
+# 2.3 生成主结果表 + AI文字总结 (最核心的步骤，约5-15分钟)
+python generate_report.py
+
+# 2.4 计算业绩基准表现 (需要Wind API)
+python calculate_all_benchmarks.py --date {ZHOUBAO_DATE}
+
+# 2.5 收益预测 (合享/悦动稳享系列)
+python yield_forecast.py
+```
+
+**输出文件:** `输出结果/输出结果{DATE}.xlsx` (含40+个sheet)
+
+**验证:** 确认输出文件存在且包含关键sheet:
+```bash
+python -c "
+import openpyxl
+wb = openpyxl.load_workbook('/Users/fanshengxia/Desktop/周报V2/输出结果/输出结果{DATE}.xlsx', read_only=True)
+print(f'Sheet数量: {len(wb.sheetnames)}')
+print('关键Sheet:', [s for s in wb.sheetnames if '总结文字' in s or '资产大表' in s or '分渠道' in s])
+wb.close()
+"
+```
+
+## 步骤 3: 更新 Excel 链接工作簿
+
+**目标:** 替代原来的VBA宏操作。用openpyxl直接更新 `周报生成工具_加权_调整兴动合兴系列.xlsm` 中所有外部文件引用路径。
+
+**核心原理:** 工作簿中68个sheet通过VLOOKUP公式引用外部Excel文件。需要把公式中的旧日期替换为新日期。
+
+### 3.1 读取链接数据表获取新旧文件路径
+
+```python
+import openpyxl
+
+WORKBOOK_PATH = '/Users/fanshengxia/Desktop/周报V2/周报生成工具_加权_调整兴动合兴系列.xlsm'
+wb = openpyxl.load_workbook(WORKBOOK_PATH, keep_vba=True)
+
+# 从 链接数据表 sheet 读取旧路径和新路径
+link_sheet = wb['链接数据表']
+# 遍历行获取 old_path -> new_path 映射
+```
+
+### 3.2 批量替换公式中的文件引用
+
+遍历所有数据sheet，将公式中的旧日期替换为新日期:
+
+```python
+OLD_DATE = '20260129'  # 上一期日期
+NEW_DATE = '20260205'  # 本期日期
+
+for sheet_name in wb.sheetnames:
+    ws = wb[sheet_name]
+    for row in ws.iter_rows():
+        for cell in row:
+            if isinstance(cell.value, str) and OLD_DATE in cell.value:
+                cell.value = cell.value.replace(OLD_DATE, NEW_DATE)
+
+wb.save(WORKBOOK_PATH)
+```
+
+### 3.3 更新周报文字更新 sheet
+
+将AI生成的总结文字从Python输出文件复制到VBA工作簿的 `周报文字更新` sheet:
+
+```python
+import pandas as pd
+
+# 读取Python输出的总结文字
+output_path = f'/Users/fanshengxia/Desktop/周报V2/输出结果/输出结果{NEW_DATE}.xlsx'
+summary_df = pd.read_excel(output_path, sheet_name='总结文字')
+
+# 写入VBA工作簿的 周报文字更新 sheet
+ws_text = wb['周报文字更新']
+# 规模文字 → ws_text['B2']
+# 中收文字 → ws_text['B3']
+# 到期文字 → ws_text['B4']
+```
+
+### 3.4 更新周报生成流程 sheet 中的日期
+
+```python
+ws_flow = wb['周报生成流程']
+# 更新 当前日期 和 上期日期 单元格
+```
+
+**保存时必须 `keep_vba=True`** 以保留.xlsm中的VBA代码。
+
+## 步骤 4: Excel 表格截图
+
+将Excel工作簿中的数据sheet截图为PNG图片。用Playwright自动化:
+
+### 4.1 生成临时HTML展示每个sheet
+
+```python
+import pandas as pd
+
+sheets_to_capture = [...]  # 从 references/bookmark_mapping.md 获取完整列表
+
+for sheet_name in sheets_to_capture:
+    df = pd.read_excel(WORKBOOK_PATH, sheet_name=sheet_name)
+    # 生成styled HTML table保存为临时文件
+    html = df.to_html(classes='report-table', border=1)
+    # 添加CSS样式使表格接近Excel格式
+```
+
+### 4.2 使用 Playwright 截图
+
+用 Playwright MCP 工具对每个HTML表格页面截图:
+1. `playwright_navigate` 打开HTML文件
+2. `playwright_screenshot` 对表格元素截图
+3. 保存为PNG到临时目录
+
+**关键:** 截图需要精确匹配原PDF中的表格样式:
+- 字体: 宋体/微软雅黑, 9-10pt
+- 表头灰色背景
+- 数字右对齐，百分比保留2位小数
+- 负数红色或括号显示
+
+**替代方案:** 如果Playwright截图质量不够，可以用 `xlsxwriter` 或 `openpyxl` 配合 LibreOffice 命令行转图片:
+```bash
+libreoffice --headless --convert-to png --outdir /tmp/screenshots sheet.xlsx
+```
+
+## 步骤 5: 组装 Word 文档并生成 PDF
+
+### 5.1 复制 Word 模版
+
+```python
+import shutil
+
+TEMPLATE_PATH = '/Users/fanshengxia/Desktop/周报V2/多资产投资部产品周报-模版.docm'
+OUTPUT_DOCX = f'/Users/fanshengxia/Desktop/周报V2/输出结果/多资产投资部产品周报-{NEW_DATE}.docx'
+shutil.copy2(TEMPLATE_PATH, OUTPUT_DOCX)
+```
+
+### 5.2 使用 python-docx 替换书签内容
+
+```python
+from docx import Document
+from docx.shared import Inches
+
+doc = Document(OUTPUT_DOCX)
+
+# 替换文字书签
+replace_bookmark_text(doc, '规模文字', guimo_text)
+replace_bookmark_text(doc, '中收文字', zhongshou_text)
+replace_bookmark_text(doc, '到期文字', daoqi_text)
+replace_bookmark_text(doc, '市场文字', shichang_text)
+replace_bookmark_text(doc, '首页日期', f'数据截止时间 {NEW_DATE}')
+replace_bookmark_text(doc, '到期日期', f'*自 {NEW_DATE} 起')
+
+# 替换图片书签 (共约60个)
+for sheet_name, bookmark_name in BOOKMARK_MAPPING.items():
+    img_path = f'/tmp/weekly_report_screenshots/{sheet_name}.png'
+    replace_bookmark_image(doc, bookmark_name, img_path, width=Inches(7.0))
+
+doc.save(OUTPUT_DOCX)
+```
+
+**书签操作核心函数:**
+```python
+def replace_bookmark_text(doc, bookmark_name, text):
+    """在Word文档中找到书签并替换为文字"""
+    for paragraph in doc.paragraphs:
+        for run in paragraph.runs:
+            # 查找 bookmarkStart 元素
+            pass
+    # 使用 lxml 操作底层XML实现精确书签定位
+
+def replace_bookmark_image(doc, bookmark_name, image_path, width):
+    """在Word文档中找到书签并插入图片"""
+    # 定位书签 → 删除旧内容 → 插入新图片
+    pass
+```
+
+Word书签操作的详细实现参见 `references/bookmark_mapping.md`。
+
+### 5.3 生成 PDF
+
+```bash
+# 方式1: LibreOffice 命令行
+libreoffice --headless --convert-to pdf --outdir "/Users/fanshengxia/Desktop/周报V2/输出结果/" "{OUTPUT_DOCX}"
+
+# 方式2: 如果已安装 docx2pdf
+python -c "from docx2pdf import convert; convert('{OUTPUT_DOCX}')"
+```
+
+### 5.4 验证输出
+
+```python
+import os
+docx_path = f'/Users/fanshengxia/Desktop/周报V2/输出结果/多资产投资部产品周报-{NEW_DATE}.docx'
+pdf_path = f'/Users/fanshengxia/Desktop/周报V2/输出结果/多资产投资部产品周报-{NEW_DATE}.pdf'
+print(f"DOCX: {'存在' if os.path.exists(docx_path) else '缺失'} ({os.path.getsize(docx_path)//1024}KB)")
+print(f"PDF:  {'存在' if os.path.exists(pdf_path) else '缺失'} ({os.path.getsize(pdf_path)//1024}KB)")
+```
+
+## 项目路径
+
+| 路径 | 说明 |
+|------|------|
+| `/Users/fanshengxia/Desktop/周报V2/` | 项目根目录 |
+| `config.py` | 配置文件 (日期、参数) |
+| `run_weekly_report.py` | Python主控脚本 |
+| `周报生成工具_加权_调整兴动合兴系列.xlsm` | Excel VBA工作簿 (68 sheets) |
+| `多资产投资部产品周报-模版.docm` | Word模版 (66个书签) |
+| `输出结果/` | 所有输出文件目录 |
+| `数据/` | 所有源数据目录 |
+
+## 关键数据文件
+
+| 文件 | 说明 |
+|------|------|
+| `输出结果/输出结果{DATE}.xlsx` | Python输出 (40+ sheets) |
+| `数据/产品运作概览数据-母子产品/产品运作概览信息表增加指标变化_{DATE}.xlsx` | 产品运作概览 |
+| `数据/产品业绩指标数据/内部产品业绩_{DATE}.xlsx` | 业绩指标 |
+| `数据/收益测算数据/丰利合享底表-{DATE}.xlsx` | 合享收益预测 |
+| `数据/收益测算数据/悦动稳享底表-{DATE}.xlsx` | 悦动稳享收益预测 |
+
+## 最终输出 (成功标志)
+
+| 文件 | 格式 |
+|------|------|
+| `输出结果/多资产投资部产品周报-{DATE}.docx` | Word文档 (~40页) |
+| `输出结果/多资产投资部产品周报-{DATE}.pdf` | PDF文档 (~40页) |
+
+## 错误处理
+
+| 错误 | 解决方案 |
+|------|----------|
+| Wind未连接 | 跳过步骤2.4(业绩基准)，后续手动补充 |
+| config日期格式错误 | 必须为YYYYMMDD格式，如20260205 |
+| 数据文件缺失 | 检查Downloads中文件是否已下载，运行move_files.py |
+| NAV缓存异常 | `python manage_nav_cache.py clear` 清除缓存后重试 |
+| AI摘要生成失败 | 检查DeepSeek API key和网络连接 |
+| openpyxl公式替换失效 | 确认旧日期字符串正确匹配 |
+| Word书签定位失败 | 检查模版.docm书签完整性 |
+| PDF生成失败 | 确认已安装LibreOffice或docx2pdf |
+
+## 参考文件
+
+- **Excel Sheet→Word书签完整映射:** `references/bookmark_mapping.md`
+- **PDF报告结构 (目录/章节/表格):** 参考最近的PDF `输出结果/多资产投资部产品周报-{LAST_DATE}.pdf`
+
+## 示例
+
+**用户:** "生成20260205的周报"
+
+**执行:**
+1. 更新 config.py: `YUNZUOGAILAN_DATE = '20260205'`
+2. 运行 `run_weekly_report.py` (5个步骤)
+3. 用 openpyxl 更新 Excel 链接工作簿日期引用
+4. 截图所有数据表格 (~60个)
+5. 组装 Word 文档 (文字+图片→书签)
+6. 导出 PDF
+
+**报告:**
+```
+已生成 20260205 周报
+
+输出文件:
+- DOCX: 输出结果/多资产投资部产品周报-20260205.docx
+- PDF:  输出结果/多资产投资部产品周报-20260205.pdf
+
+执行摘要:
+- Python管线: 5/5 步骤成功
+- Excel链接更新: 68 sheets, 6个外部文件引用已更新
+- 表格截图: 60/60 完成
+- Word书签: 66/66 已填充
+- AI文字总结: 规模/中收/到期 3段已生成
+```

@@ -1,0 +1,20 @@
+wind_code_list = ['885005.WI', 'CBA00111.CS', 'CBA00121.CS', 'CBA00101.CS', '885008.WI', '885006.WI', '885007.WI',
+                  '885001.WI', '000300.SH']
+result_list = []
+for deltadays in [30, 30 * 3, 30 * 6, 365]:
+    startDate = ''.join(
+        str((datetime.strptime(zhoubao_date, '%Y%m%d') -timedelta(days=deltadays)).date()).split(
+            '-'))
+    result_list.append(np.array(
+        w.wss(wind_code_list, "pct_chg_per", "startDate=" + startDate + ";endDate=" + zhoubao_date).Data[
+            0]) * 365 / deltadays)
+# 计算2025年年化收益，等2026年的时候'20241231'要改掉
+deltadays = (datetime.strptime(zhoubao_date, '%Y%m%d') -datetime.strptime('20241231', '%Y%m%d')).days
+result_list.append(np.array(
+    w.wss(wind_code_list, "pct_chg_per", "startDate=" + '20241231' + ";endDate=" + zhoubao_date).Data[
+        0]) * 365 / deltadays)
+result_list.append(np.array(w.wss(wind_code_list, "sec_name").Data[0]))
+result_df = pd.DataFrame(result_list).T
+result_df.index = wind_code_list
+result_df.columns = ['近1月年化收益率', '近3月年化收益率', '近6月年化收益率', '近1年年化收益率', '2025年年化收益率',
+                     '指数简称']

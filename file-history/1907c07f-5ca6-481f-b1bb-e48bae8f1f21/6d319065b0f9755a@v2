@@ -1,0 +1,299 @@
+"""
+Script to transform generate_report.py from script-style to function-style.
+Reads the already-refactored header (lines 1-446) and the original backup (lines 429+),
+then produces the full refactored file.
+"""
+
+# Read the already-refactored header (lines 1-446)
+with open('/tmp/generate_report_header.py', 'r') as f:
+    header = f.read()
+
+# Read the original backup for the business logic
+with open('/Users/fanshengxia/Desktop/周报V2/generate_report.py.bak', 'r') as f:
+    original_lines = f.readlines()
+
+# Extract each Part's code from original (for reference in manual composition)
+# We'll write the complete output directly
+
+output = header.rstrip('\n') + '\n'
+
+# Now write all the generate_* functions and main()
+output += r'''
+# ==============================================================================
+# 第七部分：生成报表 - 渠道分析
+# ==============================================================================
+
+def generate_channel_report(ctx: ReportContext, writer: pd.ExcelWriter) -> dict:
+    """第七部分：渠道分析 → 写入 '1、分渠道余额', '渠道明细'"""
+    print("\n[1] 生成报表: 1、分渠道余额...")
+
+    Channel_df = ctx.channel_df.copy()
+    classification_ye = ctx.classification_ye
+    yunzuogailan_all = ctx.yunzuogailan_all
+    Parent_sort = ctx.parent_sort
+    rank_here = ctx.rank_here
+
+    # 匹配渠道数据的品类和产品经理
+    Channel_df['母产品代码'] = Channel_df['产品简称'].map(
+        lambda x: Channel_df[Channel_df['产品简称'] == x.split('(子')[0]].index[0]
+    )
+    Channel_df['多资产品类'] = Channel_df['母产品代码'].map(
+        lambda x: classification_ye[x] if x in classification_ye.index else np.nan
+    )
+    Channel_df = Channel_df.merge(yunzuogailan_all[['产品经理']], left_index=True, right_index=True, how='left')
+    Channel_df = Channel_df[~pd.isnull(Channel_df['产品经理'])]
+    Channel_df = del_Innovation_department(Channel_df)
+
+    # 处理子产品渠道数据
+    Channel_df_subproduct = Channel_df[Channel_df['渠道名称'] != '-']
+    Channel_df_subproduct['渠道-行内外'] = Channel_df_subproduct['渠道名称'].map(
+        lambda x: '行内' if x == '兴业银行' else '行外'
+    )
+    Channel_df_subproduct = Channel_df_subproduct.merge(Parent_sort, left_on='多资产品类', right_index=True, how='left')
+
+    # 生成分渠道余额表
+    Channel_result1 = pd.pivot_table(
+        Channel_df_subproduct,
+        index=['总分类', '母分类'],
+        columns='渠道-行内外',
+        values=['保有规模'],
+        aggfunc=np.sum
+    ) / 100000000
+    Channel_result1 = rank_by_sort(Channel_result1, rank_here)
+
+    # 渠道明细
+    print("[1.1] 生成报表: 渠道明细...")
+
+    Channel_result2 = pd.pivot_table(
+        Channel_df_subproduct,
+        index=['渠道名称'],
+        columns='总分类',
+        values=['保有规模'],
+        aggfunc=np.sum
+    ) / 100000000
+    Channel_result2['合计'] = Channel_result2.sum(axis=1)
+    Channel_result2 = Channel_result2.sort_values('合计', ascending=False)
+
+    # 计算相比上月和上年的变化
+    Channel_result2[('合计-相比上月', '')] = Channel_result2[('合计', '')] - \
+        pd.read_excel(Config.get_output_result_file(lastm), sheet_name='渠道明细', index_col=0, skiprows=[1, 2])['合计']
+    Channel_result2[('合计-相比上年', '')] = Channel_result2[('合计', '')] - \
+        pd.read_excel(Config.get_output_result_file(lasty), sheet_name='渠道明细', index_col=0, skiprows=[1, 2])['合计']
+
+    Channel_result1.to_excel(writer, sheet_name='1、分渠道余额')
+    Channel_result2.to_excel(writer, sheet_name='渠道明细')
+
+    return {'Channel_result1': Channel_result1, 'Channel_df': Channel_df}
+
+
+# ==============================================================================
+# 第八部分：生成报表 - 产品规模
+# ==============================================================================
+
+def generate_scale_report(ctx: ReportContext, writer: pd.ExcelWriter) -> dict:
+    """第八部分：产品规模 → 写入 '2、产品规模'"""
+    print("\n[2] 生成报表: 2、产品规模...")
+
+    rank_here = ctx.rank_here
+
+    now = zhoubao_date
+    yunzuogailan_now = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(now), index_col=0))
+    yunzuogailan_lastm = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lastm), index_col=0))
+    yunzuogailan_lasty = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lasty), index_col=0))
+
+    lastm_delta_df = get_scaleandnum_by_sort(yunzuogailan_now) - get_scaleandnum_by_sort(yunzuogailan_lastm)
+    lastm_delta_df.columns = ['规模-较上月末', '数量-较上月末']
+    lasty_delta_df = get_scaleandnum_by_sort(yunzuogailan_now) - full_category_or_not(
+        get_scaleandnum_by_sort(yunzuogailan_lasty), rank_here
+    ).fillna(0)
+    lasty_delta_df.columns = ['规模-较上年末', '数量-较上年末']
+
+    cols = ['规模(亿)', '规模-较上月末', '规模-较上年末', '数量', '数量-较上月末', '数量-较上年末']
+    result_3 = pd.concat([get_scaleandnum_by_sort(yunzuogailan_now), lastm_delta_df, lasty_delta_df], axis=1)[cols]
+    result_3[['规模(亿)', '规模-较上月末', '规模-较上年末']] = result_3[
+        ['规模(亿)', '规模-较上月末', '规模-较上年末']
+    ].applymap(lambda x: '{:.2f}'.format(x) if not np.isnan(x) else x)
+    result_3 = rank_by_sort(result_3, rank_here)
+    result_3[cols].to_excel(writer, sheet_name='2、产品规模')
+
+    return {'result_3': result_3}
+
+
+# ==============================================================================
+# 第九部分：生成报表 - 规模变化与新发产品
+# ==============================================================================
+
+def generate_scale_change_report(ctx: ReportContext, writer: pd.ExcelWriter) -> dict:
+    """第九部分：规模变化与新发产品 → 写入 '3、本月定开...', '本周新发产品', '待售产品'"""
+    print("\n[3] 生成报表: 3、本月定开或客户周期产品规模变化...")
+
+    data_loader = ctx.data_loader
+    yunzuogailan_all = ctx.yunzuogailan_all
+    Product_information_df_DAP = ctx.product_info
+
+    data_zhanbao = zhoubao_date
+    zhanbao_df = data_loader.load_zhanbao_data()
+
+    if '产品经理' not in zhanbao_df.columns:
+        zhanbao_df = zhanbao_df.merge(yunzuogailan_all[['产品经理']], left_index=True, right_index=True, how='left')
+    zhanbao_df.rename(columns={'品类': '多资产品类'}, inplace=True)
+
+    zhanbao_df_1 = zhanbao_df[zhanbao_df['产品经理'].map(lambda x: not pd.isnull(x))]
+    zhanbao_df_1 = del_Innovation_department(zhanbao_df_1)
+    zhanbao_df_2 = zhanbao_df[zhanbao_df['产品经理'].map(lambda x: pd.isnull(x))]
+    zhanbao_df = pd.concat([zhanbao_df_1, zhanbao_df_2])
+
+    zhanbao_df['母产品代码'] = zhanbao_df.apply(lambda x: x.name if pd.isnull(x['母产品代码']) else x['母产品代码'], axis=1)
+    zhanbao_df['母产品简称'] = zhanbao_df.apply(
+        lambda x: x['产品简称'] if pd.isnull(x['母产品简称']) else x['母产品简称'], axis=1
+    )
+
+    kaifang_df = zhanbao_df[
+        (zhanbao_df['形态'] == '客户周期') | (zhanbao_df['形态'] == '最短持有期') |
+        (zhanbao_df['形态'] == '定开') | (zhanbao_df['形态'] == '日开')
+    ]
+    kaifang_df = kaifang_df.groupby('母产品代码').agg({
+        '母产品简称': 'first', '多资产品类': 'first', '母品类': 'first',
+        '起息日': 'first', '规模/变化（亿）': 'sum', '产品经理': 'first'
+    })
+    kaifang_df = kaifang_df[kaifang_df['规模/变化（亿）'].map(lambda x: abs(x) >= 0.05)]
+    kaifang_df.sort_values(by='规模/变化（亿）', ascending=False, inplace=True)
+    kaifang_df['规模/变化（亿）'] = kaifang_df['规模/变化（亿）'].map(
+        lambda x: '{:.2f}'.format(x) if not np.isnan(x) else x
+    )
+    kaifang_df = kaifang_df[kaifang_df['母品类'] != '封闭到期']
+    kaifang_df.to_excel(writer, sheet_name='3、本⽉定开或客户周期产品规模变化')
+
+    # 本周新发产品
+    print("[3.1] 生成报表: 本周新发产品...")
+
+    xinfa_thisweek_df = zhanbao_df[zhanbao_df['起息日'] >= week_Mon]
+    yunzuogailan_original = pd.read_excel(Config.get_weekly_data_file('产品运作概览'), index_col=0)
+    yunzuogailan_original['母产品代码'] = yunzuogailan_original['产品简称'].map(
+        lambda x: yunzuogailan_original[yunzuogailan_original['产品简称'] == x.split('(子')[0]].index[0]
+    )
+    yunzuogailan_original = yunzuogailan_original[['产品简称', '母产品代码', '产品经理']].drop_duplicates()
+
+    for mid_ind in xinfa_thisweek_df.index:
+        if mid_ind in yunzuogailan_original.index:
+            mother_indx = yunzuogailan_original.loc[mid_ind, '母产品代码']
+            xinfa_thisweek_df.loc[mid_ind, '母产品代码'] = mother_indx
+            xinfa_thisweek_df.loc[mid_ind, '母产品简称'] = yunzuogailan_original.loc[mother_indx, '产品简称']
+            xinfa_thisweek_df.loc[mid_ind, '产品经理'] = yunzuogailan_original.loc[mother_indx, '产品经理']
+        else:
+            xinfa_thisweek_df.loc[mid_ind, '母产品代码'] = mid_ind
+            xinfa_thisweek_df.loc[mid_ind, '母产品简称'] = xinfa_thisweek_df.loc[mid_ind, '产品简称']
+
+    xinfa_thisweek_qudao = xinfa_thisweek_df.reset_index().groupby(['母产品代码', '渠道-简化']).agg({
+        '母产品简称': 'first', '多资产品类': 'first', '母品类': 'first',
+        '起息日': 'first', '规模/变化（亿）': 'sum', '战报到期日': 'first', '形态': 'first', '产品经理': 'first'
+    })
+    xinfa_thisweek_sum = xinfa_thisweek_df.reset_index().groupby(['母产品代码']).agg({
+        '母产品简称': 'first', '多资产品类': 'first', '母品类': 'first',
+        '起息日': 'first', '规模/变化（亿）': 'sum', '战报到期日': 'first', '形态': 'first', '产品经理': 'first'
+    })
+
+    for mid_ind in xinfa_thisweek_sum.index:
+        if (mid_ind, '行内') in xinfa_thisweek_qudao.index:
+            xinfa_thisweek_sum.loc[mid_ind, '行内(亿)'] = xinfa_thisweek_qudao.loc[(mid_ind, '行内'), '规模/变化（亿）']
+        if (mid_ind, '行外') in xinfa_thisweek_qudao.index:
+            xinfa_thisweek_sum.loc[mid_ind, '行外(亿)'] = xinfa_thisweek_qudao.loc[(mid_ind, '行外'), '规模/变化（亿）']
+
+    if xinfa_thisweek_sum.empty:
+        result_3_2_df = pd.DataFrame(columns=[
+            '母产品简称', '销量(亿)', '行内(亿)', '行外(亿)', '多资产品类',
+            '母品类', '起息日', '到期日', '形态', '产品经理'
+        ])
+    else:
+        keep_columns_xinfa = [
+            '母产品简称', '规模/变化（亿）', '行内(亿)', '行外(亿)', '多资产品类',
+            '母品类', '起息日', '战报到期日', '形态', '产品经理'
+        ]
+        cols_available = [c for c in keep_columns_xinfa if c in xinfa_thisweek_sum.columns]
+        xinfa_thisweek_sum = xinfa_thisweek_sum[cols_available].copy()
+        xinfa_thisweek_sum.rename(columns={'规模/变化（亿）': '销量(亿)', '战报到期日': '到期日'}, inplace=True)
+        result_3_2_df = xinfa_thisweek_sum[xinfa_thisweek_sum['销量(亿)'] != 0]
+        result_3_2_df.sort_values(by='起息日', ascending=True, inplace=True)
+
+    result_3_2_df.to_excel(writer, sheet_name='本周新发产品')
+
+    # 待售产品
+    print("[3.2] 生成报表: 待售产品...")
+
+    product_tosale_df = data_loader.load_product_tosale()
+    product_tosale_df = product_tosale_df.merge(
+        Product_information_df_DAP['母产品投资经理'], left_index=True, right_index=True, how='left'
+    )
+
+    first = ['徐莹', '胡艳婷', '姜锡峰', '朱轶伦', '李佳航', "苏文津", "夏凡盛", "黄亦尧"]
+    second = ['严泓', '高翰昆', '薛纪晔', '任雁', '周仕盈', "罗谨深"]
+    third = ['杨漠', '余洁雅', '张玉杰', '廖炯臣']
+
+    product_tosale_df_new = product_tosale_df[
+        product_tosale_df['母产品投资经理'].map(lambda x: manager_in_or_not(x, first + second + third))
+    ]
+    date_here = zhoubao_date[:4] + '-' + zhoubao_date[4:6] + '-' + zhoubao_date[6:]
+    product_tosale_df_final = product_tosale_df_new[product_tosale_df_new['成立日'] > date_here]
+    product_tosale_df_final.drop_duplicates(inplace=True)
+    keep_columns = ['母子产品标识', '产品简称', '产品开放形式', '募集期(起)', '募集期(止)', '成立日', '到期日', '规模上限(亿)', '销售币种']
+    product_tosale_df_final_v1 = product_tosale_df_final[keep_columns]
+    product_tosale_df_final_v2 = product_tosale_df_final_v1[
+        product_tosale_df_final_v1.apply(
+            lambda x: False if (x['产品简称'] in product_tosale_df_final_v1['产品简称']) and (x['母子产品标识'] == '母产品') else True,
+            axis=1
+        )
+    ]
+    product_tosale_df_final_v2.sort_values(by='成立日', ascending=True, inplace=True)
+    product_tosale_df_final_v2.to_excel(writer, sheet_name='待售产品')
+
+    return {'result_3_2_df': result_3_2_df}
+
+'''
+
+# Now I need to read the remaining parts from the backup and wrap them
+# Let me read the backup file content
+with open('/Users/fanshengxia/Desktop/周报V2/generate_report.py.bak', 'r') as f:
+    bak_content = f.read()
+
+# Extract lines for each remaining part from backup
+bak_lines = bak_content.split('\n')
+
+# Find Part 10 (line 655 in backup) through end
+# I'll extract each section manually by reading from the backup
+
+# Part 10: Performance report (lines 655-799 in backup)
+# Part 11: Manager report (lines 801-868)
+# Part 12: Zhaoshang report (lines 870-916)
+# Part 13: Asset table (lines 918-1058)
+# Part 14: Fee report (lines 1062-1099)
+# Part 15: Maturity report (lines 1102-1141)
+# Part 16: Holdings report (lines 1144-1433)
+# Part 17: Volatility report (lines 1436-1466)
+# Part 18: Cycle report (lines 1469-1536)
+# Part 19: Market index (lines 1539-1577)
+# Part 20: Pojing (lines 1580-1620)
+# Part 21: Summary text (lines 1623-1655)
+# Part 22: Close (lines 1658-1667)
+
+# For each, I need to:
+# 1. Wrap in a function def
+# 2. Replace global var references with ctx.xxx
+# 3. Return needed intermediate results
+
+# Let me extract the exact lines from backup for each part
+def get_lines(start, end):
+    """Get lines from backup (1-indexed)"""
+    return '\n'.join(bak_lines[start-1:end])
+
+# I'll just print confirmation - the actual file writing will be done via Write tool
+print("Transform script ready. Use this to verify line ranges.")
+print(f"Total backup lines: {len(bak_lines)}")
+
+# Print a few key line numbers for verification
+for i, line in enumerate(bak_lines):
+    if '第十部分' in line or '第十一部分' in line or '第十二部分' in line or '第十三部分' in line:
+        print(f"Line {i+1}: {line.strip()}")
+    if '第十四部分' in line or '第十五部分' in line or '第十六部分' in line or '第十七部分' in line:
+        print(f"Line {i+1}: {line.strip()}")
+    if '第十八部分' in line or '第十九部分' in line or '第二十部分' in line or '第二十一部分' in line or '第二十二部分' in line:
+        print(f"Line {i+1}: {line.strip()}")

@@ -1,0 +1,57 @@
+2026-02-09T03:44:25.517Z [DEBUG] [init] configureGlobalMTLS starting
+2026-02-09T03:44:25.517Z [DEBUG] [init] configureGlobalMTLS complete
+2026-02-09T03:44:25.517Z [DEBUG] [init] configureGlobalAgents starting
+2026-02-09T03:44:25.517Z [DEBUG] [init] configureGlobalAgents complete
+2026-02-09T03:44:25.533Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["mcp__pencil"]
+2026-02-09T03:44:25.533Z [DEBUG] Applying permission update: Adding 30 allow rule(s) to destination 'localSettings': ["Bash(cp:*)","Bash(python:*)","Bash(git init:*)","Bash(git add:*)","Bash(git commit:*)","Bash(rg:*)","Bash(grep:*)","Bash(git reset:*)","Bash(find:*)","Bash(git push:*)","Bash(claude mcp:*)","Bash(env)","Bash(rm:*)","Bash(ls:*)","Bash(git -C \"/Users/fanshengxia/Desktop/周报V2\" log --oneline -20)","Bash(git -C \"/Users/fanshengxia/Desktop/周报V2\" diff --name-only HEAD)","Bash(git -C \"/Users/fanshengxia/Desktop/周报V2\" log --format=\"%H %s\" -1 -- load_data.py)","Bash(git status:*)","Bash(wc -l *.py 数据/*.py)","Bash(git mv:*)","Bash(python3:*)","mcp__playwright__playwright_navigate","Bash(npx playwright install:*)","Bash(pip3 install:*)","Bash(brew list:*)","Bash(mdfind:*)","Bash(osascript:*)","Bash(# Check if it was saved with a different extension or in a different location find /Users/fanshengxia/Desktop/周报V2/输出结果/ -name \"\"*20260205*\"\" -newer /Users/fanshengxia/Desktop/周报V2/输出结果/多资产投资部产品周报-20260205.docx # Also check home/Downloads find /Users/fanshengxia/ -maxdepth 2 -name \"\"*20260205*.pdf\"\")","Bash(soffice:*)","Bash(mdls:*)"]
+2026-02-09T03:44:25.533Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-02-09T03:44:25.541Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-02-09T03:44:25.541Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-02-09T03:44:25.541Z [DEBUG] [ToolSearch:optimistic] mode=tst-auto, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-02-09T03:44:25.541Z [DEBUG] [STARTUP] Running setup()...
+2026-02-09T03:44:25.542Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1770608665542_o3rrmx
+2026-02-09T03:44:25.547Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-02-09T03:44:25.556Z [DEBUG] Error log sink initialized
+2026-02-09T03:44:25.559Z [DEBUG] [STARTUP] setup() completed in 18ms
+2026-02-09T03:44:25.559Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-02-09T03:44:25.561Z [DEBUG] Loaded 20 unique skills (managed: 0, user: 20, project: 0, additional: 0, legacy commands: 0)
+2026-02-09T03:44:25.563Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-02-09T03:44:25.564Z [DEBUG] Acquired PID lock for 2.1.37 (PID 74594)
+2026-02-09T03:44:25.564Z [DEBUG] Acquired PID lock on running version: /Users/fanshengxia/.local/share/claude/versions/2.1.37
+2026-02-09T03:44:25.586Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-02-09T03:44:25.587Z [DEBUG] [Claude in Chrome] Extension not found in any browser
+2026-02-09T03:44:28.462Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1770608665542_o3rrmx
+2026-02-09T03:44:28.463Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-02-09T03:44:28.463Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.2.0
+2026-02-09T03:44:28.463Z [DEBUG] Plugin superpowers@claude-plugins-official version 4.2.0 already cached at /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0
+2026-02-09T03:44:28.477Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/hooks/hooks.json
+2026-02-09T03:44:28.477Z [DEBUG] Found 1 plugins (1 enabled, 0 disabled)
+2026-02-09T03:44:28.477Z [DEBUG] getPluginSkills: Processing 1 enabled plugins
+2026-02-09T03:44:28.477Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-02-09T03:44:28.477Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/skills
+2026-02-09T03:44:28.480Z [DEBUG] Loading hooks from plugin: superpowers
+2026-02-09T03:44:28.480Z [DEBUG] Registered 1 hooks from 1 plugins
+2026-02-09T03:44:28.480Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-02-09T03:44:28.480Z [DEBUG] Total plugin agents loaded: 1
+2026-02-09T03:44:28.480Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-02-09T03:44:28.480Z [DEBUG] Total plugin skills loaded: 14
+2026-02-09T03:44:28.480Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-02-09T03:44:28.480Z [DEBUG] Total plugin commands loaded: 3
+2026-02-09T03:44:28.481Z [DEBUG] getSkills returning: 20 skill dir commands, 14 plugin skills, 2 bundled skills
+2026-02-09T03:44:28.482Z [DEBUG] [STARTUP] Commands and agents loaded in 2923ms
+2026-02-09T03:44:28.482Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-02-09T03:44:28.482Z [DEBUG] [render] initLayout starting
+2026-02-09T03:44:28.482Z [DEBUG] Layout engine: yoga
+2026-02-09T03:44:28.489Z [DEBUG] [render] initLayout complete
+2026-02-09T03:44:28.492Z [DEBUG] [keybindings] KeybindingSetup initialized with 100 bindings, 0 warnings
+2026-02-09T03:44:28.496Z [DEBUG] [render] first ink render: 3422ms since process start
+2026-02-09T03:44:28.497Z [DEBUG] [keybindings] Watching for changes to /Users/fanshengxia/.claude/keybindings.json
+2026-02-09T03:44:28.523Z [DEBUG] Grove: Using fresh cached config
+2026-02-09T03:44:28.529Z [DEBUG] [render] initLayout starting
+2026-02-09T03:44:28.529Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-02-09T03:44:28.530Z [DEBUG] [render] initLayout complete
+2026-02-09T03:44:28.531Z [DEBUG] [keybindings] KeybindingSetup initialized with 100 bindings, 0 warnings
+2026-02-09T03:44:28.535Z [DEBUG] [render] first ink render: 3461ms since process start
+2026-02-09T03:44:28.538Z [DEBUG] Git remote URL: null
+2026-02-09T03:44:28.538Z [DEBUG] No git remote URL found
+2026-02-09T03:44:28.538Z [DEBUG] Not in a GitHub repository, skipping path mapping update

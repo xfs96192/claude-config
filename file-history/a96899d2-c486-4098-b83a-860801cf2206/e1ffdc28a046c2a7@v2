@@ -1,0 +1,69 @@
+# 计划：代码文件英文化重命名 + 目录整理
+
+## 目标
+1. 将所有中文命名的 .py 文件重命名为英文
+2. 整理目录结构，清理一次性脚本
+
+## 重命名映射
+
+### 根目录（3个中文文件）
+| 原文件名 | 新文件名 |
+|----------|----------|
+| `周报结果表生成.py` | `generate_report.py` |
+| `收益预测.py` | `yield_forecast.py` |
+| `文件移动.py` | `move_files.py` |
+
+### 数据库工具（3个中文文件）
+| 原文件名 | 新文件名 |
+|----------|----------|
+| `数据/数据库系统/产品净值数据导入工具.py` | `数据/数据库系统/nav_data_importer.py` |
+| `数据/数据库系统/产品持仓数据导入工具.py` | `数据/数据库系统/holdings_data_importer.py` |
+| `数据/数据库系统/产品运作信息导入工具.py` | `数据/数据库系统/operations_data_importer.py` |
+
+## 需要更新引用的文件
+
+### 1. `run_weekly_report.py` (行134-138)
+```python
+# 旧
+("文件移动.py", "1. 数据源文件移动"),
+("周报结果表生成.py", "3. 主要结果表生成"),
+("收益预测.py", "5. 收益预测数据生成")
+# 新
+("move_files.py", "1. 数据源文件移动"),
+("generate_report.py", "3. 主要结果表生成"),
+("yield_forecast.py", "5. 收益预测数据生成")
+```
+
+### 2. `manage_nav_cache.py` (行146-148)
+```python
+# 旧：动态引用 "周报结果表生成" (虽然实际不执行该模块，但字符串引用需更新)
+spec = importlib.util.spec_from_file_location("周报结果表生成", os.path.join(Config.BASE_DIR, "周报结果表生成.py"))
+# 新
+spec = importlib.util.spec_from_file_location("generate_report", os.path.join(Config.BASE_DIR, "generate_report.py"))
+```
+
+### 3. `CLAUDE.md` - 更新文件名引用
+
+### 4. `__pycache__/` - 清理旧的 .pyc 缓存文件
+
+## 目录整理（可选清理）
+
+`数据/` 下散落的 cleanup 工具不动（属于数据管理范畴）。
+`数据/数据库系统/` 下的一次性查询脚本不动（都是独立工具，不影响主流程）。
+
+## 执行步骤
+
+1. **git mv** 重命名 3 个根目录中文文件
+2. **git mv** 重命名 3 个数据库工具中文文件
+3. **更新** `run_weekly_report.py` 中的脚本名引用
+4. **更新** `manage_nav_cache.py` 中的动态加载引用
+5. **更新** `CLAUDE.md` 中的文件名引用
+6. **清理** `__pycache__/` 中旧的 .pyc 文件
+7. **测试**: 模块导入、语法检查、数据加载功能验证
+8. **git commit**
+
+## 验证
+- `python -c "import generate_report"` 的导入部分（不执行全流程）
+- `python -c "from load_data import DataLoader; DataLoader()"`
+- `python -c "from config import Config; print(Config.YUNZUOGAILAN_DATE)"`
+- 检查 `run_weekly_report.py` 中引用的脚本文件全部存在

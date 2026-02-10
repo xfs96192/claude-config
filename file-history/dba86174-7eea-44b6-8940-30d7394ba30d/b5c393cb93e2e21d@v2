@@ -1,0 +1,222 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+净值数据缓存管理工具
+
+用法：
+    python manage_nav_cache.py status   # 查看缓存状态
+    python manage_nav_cache.py clear    # 清除缓存
+    python manage_nav_cache.py rebuild  # 强制重建缓存
+"""
+
+import os
+import sys
+import pickle
+import glob
+from datetime import datetime
+from config import Config
+
+CACHE_DIR = os.path.join(Config.DATA_DIR, '.nav_cache')
+CACHE_DATA_FILE = os.path.join(CACHE_DIR, 'nav_master_data.parquet')
+CACHE_META_FILE = os.path.join(CACHE_DIR, 'nav_metadata.pkl')
+
+
+def get_cache_status():
+    """获取缓存状态"""
+    print("\n" + "=" * 60)
+    print("📊 净值数据缓存状态")
+    print("=" * 60)
+
+    print(f"\n缓存目录: {CACHE_DIR}")
+
+    if not os.path.exists(CACHE_DIR):
+        print("❌ 缓存目录不存在")
+        return
+
+    # 检查缓存文件
+    if os.path.exists(CACHE_DATA_FILE):
+        size_mb = os.path.getsize(CACHE_DATA_FILE) / (1024 * 1024)
+        mtime = datetime.fromtimestamp(os.path.getmtime(CACHE_DATA_FILE))
+        print(f"\n缓存数据文件: {os.path.basename(CACHE_DATA_FILE)}")
+        print(f"   大小: {size_mb:.2f} MB")
+        print(f"   更新时间: {mtime.strftime('%Y-%m-%d %H:%M:%S')}")
+
+        # 尝试读取并显示统计信息
+        try:
+            import pandas as pd
+            df = pd.read_parquet(CACHE_DATA_FILE)
+            print(f"   记录数: {len(df):,} 条")
+            if '估值日' in df.columns:
+                dates = pd.to_datetime(df['估值日'], errors='coerce')
+                print(f"   日期范围: {dates.min()} ~ {dates.max()}")
+            if '产品代码' in df.columns:
+                print(f"   产品数量: {df['产品代码'].nunique()} 个")
+        except Exception as e:
+            print(f"   ⚠️ 无法读取缓存数据: {e}")
+    else:
+        print("\n❌ 缓存数据文件不存在")
+
+    # 检查元数据
+    if os.path.exists(CACHE_META_FILE):
+        try:
+            with open(CACHE_META_FILE, 'rb') as f:
+                meta = pickle.load(f)
+            print(f"\n元数据文件: {os.path.basename(CACHE_META_FILE)}")
+            print(f"   已缓存文件数: {len(meta)} 个")
+        except Exception as e:
+            print(f"   ⚠️ 无法读取元数据: {e}")
+    else:
+        print("\n❌ 元数据文件不存在")
+
+    # 检查源文件夹
+    source_folder = Config.NET_VALUE_DIR
+    excel_files = glob.glob(os.path.join(source_folder, '*.xlsx'))
+    excel_files = [f for f in excel_files if not os.path.basename(f).startswith('~$')]
+    print(f"\n源文件夹: {source_folder}")
+    print(f"   Excel文件数: {len(excel_files)} 个")
+
+    # 计算需要更新的文件
+    if os.path.exists(CACHE_META_FILE):
+        try:
+            with open(CACHE_META_FILE, 'rb') as f:
+                cached_meta = pickle.load(f)
+
+            new_files = []
+            modified_files = []
+            for f in excel_files:
+                mtime = os.path.getmtime(f)
+                if f not in cached_meta:
+                    new_files.append(os.path.basename(f))
+                elif cached_meta[f] != mtime:
+                    modified_files.append(os.path.basename(f))
+
+            if new_files:
+                print(f"\n📥 新增文件 ({len(new_files)} 个):")
+                for f in new_files[:5]:
+                    print(f"   - {f}")
+                if len(new_files) > 5:
+                    print(f"   ... 等 {len(new_files) - 5} 个文件")
+
+            if modified_files:
+                print(f"\n📝 已修改文件 ({len(modified_files)} 个):")
+                for f in modified_files[:5]:
+                    print(f"   - {f}")
+                if len(modified_files) > 5:
+                    print(f"   ... 等 {len(modified_files) - 5} 个文件")
+
+            if not new_files and not modified_files:
+                print(f"\n✅ 缓存是最新的，无需更新")
+
+        except Exception as e:
+            print(f"\n⚠️ 无法检查更新状态: {e}")
+
+    print("\n" + "=" * 60)
+
+
+def clear_cache():
+    """清除缓存"""
+    print("\n🗑️  清除净值数据缓存...")
+
+    files_removed = 0
+    for f in [CACHE_DATA_FILE, CACHE_META_FILE]:
+        if os.path.exists(f):
+            os.remove(f)
+            print(f"   已删除: {os.path.basename(f)}")
+            files_removed += 1
+
+    if files_removed > 0:
+        print(f"\n✅ 缓存已清除 (删除了 {files_removed} 个文件)")
+    else:
+        print("\n⚠️ 缓存目录为空，无需清除")
+
+
+def rebuild_cache():
+    """强制重建缓存"""
+    print("\n🔄 强制重建净值数据缓存...")
+
+    # 先清除旧缓存
+    clear_cache()
+
+    # 导入并调用 get_product_data
+    print("\n开始重建缓存，这可能需要几分钟...")
+
+    # 动态导入避免循环引用
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "周报结果表生成",
+        os.path.join(Config.BASE_DIR, "周报结果表生成.py")
+    )
+
+    # 直接执行缓存构建
+    import pandas as pd
+    import time
+
+    source_folder = Config.NET_VALUE_DIR
+    excel_files = glob.glob(os.path.join(source_folder, '*.xlsx'))
+    excel_files = [f for f in excel_files if not os.path.basename(f).startswith('~$')]
+
+    print(f"📊 发现 {len(excel_files)} 个Excel文件")
+
+    needed_cols = ['估值日', '产品代码', '累计净值']
+    dfs = []
+    start_time = time.time()
+
+    for i, f in enumerate(excel_files, 1):
+        if i % 10 == 0 or i == len(excel_files):
+            print(f"   读取进度: {i}/{len(excel_files)}")
+        try:
+            df = pd.read_excel(f, usecols=needed_cols)
+            df['_source_file'] = f
+            dfs.append(df)
+        except Exception as e:
+            print(f"   ⚠️ 读取失败: {os.path.basename(f)} - {e}")
+
+    read_time = time.time() - start_time
+    print(f"   读取耗时: {read_time:.1f} 秒")
+
+    if dfs:
+        data = pd.concat(dfs, ignore_index=True)
+        before = len(data)
+        data.drop_duplicates(subset=['估值日', '产品代码'], keep='last', inplace=True)
+        print(f"   去重: {before:,} -> {len(data):,} 条记录")
+
+        # 保存缓存
+        os.makedirs(CACHE_DIR, exist_ok=True)
+        # 确保产品代码为字符串类型，避免parquet保存失败
+        if '产品代码' in data.columns:
+            data['产品代码'] = data['产品代码'].astype(str)
+        data.to_parquet(CACHE_DATA_FILE, index=False)
+
+        current_files_info = {f: os.path.getmtime(f) for f in excel_files}
+        with open(CACHE_META_FILE, 'wb') as f:
+            pickle.dump(current_files_info, f)
+
+        print(f"\n✅ 缓存重建完成！")
+        print(f"   缓存文件: {CACHE_DATA_FILE}")
+        print(f"   记录数: {len(data):,} 条")
+    else:
+        print("\n❌ 没有读取到任何数据")
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        print("\n当前缓存状态:")
+        get_cache_status()
+        return
+
+    command = sys.argv[1].lower()
+
+    if command == 'status':
+        get_cache_status()
+    elif command == 'clear':
+        clear_cache()
+    elif command == 'rebuild':
+        rebuild_cache()
+    else:
+        print(f"❌ 未知命令: {command}")
+        print(__doc__)
+
+
+if __name__ == "__main__":
+    main()

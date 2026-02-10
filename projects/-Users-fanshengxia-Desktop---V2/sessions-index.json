@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sessionId": "84bb7ee5-80ec-4c3a-8f7b-aa78cb788db9",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop---V2/84bb7ee5-80ec-4c3a-8f7b-aa78cb788db9.jsonl",
+      "fileMtime": 1769329186389,
+      "firstPrompt": "/Users/fanshengxia/Desktop/周报V2/utils.py 这个文件里计算净值收益变现和年化的时候使用了当前的日期,我希望去跑2025年12月31日的数据,但是目前已经是2026年1月6日了,他会影响我的年化收益率计算的结果吗,如果会请帮我调整代码,我希望在今天跑12月31日的结果",
+      "summary": "Fix utils.py date logic for backdated calculations",
+      "messageCount": 9,
+      "created": "2026-01-08T08:33:38.455Z",
+      "modified": "2026-01-08T08:37:55.427Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/周报V2",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "0dc6abb6-0761-4496-ae4b-3e7ed059aa1a",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop---V2/0dc6abb6-0761-4496-ae4b-3e7ed059aa1a.jsonl",
+      "fileMtime": 1769750025043,
+      "firstPrompt": "使用 financial-data-processor   agent计算1Y AA+城投债收益率*0.9873（考虑税收）与1Y aaa同业存单的利差情况，并进行分析当前的点位，查看近5年 近3年 和近1年的情况，并帮我输出一个底表excel",
+      "summary": "Bond Spread Analysis with Tax Adjustment",
+      "messageCount": 2,
+      "created": "2026-01-26T08:12:57.167Z",
+      "modified": "2026-01-26T08:22:53.696Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/周报V2",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "a96899d2-c486-4098-b83a-860801cf2206",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop---V2/a96899d2-c486-4098-b83a-860801cf2206.jsonl",
+      "fileMtime": 1769750026700,
+      "firstPrompt": "请帮我直接运行并构建缓存",
+      "summary": "Weekly Report System Optimization and Caching",
+      "messageCount": 12,
+      "created": "2026-01-26T08:03:48.942Z",
+      "modified": "2026-01-26T08:25:17.795Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/周报V2",
+      "isSidechain": false
+    }
+  ],
+  "originalPath": "/Users/fanshengxia/Desktop/周报V2"
+}

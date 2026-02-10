@@ -1,0 +1,605 @@
+"""
+市场数据提供者抽象层
+
+该模块提供统一的市场数据接口，支持多种数据源切换：
+- Wind (WindPy)
+- Tushare (待实现)
+- AKShare (待实现)
+- 本地CSV/Excel缓存 (待实现)
+
+使用方法:
+    from market_data_provider import get_data_provider
+
+    provider = get_data_provider('wind')  # 或 'tushare', 'akshare', 'local'
+
+    # 初始化
+    if not provider.connect():
+        print("连接失败")
+
+    # 获取数据
+    data = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+
+    # 批量获取
+    data_dict = provider.batch_get_index_close(
+        ['000300.SH', 'CBA00103.CS'],
+        {'000300.SH': '2024-01-01', 'CBA00103.CS': '2023-06-01'},
+        '2024-12-31'
+    )
+"""
+
+import pandas as pd
+import numpy as np
+from abc import ABC, abstractmethod
+from datetime import datetime, date
+from typing import Optional, Dict, List, Union, Tuple
+import os
+
+
+class MarketDataProvider(ABC):
+    """市场数据提供者抽象基类"""
+
+    def __init__(self):
+        self._connected = False
+        self._cache = {}  # 简单内存缓存
+
+    @property
+    def name(self) -> str:
+        """数据源名称"""
+        return self.__class__.__name__
+
+    @property
+    def is_connected(self) -> bool:
+        """是否已连接"""
+        return self._connected
+
+    @abstractmethod
+    def connect(self) -> bool:
+        """
+        建立连接
+        Returns:
+            bool: 连接是否成功
+        """
+        pass
+
+    @abstractmethod
+    def disconnect(self) -> None:
+        """断开连接"""
+        pass
+
+    @abstractmethod
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """
+        获取单个指数的收盘价序列
+
+        Args:
+            code: 指数代码 (如 '000300.SH', 'CBA00103.CS')
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            pd.Series: index为date，values为收盘价；失败返回None
+        """
+        pass
+
+    def batch_get_index_close(
+        self,
+        codes: List[str],
+        start_dates: Dict[str, Union[str, date]],
+        end_date: Union[str, date],
+        show_progress: bool = True
+    ) -> Dict[str, Optional[pd.Series]]:
+        """
+        批量获取多个指数的收盘价
+
+        Args:
+            codes: 指数代码列表
+            start_dates: 每个代码对应的开始日期 {code: start_date}
+            end_date: 统一的结束日期
+            show_progress: 是否显示进度
+
+        Returns:
+            Dict[str, pd.Series]: {code: series}
+        """
+        result = {}
+        total = len(codes)
+
+        for i, code in enumerate(codes, 1):
+            if show_progress:
+                print(f"[{i}/{total}] 获取 {code} 数据...")
+
+            start = start_dates.get(code)
+            if start is None:
+                result[code] = None
+                continue
+
+            result[code] = self.get_index_close(code, start, end_date)
+
+        return result
+
+    @staticmethod
+    def to_date(value) -> Optional[date]:
+        """将各种日期格式转换为 Python date 对象"""
+        if value is None:
+            return None
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return value
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, str):
+            try:
+                return pd.to_datetime(value).date()
+            except:
+                return None
+        ts = pd.to_datetime(value, errors='coerce')
+        if pd.isna(ts):
+            return None
+        return ts.date()
+
+
+class WindDataProvider(MarketDataProvider):
+    """Wind数据提供者 (基于WindPy)"""
+
+    def __init__(self):
+        super().__init__()
+        self._w = None
+
+    @property
+    def name(self) -> str:
+        return "Wind"
+
+    def connect(self) -> bool:
+        """初始化Wind连接"""
+        try:
+            from WindPy import w
+            self._w = w
+
+            if not w.isconnected():
+                result = w.start()
+                if result.ErrorCode != 0:
+                    print(f"Wind启动失败，错误码: {result.ErrorCode}")
+                    self._connected = False
+                    return False
+
+            self._connected = True
+            print("Wind连接成功")
+            return True
+
+        except ImportError:
+            print("错误: 未安装WindPy，请先安装Wind终端和Python插件")
+            self._connected = False
+            return False
+        except Exception as e:
+            print(f"Wind连接异常: {e}")
+            self._connected = False
+            return False
+
+    def disconnect(self) -> None:
+        """断开Wind连接"""
+        if self._w and self._connected:
+            try:
+                self._w.stop()
+            except:
+                pass
+        self._connected = False
+
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """从Wind获取指数收盘价"""
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+
+        if start_dt is None or end_dt is None:
+            return None
+
+        try:
+            wsd_data = self._w.wsd(code, "close", start_dt, end_dt, "")
+
+            if wsd_data.ErrorCode != 0:
+                print(f"  [Wind Error] 获取 {code} 失败: {wsd_data.ErrorCode}")
+                return None
+
+            times = wsd_data.Times
+            data = wsd_data.Data[0]
+
+            # 过滤无效数据
+            valid_times = []
+            valid_data = []
+            for t, d in zip(times, data):
+                if d is not None and not np.isnan(d):
+                    if isinstance(t, datetime):
+                        t = t.date()
+                    valid_times.append(t)
+                    valid_data.append(d)
+
+            if not valid_times:
+                return None
+
+            series = pd.Series(valid_data, index=valid_times)
+            series = series.sort_index()
+            return series
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取 {code} 异常: {e}")
+            return None
+
+
+class TushareDataProvider(MarketDataProvider):
+    """Tushare数据提供者 (待实现)"""
+
+    def __init__(self, token: str = None):
+        super().__init__()
+        self._token = token or os.environ.get('TUSHARE_TOKEN')
+        self._pro = None
+
+        # Tushare代码映射 (Wind代码 -> Tushare代码)
+        self._code_map = {
+            '000300.SH': '000300.SH',  # 沪深300
+            '000001.SH': '000001.SH',  # 上证指数
+            # 中债指数需要特殊处理，Tushare可能没有或代码不同
+            'CBA00103.CS': None,  # 中债-新综合全价(总值)
+            'CBA00123.CS': None,  # 中债-新综合全价(1-3年)
+        }
+
+    @property
+    def name(self) -> str:
+        return "Tushare"
+
+    def connect(self) -> bool:
+        """初始化Tushare连接"""
+        try:
+            import tushare as ts
+
+            if not self._token:
+                print("错误: 未配置Tushare Token，请设置环境变量 TUSHARE_TOKEN")
+                return False
+
+            self._pro = ts.pro_api(self._token)
+            self._connected = True
+            print("Tushare连接成功")
+            return True
+
+        except ImportError:
+            print("错误: 未安装tushare，请执行 pip install tushare")
+            return False
+        except Exception as e:
+            print(f"Tushare连接异常: {e}")
+            return False
+
+    def disconnect(self) -> None:
+        """Tushare无需显式断开"""
+        self._connected = False
+
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """从Tushare获取指数收盘价"""
+        if not self._connected:
+            return None
+
+        # 转换代码
+        ts_code = self._code_map.get(code)
+        if ts_code is None:
+            print(f"  [Tushare] 不支持的指数代码: {code}")
+            return None
+
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+
+        if start_dt is None or end_dt is None:
+            return None
+
+        try:
+            df = self._pro.index_daily(
+                ts_code=ts_code,
+                start_date=start_dt.strftime('%Y%m%d'),
+                end_date=end_dt.strftime('%Y%m%d'),
+                fields='trade_date,close'
+            )
+
+            if df is None or df.empty:
+                return None
+
+            df['trade_date'] = pd.to_datetime(df['trade_date']).dt.date
+            df = df.set_index('trade_date').sort_index()
+            return df['close']
+
+        except Exception as e:
+            print(f"  [Tushare Exception] 获取 {code} 异常: {e}")
+            return None
+
+
+class AKShareDataProvider(MarketDataProvider):
+    """AKShare数据提供者 (免费，无需Token)"""
+
+    def __init__(self):
+        super().__init__()
+        self._ak = None
+
+        # AKShare代码/函数映射
+        self._index_config = {
+            '000300.SH': ('stock_zh_index_daily', {'symbol': 'sh000300'}),
+            '000001.SH': ('stock_zh_index_daily', {'symbol': 'sh000001'}),
+            # 中债指数
+            'CBA00103.CS': ('bond_china_yield', {'symbol': '中债综合指数'}),  # 需要验证
+        }
+
+    @property
+    def name(self) -> str:
+        return "AKShare"
+
+    def connect(self) -> bool:
+        """初始化AKShare"""
+        try:
+            import akshare as ak
+            self._ak = ak
+            self._connected = True
+            print("AKShare连接成功")
+            return True
+        except ImportError:
+            print("错误: 未安装akshare，请执行 pip install akshare")
+            return False
+
+    def disconnect(self) -> None:
+        self._connected = False
+
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """从AKShare获取指数收盘价"""
+        if not self._connected:
+            return None
+
+        config = self._index_config.get(code)
+        if config is None:
+            print(f"  [AKShare] 不支持的指数代码: {code}")
+            return None
+
+        func_name, params = config
+
+        try:
+            func = getattr(self._ak, func_name)
+            df = func(**params)
+
+            # AKShare返回格式不统一，需要根据具体接口处理
+            # 这里是示例，实际需要根据返回结构调整
+            if 'date' in df.columns:
+                df['date'] = pd.to_datetime(df['date']).dt.date
+                df = df.set_index('date')
+
+            if 'close' in df.columns:
+                series = df['close']
+            elif '收盘' in df.columns:
+                series = df['收盘']
+            else:
+                return None
+
+            start_dt = self.to_date(start_date)
+            end_dt = self.to_date(end_date)
+
+            series = series.sort_index()
+            series = series[(series.index >= start_dt) & (series.index <= end_dt)]
+
+            return series if not series.empty else None
+
+        except Exception as e:
+            print(f"  [AKShare Exception] 获取 {code} 异常: {e}")
+            return None
+
+
+class LocalCacheDataProvider(MarketDataProvider):
+    """本地缓存数据提供者 (从Excel/CSV读取历史数据)"""
+
+    def __init__(self, cache_dir: str = None):
+        super().__init__()
+        self._cache_dir = cache_dir or './数据/指数历史数据'
+        self._data_store = {}
+
+    @property
+    def name(self) -> str:
+        return "LocalCache"
+
+    def connect(self) -> bool:
+        """加载本地缓存文件"""
+        if not os.path.exists(self._cache_dir):
+            print(f"缓存目录不存在: {self._cache_dir}")
+            self._connected = False
+            return False
+
+        # 加载所有Excel/CSV文件
+        for filename in os.listdir(self._cache_dir):
+            filepath = os.path.join(self._cache_dir, filename)
+
+            try:
+                if filename.endswith('.xlsx') or filename.endswith('.xls'):
+                    df = pd.read_excel(filepath)
+                elif filename.endswith('.csv'):
+                    df = pd.read_csv(filepath)
+                else:
+                    continue
+
+                # 假设格式: date, code, close
+                if 'code' in df.columns and 'date' in df.columns and 'close' in df.columns:
+                    for code in df['code'].unique():
+                        code_data = df[df['code'] == code].copy()
+                        code_data['date'] = pd.to_datetime(code_data['date']).dt.date
+                        code_data = code_data.set_index('date').sort_index()
+                        self._data_store[code] = code_data['close']
+
+            except Exception as e:
+                print(f"加载文件失败 {filename}: {e}")
+
+        self._connected = True
+        print(f"LocalCache加载完成，共 {len(self._data_store)} 个指数")
+        return True
+
+    def disconnect(self) -> None:
+        self._data_store.clear()
+        self._connected = False
+
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """从本地缓存获取数据"""
+        if code not in self._data_store:
+            return None
+
+        series = self._data_store[code]
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+
+        filtered = series[(series.index >= start_dt) & (series.index <= end_dt)]
+        return filtered if not filtered.empty else None
+
+    def save_to_cache(self, code: str, series: pd.Series) -> None:
+        """将数据保存到本地缓存"""
+        os.makedirs(self._cache_dir, exist_ok=True)
+
+        df = series.reset_index()
+        df.columns = ['date', 'close']
+        df['code'] = code
+
+        filepath = os.path.join(self._cache_dir, f'{code.replace(".", "_")}.csv')
+        df.to_csv(filepath, index=False)
+
+        self._data_store[code] = series
+
+
+# ============ 工厂函数 ============
+
+_provider_classes = {
+    'wind': WindDataProvider,
+    'tushare': TushareDataProvider,
+    'akshare': AKShareDataProvider,
+    'local': LocalCacheDataProvider,
+}
+
+def get_data_provider(provider_type: str = 'wind', **kwargs) -> MarketDataProvider:
+    """
+    获取数据提供者实例
+
+    Args:
+        provider_type: 'wind', 'tushare', 'akshare', 'local'
+        **kwargs: 传递给具体Provider的参数
+
+    Returns:
+        MarketDataProvider实例
+    """
+    provider_type = provider_type.lower()
+
+    if provider_type not in _provider_classes:
+        raise ValueError(f"未知的数据源类型: {provider_type}，支持: {list(_provider_classes.keys())}")
+
+    return _provider_classes[provider_type](**kwargs)
+
+
+def get_available_providers() -> List[str]:
+    """获取所有可用的数据源类型"""
+    return list(_provider_classes.keys())
+
+
+# ============ 便捷函数 ============
+
+def calculate_return(series: pd.Series, start_date: date, end_date: date) -> float:
+    """
+    计算区间收益率
+
+    Args:
+        series: 价格序列 (index为date)
+        start_date: 开始日期
+        end_date: 结束日期
+
+    Returns:
+        float: 区间收益率，失败返回0.0
+    """
+    if series is None or series.empty:
+        return 0.0
+
+    try:
+        # 获取最接近的有效价格
+        if start_date < series.index[0]:
+            p_start = series.iloc[0]
+        else:
+            p_start = series.asof(start_date)
+
+        if end_date < series.index[0]:
+            p_end = series.iloc[0]
+        else:
+            p_end = series.asof(end_date)
+
+        if pd.isna(p_start) or pd.isna(p_end) or p_start == 0:
+            return 0.0
+
+        return (p_end / p_start) - 1.0
+
+    except Exception:
+        return 0.0
+
+
+def annualize_return(total_return: float, days: int) -> float:
+    """
+    年化收益率 (单利)
+
+    Args:
+        total_return: 区间总收益率
+        days: 天数
+
+    Returns:
+        float: 年化收益率
+    """
+    if days <= 0:
+        return 0.0
+    return total_return / days * 365.0
+
+
+# ============ 测试代码 ============
+
+if __name__ == '__main__':
+    print("市场数据提供者模块测试")
+    print("=" * 50)
+    print(f"可用数据源: {get_available_providers()}")
+    print()
+
+    # 测试Wind
+    print("测试Wind连接...")
+    provider = get_data_provider('wind')
+
+    if provider.connect():
+        print("获取沪深300数据...")
+        data = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+
+        if data is not None:
+            print(f"  数据条数: {len(data)}")
+            print(f"  日期范围: {data.index[0]} ~ {data.index[-1]}")
+            print(f"  最新收盘: {data.iloc[-1]:.2f}")
+
+            # 计算收益
+            ret = calculate_return(data, date(2024, 1, 1), date(2024, 12, 31))
+            print(f"  2024年收益: {ret*100:.2f}%")
+        else:
+            print("  获取数据失败")
+
+        provider.disconnect()
+    else:
+        print("Wind连接失败，跳过测试")

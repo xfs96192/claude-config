@@ -1,0 +1,361 @@
+"""
+业绩基准计算脚本
+
+计算所有产品的业绩基准收益率（今年以来、成立以来）
+支持指数型基准和固定利率基准
+
+数据源: 通过 market_data_provider 模块获取（目前使用Wind）
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, date
+import re
+import os
+import argparse
+from config import Config
+from market_data_provider import (
+    MarketDataProvider,
+    calculate_return,
+    annualize_return
+)
+
+
+# 预定义的指数名称到代码的映射 (用于解析新出现的基准)
+INDEX_NAME_MAP = {
+    '中债-新综合全价(总值)指数': 'CBA00103.CS',
+    '中债-新综合全价（1-3年）指数': 'CBA00123.CS',
+    '沪深300指数': '000300.SH',
+    '中债-新综合全价(1-3年)指数': 'CBA00123.CS',
+    # 可以根据需要添加更多
+}
+
+
+def to_pydate(value):
+    """将各种日期格式转换为 Python date 对象"""
+    return MarketDataProvider.to_date(value)
+
+
+def parse_benchmark_string(benchmark_str):
+    """
+    解析基准字符串，例如 "沪深300指数收益率*7% + 中债-新综合全价（1-3年）指数*93%"
+    返回 list of (name, weight)
+    """
+    # 统一替换全角字符
+    s = str(benchmark_str).replace('（', '(').replace('）', ')').replace('＋', '+').replace('＊', '*')
+
+    parts = s.split('+')
+    components = []
+
+    for part in parts:
+        part = part.strip()
+        if '*' in part:
+            name_part, weight_part = part.split('*')
+            name = name_part.replace('收益率', '').strip()
+            weight_str = weight_part.replace('%', '').strip()
+            try:
+                weight = float(weight_str) / 100.0
+            except:
+                weight = 0.0
+        else:
+            # 可能是纯名字，默认权重1.0? 或者是固定数值
+            name = part.replace('收益率', '').strip()
+            weight = 1.0
+
+        components.append((name, weight))
+
+    return components
+
+
+def update_config_file(main_df, config_df, config_file_path):
+    """
+    检查是否有新的指数基准，解析并添加到配置文件
+    """
+    print("正在检查缺失的指数基准配置...")
+
+    # 1. 识别所有含"指数"或"收益率"的基准
+    index_mask = main_df['业绩基准'].astype(str).str.contains('指数|收益率', na=False)
+    index_products = main_df[index_mask][['母产品代码', '业绩基准', '起息日', '产品简称']].drop_duplicates(subset=['母产品代码'])
+
+    existing_codes = set(config_df['母产品代码'].unique())
+
+    new_rows = []
+
+    for _, row in index_products.iterrows():
+        prod_code = row['母产品代码']
+        benchmark = row['业绩基准']
+
+        if prod_code in existing_codes:
+            continue
+
+        print(f"发现新基准配置: {prod_code} - {benchmark}")
+
+        # 解析
+        components = parse_benchmark_string(benchmark)
+
+        for name, weight in components:
+            # 尝试匹配代码
+            wind_code = None
+
+            # 精确匹配
+            if name in INDEX_NAME_MAP:
+                wind_code = INDEX_NAME_MAP[name]
+            else:
+                # 模糊匹配
+                for k, v in INDEX_NAME_MAP.items():
+                    if k in name:
+                        wind_code = v
+                        break
+
+            new_rows.append({
+                '母产品代码': prod_code,
+                '产品简称': row['产品简称'],
+                '起息日': row['起息日'],
+                '原始业绩基准': benchmark,
+                '指数名称': name,
+                '指数Wind代码': wind_code,
+                '权重': weight
+            })
+
+    if new_rows:
+        print(f"新增 {len(new_rows)} 条配置，正在更新 {config_file_path}...")
+        new_df = pd.DataFrame(new_rows)
+        # 合并并保存
+        final_config = pd.concat([config_df, new_df], ignore_index=True)
+        final_config.to_excel(config_file_path, index=False)
+        return final_config
+    else:
+        print("未发现缺失配置。")
+        return config_df
+
+
+def fetch_all_market_data(config_df, end_date, provider: MarketDataProvider):
+    """
+    批量获取市场数据
+
+    Args:
+        config_df: 配置DataFrame，包含指数Wind代码和起息日
+        end_date: 结束日期
+        provider: 数据提供者实例
+
+    Returns:
+        dict: {code: pd.Series}
+    """
+    print("正在通过Wind预取市场数据...")
+
+    if isinstance(end_date, datetime):
+        end_date = end_date.date()
+    start_of_year = date(end_date.year, 1, 1)
+
+    # 收集所有需要的代码和最早起始日期
+    code_start_dates = {}
+
+    for _, row in config_df.iterrows():
+        code = row['指数Wind代码']
+        if pd.isna(code) or str(code).strip() == '':
+            continue
+
+        inception_date = to_pydate(row['起息日'])
+        if inception_date is None:
+            continue
+        req_start = min(inception_date, start_of_year)
+
+        if code not in code_start_dates:
+            code_start_dates[code] = req_start
+        else:
+            code_start_dates[code] = min(code_start_dates[code], req_start)
+
+    total_codes = len(code_start_dates)
+    print(f"共识别出 {total_codes} 个指数代码，开始批量获取...")
+
+    # 使用provider批量获取
+    data_cache = {}
+    for i, (code, start_date) in enumerate(code_start_dates.items(), 1):
+        print(f"[{i}/{total_codes}] 获取 {code} 数据 (从 {start_date} 到 {end_date})...")
+        series = provider.get_index_close(code, start_date, end_date)
+        data_cache[code] = series
+
+        if series is None:
+            print(f"  [Warning] {code} 数据获取失败")
+        else:
+            print(f"  [OK] 获取 {len(series)} 条记录")
+
+    return data_cache
+
+
+def get_component_return(code, name, start_date, end_date, data_cache):
+    """计算单个成分收益"""
+    days = (end_date - start_date).days
+    if days <= 0:
+        return 0.0
+
+    # 使用Wind代码获取数据
+    if pd.notna(code) and str(code).strip() != '':
+        if code not in data_cache or data_cache[code] is None:
+            return 0.0
+
+        series = data_cache[code]
+        return calculate_return(series, start_date, end_date)
+
+    return 0.0
+
+
+def calculate_index_benchmark(prod_code, config_df, data_cache, inception_date, today):
+    """计算指数型基准的收益"""
+    group = config_df[config_df['母产品代码'] == prod_code]
+    if group.empty:
+        return 0.0, 0.0
+
+    start_of_year = date(today.year, 1, 1)
+    ytd_start = max(start_of_year, inception_date)
+
+    ytd_ret = 0.0
+    inception_ret = 0.0
+
+    for _, row in group.iterrows():
+        w = row['权重']
+        code = row['指数Wind代码']
+        name = row['指数名称']
+
+        ytd_ret += get_component_return(code, name, ytd_start, today, data_cache) * w
+        inception_ret += get_component_return(code, name, inception_date, today, data_cache) * w
+
+    return ytd_ret, inception_ret
+
+
+def parse_fixed_benchmark(benchmark_str):
+    """
+    解析固定基准，如 "2.50%-3.70%" -> 返回 0.025
+    """
+    s = str(benchmark_str).strip()
+    # 匹配 "2.50%-3.70%" 或 "2.5%"
+    # 取第一个百分数作为下限
+    match = re.search(r'(\d+\.?\d*)%', s)
+    if match:
+        return float(match.group(1)) / 100.0
+    return 0.0
+
+
+def main():
+    parser = argparse.ArgumentParser(description='计算产品业绩基准')
+    parser.add_argument('--date', dest='report_date', default=Config.ZHOUBAO_DATE,
+                        help='报告日期，格式YYYYMMDD')
+    args = parser.parse_args()
+
+    report_date_str = str(args.report_date)
+    report_date = datetime.strptime(report_date_str, '%Y%m%d').date()
+    main_file = Config.get_overview_history_file(report_date_str)
+    config_file = Config.get_base_data_file('指数业绩基准数据.xlsx')
+    output_file = main_file
+
+    # 初始化数据提供者（使用Wind）
+    print("初始化Wind数据源...")
+    provider = MarketDataProvider()
+
+    if not provider.connect():
+        print("Wind连接失败，退出")
+        return
+
+    try:
+        print("读取主文件...")
+        df_main = pd.read_excel(main_file)
+        print("读取配置文件...")
+        df_config = pd.read_excel(config_file)
+
+        # 1. 更新配置
+        df_config = update_config_file(df_main, df_config, config_file)
+
+        # 2. 获取市场数据
+        today = report_date
+        data_cache = fetch_all_market_data(df_config, today, provider)
+        print(f"报告日期: {report_date}")
+
+        # 3. 遍历主文件计算
+        print("开始计算所有产品基准...")
+
+        start_of_year = date(today.year, 1, 1)
+
+        results = []
+
+        # 缓存母产品的计算结果，避免重复计算
+        parent_results = {}
+
+        total = len(df_main)
+
+        for idx, row in df_main.iterrows():
+            if idx % 100 == 0:
+                print(f"处理进度: {idx}/{total}")
+
+            prod_code = row['母产品代码']
+            benchmark_str = str(row['业绩基准'])
+
+            # 使用 to_pydate 更健壮地处理日期
+            inception_date = to_pydate(row.get('起息日', np.nan))
+            if inception_date is None:
+                results.append([None] * 4)
+                continue
+
+            # 缓存键: (产品代码, 起息日)
+            cache_key = (prod_code, inception_date)
+            if cache_key in parent_results:
+                results.append(parent_results[cache_key])
+                continue
+
+            ytd_ret = 0.0
+            ytd_ann = 0.0
+            inception_ret = 0.0
+            inception_ann = 0.0
+
+            days_ytd = (today - max(start_of_year, inception_date)).days
+            days_inception = (today - inception_date).days
+
+            # 判断基准类型
+            if '指数' in benchmark_str or '收益率' in benchmark_str:
+                # 指数型
+                ytd_ret, inception_ret = calculate_index_benchmark(
+                    prod_code, df_config, data_cache, inception_date, today
+                )
+
+                # 年化 (单利)
+                ytd_ann = annualize_return(ytd_ret, days_ytd)
+                inception_ann = annualize_return(inception_ret, days_inception)
+
+            elif '%' in benchmark_str:
+                # 固定型 "2.50%-3.70%"
+                annual_rate = parse_fixed_benchmark(benchmark_str)
+
+                # 设置年化为下限
+                ytd_ann = annual_rate
+                inception_ann = annual_rate
+
+                # 反推区间收益 (单利: R = Ann * days / 365)
+                ytd_ret = annual_rate * days_ytd / 365.0
+                inception_ret = annual_rate * days_inception / 365.0
+
+            else:
+                # 无基准或其他
+                pass
+
+            res = [ytd_ret, ytd_ann, inception_ret, inception_ann]
+            parent_results[cache_key] = res
+            results.append(res)
+
+        # 4. 添加结果列
+        print("正在保存结果...")
+        result_cols = pd.DataFrame(results, columns=[
+            '业绩基准今年以来收益率(区间)',
+            '业绩基准-今年以来年化',
+            '业绩基准成立以来收益率(区间)',
+            '业绩基准-成立以来年化'
+        ])
+
+        df_final = pd.concat([df_main, result_cols], axis=1)
+        df_final.to_excel(output_file, index=False)
+        print(f"完成！已保存至 {output_file}")
+
+    finally:
+        provider.disconnect()
+
+
+if __name__ == "__main__":
+    main()

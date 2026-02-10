@@ -221,6 +221,58 @@
       "gitBranch": "",
       "projectPath": "/Users/fanshengxia",
       "isSidechain": false
+    },
+    {
+      "sessionId": "191d94f0-3705-425b-a1b0-de1594cc8e92",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia/191d94f0-3705-425b-a1b0-de1594cc8e92.jsonl",
+      "fileMtime": 1769441560777,
+      "firstPrompt": "你好",
+      "summary": "Invalid API key · Please run /login",
+      "messageCount": 2,
+      "created": "2026-01-25T04:32:52.636Z",
+      "modified": "2026-01-25T04:33:01.091Z",
+      "gitBranch": "",
+      "projectPath": "/Users/fanshengxia",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "53e78398-f49f-4e2c-a65b-b098fa215c40",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia/53e78398-f49f-4e2c-a65b-b098fa215c40.jsonl",
+      "fileMtime": 1769648374106,
+      "firstPrompt": "你是什么模型",
+      "summary": "Claude Code Login and Authentication Setup",
+      "messageCount": 4,
+      "created": "2026-01-26T15:32:33.728Z",
+      "modified": "2026-01-26T15:33:16.472Z",
+      "gitBranch": "",
+      "projectPath": "/Users/fanshengxia",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "886c9210-6837-4e26-a2de-168202095232",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia/886c9210-6837-4e26-a2de-168202095232.jsonl",
+      "fileMtime": 1769672367726,
+      "firstPrompt": "我安装了clawdbot(现在改名字叫molt),我之前的默认使用模型是qwen，现在我想修改为我本地antigravity tools的claude模型，antigravity tools在本地8045启动了一个端口，我可以来进行调用，他提供了这个示例from openai import OpenAI    client = OpenAI(      base_url=\"http://127.0…",
+      "summary": "Molt配置修正Antigravity本地Claude报错",
+      "messageCount": 12,
+      "created": "2026-01-29T00:59:24.461Z",
+      "modified": "2026-01-29T01:11:53.240Z",
+      "gitBranch": "",
+      "projectPath": "/Users/fanshengxia",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "83f2b02e-810c-482f-ab96-97df3c526cc2",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia/83f2b02e-810c-482f-ab96-97df3c526cc2.jsonl",
+      "fileMtime": 1769772818091,
+      "firstPrompt": "who are you",
+      "summary": "Claude Code CLI Introduction and Exit",
+      "messageCount": 4,
+      "created": "2026-01-29T07:39:19.243Z",
+      "modified": "2026-01-29T07:40:00.524Z",
+      "gitBranch": "",
+      "projectPath": "/Users/fanshengxia",
+      "isSidechain": false
     }
   ],
   "originalPath": "/Users/fanshengxia"

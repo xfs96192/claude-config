@@ -1,7 +1,4 @@
 {
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
       "mcp__pencil"
@@ -10,5 +7,8 @@
   "statusLine": {
     "type": "command",
     "command": "npx ccusage statusline"
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }

@@ -1,0 +1,155 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is an automated weekly report generation system for Xingyin Wealth Management's Multi-Asset Investment Department (兴银理财多资产投资部). The system processes financial product data, performs analytics, generates AI-powered summaries, and produces weekly reports covering 100+ financial products.
+
+## Common Commands
+
+### Full Workflow Execution
+```bash
+python run_weekly_report.py
+```
+This orchestrates the complete Python pipeline with user confirmation, executing steps 1-5 below sequentially.
+
+### Individual Script Execution
+```bash
+# 1. Move source data files to correct directories
+python 文件移动.py
+
+# 2. AI-powered product classification for new products
+python update_new_product_catgoery.py
+
+# 3. Generate main report tables and AI summaries
+python 周报结果表生成.py
+
+# 4. Calculate benchmark performance (requires Wind API)
+python calculate_all_benchmarks.py --date 20260122
+
+# 5. Yield prediction and asset allocation analysis
+python 收益预测.py
+
+# Validate data quality
+python data_validator.py
+```
+
+### NAV Data Cache Management
+```bash
+# View cache status
+python manage_nav_cache.py status
+
+# Clear cache (force re-read all files next run)
+python manage_nav_cache.py clear
+
+# Force rebuild cache from scratch
+python manage_nav_cache.py rebuild
+```
+The NAV data caching system stores processed data in `.nav_cache/` using parquet format. On subsequent runs, only new/modified Excel files are read, significantly reducing load time from ~30 minutes to seconds.
+
+### Post-Python Manual Steps
+1. Open `周报生成工具_加权.xlsm` and run VBA macros to update Excel links
+2. Open `多资产投资部产品周报-模版.docm` and run Word VBA to generate final report
+3. Send PDF via email
+
+## Configuration
+
+All configuration is centralized in `config.py`. **Before running any workflow, update:**
+
+```python
+YUNZUOGAILAN_DATE = 'YYYYMMDD'  # Primary report date (line ~47)
+```
+
+Other dates (LASTW, LASTM, LASTY, WEEK_MON, etc.) are auto-calculated from this base date.
+
+### Key Business Parameters
+- `RET_ON_ACCOUNT = 0.015` - Idle cash return rate (趴账收益率)
+- `LEVERAGE_COST = 0.02` - Leverage financing cost
+- `XINGHE4_COST = 0.07` - Xinghe 4 specific cost
+
+## Architecture
+
+### Core Processing Pipeline
+```
+文件移动.py → update_new_product_catgoery.py → 周报结果表生成.py → calculate_all_benchmarks.py → 收益预测.py
+```
+
+### Key Modules
+
+| File | Purpose |
+|------|---------|
+| `config.py` | Centralized configuration (paths, dates, parameters, investment manager groups) |
+| `utils.py` | Financial calculations (annualized return, volatility, max drawdown, performance metrics) |
+| `周报结果表生成.py` | Main report generation (1,500+ lines) - product data enrichment, AUM-weighted returns, manager attribution, AI text summaries |
+| `收益预测.py` | Yield prediction for specific product series (丰利合享, 悦动稳享) with asset allocation analysis |
+| `calculate_all_benchmarks.py` | Benchmark index performance calculation via Wind API |
+| `data_validator.py` | Data quality validation framework |
+
+### Data Flow
+1. **Input**: Excel files in `数据/` subdirectories (产品净值数据, 产品业绩指标数据, 周度更新数据, etc.)
+2. **Processing**: Python scripts merge, enrich, and analyze data
+3. **Output**: `输出结果/输出结果{DATE}.xlsx` containing multiple analysis sheets
+4. **Final**: VBA macros generate Word/PDF reports
+
+## Data Directory Structure
+
+```
+数据/
+├── 底层数据汇总.xlsx         # Master reference data (product classifications, tags)
+├── 产品净值数据/             # Daily NAV files (产品运作情况表-补充精简{DATE}.xlsx)
+├── 产品业绩指标数据/         # Weekly performance (内部产品业绩_{DATE}.xlsx)
+├── 产品运作概览数据-母产品/  # Parent product operations overview
+├── 产品运作概览数据-母子产品/ # Parent + child product operations
+├── 周度更新数据/             # Weekly analysis reports (中收分析, 持仓明细, etc.)
+├── 资产持仓数据/             # Holdings detail data
+├── 收益测算数据/             # Yield calculation outputs
+└── 数据库系统/               # SQLite database (financial_data.db)
+```
+
+## External Dependencies
+
+### APIs
+- **Wind API (WindPy)**: Market data and index performance - required for `calculate_all_benchmarks.py`
+- **DeepSeek API**: AI-powered text generation and product classification
+
+### Python Libraries
+```
+pandas, numpy, openpyxl, openai (for DeepSeek), pyarrow (for parquet caching)
+```
+
+## Key Business Logic
+
+### Product Type Classification (产品形态)
+- 封闭 (Closed): `产品开放形式 == '封闭式'`
+- 客户周期 (Customer Cycle): Open + customer-defined cycle
+- 日开 (Daily Open): Open + 1-day product cycle
+- 定开 (Fixed Maturity): Open + fixed product cycle
+
+### Yield Prediction Calculations
+For non-standard assets with early maturity:
+```
+adjusted_yield = (holding_days × coupon + idle_days × 1.5%) / total_days
+```
+
+Static yield calculation:
+```
+费后静态 = 费前静态 - (管理费 + 托管费 + 销售费)
+预期年化 = ((单位净值 × (1 + 费后静态 × 剩余天数/365)) - 1) × 365 / 总运作天数
+```
+
+### Channel Classification
+Products are labeled as: 招商独有 (Zhaoshang exclusive), 招商共有 (Zhaoshang multi-channel), or 非招商 (Non-Zhaoshang)
+
+## Code Conventions
+
+- Mixed Chinese/English variable naming is used throughout (business domain terms in Chinese)
+- Config class provides backward-compatible variable exports for legacy code
+- Date format: `YYYYMMDD` for filenames, `YYYY-MM-DD` for display
+- All paths should use `Config` class methods (e.g., `Config.get_output_path()`)
+
+## Known Limitations
+
+- Mac file path permissions can affect VBA workbook linking
+- Some manual steps remain (product adjustment in Excel, VBA execution, email)
+- Wind API required for benchmark calculations (Windows-only in some configurations)

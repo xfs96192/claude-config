@@ -1,0 +1,285 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+iChoice (Choice数据/EMQuantAPI) 数据获取工具
+
+此脚本演示如何使用iChoice API获取各类数据：
+1. 宏观经济数据 (EDB)
+2. 股票数据 (CSS/CSD)
+3. 指数成分股 (sector)
+4. 债券数据
+
+注意：Wind代码与Choice代码存在差异
+- Wind EDB代码: M/S + 数字 (如 M0017126)
+- Choice EDB代码: EMM/EMG/EMI + 数字 (如 EMM00087117)
+
+需要在Choice终端中查找对应的指标代码映射
+"""
+
+from EmQuantAPI import c
+import pandas as pd
+from datetime import datetime, timedelta
+
+# ============ 登录凭证 ============
+USERNAME = "xylczh0181"
+PASSWORD = "ef465509"
+
+# ============ 已验证的Choice EDB指标代码 ============
+# 这些代码已测试可用，可根据需要扩展
+CHOICE_EDB_CODES = {
+    # 宏观经济
+    "GDP同比": "EMM00087117",
+
+    # 更多指标需要从Choice终端查找...
+}
+
+
+def login():
+    """登录iChoice"""
+    print("正在登录iChoice...")
+    result = c.start(f"UserName={USERNAME},Password={PASSWORD},ForceLogin=1")
+    if result.ErrorCode != 0:
+        print(f"登录失败: {result.ErrorMsg}")
+        return False
+    print("登录成功!\n")
+    return True
+
+
+def logout():
+    """退出iChoice"""
+    c.stop()
+    print("\n已退出iChoice")
+
+
+def fetch_edb(codes, start_date=None, end_date=None, as_pandas=True):
+    """
+    获取EDB宏观数据
+
+    Args:
+        codes: 单个或多个EDB代码（逗号分隔）
+        start_date: 开始日期 (YYYY-MM-DD)
+        end_date: 结束日期 (YYYY-MM-DD)
+        as_pandas: 是否返回DataFrame
+
+    Returns:
+        DataFrame 或 EmQuantData
+    """
+    options = f"Ispandas={'1' if as_pandas else '0'}"
+    if start_date:
+        options += f",StartDate={start_date}"
+    if end_date:
+        options += f",EndDate={end_date}"
+
+    result = c.edb(codes, options)
+
+    if as_pandas and isinstance(result, pd.DataFrame):
+        return result
+    elif hasattr(result, 'ErrorCode'):
+        if result.ErrorCode == 0:
+            return result
+        else:
+            print(f"EDB获取失败: {result.ErrorMsg}")
+    return None
+
+
+def fetch_stock_css(codes, indicators, trade_date, as_pandas=True):
+    """
+    获取股票截面数据 (某一天的多只股票多个指标)
+
+    Args:
+        codes: 股票代码 (如 "000001.SZ,600000.SH")
+        indicators: 指标 (如 "CLOSE,OPEN,HIGH,LOW,VOLUME")
+        trade_date: 交易日期 (YYYY-MM-DD)
+        as_pandas: 是否返回DataFrame
+
+    Returns:
+        DataFrame 或 EmQuantData
+    """
+    options = f"TradeDate={trade_date},Ispandas={'1' if as_pandas else '0'}"
+    result = c.css(codes, indicators, options)
+
+    if as_pandas and isinstance(result, pd.DataFrame):
+        return result
+    elif hasattr(result, 'ErrorCode'):
+        if result.ErrorCode == 0:
+            return result
+        else:
+            print(f"CSS获取失败: {result.ErrorMsg}")
+    return None
+
+
+def fetch_stock_csd(codes, indicators, start_date, end_date, as_pandas=True):
+    """
+    获取股票时间序列数据
+
+    Args:
+        codes: 股票代码
+        indicators: 指标
+        start_date: 开始日期 (YYYY-MM-DD)
+        end_date: 结束日期 (YYYY-MM-DD)
+        as_pandas: 是否返回DataFrame
+
+    Returns:
+        DataFrame 或 EmQuantData
+    """
+    options = f"Ispandas={'1' if as_pandas else '0'}"
+    result = c.csd(codes, indicators, start_date, end_date, options)
+
+    if as_pandas and isinstance(result, pd.DataFrame):
+        return result
+    elif hasattr(result, 'ErrorCode'):
+        if result.ErrorCode == 0:
+            return result
+        else:
+            print(f"CSD获取失败: {result.ErrorMsg}")
+    return None
+
+
+def fetch_bond_yield(codes, indicators, start_date, end_date, as_pandas=True):
+    """
+    获取债券数据（使用CSD接口）
+
+    常用债券指标:
+    - CLOSE: 收盘价/收益率
+    - YIELD: 到期收益率
+    - DURATION: 久期
+
+    Args:
+        codes: 债券代码 (如 "019701.SH" 国债)
+        indicators: 指标
+        start_date: 开始日期
+        end_date: 结束日期
+
+    Returns:
+        DataFrame
+    """
+    return fetch_stock_csd(codes, indicators, start_date, end_date, as_pandas)
+
+
+def fetch_index_components(index_code, date):
+    """
+    获取指数成分股
+
+    Args:
+        index_code: 指数代码 (如 "000300.SH" 沪深300)
+        date: 日期
+
+    Returns:
+        DataFrame 或 list
+    """
+    result = c.sector(index_code, date, "Ispandas=1")
+
+    if isinstance(result, pd.DataFrame):
+        return result
+    elif hasattr(result, 'ErrorCode'):
+        if result.ErrorCode == 0:
+            return result.Codes if hasattr(result, 'Codes') else result.Data
+        else:
+            print(f"获取成分股失败: {result.ErrorMsg}")
+    return None
+
+
+def fetch_trade_dates(start_date, end_date):
+    """
+    获取交易日期列表
+
+    Args:
+        start_date: 开始日期
+        end_date: 结束日期
+
+    Returns:
+        list of dates
+    """
+    result = c.tradedates(start_date, end_date, "")
+    if hasattr(result, 'ErrorCode') and result.ErrorCode == 0:
+        return result.Data
+    return None
+
+
+def demo():
+    """演示各种数据获取功能"""
+    if not login():
+        return
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    last_week = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+
+    try:
+        # ========== 1. 宏观数据 ==========
+        print("=" * 60)
+        print("【1】获取GDP同比数据")
+        print("=" * 60)
+        gdp_data = fetch_edb("EMM00087117")
+        if gdp_data is not None:
+            print(gdp_data.tail(10))
+
+        # ========== 2. 股票截面数据 ==========
+        print("\n" + "=" * 60)
+        print("【2】获取股票截面数据 (最近交易日)")
+        print("=" * 60)
+        # 获取最近交易日
+        trade_dates = fetch_trade_dates("2025-01-01", "2025-01-31")
+        if trade_dates:
+            latest_date = trade_dates[-1].replace("/", "-")
+            stock_data = fetch_stock_css(
+                "000001.SZ,600519.SH,000858.SZ",
+                "CLOSE,OPEN,HIGH,LOW,VOLUME,AMOUNT",
+                latest_date
+            )
+            if stock_data is not None:
+                print(f"交易日期: {latest_date}")
+                print(stock_data)
+
+        # ========== 3. 股票时间序列 ==========
+        print("\n" + "=" * 60)
+        print("【3】获取股票时间序列数据")
+        print("=" * 60)
+        ts_data = fetch_stock_csd(
+            "000001.SZ",
+            "CLOSE,VOLUME",
+            "2025-01-10",
+            "2025-01-24"
+        )
+        if ts_data is not None:
+            print(ts_data)
+
+        # ========== 4. 多只股票对比 ==========
+        print("\n" + "=" * 60)
+        print("【4】多只股票收盘价对比")
+        print("=" * 60)
+        compare_data = fetch_stock_csd(
+            "000001.SZ,600519.SH,000858.SZ",
+            "CLOSE",
+            "2025-01-15",
+            "2025-01-24"
+        )
+        if compare_data is not None:
+            # 转换为宽格式方便对比
+            if isinstance(compare_data, pd.DataFrame):
+                pivot = compare_data.reset_index().pivot(
+                    index='DATES',
+                    columns='CODES',
+                    values='CLOSE'
+                )
+                print(pivot)
+
+        # ========== 5. 交易日期查询 ==========
+        print("\n" + "=" * 60)
+        print("【5】2025年1月交易日")
+        print("=" * 60)
+        dates = fetch_trade_dates("2025-01-01", "2025-01-31")
+        if dates:
+            print(f"共 {len(dates)} 个交易日")
+            print(dates)
+
+    except Exception as e:
+        print(f"发生异常: {e}")
+        import traceback
+        traceback.print_exc()
+
+    finally:
+        logout()
+
+
+if __name__ == "__main__":
+    demo()

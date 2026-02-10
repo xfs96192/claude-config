@@ -1,0 +1,39 @@
+#!/bin/bash
+# 市场复盘截图脚本 - 在终端中运行
+set -e
+
+export PATH="/opt/homebrew/opt/node@20/bin:$PATH"
+cd /Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard
+
+echo "Node: $(node --version)"
+echo "启动 Vite..."
+node node_modules/vite/bin/vite.js --port 5173 &
+VITE_PID=$!
+
+# 等待端口就绪
+for i in $(seq 1 30); do
+    sleep 2
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/ 2>/dev/null | grep -q "200"; then
+        echo "Vite 已就绪 (${i}x2 秒)"
+        break
+    fi
+    echo "等待中... ($i)"
+done
+
+echo "开始截图..."
+python3 << 'PYEOF'
+from playwright.sync_api import sync_playwright
+import time
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True, channel="chrome")
+    page = browser.new_page(viewport={"width": 1920, "height": 1080})
+    page.goto("http://localhost:5173/", wait_until="networkidle", timeout=30000)
+    time.sleep(3)
+    page.screenshot(path="/Users/fanshengxia/Desktop/市场观点美化/市场复盘_2026-02-06.png", full_page=True)
+    browser.close()
+    print("截图已保存: /Users/fanshengxia/Desktop/市场观点美化/市场复盘_2026-02-06.png")
+PYEOF
+
+kill $VITE_PID 2>/dev/null
+echo "完成!"

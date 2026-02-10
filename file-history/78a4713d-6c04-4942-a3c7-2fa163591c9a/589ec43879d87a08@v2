@@ -1,0 +1,793 @@
+#!/usr/bin/env python3
+"""
+高保真Excel截图生成器 V2
+完整支持6个外部文件的VLOOKUP解析、ArrayFormula、合并单元格和样式还原。
+"""
+import openpyxl
+from openpyxl.utils import get_column_letter, column_index_from_string
+from openpyxl.worksheet.formula import ArrayFormula
+import os, re, html as html_mod
+import asyncio
+
+WORKBOOK_PATH = '/Users/fanshengxia/Desktop/周报V2/周报生成工具_加权_调整兴动合兴系列.xlsm'
+HTML_DIR = '/tmp/weekly_report_html'
+SCREENSHOT_DIR = '/tmp/weekly_report_screenshots'
+
+# 6个外部文件路径映射 (从xlsm zip的externalLink rels中读取的真实顺序)
+# [1]=合享承诺收益率, [2]=输出结果, [3]=运作概览, [4]=产品业绩, [5]=合享底表, [6]=悦动稳享底表
+EXTERNAL_FILES = {
+    1: '/Users/fanshengxia/Desktop/周报V2/数据/合享承诺收益率.xlsx',
+    2: '/Users/fanshengxia/Desktop/周报V2/输出结果/输出结果20260205.xlsx',
+    3: '/Users/fanshengxia/Desktop/周报V2/数据/产品运作概览数据-母子产品/产品运作概览信息表增加指标变化_20260205.xlsx',
+    4: '/Users/fanshengxia/Desktop/周报V2/数据/产品业绩指标数据/内部产品业绩_20260205.xlsx',
+    5: '/Users/fanshengxia/Desktop/周报V2/数据/收益测算数据/丰利合享底表-20260205.xlsx',
+    6: '/Users/fanshengxia/Desktop/周报V2/数据/收益测算数据/悦动稳享底表-20260205.xlsx',
+}
+
+# ========== Theme colors ==========
+THEME_COLORS = {
+    0: 'FFFFFF', 1: '000000', 2: 'E7E6E6', 3: '44546A',
+    4: '4472C4', 5: 'ED7D31', 6: 'A5A5A5', 7: 'FFC000',
+    8: '5B9BD5', 9: '70AD47'
+}
+
+def apply_tint(hex_color, tint):
+    if tint == 0 or not hex_color:
+        return hex_color
+    r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    if tint > 0:
+        r, g, b = int(r + (255-r)*tint), int(g + (255-g)*tint), int(b + (255-b)*tint)
+    else:
+        f = 1 + tint
+        r, g, b = int(r*f), int(g*f), int(b*f)
+    return f'{min(255,max(0,r)):02X}{min(255,max(0,g)):02X}{min(255,max(0,b)):02X}'
+
+def color_to_hex(color):
+    if color is None:
+        return None
+    try:
+        if color.type == 'rgb' and color.rgb:
+            rgb = str(color.rgb)
+            if rgb == '00000000' or (len(rgb) == 8 and rgb[:2] == '00'):
+                return None
+            return rgb[2:] if len(rgb) == 8 else rgb
+        if color.type == 'theme':
+            base = THEME_COLORS.get(color.theme, 'FFFFFF')
+            return apply_tint(base, color.tint or 0)
+        if color.type == 'indexed':
+            indexed = {
+                0:'000000',1:'FFFFFF',2:'FF0000',3:'00FF00',4:'0000FF',5:'FFFF00',
+                6:'FF00FF',7:'00FFFF',8:'000000',9:'FFFFFF',22:'C0C0C0',23:'808080',64:'000000'
+            }
+            return indexed.get(color.indexed)
+    except:
+        pass
+    return None
+
+def get_fill_color(cell):
+    try:
+        fill = cell.fill
+        if fill is None or fill.patternType is None or fill.patternType == 'none':
+            return None
+        fg = color_to_hex(fill.fgColor)
+        if fg and fg != '000000':
+            return fg
+        bg = color_to_hex(fill.bgColor)
+        if bg and bg != '000000':
+            return bg
+    except:
+        pass
+    return None
+
+def get_font_color(cell):
+    try:
+        if cell.font and cell.font.color:
+            return color_to_hex(cell.font.color)
+    except:
+        pass
+    return None
+
+def format_number(value, nf_str):
+    if value is None:
+        return ''
+    if isinstance(value, str):
+        return html_mod.escape(value)
+    if not isinstance(value, (int, float)):
+        return html_mod.escape(str(value))
+    nf = str(nf_str) if nf_str else 'General'
+    try:
+        if '%' in nf:
+            dm = re.search(r'0\.(0+)%', nf)
+            d = len(dm.group(1)) if dm else 2
+            return f'{value*100:.{d}f}%'
+        elif nf in ('0.00', '#,##0.00') or '#,##0.00' in nf:
+            return f'{value:,.2f}'
+        elif nf == '0.0000':
+            return f'{value:.4f}'
+        elif nf in ('0', '#,##0'):
+            return f'{int(round(value)):,}'
+        elif nf == 'General':
+            if isinstance(value, float):
+                if abs(value) >= 100:
+                    return f'{value:,.2f}'
+                elif abs(value) >= 1:
+                    return f'{value:.2f}'
+                elif abs(value) > 0:
+                    return f'{value:.4f}'
+                else:
+                    return '0'
+            return str(value)
+        else:
+            return f'{value:.2f}' if isinstance(value, float) else str(value)
+    except:
+        return str(value)
+
+def get_border_style(side):
+    if not side or not side.style:
+        return None
+    style_map = {'thin':'1px solid','medium':'2px solid','thick':'3px solid',
+                 'hair':'1px solid','dotted':'1px dotted','dashed':'1px dashed','double':'3px double'}
+    css = style_map.get(side.style, '1px solid')
+    c = color_to_hex(side.color) if side.color else '000000'
+    return f"{css} #{c or '000000'}"
+
+
+# ========== 外部数据管理器 ==========
+class ExternalDataManager:
+    """管理所有外部文件数据，支持VLOOKUP解析"""
+
+    def __init__(self):
+        self.file_cache = {}  # {(file_num, sheet_name): {data, headers, ...}}
+
+    def load_sheet(self, file_num, sheet_name):
+        key = (file_num, sheet_name)
+        if key in self.file_cache:
+            return self.file_cache[key]
+
+        path = EXTERNAL_FILES.get(file_num)
+        if not path or not os.path.exists(path):
+            self.file_cache[key] = None
+            return None
+
+        try:
+            wb = openpyxl.load_workbook(path, data_only=True)
+            if sheet_name not in wb.sheetnames:
+                wb.close()
+                self.file_cache[key] = None
+                return None
+
+            ws = wb[sheet_name]
+            data = {}
+            headers = {}
+            max_r, max_c = 0, 0
+            for row in ws.iter_rows():
+                for cell in row:
+                    if cell.value is not None:
+                        data[(cell.row, cell.column)] = cell.value
+                        max_r = max(max_r, cell.row)
+                        max_c = max(max_c, cell.column)
+                    if cell.row == 1:
+                        headers[cell.column] = cell.value
+
+            result = {'data': data, 'headers': headers, 'max_row': max_r, 'max_col': max_c}
+            self.file_cache[key] = result
+            wb.close()
+            return result
+        except Exception as e:
+            print(f"  load_sheet ERROR [{file_num}] '{sheet_name}': {e}")
+            self.file_cache[key] = None
+            return None
+
+    def vlookup(self, lookup_val, file_num, sheet_name, range_start_col, range_end_col, col_index):
+        """Execute VLOOKUP: find lookup_val in range_start_col, return col_index-th column"""
+        sheet_data = self.load_sheet(file_num, sheet_name)
+        if not sheet_data:
+            return None
+
+        for r in range(1, sheet_data['max_row'] + 1):
+            cell_val = sheet_data['data'].get((r, range_start_col))
+            if cell_val == lookup_val:
+                return sheet_data['data'].get((r, range_start_col + col_index - 1))
+        return None
+
+    def match_header(self, match_val, file_num, sheet_name, header_row=1):
+        """Execute MATCH: find match_val in header row, return column position"""
+        sheet_data = self.load_sheet(file_num, sheet_name)
+        if not sheet_data:
+            return None
+
+        for col, header in sheet_data['headers'].items():
+            if header == match_val:
+                return col
+        return None
+
+    def match_in_row(self, match_val, file_num, sheet_name, search_row):
+        """Execute MATCH: find match_val in a specific row, return column position"""
+        sheet_data = self.load_sheet(file_num, sheet_name)
+        if not sheet_data:
+            return None
+
+        # Search in the specified row
+        for c in range(1, sheet_data['max_col'] + 1):
+            cell_val = sheet_data['data'].get((search_row, c))
+            if cell_val == match_val:
+                return c
+        return None
+
+
+def _get_cell_value(ws, r, c, resolved_cache=None):
+    """Get cell value, checking resolved cache first, then raw value, then merged cells."""
+    if resolved_cache and (r, c) in resolved_cache:
+        return resolved_cache[(r, c)]
+    val = ws.cell(r, c).value
+    if isinstance(val, ArrayFormula):
+        return None  # Can't resolve inline
+    if isinstance(val, str) and val.startswith('='):
+        return None  # Unresolved formula
+    if val is not None:
+        return val
+    # Check merged cells
+    for mr in ws.merged_cells.ranges:
+        if mr.min_col <= c <= mr.max_col and mr.min_row <= r <= mr.max_row:
+            v = ws.cell(mr.min_row, mr.min_col).value
+            if v is not None and not (isinstance(v, str) and v.startswith('=')):
+                return v
+    return None
+
+
+def _parse_cell_ref(ref_str):
+    """Parse cell reference like $B2, B$1, $B$2 → (col_letter, row_num, col_is_abs, row_is_abs)"""
+    m = re.match(r'(\$?)([A-Z]+)(\$?)(\d+)', ref_str.strip())
+    if m:
+        return m.group(2), int(m.group(4))
+    return None, None
+
+
+def _resolve_vlookup(formula, ws, row, col, ext_mgr, resolved_cache):
+    """Resolve VLOOKUP formula. Returns value or None."""
+    # Patterns: with/without quotes, with fixed range or full column range
+    patterns = [
+        # With quotes, fixed range: VLOOKUP($B2,'[2]Sheet'!$B$2:$H$20,...)
+        r"VLOOKUP\(([^,]+),\s*'?\[(\d+)\]([^'!]+)'?!(\$?[A-Z]+\$?\d+:\$?[A-Z]+\$?\d+),\s*(.+),\s*0\)",
+        # Without quotes, fixed range: VLOOKUP($B2,[2]Sheet!$B$2:$H$20,...)
+        r"VLOOKUP\(([^,]+),\[(\d+)\]([^!]+)!(\$?[A-Z]+\$?\d+:\$?[A-Z]+\$?\d+),\s*(.+),\s*0\)",
+        # With quotes, full column: VLOOKUP($B2,'[2]Sheet'!$B:$H,...)
+        r"VLOOKUP\(([^,]+),\s*'?\[(\d+)\]([^'!]+)'?!(\$?[A-Z]+:\$?[A-Z]+),\s*(.+),\s*0\)",
+        # Without quotes, full column: VLOOKUP($B2,[2]Sheet!$A:$D,...)
+        r"VLOOKUP\(([^,]+),\[(\d+)\]([^!]+)!(\$?[A-Z]+:\$?[A-Z]+),\s*(.+),\s*0\)",
+    ]
+
+    vm = None
+    for pat in patterns:
+        vm = re.match(pat, formula)
+        if vm:
+            break
+    if not vm:
+        return None
+
+    lookup_ref = vm.group(1).strip()
+    file_num = int(vm.group(2))
+    ext_sheet = vm.group(3)
+    range_str = vm.group(4)
+    col_expr = vm.group(5).strip()
+
+    # Get lookup value from current worksheet
+    lcol_letter, lrow_num = _parse_cell_ref(lookup_ref)
+    if not lcol_letter:
+        return None
+    l_col = column_index_from_string(lcol_letter)
+    l_row = row  # VLOOKUP typically uses current row
+
+    lookup_val = _get_cell_value(ws, l_row, l_col, resolved_cache)
+    if lookup_val is None:
+        return None
+
+    # Parse range start column
+    range_match = re.match(r'\$?([A-Z]+)(?:\$?\d+)?:\$?([A-Z]+)(?:\$?\d+)?', range_str)
+    if not range_match:
+        return None
+    start_col = column_index_from_string(range_match.group(1))
+
+    # Resolve column index expression
+    if col_expr.isdigit():
+        col_index = int(col_expr)
+    elif 'MATCH' in col_expr:
+        col_index = _resolve_match_for_col(col_expr, ws, row, col, ext_mgr, start_col, resolved_cache)
+        if col_index is None:
+            return None
+    else:
+        return None
+
+    return ext_mgr.vlookup(lookup_val, file_num, ext_sheet, start_col, None, col_index)
+
+
+def _resolve_match_for_col(col_expr, ws, row, col, ext_mgr, vlookup_start_col, resolved_cache):
+    """Resolve MATCH expression used as VLOOKUP column index."""
+    # Patterns for MATCH:
+    # 1. MATCH(D$1,'[2]Sheet'!$B$1:$H$1,0) - with quotes, cell range
+    # 2. MATCH(C$2,[2]Sheet!$A$2:$D$2,0) - no quotes, cell range
+    # 3. MATCH(B$2,'[2]Sheet'!$3:$3,0) - with quotes, full row
+    # 4. MATCH(C$1,[2]Sheet!$1:$1,0) - no quotes, full row
+    match_patterns = [
+        # Cell range with quotes
+        (r"MATCH\(\$?([A-Z]+)\$?(\d+),\s*'?\[(\d+)\]([^'!]+)'?!\$?([A-Z]+)\$?(\d+):\$?([A-Z]+)\$?\d+,\s*0\)", 'cell'),
+        # Cell range without quotes
+        (r"MATCH\(\$?([A-Z]+)\$?(\d+),\[(\d+)\]([^!]+)!\$?([A-Z]+)\$?(\d+):\$?([A-Z]+)\$?\d+,\s*0\)", 'cell'),
+        # Full row with quotes: $3:$3
+        (r"MATCH\(\$?([A-Z]+)\$?(\d+),\s*'?\[(\d+)\]([^'!]+)'?!\$?(\d+):\$?\d+,\s*0\)", 'row'),
+        # Full row without quotes
+        (r"MATCH\(\$?([A-Z]+)\$?(\d+),\[(\d+)\]([^!]+)!\$?(\d+):\$?\d+,\s*0\)", 'row'),
+    ]
+
+    for pat, pat_type in match_patterns:
+        mm = re.match(pat, col_expr)
+        if mm:
+            match_col_letter = mm.group(1)
+            match_row_num = int(mm.group(2))
+            match_file_num = int(mm.group(3))
+            match_sheet = mm.group(4)
+
+            if pat_type == 'cell':
+                search_row = int(mm.group(6))
+            else:  # 'row'
+                search_row = int(mm.group(5))
+
+            match_col = column_index_from_string(match_col_letter)
+            match_val = _get_cell_value(ws, match_row_num, match_col, resolved_cache)
+            if match_val is None:
+                match_val = _get_cell_value(ws, match_row_num, col, resolved_cache)
+            if match_val is None:
+                return None
+
+            matched_col = ext_mgr.match_in_row(match_val, match_file_num, match_sheet, search_row)
+            if matched_col is None:
+                return None
+            return matched_col - vlookup_start_col + 1
+
+    return None
+
+
+def _resolve_ext_cell_ref(formula, row, col, ext_mgr):
+    """Resolve external cell reference like '[2]Sheet'!$A2 or [2]Sheet!$A2"""
+    patterns = [
+        r"'?\[(\d+)\]([^'!]+)'?!\$?([A-Z]+)\$?(\d+)$",
+    ]
+    for pat in patterns:
+        m = re.match(pat, formula)
+        if m:
+            file_num = int(m.group(1))
+            sheet_name = m.group(2)
+            ref_col = column_index_from_string(m.group(3))
+            ref_row = int(m.group(4))
+            sheet_data = ext_mgr.load_sheet(file_num, sheet_name)
+            if sheet_data:
+                return sheet_data['data'].get((ref_row, ref_col))
+    return None
+
+
+def resolve_formula(formula_str, ws, row, col, ext_mgr, resolved_cache=None, depth=0):
+    """Resolve a formula string to a value. Handles nested formulas."""
+    if depth > 10:
+        return None
+    if not isinstance(formula_str, str):
+        return None
+    if not formula_str.startswith('='):
+        return None
+
+    formula = formula_str[1:]  # Remove leading =
+
+    # Handle IFERROR(inner, fallback) - with string or numeric fallback
+    iferror_match = re.match(r'IFERROR\((.+),\s*"([^"]*)"\s*\)$', formula)
+    if not iferror_match:
+        # Also try numeric fallback: IFERROR(expr, 0)
+        iferror_match = re.match(r'IFERROR\((.+),\s*([\d.]+)\s*\)$', formula)
+    if iferror_match:
+        inner = '=' + iferror_match.group(1)
+        fallback = iferror_match.group(2)
+        result = resolve_formula(inner, ws, row, col, ext_mgr, resolved_cache, depth+1)
+        if result is not None:
+            return result
+        if fallback:
+            try:
+                return float(fallback)
+            except:
+                return fallback
+        return None
+
+    # Handle VALUE(inner)
+    value_match = re.match(r'VALUE\((.+)\)$', formula)
+    if value_match:
+        inner = '=' + value_match.group(1)
+        result = resolve_formula(inner, ws, row, col, ext_mgr, resolved_cache, depth+1)
+        if result is not None:
+            try:
+                return float(result)
+            except:
+                return result
+        return None
+
+    # Handle IF(condition, true_val, false_val)
+    # Pattern 1: IF($A2="","", expr) or IF(B4="","", expr)
+    if_empty_match = re.match(r'IF\(\$?([A-Z]+)\$?(\d+)=""\s*,\s*""\s*,\s*(.+)\)$', formula)
+    if if_empty_match:
+        check_col = column_index_from_string(if_empty_match.group(1))
+        check_row = int(if_empty_match.group(2))
+        # Use current row for relative references
+        actual_row = row if not if_empty_match.group(0).count('$') else check_row
+        check_val = _get_cell_value(ws, row, check_col, resolved_cache)
+        if check_val is None or check_val == '':
+            return ''
+        inner_expr = if_empty_match.group(3)
+        return resolve_formula('=' + inner_expr, ws, row, col, ext_mgr, resolved_cache, depth+1)
+
+    # Pattern 2: IF([2]Sheet!$A4="","",[2]Sheet!$A4) - external ref IF
+    # With or without quotes around sheet reference
+    if_ext_patterns = [
+        r"IF\('?\[(\d+)\]([^'!]+)'?!\$?([A-Z]+)\$?(\d+)=\"\"\s*,\s*\"\"\s*,\s*(.+)\)$",
+        r"IF\(\[(\d+)\]([^!]+)!\$?([A-Z]+)\$?(\d+)=\"\"\s*,\s*\"\"\s*,\s*(.+)\)$",
+    ]
+    for pat in if_ext_patterns:
+        if_ext_match = re.match(pat, formula)
+        if if_ext_match:
+            file_num = int(if_ext_match.group(1))
+            sheet_name = if_ext_match.group(2)
+            ref_col = column_index_from_string(if_ext_match.group(3))
+            ref_row = int(if_ext_match.group(4))
+            sheet_data = ext_mgr.load_sheet(file_num, sheet_name)
+            if sheet_data:
+                val = sheet_data['data'].get((ref_row, ref_col))
+                if val is None or val == '':
+                    return ''
+            inner_expr = if_ext_match.group(5)
+            return resolve_formula('=' + inner_expr, ws, row, col, ext_mgr, resolved_cache, depth+1)
+            break
+
+    # Pattern 3: IF(VALUE(VLOOKUP(...))=0,"-",VALUE(VLOOKUP(...)))
+    if_val_match = re.match(r'IF\(VALUE\(VLOOKUP\((.+?)\)=0\s*,\s*"([^"]*)"\s*,\s*(.+)\)$', formula)
+    if if_val_match:
+        # Just try resolving the VLOOKUP part
+        inner = if_val_match.group(3)
+        result = resolve_formula('=' + inner, ws, row, col, ext_mgr, resolved_cache, depth+1)
+        if result is not None:
+            try:
+                if float(result) == 0:
+                    return if_val_match.group(2) or '-'
+            except:
+                pass
+        return result
+
+    # Handle VLOOKUP
+    vl_result = _resolve_vlookup(formula, ws, row, col, ext_mgr, resolved_cache)
+    if vl_result is not None:
+        return vl_result
+    # Check if formula starts with VLOOKUP (even if regex didn't match, avoid falling through)
+    if formula.startswith('VLOOKUP('):
+        return None
+
+    # Handle external cell reference: '[2]Sheet'!$A2 or [2]Sheet!$A2
+    ext_ref_result = _resolve_ext_cell_ref(formula, row, col, ext_mgr)
+    if ext_ref_result is not None:
+        return ext_ref_result
+
+    # Handle SUM of a range: SUM(B4:B11)
+    sum_match = re.match(r'SUM\(\$?([A-Z]+)\$?(\d+):\$?([A-Z]+)\$?(\d+)\)$', formula)
+    if sum_match:
+        s_col = column_index_from_string(sum_match.group(1))
+        s_row = int(sum_match.group(2))
+        e_col = column_index_from_string(sum_match.group(3))
+        e_row = int(sum_match.group(4))
+        total = 0
+        has_any = False
+        for r in range(s_row, e_row + 1):
+            for c in range(s_col, e_col + 1):
+                v = _get_cell_value(ws, r, c, resolved_cache)
+                if isinstance(v, (int, float)):
+                    total += v
+                    has_any = True
+        return total if has_any else None
+
+    # Handle simple arithmetic: cell+cell, cell-cell, cell/number
+    arith_match = re.match(r'(\$?[A-Z]+\$?\d+)\s*([+\-*/])\s*(\$?[A-Z]+\$?\d+|[\d.]+)$', formula)
+    if arith_match:
+        left_ref = arith_match.group(1)
+        op = arith_match.group(2)
+        right_ref = arith_match.group(3)
+
+        lcl, lrn = _parse_cell_ref(left_ref)
+        if lcl:
+            left_val = _get_cell_value(ws, lrn, column_index_from_string(lcl), resolved_cache)
+        else:
+            return None
+
+        # Right side could be cell ref or number
+        rcl, rrn = _parse_cell_ref(right_ref)
+        if rcl:
+            right_val = _get_cell_value(ws, rrn, column_index_from_string(rcl), resolved_cache)
+        else:
+            try:
+                right_val = float(right_ref)
+            except:
+                return None
+
+        if isinstance(left_val, (int, float)) and isinstance(right_val, (int, float)):
+            if op == '+': return left_val + right_val
+            elif op == '-': return left_val - right_val
+            elif op == '*': return left_val * right_val
+            elif op == '/' and right_val != 0: return left_val / right_val
+        return None
+
+    # Handle formula/100 (division by constant appended to a formula result)
+    div_match = re.match(r'(.+)/(\d+(?:\.\d+)?)$', formula)
+    if div_match and not div_match.group(1).endswith(')'):
+        pass  # Only handle when inner is a complete expression
+    elif div_match:
+        inner_result = resolve_formula('=' + div_match.group(1), ws, row, col, ext_mgr, resolved_cache, depth+1)
+        divisor = float(div_match.group(2))
+        if isinstance(inner_result, (int, float)) and divisor != 0:
+            return inner_result / divisor
+
+    return None
+
+
+# ========== HTML生成 ==========
+
+def build_merged_map(ws):
+    merge_origins = {}
+    merge_hidden = set()
+    for mr in ws.merged_cells.ranges:
+        rowspan = mr.max_row - mr.min_row + 1
+        colspan = mr.max_col - mr.min_col + 1
+        merge_origins[(mr.min_row, mr.min_col)] = (rowspan, colspan)
+        for r in range(mr.min_row, mr.max_row + 1):
+            for c in range(mr.min_col, mr.max_col + 1):
+                if (r, c) != (mr.min_row, mr.min_col):
+                    merge_hidden.add((r, c))
+    return merge_origins, merge_hidden
+
+
+def generate_html(ws, ws_cached, sheet_name, ext_mgr):
+    """Generate high-fidelity HTML."""
+    max_row = ws.max_row or 1
+    max_col = ws.max_column or 1
+    merge_origins, merge_hidden = build_merged_map(ws)
+
+    # Column widths
+    col_widths = {}
+    for c in range(1, max_col + 1):
+        letter = get_column_letter(c)
+        w = ws.column_dimensions[letter].width
+        col_widths[c] = max(25, int((w or 10) * 7.5))
+
+    # Multi-pass formula resolution
+    resolved = {}
+    pending_formulas = {}
+
+    # Pass 0: Collect all raw values and identify formulas
+    for r in range(1, max_row + 1):
+        for c in range(1, max_col + 1):
+            cell = ws.cell(r, c)
+            val = cell.value
+
+            if isinstance(val, ArrayFormula):
+                val = val.text if hasattr(val, 'text') else str(val)
+                if not val.startswith('='):
+                    val = '=' + val
+
+            if isinstance(val, str) and val.startswith('='):
+                # Try cached value first
+                cached_val = ws_cached.cell(r, c).value if ws_cached else None
+                if cached_val is not None:
+                    resolved[(r, c)] = cached_val
+                else:
+                    pending_formulas[(r, c)] = val
+            elif val is not None:
+                resolved[(r, c)] = val
+
+    # Pass 1-5: Resolve formulas (multiple passes for dependencies like SUM, IF chains)
+    for pass_num in range(5):
+        newly_resolved = {}
+        for (r, c), formula_str in pending_formulas.items():
+            if (r, c) in resolved:
+                continue
+            result = resolve_formula(formula_str, ws, r, c, ext_mgr, resolved)
+            if result is not None:
+                newly_resolved[(r, c)] = result
+        resolved.update(newly_resolved)
+        if not newly_resolved:
+            break
+
+    # Second pass: generate HTML
+    rows_html = []
+    for r in range(1, max_row + 1):
+        cells_html = []
+        for c in range(1, max_col + 1):
+            if (r, c) in merge_hidden:
+                continue
+
+            cell = ws.cell(r, c)
+            value = resolved.get((r, c))
+            display = format_number(value, cell.number_format) if value is not None else ''
+
+            # Build styles
+            styles = []
+
+            # Fill
+            fc = get_fill_color(cell)
+            if fc:
+                styles.append(f'background-color:#{fc}')
+
+            # Font
+            if cell.font:
+                if cell.font.bold:
+                    styles.append('font-weight:bold')
+                if cell.font.italic:
+                    styles.append('font-style:italic')
+                sz = cell.font.size or 11
+                if sz >= 12: sz = 10
+                elif sz >= 11: sz = 9.5
+                elif sz >= 10: sz = 9
+                styles.append(f'font-size:{sz}pt')
+                ftc = get_font_color(cell)
+                if ftc and ftc != '000000':
+                    styles.append(f'color:#{ftc}')
+
+            # Alignment
+            if cell.alignment:
+                if cell.alignment.horizontal:
+                    styles.append(f'text-align:{cell.alignment.horizontal}')
+                if cell.alignment.vertical:
+                    vm = {'center':'middle','top':'top','bottom':'bottom'}
+                    styles.append(f'vertical-align:{vm.get(cell.alignment.vertical,"middle")}')
+                if cell.alignment.wrap_text:
+                    styles.append('white-space:normal;word-wrap:break-word')
+
+            # Borders
+            if cell.border:
+                for side_name in ('left','right','top','bottom'):
+                    side = getattr(cell.border, side_name)
+                    bs = get_border_style(side)
+                    if bs:
+                        styles.append(f'border-{side_name}:{bs}')
+
+            # Width
+            styles.append(f'width:{col_widths.get(c,80)}px')
+
+            # Negative red
+            if isinstance(value, (int, float)) and value < 0:
+                if not any('color' in s for s in styles):
+                    styles.append('color:#FF0000')
+
+            style_str = ';'.join(styles)
+            attrs = f' style="{style_str}"'
+
+            if (r, c) in merge_origins:
+                rs, cs = merge_origins[(r, c)]
+                if rs > 1: attrs += f' rowspan="{rs}"'
+                if cs > 1: attrs += f' colspan="{cs}"'
+
+            cells_html.append(f'<td{attrs}>{display}</td>')
+
+        if cells_html:
+            rh = ws.row_dimensions[r].height
+            rs = f' style="height:{int(rh*1.33)}px"' if rh else ''
+            rows_html.append(f'<tr{rs}>{"".join(cells_html)}</tr>')
+
+    return f'''<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{font-family:"Microsoft YaHei","SimHei","宋体",sans-serif;background:#fff;padding:1px}}
+table{{border-collapse:collapse;font-size:9pt;white-space:nowrap}}
+td{{border:1px solid #B0B0B0;padding:2px 4px;text-align:center;vertical-align:middle;font-size:9pt;line-height:1.25}}
+</style></head>
+<body><table>{"".join(rows_html)}</table></body></html>'''
+
+
+# ========== 主流程 ==========
+
+def main():
+    os.makedirs(HTML_DIR, exist_ok=True)
+    os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+
+    print("加载工作簿...")
+    wb = openpyxl.load_workbook(WORKBOOK_PATH, keep_vba=True, data_only=False)
+    wb_cached = openpyxl.load_workbook(WORKBOOK_PATH, keep_vba=True, data_only=True)
+
+    print("初始化外部数据管理器...")
+    ext_mgr = ExternalDataManager()
+
+    # Preload commonly used external files
+    for fnum in EXTERNAL_FILES:
+        path = EXTERNAL_FILES[fnum]
+        if os.path.exists(path):
+            try:
+                twb = openpyxl.load_workbook(path, data_only=True)
+                sheet_names = twb.sheetnames
+                twb.close()
+                for sn in sheet_names:
+                    ext_mgr.load_sheet(fnum, sn)
+                print(f"  已加载 [{fnum}]: {os.path.basename(path)} ({len(sheet_names)} sheets)")
+            except Exception as e:
+                print(f"  加载失败 [{fnum}]: {e}")
+
+    # Read bookmark mapping
+    bookmark_ws = wb['书签表']
+    sheets_to_capture = []
+    for row in bookmark_ws.iter_rows(min_row=2, max_row=bookmark_ws.max_row, max_col=2, values_only=True):
+        sn, bn = row
+        if sn and bn:
+            sheets_to_capture.append((sn, bn))
+
+    print(f"\n需要截图: {len(sheets_to_capture)} sheets\n")
+    success = 0
+    errors = []
+
+    for sheet_name, bookmark_name in sheets_to_capture:
+        if sheet_name not in wb.sheetnames:
+            errors.append(sheet_name)
+            continue
+
+        ws = wb[sheet_name]
+        ws_c = wb_cached[sheet_name] if sheet_name in wb_cached.sheetnames else None
+
+        html = generate_html(ws, ws_c, sheet_name, ext_mgr)
+
+        safe_name = sheet_name.replace('/', '_').replace(' ', '_')
+        with open(os.path.join(HTML_DIR, f'{safe_name}.html'), 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        success += 1
+        if success % 10 == 0:
+            print(f"  进度: {success}/{len(sheets_to_capture)}")
+
+    print(f"\nHTML生成完成: {success}/{len(sheets_to_capture)}")
+    if errors:
+        print(f"跳过: {errors}")
+
+    wb.close()
+    wb_cached.close()
+
+    # 截图
+    print("\n开始Playwright截图...")
+    asyncio.run(take_all_screenshots())
+
+
+async def take_all_screenshots():
+    from playwright.async_api import async_playwright
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page(viewport={'width': 1800, 'height': 1000})
+
+        html_files = sorted([f for f in os.listdir(HTML_DIR) if f.endswith('.html')])
+        total = len(html_files)
+        success = 0
+
+        for i, hf in enumerate(html_files):
+            hp = os.path.join(HTML_DIR, hf)
+            pp = os.path.join(SCREENSHOT_DIR, hf.replace('.html', '.png'))
+            try:
+                await page.goto(f'file://{hp}', wait_until='load')
+                await page.wait_for_timeout(200)
+                table = page.locator('table').first
+                if await table.count() > 0:
+                    bbox = await table.bounding_box()
+                    if bbox and bbox['width'] > 0:
+                        await table.screenshot(path=pp)
+                    else:
+                        await page.screenshot(path=pp, full_page=True)
+                else:
+                    await page.screenshot(path=pp, full_page=True)
+                success += 1
+            except Exception as e:
+                print(f"  截图失败 {hf}: {e}")
+
+            if (i+1) % 10 == 0:
+                print(f"  截图进度: {i+1}/{total}")
+
+        await browser.close()
+        print(f"\n截图完成: {success}/{total}")
+
+
+if __name__ == '__main__':
+    main()

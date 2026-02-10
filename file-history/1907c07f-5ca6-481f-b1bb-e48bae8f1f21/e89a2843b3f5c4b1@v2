@@ -1,0 +1,85 @@
+"""Build the final refactored generate_report.py by assembling all parts."""
+
+# Read all source files
+with open('/tmp/generate_report_header.py', 'r') as f:
+    header = f.read()  # Lines 1-446: imports, ReportContext, helpers, init_context
+
+with open('/Users/fanshengxia/Desktop/周报V2/generate_report.py', 'r') as f:
+    current_lines = f.readlines()
+
+with open('/Users/fanshengxia/Desktop/周报V2/generate_report.py.bak', 'r') as f:
+    bak_lines = f.readlines()
+
+with open('/tmp/remaining_parts.py', 'r') as f:
+    remaining = f.read()  # Parts 11-22 + main()
+
+# Extract already-wrapped Parts 7-8 from current file (lines 447-545, 1-indexed)
+# These were already properly refactored with ctx references
+parts_7_8 = ''.join(current_lines[446:545])  # 0-indexed: 446=line 447, 544=line 545
+
+# ------- Build Part 9: generate_scale_change_report -------
+# Original backup lines 529-653 (between Part 9 header and Part 10 header)
+raw_9 = ''.join(bak_lines[528:653])  # 0-indexed
+
+# Replace global references
+raw_9 = raw_9.replace('data_loader.load_zhanbao_data()', 'ctx.data_loader.load_zhanbao_data()')
+raw_9 = raw_9.replace('data_loader.load_product_tosale()', 'ctx.data_loader.load_product_tosale()')
+
+# Indent the raw code by 4 spaces for function body
+def indent_block(text, spaces=4):
+    prefix = ' ' * spaces
+    lines = text.split('\n')
+    result = []
+    for line in lines:
+        if line.strip() == '':
+            result.append('')
+        else:
+            result.append(prefix + line)
+    return '\n'.join(result)
+
+part_9 = """
+# ==============================================================================
+# 第九部分：生成报表 - 规模变化与新发产品
+# ==============================================================================
+
+def generate_scale_change_report(ctx: ReportContext, writer: pd.ExcelWriter) -> dict:
+    \"\"\"第九部分：规模变化与新发产品 → 写入 '3、本月定开...', '本周新发产品', '待售产品'\"\"\"
+    yunzuogailan_all = ctx.yunzuogailan_all
+    Product_information_df_DAP = ctx.product_info
+"""
+part_9 += indent_block(raw_9)
+part_9 += "\n    return {}\n"
+
+# ------- Build Part 10: generate_performance_report -------
+# Original backup lines 659-799 (between Part 10 header and Part 11 header)
+raw_10 = ''.join(bak_lines[658:799])  # 0-indexed
+
+# In the original code, data_transposition is a module-level var.
+# We need to set it as a local from ctx.
+# Also yunzuogailan_all is re-read from file in Part 10, so the line that reads it stays as-is.
+# Parent_sort['总分类'] is used -> need local Parent_sort from ctx.
+
+part_10 = """
+# ==============================================================================
+# 第十部分：生成报表 - 产品业绩分析
+# ==============================================================================
+
+def generate_performance_report(ctx: ReportContext, writer: pd.ExcelWriter) -> dict:
+    \"\"\"第十部分：产品业绩 → 写入 '系列产品业绩×4', '5.2×2'\"\"\"
+    data_transposition = ctx.nav_pivot
+    Parent_sort = ctx.parent_sort
+    rank_here = ctx.rank_here
+"""
+part_10 += indent_block(raw_10)
+part_10 += "\n    return {}\n"
+
+# ------- Assemble final file -------
+final = header + "\n" + parts_7_8 + "\n" + part_9 + "\n" + part_10 + "\n" + remaining
+
+# Write the final file
+output_path = '/Users/fanshengxia/Desktop/周报V2/generate_report.py'
+with open(output_path, 'w') as f:
+    f.write(final)
+
+print(f"Final file written: {len(final)} chars, {final.count(chr(10))} lines")
+print(f"Output: {output_path}")

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金分类标签管理系统（含交易调仓）</title>
+    <script src="xlsx.full.min.js"></script>
+    <script src="chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f7;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #5a67d8;
+            background: #f0f2ff;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #5a67d8;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9em;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error {
+            color: #ef4444;
+            background: #fef2f2;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #16a34a;
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .trade-adjustment {
+            background: #fff8f0;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .adjusted-holding {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>基金分类标签管理系统（含交易调仓）</h1>
+            <p>上传持仓明细表（含交易情况），自动计算各产品不同风格的权益暴露占比</p>
+        </div>
+
+        <!-- 文件上传区域 -->
+        <div class="section">
+            <h2>📁 上传数据文件</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- 基金分类表上传 -->
+                <div class="upload-area" id="classificationUploadArea">
+                    <p style="font-size: 1.1em; margin-bottom: 10px; font-weight: 600;">📋 1. 基金分类表</p>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">请先上传基金分类表</p>
+                    <button class="upload-btn" onclick="document.getElementById('classificationInput').click()">选择分类表</button>
+                    <input type="file" id="classificationInput" class="file-input" accept=".xlsx,.xls" />
+                    <div id="classificationResult" style="margin-top: 10px;"></div>
+                </div>
+
+                <!-- 持仓明细表上传 -->
+                <div class="upload-area" id="holdingUploadArea">
+                    <p style="font-size: 1.1em; margin-bottom: 10px; font-weight: 600;">📊 2. 持仓明细表（含交易情况）</p>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">上传持仓盈亏表，第二个sheet为交易情况</p>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择持仓表</button>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
+                    <div id="holdingResult" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+            <div class="loading" id="loading">
+                <p>📊 正在处理数据...</p>
+            </div>
+            <div id="uploadResult"></div>
+        </div>
+
+        <!-- 分析结果区域 -->
+        <div class="section">
+            <h2>📊 分析结果</h2>
+
+            <!-- 导出功能 -->
+            <div style="margin-bottom: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="exportResultsToExcel()" style="font-size: 1em; padding: 12px 24px;">
+                    📥 导出分析结果到Excel
+                </button>
+            </div>
+
+            <div class="summary-stats" id="summaryStats">
+                <!-- 统计信息将在这里显示 -->
+            </div>
+        </div>
+
+        <!-- 详细数据表格 -->
+        <div class="section">
+            <h2>📋 详细数据（含交易调仓）</h2>
+            <div class="table-container">
+                <table class="data-table" id="detailTable">
+                    <thead>
+                        <tr>
+                            <th>产品名称</th>
+                            <th>基金名称</th>
+                            <th>资产代码</th>
+                            <th>风格</th>
+                            <th>权益仓位</th>
+                            <th>昨日持仓金额</th>
+                            <th>当日调仓</th>
+                            <th>调仓后真实持仓</th>
+                            <th>真实权益暴露</th>
+                            <th>真实权益占比</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTableBody">
+                        <!-- 详细数据将在这里显示 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let fundClassifications = {};
+        let classificationData = [];
+        let holdingData = [];
+        let tradeData = [];
+        let detailData = [];
+        let isClassificationLoaded = false;
+        let styleOrder = ['红利', '均衡', '科技成长', '周期', '价值'];
+
+        function normalizeText(value) {
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'string') return value.trim();
+            return String(value).trim();
+        }
+
+        function getFundMatchKey(row) {
+            const externalCode = normalizeText(row['外部代码']);
+            const assetCode = normalizeText(row['资产代码']);
+            return externalCode || assetCode || '';
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            setupFileUpload();
+        });
+
+        // 设置文件上传
+        function setupFileUpload() {
+            const classificationInput = document.getElementById('classificationInput');
+            const fileInput = document.getElementById('fileInput');
+
+            classificationInput.addEventListener('change', handleClassificationUpload);
+            fileInput.addEventListener('change', handleFileUpload);
+        }
+
+        // 处理基金分类表上传
+        function handleClassificationUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const loading = document.getElementById('loading');
+            const classificationResult = document.getElementById('classificationResult');
+
+            loading.classList.add('show');
+            classificationResult.innerHTML = '';
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    let classificationSheet = workbook.Sheets['基金分类'] || workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(classificationSheet);
+
+                    classificationData = jsonData;
+                    fundClassifications = {};
+                    let successCount = 0;
+
+                    jsonData.forEach(row => {
+                        const externalCode = normalizeText(row['外部代码']);
+                        const assetCode = normalizeText(row['资产代码']);
+                        const assetClass = normalizeText(row['资产类别（PAS)']);
+                        const style = normalizeText(row['风格']);
+                        const equityPosition = parseInt(row['权益仓位']) || 0;
+
+                        const matchKey = externalCode || assetCode;
+
+                        if (matchKey && style && equityPosition >= 0) {
+                            fundClassifications[matchKey] = {
+                                assetClass: assetClass,
+                                style: style,
+                                equityPosition: equityPosition
+                            };
+                            successCount++;
+                        }
+                    });
+
+                    // 读取风格顺序
+                    if (workbook.Sheets['基金风格顺序']) {
+                        const styleOrderData = XLSX.utils.sheet_to_json(workbook.Sheets['基金风格顺序']);
+                        styleOrder = [];
+                        styleOrderData.forEach(row => {
+                            const style = normalizeText(row['风格']);
+                            if (style) styleOrder.push(style);
+                        });
+                    }
+
+                    if (styleOrder.length === 0) {
+                        styleOrder = ['红利', '均衡', '科技成长', '周期', '价值'];
+                    }
+
+                    isClassificationLoaded = true;
+                    loading.classList.remove('show');
+
+                    let resultMsg = `✅ 成功加载 ${successCount} 个基金分类`;
+                    if (styleOrder.length > 0) resultMsg += `<br>🎨 风格顺序: ${styleOrder.join('→')}`;
+
+                    classificationResult.innerHTML = `<div class="success">${resultMsg}</div>`;
+
+                    if (holdingData.length > 0) {
+                        processData();
+                    }
+                } catch (error) {
+                    loading.classList.remove('show');
+                    classificationResult.innerHTML = `<div class="error">❌ 基金分类表处理失败: ${error.message}</div>`;
+                    console.error('基金分类表处理失败:', error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 处理持仓表上传
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!isClassificationLoaded) {
+                const holdingResult = document.getElementById('holdingResult');
+                holdingResult.innerHTML = '<div class="error">❌ 请先上传基金分类表</div>';
+                event.target.value = '';
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const holdingResult = document.getElementById('holdingResult');
+
+            loading.classList.add('show');
+            holdingResult.innerHTML = '';
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    // 读取第一个sheet（持仓数据）
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    holdingData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    // 读取第二个sheet（交易情况）
+                    tradeData = [];
+                    if (workbook.SheetNames.length > 1) {
+                        const tradeSheet = workbook.Sheets[workbook.SheetNames[1]];
+                        tradeData = XLSX.utils.sheet_to_json(tradeSheet);
+                    }
+
+                    processData();
+
+                    loading.classList.remove('show');
+                    let msg = `✅ 成功处理 ${holdingData.length} 条持仓数据`;
+                    if (tradeData.length > 0) {
+                        msg += `，${tradeData.length} 条交易数据`;
+                    }
+                    holdingResult.innerHTML = `<div class="success">${msg}</div>`;
+                } catch (error) {
+                    loading.classList.remove('show');
+                    holdingResult.innerHTML = `<div class="error">❌ 持仓表处理失败: ${error.message}</div>`;
+                    console.error('持仓表处理失败:', error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 处理数据
+        function processData() {
+            if (holdingData.length === 0) return;
+
+            // 构建交易映射表：产品->资产代码->交易调整
+            const tradeMap = {};
+            tradeData.forEach(trade => {
+                const productName = normalizeText(trade['产品名称']);
+                const assetCode = normalizeText(trade['资产代码']);
+                const direction = normalizeText(trade['交易方向']);
+
+                if (!productName || !assetCode) return;
+
+                if (!tradeMap[productName]) {
+                    tradeMap[productName] = {};
+                }
+                if (!tradeMap[productName][assetCode]) {
+                    tradeMap[productName][assetCode] = {
+                        申购: 0,
+                        赎回: 0,
+                        卖出: 0
+                    };
+                }
+
+                if (direction === '申购') {
+                    const amount = parseFloat(trade['委托金额']) || 0;
+                    tradeMap[productName][assetCode].申购 += amount;
+                } else if (direction === '赎回' || direction === '卖出') {
+                    const quantity = parseFloat(trade['委托数量']) || 0;
+                    tradeMap[productName][assetCode].赎回 += quantity;
+                }
+            });
+
+            // 计算产品净资产（调仓前）
+            const productNetAssets = {};
+            holdingData.forEach(row => {
+                const productName = normalizeText(row['产品简称']);
+                const assetName = normalizeText(row['资产简称']);
+                const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+
+                if (!productName || holdingAmount === 0) return;
+
+                if (!productNetAssets[productName]) {
+                    productNetAssets[productName] = 0;
+                }
+
+                const isRepo = assetName && assetName.includes('正回购');
+                if (isRepo) {
+                    productNetAssets[productName] -= holdingAmount;
+                } else {
+                    productNetAssets[productName] += holdingAmount;
+                }
+            });
+
+            // 生成详细数据
+            detailData = [];
+            let matchedCount = 0;
+            let unmatchedCount = 0;
+
+            holdingData.forEach(row => {
+                const productName = normalizeText(row['产品简称']);
+                const assetName = normalizeText(row['资产简称']);
+                const assetCode = normalizeText(row['资产代码']);
+                const holdingAmount = parseFloat(row['日终市值(元)-产品法估值']) || 0;
+                const holdingQuantity = parseFloat(row['持仓面额']) || 0;
+                const fullPrice = parseFloat(row['日终全价（元）-产品法估值']) || 0;
+
+                if (!productName || !assetName || holdingAmount === 0) return;
+
+                const matchKey = getFundMatchKey(row);
+                const classification = fundClassifications[matchKey];
+
+                if (!classification) {
+                    if (matchKey) unmatchedCount++;
+                    return;
+                }
+
+                matchedCount++;
+
+                // 计算交易调仓
+                let tradeAdjustment = 0;
+                let adjustedHolding = holdingAmount;
+
+                if (tradeMap[productName] && tradeMap[productName][assetCode]) {
+                    const trade = tradeMap[productName][assetCode];
+
+                    // 申购：加金额
+                    if (trade.申购 > 0) {
+                        tradeAdjustment += trade.申购;
+                        adjustedHolding += trade.申购;
+                    }
+
+                    // 赎回：用 (持仓面额 - 赎回份额) * 日终全价 - 产品法估值
+                    if (trade.赎回 > 0 && fullPrice > 0) {
+                        const newQuantity = holdingQuantity - trade.赎回;
+                        const newValue = newQuantity * fullPrice;
+                        tradeAdjustment = newValue - holdingAmount;
+                        adjustedHolding = newValue;
+                    }
+                }
+
+                const equityExposure = adjustedHolding * (classification.equityPosition / 100);
+
+                detailData.push({
+                    productName,
+                    assetName,
+                    assetCode,
+                    style: classification.style,
+                    equityPosition: classification.equityPosition,
+                    holdingAmount,
+                    tradeAdjustment,
+                    adjustedHolding,
+                    equityExposure,
+                    productNetAsset: productNetAssets[productName]
+                });
+            });
+
+            console.log(`匹配统计: 成功匹配 ${matchedCount} 条, 未匹配 ${unmatchedCount} 条`);
+            console.log(`交易调仓: ${Object.keys(tradeMap).length} 个产品有交易`);
+
+            renderResults();
+            renderDetailTable();
+
+            const uploadResult = document.getElementById('uploadResult');
+            uploadResult.innerHTML = `<div class="success">✅ 数据处理完成: 成功匹配 ${matchedCount} 条持仓，处理 ${tradeData.length} 条交易</div>`;
+        }
+
+        // 渲染结果
+        function renderResults() {
+            renderSummaryStats();
+        }
+
+        // 渲染统计信息
+        function renderSummaryStats() {
+            const summaryStats = document.getElementById('summaryStats');
+
+            // 按产品和风格汇总
+            const productStyleMap = {};
+            let totalEquityExposure = 0;
+
+            detailData.forEach(row => {
+                if (!productStyleMap[row.productName]) {
+                    productStyleMap[row.productName] = {};
+                }
+                if (!productStyleMap[row.productName][row.style]) {
+                    productStyleMap[row.productName][row.style] = 0;
+                }
+                productStyleMap[row.productName][row.style] += row.equityExposure;
+                totalEquityExposure += row.equityExposure;
+            });
+
+            const productCount = Object.keys(productStyleMap).length;
+            const totalStyles = new Set();
+            Object.values(productStyleMap).forEach(styles => {
+                Object.keys(styles).forEach(style => totalStyles.add(style));
+            });
+
+            summaryStats.innerHTML = `
+                <div class="stat-card">
+                    <h4>产品数量</h4>
+                    <div class="value">${productCount}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>风格数量</h4>
+                    <div class="value">${totalStyles.size}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>总权益暴露（调仓后）</h4>
+                    <div class="value">${(totalEquityExposure / 100000000).toFixed(1)}亿</div>
+                </div>
+                <div class="stat-card">
+                    <h4>交易笔数</h4>
+                    <div class="value">${tradeData.length}</div>
+                </div>
+            `;
+        }
+
+        // 渲染详细数据表格
+        function renderDetailTable() {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+
+            // 计算真实权益占比
+            detailData.forEach(row => {
+                row.equityExposureRatio = row.productNetAsset > 0
+                    ? (row.equityExposure / row.productNetAsset * 100)
+                    : 0;
+            });
+
+            // 按产品、风格、权益占比排序
+            const sortedData = [...detailData].sort((a, b) => {
+                if (a.productName !== b.productName) {
+                    return a.productName.localeCompare(b.productName);
+                }
+                const styleIndexA = styleOrder.indexOf(a.style);
+                const styleIndexB = styleOrder.indexOf(b.style);
+                if (styleIndexA !== styleIndexB) {
+                    return (styleIndexA === -1 ? 999 : styleIndexA) - (styleIndexB === -1 ? 999 : styleIndexB);
+                }
+                return b.equityExposureRatio - a.equityExposureRatio;
+            });
+
+            sortedData.forEach(row => {
+                const tr = document.createElement('tr');
+
+                // 调仓金额显示
+                let tradeDisplay = '-';
+                if (row.tradeAdjustment !== 0) {
+                    const sign = row.tradeAdjustment > 0 ? '+' : '';
+                    tradeDisplay = `${sign}${(row.tradeAdjustment / 10000).toFixed(0)}万`;
+                }
+
+                tr.innerHTML = `
+                    <td>${row.productName}</td>
+                    <td>${row.assetName}</td>
+                    <td style="font-family: monospace; color: #667eea;">${row.assetCode}</td>
+                    <td>${row.style}</td>
+                    <td>${row.equityPosition}%</td>
+                    <td>${(row.holdingAmount / 10000).toFixed(0)}万</td>
+                    <td class="${row.tradeAdjustment !== 0 ? 'trade-adjustment' : ''}">${tradeDisplay}</td>
+                    <td class="${row.tradeAdjustment !== 0 ? 'adjusted-holding' : ''}">${(row.adjustedHolding / 10000).toFixed(0)}万</td>
+                    <td>${(row.equityExposure / 10000).toFixed(0)}万</td>
+                    <td>${row.equityExposureRatio.toFixed(2)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 导出分析结果到Excel
+        function exportResultsToExcel() {
+            if (detailData.length === 0) {
+                alert('没有可导出的数据，请先上传并处理数据');
+                return;
+            }
+
+            try {
+                const wb = XLSX.utils.book_new();
+
+                // Sheet 1: 详细数据
+                const detailExportData = [];
+                detailExportData.push(['产品名称', '基金名称', '资产代码', '风格', '权益仓位', '昨日持仓金额(万)', '当日调仓(万)', '调仓后真实持仓(万)', '真实权益暴露(万)', '真实权益占比']);
+
+                const sortedData = [...detailData].sort((a, b) => {
+                    if (a.productName !== b.productName) {
+                        return a.productName.localeCompare(b.productName);
+                    }
+                    const styleIndexA = styleOrder.indexOf(a.style);
+                    const styleIndexB = styleOrder.indexOf(b.style);
+                    if (styleIndexA !== styleIndexB) {
+                        return (styleIndexA === -1 ? 999 : styleIndexA) - (styleIndexB === -1 ? 999 : styleIndexB);
+                    }
+                    return (b.equityExposure / b.productNetAsset) - (a.equityExposure / a.productNetAsset);
+                });
+
+                sortedData.forEach(row => {
+                    const equityExposureRatio = row.productNetAsset > 0
+                        ? (row.equityExposure / row.productNetAsset * 100)
+                        : 0;
+
+                    detailExportData.push([
+                        row.productName,
+                        row.assetName,
+                        row.assetCode,
+                        row.style,
+                        row.equityPosition + '%',
+                        Math.round(row.holdingAmount / 10000),
+                        row.tradeAdjustment !== 0 ? Math.round(row.tradeAdjustment / 10000) : '-',
+                        Math.round(row.adjustedHolding / 10000),
+                        Math.round(row.equityExposure / 10000),
+                        equityExposureRatio.toFixed(2) + '%'
+                    ]);
+                });
+
+                const ws1 = XLSX.utils.aoa_to_sheet(detailExportData);
+                XLSX.utils.book_append_sheet(wb, ws1, '持仓明细（含调仓）');
+
+                // Sheet 2: 产品风格汇总
+                const summaryData = [];
+                summaryData.push(['产品名称', '风格', '权益暴露金额(万)', '权益暴露占比']);
+
+                const productStyleMap = {};
+                detailData.forEach(row => {
+                    if (!productStyleMap[row.productName]) {
+                        productStyleMap[row.productName] = {};
+                    }
+                    if (!productStyleMap[row.productName][row.style]) {
+                        productStyleMap[row.productName][row.style] = {
+                            amount: 0,
+                            netAsset: row.productNetAsset
+                        };
+                    }
+                    productStyleMap[row.productName][row.style].amount += row.equityExposure;
+                });
+
+                Object.keys(productStyleMap).sort().forEach(productName => {
+                    const styles = productStyleMap[productName];
+                    const netAsset = styles[Object.keys(styles)[0]].netAsset;
+
+                    styleOrder.forEach(style => {
+                        if (styles[style]) {
+                            const ratio = netAsset > 0 ? (styles[style].amount / netAsset * 100) : 0;
+                            summaryData.push([
+                                productName,
+                                style,
+                                Math.round(styles[style].amount / 10000),
+                                ratio.toFixed(2) + '%'
+                            ]);
+                        }
+                    });
+                });
+
+                const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, ws2, '产品风格汇总');
+
+                const fileName = `基金分析结果_含交易_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+
+                alert(`✅ 导出成功！文件名：${fileName}`);
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert(`❌ 导出失败: ${error.message}`);
+            }
+        }
+
+    </script>
+</body>
+
+</html>

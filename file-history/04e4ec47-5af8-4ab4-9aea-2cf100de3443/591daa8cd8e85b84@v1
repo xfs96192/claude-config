@@ -1,0 +1,42 @@
+# Plan: Generate Detailed README Documents
+
+## Context
+User needs two comprehensive README files that are detailed enough for an AI to fully reproduce both projects from scratch.
+
+## Deliverables
+
+### 1. `/Users/fanshengxia/Desktop/周报V2/README.md` - Main Weekly Report Project
+Covers the complete automated weekly report generation system including:
+- Project overview & architecture
+- Complete file inventory with descriptions
+- Data directory structure
+- Configuration guide (config.py)
+- Pipeline execution flow (5 steps)
+- Each script's purpose, inputs, outputs
+- Data format specifications
+- Business logic rules
+- External dependencies (Wind API, DeepSeek, LibreOffice)
+- NAV caching system
+- AI integration details
+- VBA/Excel/Word automation
+- Known limitations
+- Step-by-step reproduction guide
+
+### 2. `/Users/fanshengxia/Desktop/周报V2/README_DASHBOARD.md` - Web Dashboard Project
+Covers the interactive HTML dashboard generator including:
+- Overview & features
+- Architecture (Python generation + client-side JS)
+- 20 sections configuration
+- CSS design system (dark theme, variables)
+- JavaScript functionality (upload, export, search, sort, heatmaps)
+- Data format (JSON structure)
+- Sheet name normalization (Kangxi radicals)
+- Number formatting rules
+- Print/PDF export CSS
+- Reproduction guide
+
+## Approach
+- Write in Chinese (matching the project's primary language) with technical terms in English
+- Include actual code snippets and configuration examples
+- Include data flow diagrams using ASCII art
+- Make each README self-contained for AI reproduction

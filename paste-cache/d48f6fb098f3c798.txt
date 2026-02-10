@@ -1,0 +1,91 @@
+确认执行完整流程吗？(y/n): ❌ 用户取消执行
+(base) fanshengxia@FanshengdeMacBook-Pro-9 周报V2 % python /Users/fanshengxia/Desktop/ 周报V2/run_weekly_report.py
+
+╔══════════════════════════════════════════════════════════════╗
+║         🏦 多资产投资部产品周报自动化系统                    ║
+╠══════════════════════════════════════════════════════════════╣
+║  📅 报告日期: 20250129                                       ║
+║  📁 数据目录: /Users/fanshengxia/Desktop/周报V2/数据            ║
+║  📊 输出目录: /Users/fanshengxia/Desktop/周报V2/输出结果          ║
+╚══════════════════════════════════════════════════════════════╝
+    
+📆 日期配置:
+   运作概览日期: 20250129
+   周报日期:     20250129
+   上周日期:     20250122
+   上月最后一天: 20241231
+   上年最后一天: 20241231
+   本周一日期:   2025-01-27
+   下周一日期:   2025-02-03
+   下周五日期:   2025-02-07
+
+════════════════════════════════════════════════════════════
+
+确认执行完整流程吗？(y/n): y
+
+📋 执行计划: 共 5 个步骤
+   • 1. 数据源文件移动 (move_files.py)
+   • 2. AI产品分类更新 (update_new_product_catgoery.py)
+   • 3. 主要结果表生成 (generate_report.py)
+   • 4. 业绩基准表现计算 (calculate_all_benchmarks.py)
+   • 5. 收益预测数据生成 (yield_forecast.py)
+
+
+📍 进度: [1/5]
+
+============================================================
+🔄 开始执行: 1. 数据源文件移动
+📄 脚本文件: move_files.py
+⏰ 开始时间: 13:11:13
+============================================================
+
+  📅 当前报告日期: 20250129
+  📁 源文件夹: /Users/fanshengxia/Downloads/本次数据0129
+  📁 目标文件夹1: /Users/fanshengxia/Desktop/周报V2/数据/周度更新数据
+  📁 目标文件夹2: /Users/fanshengxia/Desktop/周报V2/数据/产品净值数据
+  📁 目标文件夹3: /Users/fanshengxia/Desktop/周报V2/数据/合享发行送审表
+  未匹配规则文件: .DS_Store
+  未匹配规则文件: 阶段表现2026-01-30.xlsx
+
+────────────────────────────────────────────────────────────
+✅ 1. 数据源文件移动 - 执行成功 (结束时间: 13:11:13)
+
+📍 进度: [2/5]
+
+============================================================
+🔄 开始执行: 2. AI产品分类更新
+📄 脚本文件: update_new_product_catgoery.py
+⏰ 开始时间: 13:11:13
+============================================================
+
+  开始产品分类流程...
+  Traceback (most recent call last):
+    File "/Users/fanshengxia/Desktop/周报V2/update_new_product_catgoery.py", line 194, in <module>
+      main()
+    File "/Users/fanshengxia/Desktop/周报V2/update_new_product_catgoery.py", line 148, in main
+      yunzuogailan_export, classification_df = load_product_data()
+    File "/Users/fanshengxia/Desktop/周报V2/update_new_product_catgoery.py", line 10, in load_product_data
+      yunzuogailan_before = pd.read_excel(Config.get_weekly_data_file('产品运作概览'), index_col=0)
+    File "/Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/pandas/io/excel/_base.py", line 478, in read_excel
+      io = ExcelFile(io, storage_options=storage_options, engine=engine)
+    File "/Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/pandas/io/excel/_base.py", line 1496, in __init__
+      ext = inspect_excel_format(
+    File "/Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/pandas/io/excel/_base.py", line 1371, in inspect_excel_format
+      with get_handle(
+    File "/Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/pandas/io/common.py", line 868, in get_handle
+      handle = open(handle, ioargs.mode)
+  FileNotFoundError: [Errno 2] No such file or directory: '/Users/fanshengxia/Desktop/周报V2/数据/周度更新数据/产品运作概览20250129.xlsx'
+
+────────────────────────────────────────────────────────────
+❌ 2. AI产品分类更新 - 执行失败 (返回码: 1)
+⏰ 结束时间: 13:11:15
+
+🔍 关键错误信息:
+   ⚠️  Traceback (most recent call last):
+   ⚠️  FileNotFoundError: [Errno 2] No such file or directory: '/Users/fanshengxia/Desktop/周报V2/数据/周度更新数据/产品运作概览20250129.xlsx'
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+❌ 流程在步骤 [2/5] '2. AI产品分类更新' 失败
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+是否跳过此步骤继续执行后续步骤？(y/n): 

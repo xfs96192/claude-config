@@ -1,0 +1,673 @@
+# 周报 Web 仪表板 — 技术文档
+
+## 1. 项目概述
+
+`generate_weekly_dashboard.py` 是一个自包含的 Python 脚本（2130 行），从 JSON 数据源生成一个完全独立的 HTML 文件（~340KB），无需任何外部依赖即可在浏览器中打开。该仪表板覆盖周报的全部 20 个板块、39+ 张表格，提供暗色主题、侧边栏导航、搜索、列排序、热力图着色、Excel 上传覆盖和 PDF 打印导出等功能。
+
+### 核心特性
+
+- **自包含 HTML**：CSS + JS 全部内联，无外部文件依赖
+- **20 个板块**：匹配 PDF 周报目录结构
+- **深色主题**：金融专业视觉设计
+- **客户端 Excel 上传**：通过 SheetJS 库解析上传的 Excel，动态重建所有表格
+- **PDF 导出**：`window.print()` + @media print CSS，A4 横向，约 23 页
+- **热力图**：数值变化自动着色（绿正红负，5 级强度）
+- **列排序**：点击表头实现升序/降序切换
+- **全局搜索**：实时高亮匹配内容
+- **康熙部首兼容**：自动处理 Sheet 名中的 Unicode 康熙部首字符
+- **IntersectionObserver**：滚动时自动高亮当前侧边栏导航项
+
+---
+
+## 2. 架构
+
+```
+┌─────────────────────────────────────────────────┐
+│         generate_weekly_dashboard.py             │
+│                (Python 生成器)                    │
+│                                                  │
+│  JSON 数据 ──→ 20 个 Section 定义 ──→ HTML 输出  │
+│                                                  │
+│  服务端处理:                                      │
+│  ├── 读取 JSON                                   │
+│  ├── 预处理 Sheet 数据（合计行、列扩展）           │
+│  ├── 检测列类型（百分比/整数/BP）                  │
+│  ├── 生成 HTML 表格（含合并单元格）                │
+│  ├── 计算概览统计卡片                             │
+│  ├── 内联 CSS 样式                               │
+│  └── 内联 JS 交互逻辑                            │
+└─────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────┐
+│          输出: 自包含 HTML (~340KB)               │
+│                                                  │
+│  客户端功能 (JavaScript):                         │
+│  ├── Excel 上传 (SheetJS CDN)                    │
+│  ├── PDF 打印导出                                │
+│  ├── 全局搜索 + 高亮                             │
+│  ├── 列排序 (升序/降序)                          │
+│  ├── Tab 切换                                    │
+│  ├── 侧边栏导航 (IntersectionObserver)           │
+│  └── Sheet 名康熙部首标准化                       │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. 数据源
+
+### 3.1 JSON 输入格式
+
+```json
+{
+  "output_file": {
+    "Sheet名称1": {
+      "data": [
+        ["列头1", "列头2", ...],
+        [值1, 值2, ...],
+        ...
+      ],
+      "col_count": 6,
+      "merged_cells": [
+        {"min_row": 1, "min_col": 1, "max_row": 1, "max_col": 3}
+      ]
+    },
+    "Sheet名称2": { ... }
+  },
+  "vba_workbook": {
+    "VBA Sheet名1": { ... },
+    "VBA Sheet名2": { ... }
+  }
+}
+```
+
+**字段说明**：
+- `output_file`：来自 `输出结果{date}.xlsx` 的所有 Sheet
+- `vba_workbook`：来自 `周报生成工具_加权.xlsm` 的 VBA 工作表
+- `data`：二维数组，第 0 行为表头
+- `col_count`：列数
+- `merged_cells`：合并单元格信息（1-indexed）
+
+### 3.2 JSON 生成方式
+
+JSON 数据通过 Python 脚本从 Excel 文件提取：
+
+```python
+import json
+import openpyxl
+
+def extract_sheet_data(wb, sheet_name):
+    ws = wb[sheet_name]
+    data = []
+    for row in ws.iter_rows(values_only=True):
+        data.append(list(row))
+    merged = []
+    for mc in ws.merged_cells.ranges:
+        merged.append({
+            'min_row': mc.min_row, 'min_col': mc.min_col,
+            'max_row': mc.max_row, 'max_col': mc.max_col
+        })
+    return {'data': data, 'col_count': ws.max_column, 'merged_cells': merged}
+```
+
+---
+
+## 4. 板块定义 (SECTIONS)
+
+20 个板块按 PDF 周报目录顺序排列，分三大类型：
+
+### 4.1 板块列表
+
+| # | ID | 标题 | 类型 | 包含 Sheet |
+|---|-----|------|------|-----------|
+| 0 | `overview` | 报告概览 | overview | 总结文字 |
+| 1 | `channel-aum` | 1. 渠道代销规模 | tables | 1、分渠道余额; 渠道明细 |
+| 2 | `product-scale` | 2. 产品规模 | tables | 2、产品规模; 不同形态产品规模和数量; 13.不同周期产品规模; 14.狭义客户周期... |
+| 3 | `scale-changes` | 3. 在售产品销售情况 | tables | 3、本月定开或客户周期产品规模变化; 本周新发产品; 待售产品 |
+| 4 | `pm-metrics` | 4. 投资经理维度 | tables | 投资经理维度产品规模和数量 |
+| 5 | `maturity` | 5. 产品到期情况 | tables | 10.未来全年产品到期情况; 10.未来全年产品到期情况-定开; 10.下周到期产品清单 |
+| 6 | `break-even` | 6. 破净情况 | tables | 破净结果 |
+| 7 | `market-index` | 7. 市场指数收益 | tables | 15.市场指数收益 |
+| 8 | `series-perf` | 8. 系列产品业绩 | tabs | 系列产品业绩-费前加权; -费后加权; -费前平均; -费后平均 |
+| 9 | `min-hold-perf` | 9. 最短持有期业绩 | tables | 5.2 最短持有期产品业绩表现1; 5.2 最短持有期产品业绩表现2 |
+| 10 | `underperform` | 10. 不达基准清单 | tables | 招商在售产品不达基准; 封闭及定开产品100日内不达...; 合享及悦动稳享临近到期... |
+| 11 | `high-vol` | 11. 高波动产品 | tables | 12.周净值高波动产品清单 |
+| 12 | `asset-alloc` | 12. 资产维度数据统计 | tables | 8.资产大表 |
+| 13 | `fee-income` | 13. 中收监控 | tables | 9.中收监控 |
+| 14 | `public-strategy` | 14. 公共策略专户 | tables | 公共策略持仓概况 |
+| 15 | `xinghe` | 15. 兴合产品持仓 | tables | 11.兴合产品持仓明细 |
+| 16 | `bond-holdings` | 16. 可转债/量化持仓 | tables | 11.1 可转债专户持仓明细; 11.2量化和可转债持仓明细 |
+| 17 | `outsource` | 17. 委外专户配置 | tables | 11.2.1/11.2.2/11.2.3 其他委外专户配置 |
+| 18 | `derivatives` | 18. 衍生品/非标持仓 | tables | 11.4/11.5/11.6 衍生品和非标 |
+| 19 | `gold-equity` | 19. 黄金/权益持仓 | tables | 黄金持仓; 权益专户持仓 |
+
+### 4.2 板块类型
+
+```python
+# overview: 仪表板概览卡片（统计指标 + 柱状图 + AI 摘要）
+{'type': 'overview', 'sheets': ['总结文字']}
+
+# tables: 多张表格垂直排列
+{'type': 'tables', 'sheets': ['Sheet1', 'Sheet2']}
+
+# tabs: 多张表格使用 Tab 切换展示
+{'type': 'tabs', 'sheets': ['Sheet1', 'Sheet2', 'Sheet3', 'Sheet4']}
+```
+
+### 4.3 侧边栏分组
+
+侧边栏导航按以下分组组织：
+
+```python
+groups = {
+    '一、规模及发行': ['channel-aum', 'product-scale', 'scale-changes', 'pm-metrics', 'maturity'],
+    '二、产品业绩':   ['break-even', 'market-index', 'series-perf', 'min-hold-perf', 'underperform', 'high-vol'],
+    '三、资产与持仓': ['asset-alloc', 'fee-income', 'public-strategy', 'xinghe',
+                      'bond-holdings', 'outsource', 'derivatives', 'gold-equity']
+}
+```
+
+---
+
+## 5. CSS 设计系统
+
+### 5.1 颜色变量
+
+```css
+:root {
+  /* 背景 */
+  --bg-primary: #050a18;          /* 页面背景 */
+  --bg-secondary: #0c1425;        /* 次级背景 */
+  --bg-card: #111c32;             /* 卡片背景 */
+  --bg-card-hover: #162040;       /* 卡片悬停 */
+  --bg-table-header: #0f1b33;     /* 表头背景 */
+  --bg-table-row-alt: #0a1226;    /* 表格隔行 */
+  --bg-sidebar: #080e1f;          /* 侧边栏 */
+  --bg-sidebar-active: #1a2744;   /* 侧边栏选中 */
+
+  /* 文字 */
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-header: #f1f5f9;
+
+  /* 强调色 */
+  --accent-gold: #f59e0b;         /* 主强调色（金色） */
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+
+  /* 正/负值 */
+  --positive: #10b981;            /* 正值绿 */
+  --positive-bg: rgba(16,185,129,0.08);
+  --negative: #ef4444;            /* 负值红 */
+  --negative-bg: rgba(239,68,68,0.08);
+  --alert: #f97316;               /* 警告橙 */
+
+  /* 热力图（5级强度） */
+  --heat-pos-1 ~ --heat-pos-5     /* 正值绿色渐强 */
+  --heat-neg-1 ~ --heat-neg-5     /* 负值红色渐强 */
+
+  /* 布局 */
+  --sidebar-width: 260px;
+  --header-height: 56px;
+}
+```
+
+### 5.2 字体
+
+```css
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+/* 标题使用衬线字体 */
+font-family: "Noto Serif SC", serif;  /* 通过 Google Fonts CDN 加载 */
+```
+
+### 5.3 布局结构
+
+```
+┌──────────────────────────────────────────────┐
+│ .top-header (固定顶部, h=56px)               │
+│   品牌标识 | 标题 | 日期                      │
+├──────────┬───────────────────────────────────┤
+│ .sidebar │ .main-content                     │
+│ (w=260px)│                                   │
+│ 固定左侧  │  .section #overview              │
+│          │    .overview-grid                 │
+│  分组标签  │      .stat-card × 5             │
+│  导航项   │      .bar-chart                  │
+│  导航项   │      .text-cards-inline          │
+│  ...     │                                   │
+│          │  .section #channel-aum            │
+│          │    h2.section-header              │
+│          │    h3.sheet-title                 │
+│          │    .table-wrapper > table         │
+│          │                                   │
+│          │  .section #series-perf            │
+│          │    .tabs-container                │
+│          │      .tab-buttons                 │
+│          │      .tab-content (active)        │
+│          │      .tab-content                 │
+│          │  ...                              │
+└──────────┴───────────────────────────────────┘
+```
+
+---
+
+## 6. JavaScript 功能
+
+### 6.1 列类型检测
+
+列类型自动检测决定数值格式化方式：
+
+```javascript
+// 三类特殊 Sheet 集合
+SCALE_INT_SHEETS   // 整数显示 + 负数用括号
+PCT_RAW_SHEETS     // 百分比值已是百分比形式（如 1.87 = 1.87%）
+PCT_DECIMAL_SHEETS // 百分比值是小数形式（如 0.0187 = 1.87%）
+
+function detectColumnTypes(data, sheetName) {
+  // 1. 如果 Sheet 在 PCT_RAW_SHEETS: 含"年化|收益率|波动率|占比"的列 → 'percent_raw'
+  // 2. 如果 Sheet 在 PCT_DECIMAL_SHEETS: 同上 → 'percent'
+  // 3. 其他 Sheet: 通过表头关键词 + 数值大小自动判断
+  //    - 表头含 'bp' → 'bps'
+  //    - 表头含 '年化|收益率|波动率|占比|比例':
+  //      - 前 20 行数据平均值 > 0.5 → 'percent_raw'
+  //      - 否则 → 'percent'
+  //    - 无关键词但数据 avg < 0.5 且 max < 1.5 → 'percent'
+}
+```
+
+### 6.2 数值格式化规则
+
+```javascript
+function formatCellValue(val, colType, useParens) {
+  // colType === 'percent':      val * 100 → "1.87%"
+  // colType === 'percent_raw':  val → "1.87%"
+  // colType === 'bps':          val → "1.87"
+  // useParens (规模表):
+  //   |val| < 0.05 → "-"
+  //   |val| < 1    → 保留1位小数，负数加括号
+  //   其他整数     → 千分位分隔，负数用括号 "(1,234)"
+  // 通用数值:
+  //   整数 → 不加小数
+  //   < 0.0001 → 6位小数
+  //   < 0.01   → 4位小数
+  //   < 100    → 2位小数
+  //   < 100000 → 千分位 + 2位小数
+  //   >= 100000 → 千分位整数
+}
+```
+
+### 6.3 热力图着色
+
+```javascript
+function getCellClass(val, colType, header) {
+  // 变化列 (表头含 '变化|较上周|较上月|较上年|bp'):
+  //   正值 → 'val-positive' + 'heat-pos-{1-5}'
+  //   负值 → 'val-negative' + 'heat-neg-{1-5}'
+  //
+  // 强度计算:
+  //   percent:     |val| * 20 → level
+  //   percent_raw: |val| / 5  → level
+  //   bps:         |val| / 50 → level
+  //   其他:        |val| / 20 → level
+  //   level = min(floor(intensity * 5) + 1, 5)
+}
+```
+
+### 6.4 康熙部首标准化
+
+**问题背景**：部分 Sheet 名使用康熙部首字符（如 `3、本⽉` 中的 `⽉` = U+2F49），而非标准汉字 `月`（U+6708），导致 Sheet 名匹配失败。
+
+```javascript
+const KANGXI_MAP = {
+  '\u2F00': '\u4E00',  // ⼀ → 一
+  '\u2F48': '\u6708',  // ⽈ → 月 (关键！)
+  '\u2F49': '\u6708',  // ⽉ → 月 (关键！)
+  // ... 90+ 个映射
+};
+
+function normalizeSheetName(name) {
+  let result = '';
+  for (let i = 0; i < name.length; i++) {
+    result += KANGXI_MAP[name[i]] || name[i];
+  }
+  return result;
+}
+
+// 查找 Sheet：先精确匹配，再标准化匹配
+function findSheet(sheets, name) {
+  if (sheets[name]) return sheets[name];
+  const norm = normalizeSheetName(name);
+  for (const key of Object.keys(sheets)) {
+    if (normalizeSheetName(key) === norm) return sheets[key];
+  }
+  return null;
+}
+```
+
+### 6.5 Excel 上传功能
+
+通过 SheetJS（xlsx.js CDN）实现客户端 Excel 解析，无需服务端：
+
+```javascript
+// CDN: https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js
+
+function handleFileUpload(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const wb = XLSX.read(e.target.result, {type: 'array'});
+    const newSheets = {};
+    for (const name of wb.SheetNames) {
+      const ws = wb.Sheets[name];
+      const data = XLSX.utils.sheet_to_json(ws, {header: 1});
+      newSheets[name] = {data, col_count: data[0]?.length || 0, merged_cells: []};
+    }
+    // 使用 SECTION_CONFIG 重建所有板块内容
+    for (const section of SECTION_CONFIG) {
+      rebuildSection(section, newSheets);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+```
+
+上传后的处理流程：
+1. SheetJS 解析 `.xlsx` 为 JSON
+2. 对每个 Sheet 调用 `detectColumnTypes` 检测列类型
+3. 调用 `preprocessSheets` 预处理（添加合计行等）
+4. 按 `SECTION_CONFIG` 重建每个板块的 HTML
+5. 重新绑定排序和搜索事件
+
+### 6.6 PDF 导出
+
+```javascript
+function exportPDF() {
+  window.print();
+}
+```
+
+配套 `@media print` CSS：
+
+```css
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+  .sidebar, .top-header, .search-box, .upload-area { display: none !important; }
+  .main-content { margin-left: 0 !important; margin-top: 0 !important; }
+  .section { page-break-inside: avoid; break-inside: avoid; }
+  table { font-size: 7pt !important; }
+  /* 背景色保留 */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+```
+
+输出约 23 页 A4 横向 PDF。
+
+### 6.7 全局搜索
+
+```javascript
+function globalSearch(query) {
+  const cells = document.querySelectorAll('td, th');
+  cells.forEach(cell => {
+    cell.classList.remove('search-highlight');
+    if (query && cell.textContent.toLowerCase().includes(query.toLowerCase())) {
+      cell.classList.add('search-highlight');
+    }
+  });
+}
+```
+
+### 6.8 列排序
+
+```javascript
+function sortTable(table, colIndex, asc) {
+  const rows = Array.from(table.querySelectorAll('tr')).slice(headerRowCount);
+  rows.sort((a, b) => {
+    const aVal = toFloat(a.cells[colIndex]?.textContent);
+    const bVal = toFloat(b.cells[colIndex]?.textContent);
+    if (aVal == null && bVal == null) return 0;
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+    return asc ? aVal - bVal : bVal - aVal;
+  });
+  rows.forEach(row => table.appendChild(row));
+}
+```
+
+### 6.9 滚动导航高亮
+
+```javascript
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // 移除所有 .active，给当前 section 对应的 nav-item 添加 .active
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const navItem = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+      if (navItem) navItem.classList.add('active');
+    }
+  });
+}, {rootMargin: '-20% 0px -80% 0px'});
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+```
+
+---
+
+## 7. 概览板块 (Overview)
+
+概览页提取以下统计数据：
+
+```python
+def compute_overview_stats():
+    stats = {}
+    # 从 '2、产品规模' Sheet 提取:
+    stats['total_aum']     # 总管理规模（亿）
+    stats['total_count']   # 产品数量
+    stats['aum_vs_month']  # 较上月变化
+    stats['aum_vs_year']   # 较年初变化
+
+    # 从 '总结文字' Sheet 提取 AI 摘要:
+    stats['guimo_text']      # 规模概况
+    stats['zhongshou_text']  # 中收概况
+    stats['daoqi_text']      # 到期概况
+
+    # 从其他 Sheet 提取告警指标:
+    stats['broken_count']       # 破净产品数
+    stats['underperform_count'] # 不达基准产品数
+    stats['high_vol_count']     # 高波动产品数
+    return stats
+```
+
+生成的 HTML 结构：
+1. **5 个统计卡片**：管理规模 / 产品数量 / 破净 / 不达基准 / 高波动
+2. **柱状图**：各系列规模分布（水平条形图）
+3. **AI 摘要卡片**：规模概况 / 中收概况 / 到期概况
+
+---
+
+## 8. 数据预处理 (preprocess_sheets)
+
+Python 端和 JS 端都有预处理逻辑，确保表格显示完整：
+
+### 8.1 分渠道余额增强
+
+原始数据只有行内/行外两列，预处理后增加合计列和分组小计：
+
+```python
+# 扩展列: 行内 + 行外 → 行内 + 行外 + 合计
+# 添加分组小计: 中低波稳健产品合计, 中高波市值产品合计, 外币产品合计
+# 添加总计行
+```
+
+### 8.2 产品规模合计行
+
+检查是否已有合计行，如果没有则自动计算并追加。
+
+### 8.3 合并单元格解析
+
+```python
+def parse_merged_cells(merged_list):
+    """将 merged_cells 列表解析为两个字典"""
+    merges = {}     # {(row, col): (rowspan, colspan)}  - 合并起始单元格
+    skip_cells = {} # {(row, col)}  - 被合并覆盖的单元格（需跳过）
+```
+
+---
+
+## 9. 运行方式
+
+### 9.1 配置
+
+编辑脚本顶部的配置：
+
+```python
+JSON_PATH = '/tmp/weekly_report_data.json'
+OUTPUT_HTML = '/Users/fanshengxia/Desktop/周报V2/输出结果/周报仪表板-20260205.html'
+REPORT_DATE = '2026-02-05'
+REPORT_TITLE = '多资产投资部理财产品运作周报'
+```
+
+### 9.2 执行
+
+```bash
+python generate_weekly_dashboard.py
+```
+
+输出：
+```
+Dashboard generated: 输出结果/周报仪表板-20260205.html
+Sections: 20
+Total sheets displayed: 39
+```
+
+### 9.3 JSON 数据准备
+
+需要先从 Excel 文件提取 JSON 数据。典型方法：
+
+```python
+import openpyxl
+import json
+
+def excel_to_json(excel_path):
+    wb = openpyxl.load_workbook(excel_path, data_only=True)
+    sheets = {}
+    for name in wb.sheetnames:
+        ws = wb[name]
+        data = []
+        for row in ws.iter_rows(values_only=True):
+            data.append([cell for cell in row])
+        merged = []
+        for mc in ws.merged_cells.ranges:
+            merged.append({
+                'min_row': mc.min_row, 'min_col': mc.min_col,
+                'max_row': mc.max_row, 'max_col': mc.max_col
+            })
+        sheets[name] = {
+            'data': data,
+            'col_count': ws.max_column,
+            'merged_cells': merged
+        }
+    return sheets
+
+output_sheets = excel_to_json('输出结果/输出结果20260205.xlsx')
+vba_sheets = excel_to_json('周报生成工具_加权.xlsm')
+
+with open('/tmp/weekly_report_data.json', 'w', encoding='utf-8') as f:
+    json.dump({'output_file': output_sheets, 'vba_workbook': vba_sheets},
+              f, ensure_ascii=False, default=str)
+```
+
+---
+
+## 10. 从零复现指南
+
+### 10.1 文件结构
+
+```
+generate_weekly_dashboard.py    # 唯一需要的脚本文件
+```
+
+### 10.2 脚本内部结构
+
+```python
+# 行 1-15:     配置常量（JSON_PATH, OUTPUT_HTML, REPORT_DATE）
+# 行 16-25:    数据加载（读取 JSON）
+# 行 26-50:    Sheet 集合定义（SCALE_INT_SHEETS, PCT_RAW_SHEETS, PCT_DECIMAL_SHEETS）
+# 行 55-260:   辅助函数（is_numeric, to_float, escape_html, detect_column_types,
+#              format_cell_value, get_cell_class, parse_merged_cells, col_letter_to_num）
+# 行 261-400:  数据预处理（preprocess_sheets）
+# 行 400-548:  SECTIONS 定义（20 个板块配置）
+# 行 550-610:  概览统计计算（compute_overview_stats）
+# 行 612-750:  HTML 表格生成（generate_table_html, generate_section_html）
+# 行 754-852:  概览板块 HTML 生成（generate_overview_html）
+# 行 855-1391: CSS 样式定义（约 540 行）
+# 行 1393-1960: JavaScript 模板（约 570 行，含 SECTION_CONFIG 占位符）
+# 行 2021-2130: HTML 组装和输出（generate_html, main）
+```
+
+### 10.3 关键实现细节
+
+**合并单元格处理**：
+- `merged_cells` 数据格式为 1-indexed（Excel 风格）
+- 合并起始单元格加 `rowspan`/`colspan` 属性
+- 被覆盖单元格（skip_cells）不输出 `<td>`
+
+**Tab 切换实现**：
+```javascript
+function switchTab(groupId, tabIdx) {
+  // 隐藏同组所有 tab-content
+  document.querySelectorAll(`[data-tab^="${groupId}-tab-"]`)
+    .forEach(el => el.classList.remove('active'));
+  // 显示目标 tab
+  document.querySelector(`[data-tab="${groupId}-tab-${tabIdx}"]`)
+    .classList.add('active');
+  // 更新按钮状态
+  document.querySelectorAll(`[data-tabgroup="${groupId}"]`)
+    .forEach((btn, i) => btn.classList.toggle('active', i === tabIdx));
+}
+```
+
+**总计行样式判断**：
+```javascript
+// 在 generate_table_html 中:
+if (first_val in ['合计', '总计', '总合计', '汇总', '总规模']) → 'total-row'
+elif '合计' in second_val → 'subtotal-row'
+```
+
+### 10.4 依赖
+
+- **Python 端**：仅需 `json`, `os`, `math`, `re`（标准库）
+- **浏览器端**：SheetJS CDN（仅 Excel 上传功能需要，离线仍可查看）
+
+### 10.5 输出特征
+
+| 指标 | 值 |
+|------|-----|
+| HTML 文件大小 | ~340 KB |
+| 板块数 | 20 |
+| 表格数 | 39+ |
+| PDF 页数 | ~23 (A4 横向) |
+| 外部依赖 | 仅 Google Fonts CDN + SheetJS CDN（可选） |
+
+---
+
+## 11. 已知问题与解决方案
+
+### 11.1 康熙部首问题
+
+**现象**：Sheet 名 `3、本⽉定开或客户周期产品规模变化` 中的 `⽉`（U+2F49）不等于标准 `月`（U+6708）。
+
+**原因**：PAS 系统导出的 Excel 文件中某些中文字符使用了 CJK 康熙部首 Unicode 区间。
+
+**解决**：`normalizeSheetName()` 和 `findSheet()` 函数自动做模糊匹配，覆盖 90+ 个康熙部首字符的映射。
+
+### 11.2 Excel 上传后的数据差异
+
+**现象**：上传新 Excel 后部分表格格式不同。
+
+**原因**：客户端 JS 重建使用的是 `detectColumnTypes` 自动检测，可能与 Python 端预设的列类型不完全一致。
+
+**解决**：JS 端同样维护了 `SCALE_INT_SHEETS`、`PCT_RAW_SHEETS`、`PCT_DECIMAL_SHEETS` 三个集合，确保关键表格格式一致。

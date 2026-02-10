@@ -1,0 +1,494 @@
+#!/usr/bin/env python3
+"""
+Step 5: Assemble Word report from screenshots + AI text.
+Converts .docm template to .docx, inserts text and images at bookmarks.
+"""
+
+import os
+import re
+import shutil
+import struct
+import zipfile
+from copy import deepcopy
+from io import BytesIO
+from lxml import etree
+
+# === Configuration ===
+BASE_DIR = '/Users/fanshengxia/Desktop/周报V2'
+TEMPLATE_PATH = os.path.join(BASE_DIR, '多资产投资部产品周报-模版.docm')
+OUTPUT_PATH = os.path.join(BASE_DIR, '输出结果/多资产投资部产品周报-20260205.docx')
+SCREENSHOT_DIR = '/tmp/weekly_report_screenshots'
+REPORT_DATE = '20260205'
+REPORT_DATE_CN = '2026年02月05日'
+
+# Page content width in EMU (A4 width 11906 twips - 720 left - 720 right = 10466 twips, * 635 EMU/twip)
+MAX_WIDTH_EMU = 10466 * 635  # ~6,645,910 EMU
+
+# Namespaces
+NSMAP = {
+    'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+    'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+    'wp': 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+    'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+    'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
+    'mc': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
+}
+W = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
+R = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
+WP = '{http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing}'
+A = '{http://schemas.openxmlformats.org/drawingml/2006/main}'
+PIC = '{http://schemas.openxmlformats.org/drawingml/2006/picture}'
+REL_NS = 'http://schemas.openxmlformats.org/package/2006/relationships'
+
+# Bookmark mapping: sheet_name -> bookmark_name
+BOOKMARK_MAP = {
+    '1、分渠道余额': '分渠道余额',
+    '渠道明细-透视': '渠道明细',
+    '2、产品规模': '系列产品规模',
+    '13.不同周期产品规模': '周期产品规模',
+    '14.狭义客户周期和最短持有期': '最短持有期产品规模',
+    '3、本⽉定开或客户周期产品规模变化': '本月定开及客户周期产品规模变化（大于500w）',
+    '本周新起息产品': '本周在售产品',
+    '待售产品': '待起息产品清单',
+    '投资经理维度产品规模和数量': '投资经理维度产品规模和数量',
+    '10.未来全年产品到期情况-封闭': '未来全年产品到期情况——封闭式产品',
+    '10.未来全年产品到期情况-定开': '未来全年产品到期情况——定开产品',
+    '10.下周到期产品清单': '下周到期产品清单',
+    '破净': '破净情况',
+    '15.指数收益': '市场指数涨跌',
+    '系列产品业绩-规模加权费前': '规模加权，费前收益',
+    '系列产品业绩-规模加权费后': '规模加权，费后收益',
+    '系列产品业绩-简单平均费前': '简单平均，费前收益',
+    '系列产品业绩-简单平均费后': '简单平均，费后收益',
+    '5.2 最短持有期产品业绩表现': '固定收益类持有期系列产品业绩',
+    '5.2_最短持有期产品业绩表现': '固定收益类持有期系列产品业绩',
+    '招商在售不达基准清单': '招商在售产品不达基准清单',
+    '封闭及定开产品100日内不大业绩产品清单': '封闭及定开产品临近到期日不达基准清单',
+    '12.周净值高波动产品清单': '周净值高波动产品清单',
+    '8.资产大表': '资产持仓金额（亿）',
+    '资产大表-占比': '资产持仓占比',
+    '8.资产大表-含外币': '产持仓金额含外币产品（亿）',
+    '9.中收监控': '中收监控',
+    '11.衍生品专户产品持仓明细': '衍生品专户持仓明细',
+    '11.1 可转债专户持仓明细': '可转债专户持仓明细',
+    '11.1_可转债专户持仓明细': '可转债专户持仓明细',
+    '黄金持仓': '黄金专户持仓明细',
+    '11.2量化和对冲专户持仓明细': '量化和对冲专户持仓明细',
+    '11.2.1委外专户金额配置情况': '其他公共策略专户持仓情况持仓金额',
+    '11.2.2其他委外专户配置占比情况-持仓产品平均': '其他公共策略专户持仓情况持仓占比',
+    '11.2.2其他委外专户配置占比情况-系列规模占比': '其他公共策略专户持仓情况系列占比',
+    '11.4其他衍生品专户持仓明细': '其他衍生品专户持仓明细',
+    '最短持有客户周期-新': '最短持有期',
+    '最短持有客户周期-新-2': '最短持有期2',
+    '外币低波-1': '外币低波系列1',
+    '外币低波-2': '外币低波系列2',
+    '外币低波-3': '外币低波系列3',
+    '稳系列-1': '稳系列1',
+    '稳系列-2': '稳系列2',
+    '稳系列-3': '稳系列3',
+    '合享-1': '合享系列1',
+    '合享-2': '合享系列2',
+    '悦动稳享': '悦动稳享系列1',
+    '外币市值': '外币市值类',
+    '债券市值类-2': '债券市值类1',
+    '债券市值类-3': '债券市值类2',
+    '债券市值类-4': '债券市值类3',
+    '债券市值类-5': '债券市值类4',
+    '含权市值类-1': '含权市值类1',
+    '含权市值类-1-2': '含权市值类2',
+    '含权市值类-2': '含权市值类3',
+    '含权市值类-3': '含权市值类4',
+    '联名及行内特别款': '联名及行内特别款',
+    'BOF系列': 'BOF系列',
+    '公共策略专户持仓概览': '公共策略专户持仓概览',
+    '权益持仓': '权益专户持仓明细',
+    '合享及悦动稳享临近到期预测不达标产品清单': '合享及悦动稳享临近到期预测不达标产品清单',
+}
+
+# Text bookmarks content
+TEXT_BOOKMARKS = {}  # Will be populated from Excel data
+
+
+def get_png_dimensions(png_path):
+    """Read PNG dimensions from file header."""
+    with open(png_path, 'rb') as f:
+        f.read(8)  # PNG signature
+        f.read(4)  # IHDR chunk length
+        f.read(4)  # IHDR chunk type
+        width = struct.unpack('>I', f.read(4))[0]
+        height = struct.unpack('>I', f.read(4))[0]
+    return width, height
+
+
+def load_text_bookmarks():
+    """Load AI summary text from the output Excel file."""
+    import openpyxl
+    output_file = os.path.join(BASE_DIR, f'输出结果/输出结果{REPORT_DATE}.xlsx')
+    wb = openpyxl.load_workbook(output_file, data_only=True)
+    ws = wb['总结文字']
+
+    texts = {}
+    for row in ws.iter_rows(min_row=2, max_row=10, values_only=False):
+        label = row[0].value
+        content = row[1].value
+        if label and content:
+            texts[label] = str(content)
+
+    wb.close()
+
+    TEXT_BOOKMARKS['首页日期'] = REPORT_DATE_CN
+    TEXT_BOOKMARKS['到期日期'] = REPORT_DATE_CN
+    TEXT_BOOKMARKS['规模文字'] = texts.get('规模文字', '')
+    TEXT_BOOKMARKS['中收文字'] = texts.get('中收文字', '')
+    TEXT_BOOKMARKS['到期文字'] = texts.get('到期文字', '')
+    TEXT_BOOKMARKS['市场文字'] = ''  # Market text is typically manual
+    TEXT_BOOKMARKS['目标盈'] = ''  # Usually empty or manual
+
+    print("Text bookmarks loaded:")
+    for k, v in TEXT_BOOKMARKS.items():
+        preview = v[:80] + '...' if len(v) > 80 else v
+        print(f"  {k}: {preview}")
+
+
+def convert_docm_to_docx(docm_path, docx_path):
+    """Convert .docm to .docx by stripping VBA and changing content types."""
+    vba_files = {'word/vbaProject.bin', 'word/vbaData.xml', 'word/_rels/vbaProject.bin.rels'}
+
+    with zipfile.ZipFile(docm_path, 'r') as zin:
+        with zipfile.ZipFile(docx_path, 'w', zipfile.ZIP_DEFLATED) as zout:
+            for item in zin.namelist():
+                if item in vba_files:
+                    continue
+
+                data = zin.read(item)
+
+                if item == '[Content_Types].xml':
+                    # Change macroEnabled content type to normal
+                    content = data.decode('utf-8')
+                    content = content.replace(
+                        'application/vnd.ms-word.document.macroEnabled.main+xml',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'
+                    )
+                    # Remove VBA content type entries
+                    content = re.sub(r'<Override[^>]*vbaData[^>]*/>', '', content)
+                    content = re.sub(r'<Default[^>]*Extension="bin"[^>]*/>', '', content)
+                    data = content.encode('utf-8')
+
+                elif item == 'word/_rels/document.xml.rels':
+                    # Remove VBA relationship
+                    content = data.decode('utf-8')
+                    content = re.sub(r'<Relationship[^>]*vbaProject[^>]*/>', '', content)
+                    data = content.encode('utf-8')
+
+                zout.writestr(item, data)
+
+    print(f"Converted .docm to .docx: {docx_path}")
+
+
+def build_image_run_xml(rel_id, cx, cy, img_id, img_name):
+    """Build the XML for an inline image run element."""
+    nsmap_drawing = {
+        'wp': NSMAP['wp'],
+        'a': NSMAP['a'],
+        'pic': NSMAP['pic'],
+        'r': NSMAP['r'],
+    }
+
+    # Build the full run element with drawing
+    run_xml = f'''<w:r xmlns:w="{NSMAP['w']}"
+                       xmlns:r="{NSMAP['r']}"
+                       xmlns:wp="{NSMAP['wp']}"
+                       xmlns:a="{NSMAP['a']}"
+                       xmlns:pic="{NSMAP['pic']}">
+      <w:rPr><w:noProof/></w:rPr>
+      <w:drawing>
+        <wp:inline distT="0" distB="0" distL="0" distR="0">
+          <wp:extent cx="{cx}" cy="{cy}"/>
+          <wp:effectExtent l="0" t="0" r="0" b="0"/>
+          <wp:docPr id="{img_id}" name="{img_name}"/>
+          <wp:cNT>
+            <a:graphicFrameLocks noChangeAspect="1"/>
+          </wp:cNT>
+          <a:graphic>
+            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:pic>
+                <pic:nvPicPr>
+                  <pic:cNvPr id="{img_id}" name="{img_name}"/>
+                  <pic:cNvPicPr/>
+                </pic:nvPicPr>
+                <pic:blipFill>
+                  <a:blip r:embed="{rel_id}"/>
+                  <a:stretch><a:fillRect/></a:stretch>
+                </pic:blipFill>
+                <pic:spPr>
+                  <a:xfrm>
+                    <a:off x="0" y="0"/>
+                    <a:ext cx="{cx}" cy="{cy}"/>
+                  </a:xfrm>
+                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                </pic:spPr>
+              </pic:pic>
+            </a:graphicData>
+          </a:graphic>
+        </wp:inline>
+      </w:drawing>
+    </w:r>'''
+
+    return etree.fromstring(run_xml.encode())
+
+
+def build_text_run_xml(text, font_size=21, font_name=None):
+    """Build XML for a text run element. font_size in half-points (21 = 10.5pt)."""
+    rpr_parts = []
+    if font_name:
+        rpr_parts.append(f'<w:rFonts w:ascii="{font_name}" w:eastAsia="{font_name}" w:hAnsi="{font_name}" w:hint="eastAsia"/>')
+    else:
+        rpr_parts.append('<w:rFonts w:hint="eastAsia"/>')
+    rpr_parts.append(f'<w:sz w:val="{font_size}"/>')
+    rpr_parts.append(f'<w:szCs w:val="{font_size}"/>')
+
+    rpr_xml = ''.join(rpr_parts)
+
+    # Escape XML special chars in text
+    text_escaped = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    # Preserve spaces
+    text_escaped = text_escaped.replace(' ', ' ')
+
+    run_xml = f'''<w:r xmlns:w="{NSMAP['w']}">
+      <w:rPr>{rpr_xml}</w:rPr>
+      <w:t xml:space="preserve">{text_escaped}</w:t>
+    </w:r>'''
+
+    return etree.fromstring(run_xml.encode())
+
+
+def insert_multiline_text_at_bookmark(root, bm_start, bm_end, text, font_size=21, font_name=None):
+    """Insert multi-line text at a bookmark location.
+    For multi-line text, creates new paragraphs after the bookmark paragraph.
+    """
+    lines = text.split('\n')
+    parent_p = bm_start.getparent()
+    body = parent_p.getparent()
+    p_idx = list(body).index(parent_p)
+
+    # First line goes into the bookmark paragraph
+    if lines:
+        run = build_text_run_xml(lines[0], font_size, font_name)
+        # Insert run after bookmarkStart, before bookmarkEnd
+        bm_start.addnext(run)
+
+    # Additional lines create new paragraphs after the bookmark paragraph
+    # Copy paragraph properties from the original
+    pPr = parent_p.find(f'{W}pPr')
+
+    for i, line in enumerate(lines[1:], 1):
+        new_p = etree.SubElement(body, f'{W}p')
+        # Copy paragraph properties (but not sectPr which should stay in original)
+        if pPr is not None:
+            new_pPr = deepcopy(pPr)
+            # Remove sectPr from copied properties - it should stay only in the original
+            for sectPr in new_pPr.findall(f'{W}sectPr'):
+                new_pPr.remove(sectPr)
+            new_p.insert(0, new_pPr)
+
+        run = build_text_run_xml(line, font_size, font_name)
+        new_p.append(run)
+
+        # Move the new paragraph to the right position
+        body.remove(new_p)
+        body.insert(p_idx + i, new_p)
+
+
+def assemble_report():
+    """Main assembly function."""
+    print("=" * 60)
+    print("Step 5: Assembling Word Report")
+    print("=" * 60)
+
+    # Load text content
+    load_text_bookmarks()
+
+    # Convert .docm to .docx
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    convert_docm_to_docx(TEMPLATE_PATH, OUTPUT_PATH)
+
+    # Build reverse map: bookmark_name -> screenshot_file
+    bookmark_to_screenshot = {}
+    screenshots_available = set(os.listdir(SCREENSHOT_DIR))
+    for sheet_name, bm_name in BOOKMARK_MAP.items():
+        png_file = f"{sheet_name}.png"
+        if png_file in screenshots_available:
+            bookmark_to_screenshot[bm_name] = os.path.join(SCREENSHOT_DIR, png_file)
+
+    print(f"\nScreenshot mapping: {len(bookmark_to_screenshot)} bookmarks matched to screenshots")
+    # Show unmatched
+    all_bm_names = set(BOOKMARK_MAP.values())
+    unmatched = all_bm_names - set(bookmark_to_screenshot.keys())
+    if unmatched:
+        print(f"  Unmatched bookmarks: {unmatched}")
+
+    # Open the .docx as a zip and modify
+    # Read all files from the docx
+    docx_contents = {}
+    with zipfile.ZipFile(OUTPUT_PATH, 'r') as zf:
+        for name in zf.namelist():
+            docx_contents[name] = zf.read(name)
+
+    # Parse document.xml
+    doc_xml = docx_contents['word/document.xml']
+    root = etree.fromstring(doc_xml)
+
+    # Parse relationships
+    rels_xml = docx_contents['word/_rels/document.xml.rels']
+    rels_root = etree.fromstring(rels_xml)
+
+    # Find the highest existing rId number
+    max_rid = 0
+    for rel in rels_root:
+        rid = rel.get('Id', '')
+        if rid.startswith('rId'):
+            try:
+                num = int(rid[3:])
+                max_rid = max(max_rid, num)
+            except ValueError:
+                pass
+
+    # Track new images
+    new_images = {}  # rel_id -> (media_path, image_data)
+    next_rid = max_rid + 1
+    img_counter = 1
+
+    # Find all bookmarks
+    ns = {'w': NSMAP['w']}
+    all_bookmarks = root.findall('.//w:bookmarkStart', ns)
+    print(f"\nProcessing {len(all_bookmarks)} bookmarks...")
+
+    text_inserted = 0
+    images_inserted = 0
+
+    for bm_start in all_bookmarks:
+        bm_name = bm_start.get(f'{W}name')
+        bm_id = bm_start.get(f'{W}id')
+
+        if not bm_name or bm_name.startswith('_'):
+            continue
+
+        # Find matching bookmarkEnd
+        bm_end = root.find(f'.//w:bookmarkEnd[@w:id="{bm_id}"]', ns)
+        if bm_end is None:
+            continue
+
+        # Check if this is a text bookmark
+        if bm_name in TEXT_BOOKMARKS and TEXT_BOOKMARKS[bm_name]:
+            text = TEXT_BOOKMARKS[bm_name]
+
+            # Determine font settings based on bookmark
+            if bm_name in ('规模文字', '中收文字', '到期文字'):
+                font_size = 21  # 10.5pt
+                font_name = 'DengXian'
+            elif bm_name == '首页日期':
+                font_size = 21
+                font_name = None  # Use theme font from paragraph
+            elif bm_name == '到期日期':
+                font_size = 21
+                font_name = None
+            else:
+                font_size = 21
+                font_name = None
+
+            # For multi-line text
+            if '\n' in text:
+                insert_multiline_text_at_bookmark(root, bm_start, bm_end, text, font_size, font_name)
+            else:
+                run = build_text_run_xml(text, font_size, font_name)
+                bm_start.addnext(run)
+
+            text_inserted += 1
+            print(f"  Text: {bm_name} ({len(text)} chars)")
+
+        # Check if this is an image bookmark
+        elif bm_name in bookmark_to_screenshot:
+            img_path = bookmark_to_screenshot[bm_name]
+            px_width, px_height = get_png_dimensions(img_path)
+
+            # Calculate EMU dimensions (96 DPI assumed for screenshots)
+            # 1 inch = 914400 EMU, 1 inch = 96 pixels
+            emu_per_px = 914400 / 96  # = 9525
+            cx = int(px_width * emu_per_px)
+            cy = int(px_height * emu_per_px)
+
+            # Scale to fit page width if needed
+            if cx > MAX_WIDTH_EMU:
+                scale = MAX_WIDTH_EMU / cx
+                cx = MAX_WIDTH_EMU
+                cy = int(cy * scale)
+
+            # Create relationship
+            rel_id = f'rId{next_rid}'
+            media_name = f'image{img_counter}.png'
+            media_path = f'media/{media_name}'
+
+            # Add relationship
+            rel_elem = etree.SubElement(rels_root, 'Relationship')
+            rel_elem.set('Id', rel_id)
+            rel_elem.set('Type', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image')
+            rel_elem.set('Target', media_path)
+
+            # Read image data
+            with open(img_path, 'rb') as f:
+                img_data = f.read()
+            new_images[media_name] = img_data
+
+            # Build image run XML
+            img_run = build_image_run_xml(rel_id, cx, cy, img_counter, f'Picture {img_counter}')
+
+            # Insert after bookmarkStart
+            bm_start.addnext(img_run)
+
+            next_rid += 1
+            img_counter += 1
+            images_inserted += 1
+            print(f"  Image: {bm_name} ({px_width}x{px_height}px, {len(img_data)//1024}KB)")
+
+    print(f"\nInserted: {text_inserted} text blocks, {images_inserted} images")
+
+    # Update content types to include PNG
+    ct_xml = docx_contents['[Content_Types].xml']
+    ct_root = etree.fromstring(ct_xml)
+    # Check if png default already exists
+    has_png = False
+    for default in ct_root.findall('{http://schemas.openxmlformats.org/package/2006/content-types}Default'):
+        if default.get('Extension') == 'png':
+            has_png = True
+            break
+    if not has_png and new_images:
+        png_default = etree.SubElement(ct_root, '{http://schemas.openxmlformats.org/package/2006/content-types}Default')
+        png_default.set('Extension', 'png')
+        png_default.set('ContentType', 'image/png')
+        print("Added PNG content type to [Content_Types].xml")
+
+    # Serialize updated XML
+    updated_doc_xml = etree.tostring(root, xml_declaration=True, encoding='UTF-8', standalone=True)
+    updated_rels_xml = etree.tostring(rels_root, xml_declaration=True, encoding='UTF-8', standalone=True)
+    updated_ct_xml = etree.tostring(ct_root, xml_declaration=True, encoding='UTF-8', standalone=True)
+
+    # Write the final docx
+    docx_contents['word/document.xml'] = updated_doc_xml
+    docx_contents['word/_rels/document.xml.rels'] = updated_rels_xml
+    docx_contents['[Content_Types].xml'] = updated_ct_xml
+
+    with zipfile.ZipFile(OUTPUT_PATH, 'w', zipfile.ZIP_DEFLATED) as zout:
+        for name, data in docx_contents.items():
+            zout.writestr(name, data)
+        # Add new images
+        for media_name, img_data in new_images.items():
+            zout.writestr(f'word/media/{media_name}', img_data)
+
+    file_size = os.path.getsize(OUTPUT_PATH)
+    print(f"\nOutput: {OUTPUT_PATH}")
+    print(f"Size: {file_size // 1024} KB")
+    print("Done!")
+
+
+if __name__ == '__main__':
+    assemble_report()

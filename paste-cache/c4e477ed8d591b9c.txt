@@ -1,0 +1,328 @@
+(base) fanshengxia@FanshengdeMacBook-Pro 周报V2 % python run_weekly_report.py 
+
+╔══════════════════════════════════════════════════════════════╗
+║         🏦 多资产投资部产品周报自动化系统                    ║
+╠══════════════════════════════════════════════════════════════╣
+║  📅 报告日期: 20260122                                       ║
+║  📁 数据目录: /Users/fanshengxia/Desktop/周报V2/数据            ║
+║  📊 输出目录: /Users/fanshengxia/Desktop/周报V2/输出结果          ║
+╚══════════════════════════════════════════════════════════════╝
+    
+📆 日期配置:
+   运作概览日期: 20260122
+   周报日期:     20260122
+   上周日期:     20260115
+   上月最后一天: 20251231
+   上年最后一天: 20251231
+   本周一日期:   2026-01-19
+   下周一日期:   2026-01-26
+   下周五日期:   2026-01-30
+
+════════════════════════════════════════════════════════════
+
+确认执行完整流程吗？(y/n): y
+
+📋 执行计划: 共 5 个步骤
+   • 1. 数据源文件移动 (文件移动.py)
+   • 2. AI产品分类更新 (update_new_product_catgoery.py)
+   • 3. 主要结果表生成 (周报结果表生成.py)
+   • 4. 业绩基准表现计算 (calculate_all_benchmarks.py)
+   • 5. 收益预测数据生成 (收益预测.py)
+
+
+📍 进度: [1/5]
+
+============================================================
+🔄 开始执行: 1. 数据源文件移动
+📄 脚本文件: 文件移动.py
+⏰ 开始时间: 15:33:39
+============================================================
+
+  📅 当前报告日期: 20260122
+  📁 源文件夹: /Users/fanshengxia/Downloads/本次数据0122
+  📁 目标文件夹1: /Users/fanshengxia/Desktop/周报V2/数据/周度更新数据
+  📁 目标文件夹2: /Users/fanshengxia/Desktop/周报V2/数据/产品净值数据
+  📁 目标文件夹3: /Users/fanshengxia/Desktop/周报V2/数据/合享发行送审表
+
+────────────────────────────────────────────────────────────
+✅ 1. 数据源文件移动 - 执行成功 (结束时间: 15:33:39)
+
+📍 进度: [2/5]
+
+============================================================
+🔄 开始执行: 2. AI产品分类更新
+📄 脚本文件: update_new_product_catgoery.py
+⏰ 开始时间: 15:33:39
+============================================================
+
+  开始产品分类流程...
+  /Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/openpyxl/styles/stylesheet.py:226: UserWarning: Workbook contains no default style, apply openpyxl's default
+    warn("Workbook contains no default style, apply openpyxl's default")
+  发现 0 个需要分类的产品：
+  Empty DataFrame
+  Columns: [产品代码, 产品简称]
+  Index: []
+  没有需要分类的产品
+
+────────────────────────────────────────────────────────────
+✅ 2. AI产品分类更新 - 执行成功 (结束时间: 15:33:41)
+
+📍 进度: [3/5]
+
+============================================================
+🔄 开始执行: 3. 主要结果表生成
+📄 脚本文件: 周报结果表生成.py
+⏰ 开始时间: 15:33:41
+============================================================
+
+  25.1.8.60033
+  2026-01-26 15:34:12.274 [Sys] INFO  Using UTF8 Encodinglogger id=0 key=Main name=MainLog path=/Users/fanshengxia/.Wind/WFT/log/TBAPI2log/ level=2 display=1 
+  2026-01-26 15:34:12.276 [TBAPI2] INFO  (VConnManager) VConnManager not  use_test_mode! (vconn_manager.cpp):22 
+  Wind.Cosmos.Base V1.8 compiled time is Dec 18 2024, BuildType:Release, CPUArch:X64, GCC Version:Apple LLVM 13.0.0 (clang-1300.0.29.30)
+  Welcome to use Wind Quant API for Python (WindPy)!
+  
+  COPYRIGHT (C) 2021 WIND INFORMATION CO., LTD. ALL RIGHTS RESERVED.
+  IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY USING WIND QUANT API FOR Python.
+  🔍 开始验证关键数据路径...
+  ✅ 文件存在: 数据目录
+  ✅ 文件存在: 输出目录
+  ✅ 文件存在: 产品净值数据目录
+  ✅ 文件存在: 周度更新数据目录
+  ✅ 文件存在: 资产持仓数据目录
+  
+  ============================================================
+  📊 开始加载产品净值数据...
+  ============================================================
+  📂 净值数据文件夹: /Users/fanshengxia/Desktop/周报V2/数据/产品净值数据
+  📊 发现 119 个Excel文件
+  📖 需要读取 119 个文件（新增或已修改）
+     读取进度: 10/119 - 产品运作情况表-补充精简20250331.xlsx
+     读取进度: 20/119 - 产品运作情况表-补充精简20240306.xlsx
+     读取进度: 30/119 - 产品运作情况表-补充精简20250127.xlsx
+     读取进度: 40/119 - 产品运作情况表-补充精简20250710.xlsx
+     读取进度: 50/119 - 产品运作情况表-补充精简20250930.xlsx
+     读取进度: 60/119 - 产品运作情况表-补充精简20241205.xlsx
+     读取进度: 70/119 - 产品运作情况表-补充精简20250925.xlsx
+     读取进度: 80/119 - 产品运作情况表-补充精简20241231.xlsx
+     读取进度: 90/119 - 产品运作情况表-补充精简20240626.xlsx
+     读取进度: 100/119 - 产品运作情况表-补充精简20241017.xlsx
+     读取进度: 110/119 - 产品运作情况表-补充精简20251016.xlsx
+     读取进度: 119/119 - 产品运作情况表-补充精简20240830.xlsx
+     读取耗时: 865.7 秒
+     去重: 11631110 -> 6973679 条记录
+  ⚠️ 缓存保存失败: ("Expected bytes, got a 'int' object", 'Conversion failed for column 产品代码 with type object')
+  🔄 构建数据透视表...
+  ✅ 数据加载完成: 2215 个交易日, 19083 个产品
+  ============================================================
+  
+  基于仅母产品的表 更新品类清单后重跑
+  数据截止时间为2026-01-22 00:00:00
+  下周合计到期规模25.91亿元
+  封闭合计到期规模25.91亿元
+  定开合计到期规模0.00亿元
+
+────────────────────────────────────────────────────────────
+✅ 3. 主要结果表生成 - 执行成功 (结束时间: 15:58:07)
+
+📍 进度: [4/5]
+
+============================================================
+🔄 开始执行: 4. 业绩基准表现计算
+📄 脚本文件: calculate_all_benchmarks.py
+⏰ 开始时间: 15:58:07
+============================================================
+
+  25.1.8.60033
+  2026-01-26 15:58:24.244 [Sys] INFO  Using UTF8 Encodinglogger id=0 key=Main name=MainLog path=/Users/fanshengxia/.Wind/WFT/log/TBAPI2log/ level=2 display=1 
+  2026-01-26 15:58:24.244 [TBAPI2] INFO  (VConnManager) VConnManager not  use_test_mode! (vconn_manager.cpp):22 
+  Wind.Cosmos.Base V1.8 compiled time is Dec 18 2024, BuildType:Release, CPUArch:X64, GCC Version:Apple LLVM 13.0.0 (clang-1300.0.29.30)
+  Welcome to use Wind Quant API for Python (WindPy)!
+  
+  COPYRIGHT (C) 2021 WIND INFORMATION CO., LTD. ALL RIGHTS RESERVED.
+  IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY USING WIND QUANT API FOR Python.
+  读取主文件...
+  读取配置文件...
+  正在检查缺失的指数基准配置...
+  未发现缺失配置。
+  正在预取Wind数据...
+  共识别出 19 个Wind代码，开始批量获取...
+  [1/19] 获取 CBA00123.CS 数据 (从 2022-03-18 到 2026-01-22)...
+  [2/19] 获取 CBA00121.CS 数据 (从 2025-02-07 到 2026-01-22)...
+  [3/19] 获取 000300.SH 数据 (从 2021-10-20 到 2026-01-22)...
+  [4/19] 获取 885008.WI 数据 (从 2025-03-13 到 2026-01-22)...
+  [5/19] 获取 000905.SH 数据 (从 2025-05-15 到 2026-01-22)...
+  [6/19] 获取 CBA00103.CS 数据 (从 2021-10-20 到 2026-01-22)...
+  [7/19] 获取 CBA00111.CS 数据 (从 2023-07-26 到 2026-01-22)...
+  [8/19] 获取 CBA00113.CS 数据 (从 2024-12-05 到 2026-01-22)...
+  [9/19] 获取 931463.CSI 数据 (从 2025-09-18 到 2026-01-22)...
+  [10/19] 获取 885001.WI 数据 (从 2025-02-20 到 2026-01-22)...
+  [11/19] 获取 399006.SZ 数据 (从 2025-02-07 到 2026-01-22)...
+  [12/19] 获取 000922.CSI 数据 (从 2025-09-16 到 2026-01-22)...
+  [13/19] 获取 AU9999.SGE 数据 (从 2025-04-02 到 2026-01-22)...
+  [14/19] 获取 CBA00223.CS 数据 (从 2025-11-12 到 2026-01-22)...
+  [15/19] 获取 950171.CSI 数据 (从 2024-09-25 到 2026-01-22)...
+  [16/19] 获取 CBA06001.CS 数据 (从 2023-07-26 到 2026-01-22)...
+  [17/19] 获取 000832.CSI 数据 (从 2025-06-11 到 2026-01-22)...
+  [18/19] 获取 000906.SH 数据 (从 2025-07-11 到 2026-01-22)...
+  [19/19] 获取 HSI.HI 数据 (从 2025-10-16 到 2026-01-22)...
+  开始计算所有产品基准...
+  处理进度: 0/1411
+  处理进度: 100/1411
+  处理进度: 200/1411
+  处理进度: 300/1411
+  处理进度: 400/1411
+  处理进度: 500/1411
+  处理进度: 600/1411
+  处理进度: 700/1411
+  处理进度: 800/1411
+  处理进度: 900/1411
+  处理进度: 1000/1411
+  处理进度: 1100/1411
+  处理进度: 1200/1411
+  处理进度: 1300/1411
+  处理进度: 1400/1411
+  正在保存结果...
+  完成！已保存至 /Users/fanshengxia/Desktop/周报V2/数据/产品运作概览数据-母子产品/产品运作概览信息表增加指标变化_20260122.xlsx
+
+────────────────────────────────────────────────────────────
+✅ 4. 业绩基准表现计算 - 执行成功 (结束时间: 15:58:46)
+
+📍 进度: [5/5]
+
+============================================================
+🔄 开始执行: 5. 收益预测数据生成
+📄 脚本文件: 收益预测.py
+⏰ 开始时间: 15:58:46
+============================================================
+
+  📅 处理日期: 20260122
+  
+  ==================================================
+  🔄 开始处理系列: 丰利合享
+  ==================================================
+  /Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/openpyxl/styles/stylesheet.py:226: UserWarning: Workbook contains no default style, apply openpyxl's default
+    warn("Workbook contains no default style, apply openpyxl's default")
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:366: RuntimeWarning: invalid value encountered in scalar divide
+    b = (cost_method_group['收益率-买入成本'] * cost_method_group[asset_mkt_value_col]).sum() / cost_method_group[asset_mkt_value_col].sum()  # 成本法债券加权收益（收益率-买入成本）
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:390: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['低波资产占比'] = Final_result_df[low_vol_assets_list].sum(axis=1) + Final_result_df['持有至到期债券占比'].fillna(0) + \
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:392: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['低波资产收益率'] = ((Final_result_df[low_vol_assets_list].mul(pd.Series(Cost_method_Outsourced), axis=1).sum(axis=1, skipna=True)) +
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:398: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['模型法专户占比'] = Final_result_df[modeling_zhuanhu].sum(axis=1, skipna=True)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:399: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['模型法专户收益率'] = (Final_result_df[modeling_zhuanhu].mul(pd.Series(Cost_method_Outsourced), axis=1).sum(axis=1, skipna=True)) / Final_result_df['模型法专户占比']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:401: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['市值债券久期错配'] = (Final_result_df['市值债券久期'] - Final_result_df['剩余天'].astype(float) / 365).map(lambda x: x if x >= 0 else 0)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:402: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期错配'] = Final_result_df['市值债券久期错配'] * Final_result_df['市值债券占比'] + Final_result_df['兴合4号持仓占比'].fillna(0) * (-30)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:403: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期'] = Final_result_df['市值债券久期'] * Final_result_df['市值债券占比'] + Final_result_df['兴合4号持仓占比'].fillna(0) * (-30)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:404: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期错配-不含兴合4'] = Final_result_df['市值债券久期错配'] * Final_result_df['市值债券占比']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:405: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期-不含兴合4'] = Final_result_df['市值债券久期'] * Final_result_df['市值债券占比']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:406: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率-不含非标'] = (Final_result_df['低波资产占比'] * Final_result_df['低波资产收益率']).fillna(0) + \
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:411: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费前)'] = (Final_result_df['非标占比'] * Final_result_df['已投非标资产端平均收益率']).map(
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:413: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费前)-非标提前到期'] = (Final_result_df['非标占比'] * Final_result_df['已投非标资产端平均收益率(考虑提前到期)']).map(
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:415: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品费用'] = Final_result_df['销售费'].map(lambda x: float(x[:-1]) / 100 if isinstance(x, str) else x) + \
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:420: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费后)'] = Final_result_df['产品静态收益率(费前)'] - Final_result_df['产品费用']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:421: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费后)-非标提前到期'] = Final_result_df['产品静态收益率(费前)-非标提前到期'] - Final_result_df['产品费用']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:425: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期期末净值'] = Final_result_df['单位净值'].astype(float) * (1 + Final_result_df['产品静态收益率(费后)'] / 365 * Final_result_df['剩余天'].astype(float))
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:426: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期年化收益率'] = (Final_result_df['预期期末净值'] - 1) * 365 / (Final_result_df['剩余天'].astype(float) + Final_result_df['运作天'].astype(float))
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:427: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期期末净值-非标提前到期'] = Final_result_df['单位净值'].astype(float) * (1 + Final_result_df['产品静态收益率(费后)-非标提前到期'] / 365 * Final_result_df['剩余天'].astype(float))
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:428: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期年化收益率(非标提前到期)'] = (Final_result_df['预期期末净值-非标提前到期'] - 1) * 365 / (Final_result_df['剩余天'].astype(float) + Final_result_df['运作天'].astype(float))
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:429: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期年化收益率-业绩基准'] = Final_result_df['预期年化收益率'] - Final_result_df['业绩基准下限'].map(lambda x: float(x[:-1]) / 100)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:498: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品代码'] = Final_result_df.index
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:500: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Keep_result_df_v2['预期超额报酬(万)'] = Keep_result_df_v2.apply(cal_excess_compensation, axis=1)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:501: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Keep_result_df_v2['至今超额报酬(万)'] = Keep_result_df_v2.apply(lambda x: cal_excess_compensation(x, forecast=False), axis=1)
+  ✅ 丰利合享 系列处理完成
+  📄 输出文件: 丰利合享资产配置-20260122.xlsx
+  📄 输出文件: 丰利合享底表-20260122.xlsx
+  
+  ==================================================
+  🔄 开始处理系列: 悦动稳享
+  ==================================================
+  /Users/fanshengxia/opt/anaconda3/lib/python3.9/site-packages/openpyxl/styles/stylesheet.py:226: UserWarning: Workbook contains no default style, apply openpyxl's default
+    warn("Workbook contains no default style, apply openpyxl's default")
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:366: RuntimeWarning: invalid value encountered in scalar divide
+    b = (cost_method_group['收益率-买入成本'] * cost_method_group[asset_mkt_value_col]).sum() / cost_method_group[asset_mkt_value_col].sum()  # 成本法债券加权收益（收益率-买入成本）
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:390: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['低波资产占比'] = Final_result_df[low_vol_assets_list].sum(axis=1) + Final_result_df['持有至到期债券占比'].fillna(0) + \
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:392: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['低波资产收益率'] = ((Final_result_df[low_vol_assets_list].mul(pd.Series(Cost_method_Outsourced), axis=1).sum(axis=1, skipna=True)) +
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:398: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['模型法专户占比'] = Final_result_df[modeling_zhuanhu].sum(axis=1, skipna=True)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:399: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['模型法专户收益率'] = (Final_result_df[modeling_zhuanhu].mul(pd.Series(Cost_method_Outsourced), axis=1).sum(axis=1, skipna=True)) / Final_result_df['模型法专户占比']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:401: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['市值债券久期错配'] = (Final_result_df['市值债券久期'] - Final_result_df['剩余天'].astype(float) / 365).map(lambda x: x if x >= 0 else 0)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:402: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期错配'] = Final_result_df['市值债券久期错配'] * Final_result_df['市值债券占比'] + Final_result_df['兴合4号持仓占比'].fillna(0) * (-30)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:403: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期'] = Final_result_df['市值债券久期'] * Final_result_df['市值债券占比'] + Final_result_df['兴合4号持仓占比'].fillna(0) * (-30)
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:404: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期错配-不含兴合4'] = Final_result_df['市值债券久期错配'] * Final_result_df['市值债券占比']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:405: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品久期-不含兴合4'] = Final_result_df['市值债券久期'] * Final_result_df['市值债券占比']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:406: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率-不含非标'] = (Final_result_df['低波资产占比'] * Final_result_df['低波资产收益率']).fillna(0) + \
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:411: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费前)'] = (Final_result_df['非标占比'] * Final_result_df['已投非标资产端平均收益率']).map(
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:413: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费前)-非标提前到期'] = (Final_result_df['非标占比'] * Final_result_df['已投非标资产端平均收益率(考虑提前到期)']).map(
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:415: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品费用'] = Final_result_df['销售费'].map(lambda x: float(x[:-1]) / 100 if isinstance(x, str) else x) + \
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:420: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费后)'] = Final_result_df['产品静态收益率(费前)'] - Final_result_df['产品费用']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:421: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['产品静态收益率(费后)-非标提前到期'] = Final_result_df['产品静态收益率(费前)-非标提前到期'] - Final_result_df['产品费用']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:434: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期期末净值'] = Final_result_df['单位净值'].astype(float) * (1 + Final_result_df['产品静态收益率(费后)'] / 365 * Final_result_df['剩余天'].astype(float))
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:435: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期年化收益率'] = Final_result_df.apply(lambda x: ((x['产品静态收益率(费后)'] * x['剩余天'] + x['本期年化'] * x['运作天']
+  /Users/fanshengxia/Desktop/周报V2/收益预测.py:448: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+    Final_result_df['预期年化收益率-业绩基准'] = Final_result_df['预期年化收益率'] - Final_result_df['业绩基准下限'].map(get_floor_here)
+  ✅ 悦动稳享 系列处理完成
+  📄 输出文件: 悦动稳享资产配置-20260122.xlsx
+  📄 输出文件: 悦动稳享底表-20260122.xlsx
+  
+  ============================================================
+  📊 批量处理完成: 2/2 个系列成功
+  🎉 所有系列处理成功！
+  ✅ 已更新输出结果工作簿: 输出结果20260122.xlsx -> 合享及悦动稳享临近到期预测不达标产品清单
+  📁 输出目录: /Users/fanshengxia/Desktop/周报V2/数据/收益测算数据
+  ============================================================
+
+────────────────────────────────────────────────────────────
+✅ 5. 收益预测数据生成 - 执行成功 (结束时间: 15:59:11)
+
+════════════════════════════════════════════════════════════
+📊 执行结果汇总
+════════════════════════════════════════════════════════════
+   成功步骤: 5/5
+   总耗时:   25 分 33 秒
+   开始时间: 15:33:37
+   结束时间: 15:59:11
+
+✅ Python数据处理阶段全部完成！
+
+📋 后续手动步骤:
+   6. 打开 '周报生成工具_加权.xlsm' 执行VBA宏
+   7. 在Word模板中执行VBA生成最终报告
+   8. 发送PDF周报至邮箱
+════════════════════════════════════════════════════════════

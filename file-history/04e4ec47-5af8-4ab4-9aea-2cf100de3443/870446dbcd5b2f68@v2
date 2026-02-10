@@ -1,0 +1,701 @@
+# 兴银理财多资产投资部 — 产品运作周报自动化系统
+
+## 1. 项目概述
+
+本系统是兴银理财多资产投资部的产品运作周报自动生成平台，覆盖 100+ 只理财产品的数据采集、分析、报表生成和文档输出全流程。系统从多个 Excel 数据源读取产品净值、运作概览、渠道保有量、持仓盈亏等数据，通过 Python 管线完成数据清洗、指标计算、AI 文字摘要，最终输出一份包含 40+ 工作表的 Excel 结果文件，并进一步通过 VBA 工具链和 Word 模版生成正式 PDF 周报。
+
+### 核心能力
+
+- 产品净值增量缓存：首次 ~30 分钟，后续秒级加载
+- 40+ 分析维度自动生成（规模、业绩、持仓、中收、到期、波动等）
+- DeepSeek AI 自动生成规模 / 中收 / 到期总结文字
+- AI 自动分类新发产品
+- Wind API 获取市场指数、汇率、债券属性
+- 收益预测与资产配置分析（丰利合享 / 悦动稳享系列）
+- 配套 Web 仪表板（参见 `README_DASHBOARD.md`）
+
+---
+
+## 2. 系统架构
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                     run_weekly_report.py                       │
+│              （主控脚本，顺序执行 Step 1-5）                     │
+└──────┬──────┬──────┬──────┬──────┬─────────────────────────────┘
+       │      │      │      │      │
+       ▼      │      │      │      │
+  Step 1      ▼      │      │      │
+ move_files  Step 2  │      │      │
+  .py      update_   │      │      │
+           new_      ▼      │      │
+           product  Step 3  │      │
+           _catgoery generate│      │
+           .py      _report │      │
+                    .py     ▼      │
+                          Step 4   ▼
+                          calculate Step 5
+                          _all_     yield_
+                          benchmarks forecast
+                          .py       .py
+                            │
+              ┌─────────────┴─────────────┐
+              │   market_data_provider.py  │
+              │      (Wind API 封装)       │
+              └───────────────────────────┘
+
+共享模块：
+  config.py      — 全局配置（日期、路径、参数、Prompt 模板）
+  load_data.py   — 统一数据加载器（含 NAV 缓存）
+  utils.py       — 金融指标计算函数
+  data_validator.py — 数据质量验证框架
+```
+
+---
+
+## 3. 完整文件清单
+
+### 3.1 Python 脚本（项目根目录）
+
+| 文件 | 行数 | 用途 |
+|------|------|------|
+| `config.py` | 485 | 集中配置：路径、日期、投资经理分组、产品分类排序、API密钥、Prompt模板、委外专户映射 |
+| `run_weekly_report.py` | 199 | 主控脚本：顺序执行 5 个步骤，实时显示输出，支持失败跳过 |
+| `move_files.py` | 87 | Step 1：从 Downloads 源文件夹按关键词匹配移动文件到对应数据目录 |
+| `update_new_product_catgoery.py` | 193 | Step 2：调用 DeepSeek AI 对未分类新产品进行多资产品类自动分类 |
+| `generate_report.py` | 1943 | Step 3（核心）：加载全部数据，计算 40+ 维度指标，生成 Excel 结果文件，调用 AI 生成总结文字 |
+| `calculate_all_benchmarks.py` | 361 | Step 4：通过 Wind 获取指数数据，计算所有产品的业绩基准收益率（今年以来 / 成立以来） |
+| `yield_forecast.py` | 578 | Step 5：丰利合享 / 悦动稳享系列收益预测，持仓分解，资产配置分析 |
+| `load_data.py` | 626 | 统一数据加载器 `DataLoader` 类，含 NAV 缓存、运作概览、渠道、底层数据等 20+ 加载方法 |
+| `market_data_provider.py` | 589 | Wind API 抽象层，单例模式，封装 WSD/WSS 调用，便于后续切换数据源 |
+| `utils.py` | 98 | 金融工具函数：年化收益率、年化波动率、最大回撤、多时段业绩报告 |
+| `data_validator.py` | 247 | 数据验证框架：文件存在性、DataFrame 非空、必需列、数值范围、日期格式、净值序列逻辑 |
+| `manage_nav_cache.py` | 222 | NAV 缓存管理工具：status / clear / rebuild |
+| `calculate_static_yield.py` | 154 | 委外专户静态收益计算（考虑杠杆与 FR007 成本） |
+| `generate_weekly_dashboard.py` | 2130 | Web 仪表板生成器（详见 `README_DASHBOARD.md`） |
+
+### 3.2 数据与模版文件
+
+| 文件 | 用途 |
+|------|------|
+| `数据/底层数据汇总.xlsx` | 主参考数据（多资产品类标签、销售战报系列分类、资产分类勾稽关系、委外专户标签等多 Sheet） |
+| `数据/主投资经理标签.xlsx` | 产品与投资经理映射 |
+| `数据/合享承诺收益率.xlsx` | 合享系列承诺收益率参考 |
+| `数据/指数业绩基准数据.xlsx` | 指数型业绩基准配置（指数 Wind 代码、权重） |
+| `周报生成工具_加权.xlsm` | VBA Excel 工具（链接数据表 + 宏计算） |
+| `多资产投资部产品周报-模版.docm` | Word 周报模版（含 66 个书签：59 图片 + 7 文字） |
+
+### 3.3 数据目录结构
+
+```
+数据/
+├── 底层数据汇总.xlsx                     # 主参考数据（品类标签、分类映射、专户标签）
+├── 主投资经理标签.xlsx                    # 投资经理-产品映射
+├── 合享承诺收益率.xlsx                    # 合享系列承诺收益率
+├── 指数业绩基准数据.xlsx                  # 指数型基准配置
+├── .nav_cache/                           # NAV 缓存目录
+│   ├── nav_master_data.parquet           # 所有产品净值合并（parquet格式）
+│   └── nav_metadata.pkl                  # 文件修改时间元数据（增量判断用）
+│
+├── 产品净值数据/                          # ~100+ 个 Excel 文件
+│   ├── 产品运作情况表-补充精简20260205.xlsx
+│   ├── 产品运作情况表-补充精简20260129.xlsx
+│   └── ...                               # 历史净值文件，每周一个
+│
+├── 产品业绩指标数据/                      # 内部产品业绩（每周导出）
+│   ├── 内部产品业绩_20260205.xlsx
+│   └── ...
+│
+├── 产品运作概览数据-母产品/               # PAS 母产品运作概览
+│   ├── 产品运作概览20260205-仅母产品.xlsx
+│   └── ...
+│
+├── 产品运作概览数据-母子产品/             # PAS 母子产品运作概览（含指标变化）
+│   ├── 产品运作概览信息表增加指标变化_20260205.xlsx
+│   ├── 产品运作概览信息表_20260205.xlsx
+│   └── ...
+│
+├── 周度更新数据/                          # 每周从各系统导出的数据
+│   ├── 中收分析报表-产品明细-20260205-m.xlsx   # 月度中收
+│   ├── 中收分析报表-产品明细-20260205-y.xlsx   # 年度中收
+│   ├── 各渠道保有量20260205.xlsx
+│   ├── 持仓盈亏明细列表_20260205.xlsx
+│   ├── 理财产品信息查询20260205.xlsx           # DAP 产品信息表
+│   ├── 理财产品区间在售待售情况表20260205.xlsx
+│   ├── 战报底表(v2)20260205.xlsx
+│   ├── 产品运作概览20260205.xlsx
+│   ├── 保险资管计划20260205.xlsx
+│   ├── 委外产品概览(团队视角)20260205.xlsx
+│   ├── 委外底仓报表20260205.xlsx
+│   └── ...
+│
+├── 资产持仓数据/                          # 8 资产大表
+│   └── 8资产大表20260205.xlsx
+│
+├── 收益测算数据/                          # yield_forecast.py 输出
+│   ├── 丰利合享资产配置-20260205.xlsx
+│   ├── 丰利合享底表-20260205.xlsx
+│   ├── 悦动稳享资产配置-20260205.xlsx
+│   ├── 悦动稳享底表-20260205.xlsx
+│   └── 委外专户静态收益分析.xlsx
+│
+└── 数据库系统/                            # SQLite 数据库及导入脚本
+    ├── financial_data.db
+    ├── unified_database_manager.py
+    ├── nav_data_importer.py
+    ├── operations_data_importer.py
+    ├── holdings_data_importer.py
+    └── ...
+
+输出结果/
+├── 输出结果20260205.xlsx                  # generate_report.py 输出（40+ Sheet）
+├── 周报仪表板-20260205.html              # Web 仪表板
+└── ...
+```
+
+---
+
+## 4. 配置详解 (config.py)
+
+### 4.1 核心日期配置
+
+```python
+YUNZUOGAILAN_DATE = '20260205'  # ← 每周更新此日期（第 46 行）
+```
+
+以下日期全部自动计算：
+
+| 变量 | 说明 | 计算方式 |
+|------|------|----------|
+| `ZHOUBAO_DATE` | 周报日期 | = YUNZUOGAILAN_DATE |
+| `LASTW` | 上周日期 | base_date - 7天 |
+| `LASTM` | 上月最后一天 | 可手动覆盖（如跨月不规则） |
+| `LASTY` | 上年最后一天 | 上年12月31日 |
+| `WEEK_MON` | 本周一 | base_date 向前找周一 |
+| `BEGIN_DATE_NEXT_W` | 下周一 | 本周一 + 7天 |
+| `CLOSING_DATE_NEXT_W` | 下周五 | 下周一 + 4天 |
+
+### 4.2 投资经理分组
+
+```python
+INVESTMENT_MANAGERS = {
+    'first': ['徐莹','胡艳婷','姜锡峰','朱轶伦'],         # 第一组
+    'second': ['严泓','高翰昆','薛纪晔','任雁','周仕盈'],   # 第二组
+    'third': ['杨漠','余洁雅','张玉杰'],                    # 第三组
+    'all_list': [...]                                       # 全部（15人）
+}
+```
+
+### 4.3 产品分类排序
+
+```python
+PRODUCT_RANKING = [
+    ('中低波稳健产品','悦动稳享短持'),
+    ('中低波稳健产品','悦动稳/纯享'),
+    ('中高波市值产品','和瑞BOF'),
+    ('外币产品','外币低波'),
+    ('外币产品','外币进取'),
+    ('外币产品','外币混合'),
+    ('中高波市值产品','悦动青云'),
+    ('中高波市值产品','其他进取'),
+    ('中低波稳健产品','FOF')
+]
+```
+
+### 4.4 业务参数
+
+| 参数 | 值 | 说明 |
+|------|-----|------|
+| `RET_ON_ACCOUNT` | 0.015 | 趴账收益率（1.5%） |
+| `LEVERAGE_COST` | 0.016 | 杠杆融资成本（1.6%） |
+| `XINGHE4_COST` | 0.07 | 兴合4号特殊成本（7%） |
+
+### 4.5 API 配置
+
+```python
+DEEPSEEK_API_KEY = "sk-..."
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+DEEPSEEK_MODEL = "deepseek-reasoner"
+```
+
+### 4.6 委外专户配置（经常变动）
+
+| 配置项 | 说明 |
+|--------|------|
+| `XINGHE_PRODUCTS` | 兴合系列清单1（用于11.兴合产品持仓明细） |
+| `XINGHE_PRODUCTS_2` | 兴合系列清单2（用于11.4母分类-兴合持仓） |
+| `CONVERTIBLE_BOND_ACCOUNTS` | 可转债专户映射（简称→全称） |
+| `CONVERTIBLE_BOND_ETF` | 可转债ETF清单 |
+| `QUANT_STRATEGY_LABELS` | 量化策略标签清单 |
+| `GOLD_ACCOUNTS` | 黄金专户映射 |
+| `GOLD_ETF` | 黄金ETF清单 |
+| `EQUITY_ACCOUNTS` | 权益专户映射 |
+| `MARKET_INDEX_CODES` | 15个市场指数 Wind 代码 |
+| `CHANNEL_SHORT_NAMES` | 17个渠道名称→简称映射 |
+
+### 4.7 AI Prompt 模板
+
+- `PROMPT_ZHONGSHOU`：中收总结（占位符 `{date}`, `{data}`）
+- `PROMPT_GUIMO`：规模总结（占位符 `{date}`, `{channel_data}`, `{series_data}`）
+- `PROMPT_DAOQI`：到期总结（占位符 `{total}`, `{fengbi}`, `{dingkai}`）
+
+---
+
+## 5. 执行流程详解
+
+### 5.1 一键执行
+
+```bash
+python run_weekly_report.py
+```
+
+显示日期配置后要求确认，然后顺序执行 5 个步骤。失败时可选择跳过继续。
+
+### 5.2 Step 1: 数据文件移动 (move_files.py)
+
+**输入**：`~/Downloads/本次数据{MMDD}/` 中的源文件
+**输出**：文件移动到 `周度更新数据/`、`产品净值数据/` 等目录
+
+文件匹配规则：
+
+| 关键词 | 目标目录 | 重命名模板 |
+|--------|----------|------------|
+| 持仓盈亏明细 | 周度更新数据/ | `持仓盈亏明细列表_{date}.xlsx` |
+| 产品运作概览 | 周度更新数据/ | `产品运作概览{date}.xlsx` |
+| 产品运作情况 | 产品净值数据/ | `产品运作情况表-补充精简{date}.xlsx` |
+| 中收分析报表 | 周度更新数据/ | 按文件大小区分 -m.xlsx 和 -y.xlsx |
+| 各渠道保有量 | 周度更新数据/ | `各渠道保有量{date}.xlsx` |
+| ... | ... | ... |
+
+### 5.3 Step 2: AI 产品分类 (update_new_product_catgoery.py)
+
+**输入**：运作概览 + 底层数据汇总中现有分类
+**输出**：新产品分类追加到 `底层数据汇总.xlsx` 的 `多资产品类标签` Sheet
+
+流程：
+1. 加载运作概览，匹配现有品类标签
+2. 筛选出 `多资产品类` 为 NaN 的产品
+3. 构造 Prompt（含最近 400 条历史分类示例）
+4. 调用 DeepSeek API 获取 JSON 分类结果
+5. 解析并追加到 Excel
+
+### 5.4 Step 3: 主报表生成 (generate_report.py)
+
+这是系统核心，1943 行代码，生成 40+ 工作表。
+
+#### 初始化流程 (`init_context`)
+
+```
+DataLoader 初始化
+    → load_nav_data()           # 产品净值（含缓存）
+    → load_product_info_dap()   # DAP 产品信息表
+    → load_classification_df()  # 品类分类
+    → load_parent_sort()        # 系列分类
+    → get_yunzuogailan()        # 运作概览数据处理
+        → 匹配品类标签
+        → 计算产品形态（封闭/客户周期/日开/定开）
+        → 匹配渠道标签（招商独有/招商共有/非招商）
+        → 合并净值业绩指标
+```
+
+#### 报表生成顺序
+
+| 步骤 | 函数 | 输出 Sheet |
+|------|------|-----------|
+| 1 | `generate_channel_report` | 1、分渠道余额; 渠道明细 |
+| 2 | `generate_scale_report` | 2、产品规模 |
+| 3 | `generate_scale_change_report` | 3、本月定开或客户周期产品规模变化; 本周新发产品; 待售产品 |
+| 4 | `generate_performance_report` | 系列产品业绩（费后平均/加权、费前平均/加权）; 5.2 最短持有期产品业绩表现 |
+| 5 | `generate_manager_report` | 投资经理维度产品规模和数量 |
+| 6 | `generate_zhaoshang_report` | 招商在售产品不达基准 |
+| 7 | `generate_asset_table` | 8.资产大表 |
+| 8 | `generate_fee_report` | 9.中收监控 |
+| 9 | `generate_maturity_report` | 10.产品到期情况 |
+| 10 | `generate_holdings_report` | 11.兴合产品持仓明细; 11.1 可转债专户; 11.2 量化/可转债; 11.2.1-3 委外专户; 11.4 衍生品; 11.5 全部衍生品; 11.6 非标; 黄金持仓; 权益专户持仓; 公共策略持仓 |
+| 11 | `generate_volatility_report` | 12.周净值高波动产品清单 |
+| 12 | `generate_cycle_report` | 13-14.不同周期产品规模 |
+| 13 | `generate_market_index_report` | 15.市场指数收益 |
+| 14 | `generate_pojing_report` | 破净结果 |
+| 15 | `generate_summary_text` | 总结文字（AI 生成） |
+
+#### AI 总结文字生成
+
+`generate_summary_text` 调用 `get_wenzi_result` (DeepSeek API)：
+1. 规模总结：用 `PROMPT_GUIMO` + 渠道/系列规模数据
+2. 中收总结：用 `PROMPT_ZHONGSHOU` + 中收分析数据
+3. 到期总结：用 `PROMPT_DAOQI` + 到期汇总数据
+
+### 5.5 Step 4: 业绩基准计算 (calculate_all_benchmarks.py)
+
+**输入**：运作概览 + 指数业绩基准配置 + Wind API
+**输出**：更新运作概览文件，添加 4 列基准数据
+
+```bash
+python calculate_all_benchmarks.py --date 20260205
+```
+
+支持两类基准：
+- **指数型**：解析 "沪深300指数收益率×7% + 中债-新综合全价(1-3年)指数×93%" 格式，通过 Wind 获取指数价格序列计算区间收益
+- **固定型**：解析 "2.50%-3.70%" 格式，取下限作为年化基准
+
+新增列：`业绩基准今年以来收益率(区间)`、`业绩基准-今年以来年化`、`业绩基准成立以来收益率(区间)`、`业绩基准-成立以来年化`
+
+### 5.6 Step 5: 收益预测 (yield_forecast.py)
+
+**输入**：运作概览 + 持仓盈亏 + 保险资管 + DAP 信息 + 委外专户标签
+**输出**：每个系列的资产配置表 + 底表（Excel）
+
+处理两大系列：
+
+#### 丰利合享系列
+- 筛选 A 份额或母产品
+- 分解持仓：非标、成本法专户、模型法专户、保险资管、大额存单、现金回购、债券
+- 计算产品静态收益率（费前/费后）
+- 考虑非标提前到期：`调整收益 = (持有天数×票面 + 闲置天数×1.5%) / 总天数`
+- 预测期末净值和年化收益率
+- 计算超额业绩报酬（分层计提）
+
+#### 悦动稳享系列
+- 仅保留母产品
+- 对最短持有期产品按静态和年化平均计算
+- `预期年化 = (静态×剩余天 + 本期年化×运作天) / 总天数`
+
+---
+
+## 6. 核心模块详解
+
+### 6.1 数据加载器 (load_data.py)
+
+`DataLoader` 类提供 20+ 个数据加载方法：
+
+```python
+from load_data import DataLoader
+
+loader = DataLoader()
+
+# 产品净值（带缓存）
+nav_data, nav_pivot = loader.load_nav_data()
+
+# 运作概览
+yunzuogailan = loader.load_yunzuogailan_raw()
+
+# 渠道保有量
+baoyou = loader.load_baoyou_data()
+
+# 品类分类
+classification = loader.load_classification_df()
+
+# 中收数据
+zhongshou_m, zhongshou_y = loader.load_zhongshou_data('20260205')
+
+# 持仓盈亏
+chicang = loader.load_chicang_data('20260205')
+```
+
+#### NAV 缓存机制
+
+```
+首次运行：
+  读取 100+ Excel → 合并为 DataFrame → 保存 nav_master_data.parquet + nav_metadata.pkl
+
+后续运行：
+  比较文件修改时间 → 仅读取新增/修改文件 → 与缓存合并 → 去重 → 更新缓存
+```
+
+缓存文件位于 `数据/.nav_cache/`，格式为 Apache Parquet（高效列式存储）。
+
+#### 辅助函数
+
+| 函数 | 用途 |
+|------|------|
+| `map_product_xingtai(series)` | 判断产品形态：封闭 / 客户周期 / 日开 / 定开 |
+| `get_zhaoshang_label(set)` | 判断渠道标签：招商独有 / 招商共有 / 非招商 |
+| `get_qudao_label_detail(set)` | 获取渠道简称列表 |
+| `del_Innovation_department(df)` | 过滤掉量化/结构性/创新部产品 |
+
+### 6.2 金融计算工具 (utils.py)
+
+```python
+from utils import max_drawdown, annualized_metric, performance_calculate_optimize
+
+# 最大回撤
+mdd = max_drawdown(nav_series)
+
+# 年化收益率 / 波动率
+ann_return = annualized_metric(nav_series, factor='ret')
+ann_vol = annualized_metric(nav_series, factor='vol')
+
+# 完整业绩报告（多时段 × 多指标）
+report = performance_calculate_optimize(nav_series)
+# 返回: 成立以来/近1月/.../近2年 × 年化收益率/波动率/最大回撤 + 各年度指标
+```
+
+计算公式：
+- **年化收益率**（单利）：`(末值/初值 - 1) / 天数 × 365`
+- **年化波动率**：`日收益率标准差 × √365`
+- **最大回撤**：`min(累计净值 / 历史最高 - 1)`
+
+### 6.3 市场数据提供者 (market_data_provider.py)
+
+```python
+from market_data_provider import MarketDataProvider
+
+provider = MarketDataProvider.get_instance()  # 单例，自动连接 Wind
+
+# 获取指数收盘价序列
+series = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+
+# 获取汇率
+rate = provider.get_exchange_rate('USDCNY', '20241231')
+
+# 获取债券属性（城投/永续）
+attrs = provider.get_bond_attributes(['bond_code1', 'bond_code2'])
+
+# 获取指数区间收益率
+returns = provider.get_index_returns(['000300.SH'], '20240101', '20241231')
+
+# 获取指数年化波动率
+vols = provider.get_index_volatility(['000300.SH'], '20240101', '20241231')
+
+# 通用 WSS/WSD 接口
+df = provider.wss(['000300.SH'], 'sec_name,close')
+df = provider.wsd('000300.SH', 'close', '2024-01-01', '2024-12-31')
+```
+
+**数据源切换**：只需修改 `market_data_provider.py` 中的实现，业务代码无需改动。
+
+### 6.4 数据验证框架 (data_validator.py)
+
+```python
+from data_validator import DataValidator
+
+validator = DataValidator()
+validator.validate_file_exists(path, "数据文件")
+validator.validate_dataframe_not_empty(df, "渠道数据")
+validator.validate_required_columns(df, ['产品代码','净值'], "净值表")
+validator.validate_numeric_columns(df, ['单位净值','累计净值'], "净值表")
+validator.validate_date_columns(df, ['估值日'], "净值表")
+validator.validate_net_value_series(df, product_code)
+validator.validate_calculation_results(results)
+validator.print_validation_summary()
+```
+
+验证规则：
+- 净值必须 > 0
+- 收益率范围 [-100%, 1000%]
+- 单日净值变动不超过 50%
+- 异常下跌点不超过总数据点的 10%
+
+---
+
+## 7. 关键业务逻辑
+
+### 7.1 产品形态分类
+
+```python
+封闭  = 产品开放形式 == '封闭式'
+客户周期 = 开放式 且 周期属性 == '客户周期'
+日开  = 开放式 且 产品周期 且 周期天数 == 1
+定开  = 开放式 且 产品周期 且 周期天数 > 1
+```
+
+### 7.2 渠道标签
+
+```python
+招商独有 = 渠道集合 ⊆ {'-', '招商银行股份有限公司'}
+招商共有 = 渠道集合包含招商，但还有其他渠道
+非招商  = 渠道集合不包含招商
+```
+
+### 7.3 收益预测公式
+
+非标资产考虑提前到期：
+```
+调整收益率 = (资产期限 × 票面利率 + 闲置期限 × 趴账收益率) / (资产期限 + 闲置期限)
+```
+
+费后静态收益率：
+```
+费后静态 = 费前静态 - (管理费 + 托管费 + 销售费)
+```
+
+预期年化收益率（封闭产品）：
+```
+预期期末净值 = 当前净值 × (1 + 费后静态 / 365 × 剩余天数)
+预期年化 = (预期期末净值 - 1) × 365 / (运作天数 + 剩余天数)
+```
+
+超额业绩报酬（分层计提）：
+```
+单层: max(0, 收益率 - 基准) × 净资产 × 10000 × 计提比例 / 单位净值
+双层: 第一层 + max(0, 收益率 - 上限基准) × 净资产 × 10000 × 上层比例 / 单位净值
+```
+
+### 7.4 AUM 加权业绩计算
+
+`generate_performance_report` 中按系列/品类计算加权平均业绩：
+
+```python
+加权年化收益率 = Σ(产品年化收益率 × 产品净资产) / Σ(产品净资产)
+```
+
+分别生成费前/费后 × 平均/加权 = 4 张业绩表。
+
+---
+
+## 8. 外部依赖
+
+### 8.1 Python 库
+
+```
+pandas          # 数据处理核心
+numpy           # 数值计算
+openpyxl        # Excel 读写
+pyarrow         # Parquet 缓存
+openai          # DeepSeek API 调用
+WindPy          # Wind 金融终端 API（可选）
+lxml            # XML 处理（calculate_static_yield）
+```
+
+### 8.2 外部服务
+
+| 服务 | 用途 | 必需性 |
+|------|------|--------|
+| Wind 终端 | 市场指数、汇率、债券属性 | Step 4 必需 |
+| DeepSeek API | AI 文字总结、产品分类 | Step 2/3 的 AI 功能需要 |
+
+### 8.3 后续手动步骤
+
+| 步骤 | 工具 | 操作 |
+|------|------|------|
+| 6 | Excel VBA | 打开 `周报生成工具_加权.xlsm`，执行宏更新链接 |
+| 7 | Word VBA | 打开 `多资产投资部产品周报-模版.docm`，执行宏生成报告 |
+| 8 | 邮件 | 发送 PDF 周报 |
+
+---
+
+## 9. NAV 缓存系统
+
+### 9.1 缓存管理命令
+
+```bash
+# 查看缓存状态
+python manage_nav_cache.py status
+
+# 清除缓存（强制下次全量读取）
+python manage_nav_cache.py clear
+
+# 强制重建缓存
+python manage_nav_cache.py rebuild
+```
+
+### 9.2 缓存原理
+
+```
+数据/.nav_cache/
+├── nav_master_data.parquet    # 合并去重后的全部净值数据
+└── nav_metadata.pkl           # {文件路径: 修改时间} 字典
+
+增量逻辑:
+1. 获取 产品净值数据/ 下所有 .xlsx 文件及其 mtime
+2. 与 pkl 中记录的 mtime 比较
+3. 仅读取 新增 或 mtime 变化 的文件
+4. 与已缓存数据合并，按 (估值日, 产品代码) 去重保留最新
+5. 保存更新后的 parquet + pkl
+```
+
+---
+
+## 10. 向后兼容设计
+
+`config.py` 底部提供模块级变量映射，使旧代码无需修改即可运行：
+
+```python
+yunzuogailan_date = Config.YUNZUOGAILAN_DATE
+zhoubao_date = Config.ZHOUBAO_DATE
+first = Config.INVESTMENT_MANAGERS['first']
+rank_here = Config.PRODUCT_RANKING
+ret_on_account = Config.RET_ON_ACCOUNT
+# ... 等 20+ 个变量
+```
+
+---
+
+## 11. 从零复现指南
+
+### 11.1 环境准备
+
+```bash
+# Python 3.9+
+pip install pandas numpy openpyxl pyarrow openai lxml
+
+# Wind API（需要 Wind 金融终端授权）
+# 安装 WindPy Python 插件
+
+# LibreOffice（PDF 转换，可选）
+brew install --cask libreoffice
+```
+
+### 11.2 目录结构初始化
+
+```bash
+mkdir -p 数据/{产品净值数据,产品业绩指标数据,产品运作概览数据-母产品,产品运作概览数据-母子产品,周度更新数据,资产持仓数据,收益测算数据}
+mkdir -p 输出结果
+```
+
+### 11.3 准备参考数据
+
+创建 `数据/底层数据汇总.xlsx`，包含以下 Sheet：
+- `多资产品类标签`：列 = [母产品代码, 产品简称, 多资产品类]
+- `销售战报系列分类`：列 = [多资产品类(索引), 母分类, 总分类]
+- `资产分类勾稽关系`：资产分类的层级映射
+- `委外公共策略专户标签`：列 = [专户名称(索引), 估值方法, 收益估计]
+- `公司公共策略专户`：公共策略专户清单
+
+### 11.4 配置更新
+
+1. 编辑 `config.py` 第 46 行设置 `YUNZUOGAILAN_DATE`
+2. 确认 `LASTM` 是否需要手动覆盖（跨月时自动计算可能不准确）
+3. 配置 DeepSeek API Key
+4. 根据实际产品更新委外专户映射
+
+### 11.5 执行
+
+```bash
+# 方式1：一键执行
+python run_weekly_report.py
+
+# 方式2：分步执行
+python move_files.py
+python update_new_product_catgoery.py
+python generate_report.py
+python calculate_all_benchmarks.py --date 20260205
+python yield_forecast.py
+```
+
+### 11.6 后续步骤
+
+1. Excel VBA：打开 `周报生成工具_加权.xlsm` 执行宏
+2. Word VBA：打开 Word 模版执行宏
+3. 或使用自动化脚本：`/tmp/generate_excel_screenshots_v2.py`（截图）+ `/tmp/assemble_word_report.py`（Word/PDF 组装）
+
+---
+
+## 12. 已知限制
+
+1. **Wind API 平台限制**：WindPy 在 macOS 上支持有限，部分功能需 Windows
+2. **VBA 手动步骤**：Excel VBA 宏执行和 Word 报告生成仍需手动（或使用 `/tmp/` 下的自动化脚本替代）
+3. **日期配置**：`LASTM` 在跨月边界时可能需要手动修正
+4. **公式分辨率**：VBA 工作簿中的复杂公式（SUMPRODUCT、多层嵌套 IF）在 Python 截图管线中无法完全解析
+5. **数据时效性**：净值缓存基于文件修改时间判断，如果文件内容变更但 mtime 未变，需手动 rebuild
+
+---
+
+## 13. 代码规范
+
+- 中英混合命名：业务领域术语使用中文（如 `yunzuogailan`, `zhongshou`）
+- 日期格式：文件名用 `YYYYMMDD`，显示用 `YYYY-MM-DD`
+- 所有路径通过 `Config` 类方法获取（如 `Config.get_output_path()`）
+- `ReportContext` dataclass 作为报表生成过程的状态容器
+- `DataLoader` 使用单例模式 (`get_data_loader()`)
+- `MarketDataProvider` 使用单例模式 (`get_instance()`)

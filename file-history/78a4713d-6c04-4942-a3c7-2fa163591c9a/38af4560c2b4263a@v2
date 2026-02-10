@@ -1,0 +1,658 @@
+#!/usr/bin/env python3
+"""
+高保真Excel截图生成器
+从VBA工作簿读取格式模版，从Python输出读取数据，合成精确还原Excel样式的HTML表格并截图。
+"""
+import openpyxl
+from openpyxl.utils import get_column_letter
+import os, re, html as html_mod
+import pandas as pd
+
+WORKBOOK_PATH = '/Users/fanshengxia/Desktop/周报V2/周报生成工具_加权_调整兴动合兴系列.xlsm'
+OUTPUT_PATH = '/Users/fanshengxia/Desktop/周报V2/输出结果/输出结果20260205.xlsx'
+HTML_DIR = '/tmp/weekly_report_html'
+SCREENSHOT_DIR = '/tmp/weekly_report_screenshots'
+
+# ========== 辅助函数 ==========
+
+# Excel theme colors (Office default theme approximation)
+THEME_COLORS = {
+    0: 'FFFFFF', 1: '000000', 2: 'E7E6E6', 3: '44546A',
+    4: '4472C4', 5: 'ED7D31', 6: 'A5A5A5', 7: 'FFC000',
+    8: '5B9BD5', 9: '70AD47'
+}
+
+# Tint adjustment for theme colors
+def apply_tint(hex_color, tint):
+    """Apply tint to a hex color. tint > 0 lightens, tint < 0 darkens."""
+    if tint == 0 or not hex_color:
+        return hex_color
+    r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    if tint > 0:
+        r = int(r + (255 - r) * tint)
+        g = int(g + (255 - g) * tint)
+        b = int(b + (255 - b) * tint)
+    else:
+        factor = 1 + tint
+        r = int(r * factor)
+        g = int(g * factor)
+        b = int(b * factor)
+    return f'{min(255,r):02X}{min(255,g):02X}{min(255,b):02X}'
+
+def color_to_hex(color):
+    """Convert openpyxl color to hex string (without #)."""
+    if color is None:
+        return None
+    try:
+        if color.type == 'rgb' and color.rgb:
+            rgb = str(color.rgb)
+            if rgb == '00000000':
+                return None  # transparent
+            if len(rgb) == 8:
+                alpha = rgb[:2]
+                if alpha == '00':
+                    return None  # transparent
+                return rgb[2:]
+            return rgb
+        if color.type == 'theme':
+            base = THEME_COLORS.get(color.theme, 'FFFFFF')
+            tint = color.tint if color.tint else 0
+            return apply_tint(base, tint)
+        if color.type == 'indexed':
+            # Indexed color palette (simplified)
+            idx = color.indexed
+            indexed_colors = {
+                0: '000000', 1: 'FFFFFF', 2: 'FF0000', 3: '00FF00', 4: '0000FF',
+                5: 'FFFF00', 6: 'FF00FF', 7: '00FFFF', 8: '000000', 9: 'FFFFFF',
+                10: 'FF0000', 11: '00FF00', 12: '0000FF', 13: 'FFFF00', 14: 'FF00FF',
+                15: '00FFFF', 16: '800000', 17: '008000', 18: '000080', 19: '808000',
+                20: '800080', 21: '008080', 22: 'C0C0C0', 23: '808080',
+                64: '000000'  # automatic
+            }
+            return indexed_colors.get(idx)
+    except:
+        pass
+    return None
+
+def get_fill_color(cell):
+    """Get background fill color."""
+    try:
+        fill = cell.fill
+        if fill is None or fill.patternType is None or fill.patternType == 'none':
+            return None
+        fg = color_to_hex(fill.fgColor)
+        if fg and fg != '000000':
+            return fg
+        bg = color_to_hex(fill.bgColor)
+        if bg and bg != '000000':
+            return bg
+    except:
+        pass
+    return None
+
+def get_font_color(cell):
+    """Get font color."""
+    try:
+        if cell.font and cell.font.color:
+            c = color_to_hex(cell.font.color)
+            if c and c != '000000':
+                return c
+    except:
+        pass
+    return None
+
+def format_number(value, number_format):
+    """Format a number according to Excel number format."""
+    if value is None:
+        return ''
+    if isinstance(value, str):
+        return html_mod.escape(value)
+    if not isinstance(value, (int, float)):
+        return html_mod.escape(str(value))
+
+    nf = str(number_format) if number_format else 'General'
+
+    try:
+        if '%' in nf:
+            # Count decimal places in format
+            decimal_match = re.search(r'0\.(0+)%', nf)
+            decimals = len(decimal_match.group(1)) if decimal_match else 2
+            formatted = f'{value * 100:.{decimals}f}%'
+            return formatted
+        elif nf == '0.00' or nf == '#,##0.00':
+            return f'{value:,.2f}'
+        elif nf == '0.0000':
+            return f'{value:.4f}'
+        elif nf == '0.0':
+            return f'{value:.1f}'
+        elif nf == '0':
+            return f'{int(round(value)):,}'
+        elif nf == '#,##0':
+            return f'{int(round(value)):,}'
+        elif '#,##0.00' in nf:
+            return f'{value:,.2f}'
+        elif nf == 'General':
+            if isinstance(value, float):
+                if abs(value) < 0.01 and value != 0:
+                    return f'{value:.4f}'
+                elif abs(value) < 1:
+                    return f'{value:.4f}'
+                elif abs(value) >= 1000:
+                    return f'{value:,.2f}'
+                else:
+                    return f'{value:.2f}'
+            return str(value)
+        else:
+            # Default: try 2 decimal places
+            if isinstance(value, float):
+                return f'{value:.2f}'
+            return str(value)
+    except:
+        return str(value)
+
+def get_border_css(border):
+    """Get CSS border style from openpyxl border."""
+    if border is None:
+        return {}
+
+    css = {}
+    sides = {'left': border.left, 'right': border.right, 'top': border.top, 'bottom': border.bottom}
+    for side_name, side in sides.items():
+        if side and side.style:
+            style_map = {
+                'thin': '1px solid', 'medium': '2px solid', 'thick': '3px solid',
+                'hair': '1px solid', 'dotted': '1px dotted', 'dashed': '1px dashed',
+                'double': '3px double'
+            }
+            css_style = style_map.get(side.style, '1px solid')
+            color = color_to_hex(side.color) if side.color else '000000'
+            if not color:
+                color = '000000'
+            css[f'border-{side_name}'] = f'{css_style} #{color}'
+    return css
+
+def build_merged_map(ws):
+    """Build a map of merged cells. Returns:
+    - merge_origins: {(row,col): (rowspan, colspan)} for top-left cells
+    - merge_hidden: set of (row,col) that are hidden by merges
+    """
+    merge_origins = {}
+    merge_hidden = set()
+
+    for merge_range in ws.merged_cells.ranges:
+        min_row, min_col = merge_range.min_row, merge_range.min_col
+        max_row, max_col = merge_range.max_row, merge_range.max_col
+        rowspan = max_row - min_row + 1
+        colspan = max_col - min_col + 1
+        merge_origins[(min_row, min_col)] = (rowspan, colspan)
+        for r in range(min_row, max_row + 1):
+            for c in range(min_col, max_col + 1):
+                if (r, c) != (min_row, min_col):
+                    merge_hidden.add((r, c))
+
+    return merge_origins, merge_hidden
+
+# ========== VLOOKUP数据解析器 ==========
+
+class VLookupResolver:
+    """Resolve VLOOKUP formulas using Python output data."""
+
+    def __init__(self, output_path):
+        self.data_cache = {}
+        self.output_path = output_path
+
+    def get_sheet_data(self, sheet_name):
+        """Load a sheet from Python output as dict for lookup."""
+        if sheet_name not in self.data_cache:
+            try:
+                wb = openpyxl.load_workbook(self.output_path, read_only=True, data_only=True)
+                if sheet_name in wb.sheetnames:
+                    ws = wb[sheet_name]
+                    data = {}
+                    headers = {}
+                    for row in ws.iter_rows():
+                        for cell in row:
+                            data[(cell.row, cell.column)] = cell.value
+                            if cell.row == 1:
+                                headers[cell.column] = cell.value
+                    self.data_cache[sheet_name] = {'data': data, 'headers': headers,
+                                                     'max_row': ws.max_row, 'max_col': ws.max_column}
+                else:
+                    self.data_cache[sheet_name] = None
+                wb.close()
+            except:
+                self.data_cache[sheet_name] = None
+        return self.data_cache[sheet_name]
+
+    def resolve(self, formula, current_ws, row, col):
+        """Try to resolve a VLOOKUP formula. Returns value or None."""
+        if not isinstance(formula, str) or 'VLOOKUP' not in formula:
+            return None
+
+        # Parse: VLOOKUP($B2,'[2]sheet名'!$B$2:$H$20,MATCH(D$1,'[2]sheet名'!$B$1:$H$1,0),0)
+        # or simpler: VLOOKUP($B2,'[2]sheet名'!$B:$D,MATCH(C$2,...),0)
+
+        vlookup_match = re.search(r"VLOOKUP\(\$?([A-Z]+)\$?(\d+),'\[(\d+)\]([^']+)'!", formula)
+        if not vlookup_match:
+            return None
+
+        lookup_col_letter = vlookup_match.group(1)
+        lookup_row = int(vlookup_match.group(2))
+        ref_num = vlookup_match.group(3)
+        ref_sheet = vlookup_match.group(4)
+
+        # Get the lookup value from the current worksheet
+        lookup_col = openpyxl.utils.column_index_from_string(lookup_col_letter)
+        lookup_value = current_ws.cell(row=row, column=lookup_col).value
+        if lookup_value is None:
+            # Try from the merge origin
+            return None
+        # If lookup_value is also a formula, we can't resolve deeper
+        if isinstance(lookup_value, str) and lookup_value.startswith('='):
+            return None
+
+        # Get the target sheet data
+        sheet_data = self.get_sheet_data(ref_sheet)
+        if sheet_data is None:
+            return None
+
+        # MATCH part: figure out which column to return
+        match_part = re.search(r"MATCH\(\$?([A-Z]+)\$?(\d+),'\[\d+\]", formula)
+        if match_part:
+            match_col_letter = match_part.group(1)
+            match_row_num = int(match_part.group(2))
+            match_col = openpyxl.utils.column_index_from_string(match_col_letter)
+            # The match value is from the current sheet's header
+            match_value = current_ws.cell(row=match_row_num, column=match_col).value
+            if isinstance(match_value, str) and match_value.startswith('='):
+                match_value = current_ws.cell(row=match_row_num, column=col).value
+
+            # Find the column in the target sheet that matches this header
+            target_col = None
+            for c, h in sheet_data['headers'].items():
+                if h == match_value:
+                    target_col = c
+                    break
+
+            if target_col is None:
+                return None
+        else:
+            # Simple column index
+            col_idx_match = re.search(r'VLOOKUP\([^,]+,[^,]+,(\d+)', formula)
+            if col_idx_match:
+                target_col = int(col_idx_match.group(1))
+            else:
+                return None
+
+        # Find the lookup value in column B (usually col 2) of target sheet
+        # The lookup range starts from the first column of the specified range
+        range_match = re.search(r"!\$?([A-Z]+)", formula)
+        lookup_start_col = openpyxl.utils.column_index_from_string(range_match.group(1)) if range_match else 1
+
+        for r in range(1, sheet_data['max_row'] + 1):
+            cell_val = sheet_data['data'].get((r, lookup_start_col))
+            if cell_val == lookup_value:
+                result = sheet_data['data'].get((r, lookup_start_col + target_col - 1))
+                return result
+
+        return None
+
+
+# ========== HTML生成器 ==========
+
+def generate_sheet_html(ws, sheet_name, resolver=None):
+    """Generate high-fidelity HTML from an Excel worksheet."""
+
+    max_row = ws.max_row or 1
+    max_col = ws.max_column or 1
+
+    merge_origins, merge_hidden = build_merged_map(ws)
+
+    # Get column widths
+    col_widths = {}
+    for c in range(1, max_col + 1):
+        letter = get_column_letter(c)
+        w = ws.column_dimensions[letter].width
+        if w:
+            col_widths[c] = max(30, int(w * 7.5))  # Convert Excel width units to pixels
+        else:
+            col_widths[c] = 80  # default
+
+    # Build HTML rows
+    rows_html = []
+    for r in range(1, max_row + 1):
+        cells_html = []
+        for c in range(1, max_col + 1):
+            if (r, c) in merge_hidden:
+                continue
+
+            cell = ws.cell(r, c)
+
+            # Get value
+            value = cell.value
+            if isinstance(value, str) and value.startswith('='):
+                # Try to resolve formula
+                if resolver:
+                    resolved = resolver.resolve(value, ws, r, c)
+                    if resolved is not None:
+                        value = resolved
+                    else:
+                        # Check if there's a SUM or simple formula
+                        if 'SUM' in value:
+                            value = None  # Can't compute easily
+                        else:
+                            value = None
+                else:
+                    value = None
+
+            # Format value
+            display = format_number(value, cell.number_format) if value is not None else ''
+
+            # Build CSS styles
+            styles = []
+
+            # Background color
+            fill_color = get_fill_color(cell)
+            if fill_color:
+                styles.append(f'background-color: #{fill_color}')
+
+            # Font
+            if cell.font:
+                if cell.font.bold:
+                    styles.append('font-weight: bold')
+                if cell.font.italic:
+                    styles.append('font-style: italic')
+                if cell.font.size:
+                    # Scale down slightly for screen
+                    size = cell.font.size
+                    if size >= 12:
+                        size = 10
+                    elif size >= 11:
+                        size = 9.5
+                    styles.append(f'font-size: {size}pt')
+                font_color = get_font_color(cell)
+                if font_color:
+                    styles.append(f'color: #{font_color}')
+                if cell.font.name and cell.font.name not in ('Calibri', 'Arial'):
+                    styles.append(f'font-family: "{cell.font.name}", "Microsoft YaHei", sans-serif')
+
+            # Alignment
+            if cell.alignment:
+                h_align = cell.alignment.horizontal
+                v_align = cell.alignment.vertical
+                if h_align:
+                    styles.append(f'text-align: {h_align}')
+                if v_align:
+                    v_map = {'center': 'middle', 'top': 'top', 'bottom': 'bottom'}
+                    styles.append(f'vertical-align: {v_map.get(v_align, "middle")}')
+                if cell.alignment.wrap_text:
+                    styles.append('white-space: normal; word-wrap: break-word')
+
+            # Borders
+            border_css = get_border_css(cell.border)
+            for prop, val in border_css.items():
+                styles.append(f'{prop}: {val}')
+
+            # Width
+            if c in col_widths:
+                styles.append(f'width: {col_widths[c]}px')
+
+            # Negative number in red
+            if isinstance(value, (int, float)) and value < 0:
+                if not any('color' in s for s in styles):
+                    styles.append('color: #FF0000')
+
+            style_str = '; '.join(styles)
+
+            # Merge attributes
+            attrs = f' style="{style_str}"' if style_str else ''
+            if (r, c) in merge_origins:
+                rowspan, colspan = merge_origins[(r, c)]
+                if rowspan > 1:
+                    attrs += f' rowspan="{rowspan}"'
+                if colspan > 1:
+                    attrs += f' colspan="{colspan}"'
+
+            cells_html.append(f'<td{attrs}>{display}</td>')
+
+        if cells_html:
+            row_style = ''
+            rh = ws.row_dimensions[r].height
+            if rh:
+                row_style = f' style="height: {int(rh * 1.33)}px"'
+            rows_html.append(f'<tr{row_style}>{"".join(cells_html)}</tr>')
+
+    table_html = f'<table>{"".join(rows_html)}</table>'
+
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{
+    font-family: "Microsoft YaHei", "SimHei", "宋体", "SimSun", sans-serif;
+    background: white;
+    padding: 2px;
+}}
+table {{
+    border-collapse: collapse;
+    font-size: 9pt;
+    white-space: nowrap;
+}}
+td {{
+    border: 1px solid #A0A0A0;
+    padding: 2px 5px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 9pt;
+    line-height: 1.3;
+}}
+</style>
+</head>
+<body>{table_html}</body>
+</html>'''
+
+
+# ========== 主流程 ==========
+
+def main():
+    os.makedirs(HTML_DIR, exist_ok=True)
+    os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+
+    print("加载VBA工作簿...")
+    wb = openpyxl.load_workbook(WORKBOOK_PATH, keep_vba=True, data_only=False)
+
+    # Also load with data_only=True for cached values
+    print("加载VBA工作簿缓存值...")
+    wb_cached = openpyxl.load_workbook(WORKBOOK_PATH, keep_vba=True, data_only=True)
+
+    print("初始化VLOOKUP解析器...")
+    resolver = VLookupResolver(OUTPUT_PATH)
+
+    # Read bookmark mapping
+    bookmark_ws = wb['书签表']
+    sheets_to_capture = []
+    for row in bookmark_ws.iter_rows(min_row=2, max_row=bookmark_ws.max_row, max_col=2, values_only=True):
+        sheet_name, bookmark_name = row
+        if sheet_name and bookmark_name:
+            sheets_to_capture.append((sheet_name, bookmark_name))
+
+    print(f"需要截图: {len(sheets_to_capture)} sheets\n")
+
+    success = 0
+    errors = []
+
+    for sheet_name, bookmark_name in sheets_to_capture:
+        if sheet_name not in wb.sheetnames:
+            print(f"  SKIP: '{sheet_name}' 不存在")
+            errors.append(sheet_name)
+            continue
+
+        ws = wb[sheet_name]
+
+        # Check if this sheet has VLOOKUP formulas
+        has_vlookup = False
+        for r in ws.iter_rows():
+            for cell in r:
+                if isinstance(cell.value, str) and 'VLOOKUP' in cell.value:
+                    has_vlookup = True
+                    break
+            if has_vlookup:
+                break
+
+        # Generate HTML with format preservation
+        html_content = generate_sheet_html(ws, sheet_name, resolver if has_vlookup else None)
+
+        # If no VLOOKUP but has cached values, use cached version for data
+        if not has_vlookup:
+            ws_cached = wb_cached[sheet_name]
+            html_content = generate_sheet_html_with_cached(ws, ws_cached, sheet_name)
+
+        safe_name = sheet_name.replace('/', '_').replace(' ', '_').replace('\u2028', '_')
+        html_path = os.path.join(HTML_DIR, f'{safe_name}.html')
+        with open(html_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+
+        success += 1
+        if success % 10 == 0:
+            print(f"  进度: {success}/{len(sheets_to_capture)}")
+
+    print(f"\nHTML生成完成: {success}/{len(sheets_to_capture)}")
+    if errors:
+        print(f"跳过: {errors}")
+
+    wb.close()
+    wb_cached.close()
+
+
+def generate_sheet_html_with_cached(ws_format, ws_data, sheet_name):
+    """Generate HTML using formatting from ws_format and data from ws_data (cached values)."""
+    max_row = ws_format.max_row or 1
+    max_col = ws_format.max_column or 1
+
+    merge_origins, merge_hidden = build_merged_map(ws_format)
+
+    col_widths = {}
+    for c in range(1, max_col + 1):
+        letter = get_column_letter(c)
+        w = ws_format.column_dimensions[letter].width
+        if w:
+            col_widths[c] = max(30, int(w * 7.5))
+        else:
+            col_widths[c] = 80
+
+    rows_html = []
+    for r in range(1, max_row + 1):
+        cells_html = []
+        for c in range(1, max_col + 1):
+            if (r, c) in merge_hidden:
+                continue
+
+            cell_fmt = ws_format.cell(r, c)
+            cell_data = ws_data.cell(r, c)
+
+            # Use cached data value, fall back to format cell's value if not a formula
+            value = cell_data.value
+            if value is None:
+                raw = cell_fmt.value
+                if raw is not None and not (isinstance(raw, str) and raw.startswith('=')):
+                    value = raw
+
+            display = format_number(value, cell_fmt.number_format) if value is not None else ''
+
+            styles = []
+            fill_color = get_fill_color(cell_fmt)
+            if fill_color:
+                styles.append(f'background-color: #{fill_color}')
+
+            if cell_fmt.font:
+                if cell_fmt.font.bold:
+                    styles.append('font-weight: bold')
+                if cell_fmt.font.italic:
+                    styles.append('font-style: italic')
+                if cell_fmt.font.size:
+                    size = cell_fmt.font.size
+                    if size >= 12:
+                        size = 10
+                    elif size >= 11:
+                        size = 9.5
+                    styles.append(f'font-size: {size}pt')
+                font_color = get_font_color(cell_fmt)
+                if font_color:
+                    styles.append(f'color: #{font_color}')
+
+            if cell_fmt.alignment:
+                h_align = cell_fmt.alignment.horizontal
+                v_align = cell_fmt.alignment.vertical
+                if h_align:
+                    styles.append(f'text-align: {h_align}')
+                if v_align:
+                    v_map = {'center': 'middle', 'top': 'top', 'bottom': 'bottom'}
+                    styles.append(f'vertical-align: {v_map.get(v_align, "middle")}')
+                if cell_fmt.alignment.wrap_text:
+                    styles.append('white-space: normal; word-wrap: break-word')
+
+            border_css = get_border_css(cell_fmt.border)
+            for prop, val in border_css.items():
+                styles.append(f'{prop}: {val}')
+
+            if c in col_widths:
+                styles.append(f'width: {col_widths[c]}px')
+
+            if isinstance(value, (int, float)) and value < 0:
+                if not any('color' in s for s in styles):
+                    styles.append('color: #FF0000')
+
+            style_str = '; '.join(styles)
+            attrs = f' style="{style_str}"' if style_str else ''
+            if (r, c) in merge_origins:
+                rowspan, colspan = merge_origins[(r, c)]
+                if rowspan > 1:
+                    attrs += f' rowspan="{rowspan}"'
+                if colspan > 1:
+                    attrs += f' colspan="{colspan}"'
+
+            cells_html.append(f'<td{attrs}>{display}</td>')
+
+        if cells_html:
+            row_style = ''
+            rh = ws_format.row_dimensions[r].height
+            if rh:
+                row_style = f' style="height: {int(rh * 1.33)}px"'
+            rows_html.append(f'<tr{row_style}>{"".join(cells_html)}</tr>')
+
+    table_html = f'<table>{"".join(rows_html)}</table>'
+
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{
+    font-family: "Microsoft YaHei", "SimHei", "宋体", "SimSun", sans-serif;
+    background: white;
+    padding: 2px;
+}}
+table {{
+    border-collapse: collapse;
+    font-size: 9pt;
+    white-space: nowrap;
+}}
+td {{
+    border: 1px solid #A0A0A0;
+    padding: 2px 5px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 9pt;
+    line-height: 1.3;
+}}
+</style>
+</head>
+<body>{table_html}</body>
+</html>'''
+
+
+if __name__ == '__main__':
+    main()

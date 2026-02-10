@@ -1,0 +1,346 @@
+# -*- coding: utf-8 -*-
+"""
+iChoice (EMQuantAPI) 数据获取测试脚本
+
+测试所有周报系统需要的市场数据指标，逐一验证iChoice是否能获取。
+直接调用iChoice SDK，不经过MarketDataProvider，方便定位问题。
+
+使用方法:
+    python test_ichoice.py
+"""
+
+import sys
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+
+# ==================== 配置 ====================
+
+SDK_PATH = '/Users/fanshengxia/Desktop/ichoice/EMQuantAPI_Python/python3'
+USERNAME = 'xylczh0181'
+PASSWORD = 'ef465509'
+
+# 测试日期范围
+TEST_END = '2025-01-10'
+TEST_START = '2025-01-06'
+TEST_DATE = '20250110'  # YYYYMMDD格式，用于css
+
+# ==================== 代码映射 ====================
+
+# 所有需要测试的代码 (Wind代码 → iChoice代码, 说明)
+TEST_CODES = {
+    # ---- generate_report.py MARKET_INDEX_CODES ----
+    'CBA00111.CS':  ('CBA00111.CS',  '中债-新综合财富(1年以下)指数'),
+    'CBA00121.CS':  ('CBA00121.CS',  '中债-新综合财富(1-3年)指数'),
+    'CBA00101.CS':  ('CBA00101.CS',  '中债-新综合财富(总值)指数'),
+    '885005.WI':    ('809008.EI',    '万得短期纯债型基金指数'),
+    '885008.WI':    ('809007.EI',    '万得中长期纯债型基金指数'),
+    '885006.WI':    ('809009.EI',    '万得混合债券型一级基金指数'),
+    '885007.WI':    ('809010.EI',    '万得混合债券型二级基金指数'),
+    '885001.WI':    ('809002.EI',    '万得偏股混合型基金指数'),
+    '000832.CSI':   ('000832.SH',    '中证转债'),
+    '000300.SH':    ('000300.SH',    '沪深300'),
+    '000905.SH':    ('000905.SH',    '中证500'),
+    '399006.SZ':    ('399006.SZ',    '创业板指'),
+    'H30269.CSI':   ('H30269.CSI',   '红利低波'),
+    'SPTAUUSDOZ.IDC': (None,         '伦敦金现 (无iChoice对应)'),
+    'NH0100.NHF':   (None,           '南华商品指数 (无iChoice对应)'),
+
+    # ---- calculate_all_benchmarks.py 基准指数 ----
+    'CBA00103.CS':  ('CBA00103.CS',  '中债-新综合全价(总值)指数'),
+    'CBA00123.CS':  ('CBA00123.CS',  '中债-新综合全价(1-3年)指数'),
+
+    # ---- generate_report.py 汇率 ----
+    'USDCNY':       ('USDCNY.IB',    '美元兑人民币汇率'),
+}
+
+# ==================== 工具函数 ====================
+
+def fmt_result(val):
+    """格式化数值"""
+    if val is None:
+        return 'None'
+    try:
+        return f'{float(val):.4f}'
+    except (ValueError, TypeError):
+        return str(val)
+
+
+def print_section(title):
+    print(f'\n{"="*60}')
+    print(f'  {title}')
+    print(f'{"="*60}')
+
+
+def print_row(wind_code, ichoice_code, desc, status, detail=''):
+    """打印一行测试结果"""
+    icon = '✅' if status == 'OK' else ('⚠️' if status == 'WARN' else '❌')
+    mapped = ichoice_code if ichoice_code else 'N/A'
+    line = f'  {icon} {wind_code:20s} → {mapped:16s} [{status:4s}] {desc}'
+    if detail:
+        line += f'  |  {detail}'
+    print(line)
+
+# ==================== 主测试流程 ====================
+
+def main():
+    print('iChoice (EMQuantAPI) 数据获取全量测试')
+    print(f'测试日期范围: {TEST_START} ~ {TEST_END}')
+    print(f'快照日期: {TEST_DATE}')
+    print('=' * 60)
+
+    # 1. 加载SDK并登录
+    print_section('1. 连接iChoice')
+    if SDK_PATH not in sys.path:
+        sys.path.insert(0, SDK_PATH)
+
+    try:
+        from EmQuantAPI import c
+    except ImportError:
+        print(f'❌ 无法导入EmQuantAPI, 检查SDK路径: {SDK_PATH}')
+        return
+
+    login_opts = f'ForceLogin=1,UserName={USERNAME},Password={PASSWORD}'
+    print(f'  正在登录...')
+    result = c.start(login_opts)
+    if result.ErrorCode != 0:
+        print(f'❌ 登录失败: ErrorCode={result.ErrorCode}, {result.ErrorMsg}')
+        return
+    print(f'  ✅ 登录成功')
+
+    # 统计
+    stats = {'ok': 0, 'warn': 0, 'fail': 0, 'skip': 0}
+
+    try:
+        # ==========================================
+        # 2. 测试 csd (时间序列数据 - 对应Wind wsd)
+        # ==========================================
+        print_section('2. csd 收盘价序列测试 (对应Wind wsd)')
+        print(f'  {"Wind代码":20s}   {"iChoice代码":16s}  状态  说明')
+        print(f'  {"-"*20}   {"-"*16}  ----  {"-"*30}')
+
+        for wind_code, (ichoice_code, desc) in TEST_CODES.items():
+            if wind_code == 'USDCNY':
+                continue  # 汇率单独测试
+            if ichoice_code is None:
+                print_row(wind_code, None, desc, 'SKIP', '无iChoice对应代码')
+                stats['skip'] += 1
+                continue
+
+            try:
+                r = c.csd(ichoice_code, 'CLOSE', TEST_START, TEST_END, 'Ispandas=1')
+
+                if isinstance(r, pd.DataFrame) and not r.empty:
+                    # 检查CLOSE列是否有实际数据
+                    close_col = None
+                    for col in r.columns:
+                        if 'CLOSE' in str(col).upper():
+                            close_col = col
+                            break
+                    if close_col is None:
+                        close_col = r.columns[-1]
+
+                    vals = pd.to_numeric(r[close_col], errors='coerce')
+                    non_null = vals.dropna()
+
+                    if len(non_null) > 0:
+                        detail = f'{len(non_null)}条, 末值={fmt_result(non_null.iloc[-1])}'
+                        print_row(wind_code, ichoice_code, desc, 'OK', detail)
+                        stats['ok'] += 1
+                    else:
+                        print_row(wind_code, ichoice_code, desc, 'WARN', '代码有效但CLOSE全为None(无数据权限?)')
+                        stats['warn'] += 1
+                else:
+                    err_msg = ''
+                    if hasattr(r, 'ErrorCode'):
+                        err_msg = f'ErrorCode={r.ErrorCode}'
+                    print_row(wind_code, ichoice_code, desc, 'FAIL', err_msg)
+                    stats['fail'] += 1
+
+            except Exception as e:
+                print_row(wind_code, ichoice_code, desc, 'FAIL', str(e)[:50])
+                stats['fail'] += 1
+
+        # ==========================================
+        # 3. 测试汇率
+        # ==========================================
+        print_section('3. 汇率测试')
+
+        # 方式A: csd USDCNY.IB
+        print('  方式A: csd USDCNY.IB CLOSE')
+        r = c.csd('USDCNY.IB', 'CLOSE', TEST_START, TEST_END, 'Ispandas=1')
+        if isinstance(r, pd.DataFrame) and not r.empty:
+            close_col = [col for col in r.columns if 'CLOSE' in str(col).upper()]
+            close_col = close_col[0] if close_col else r.columns[-1]
+            vals = pd.to_numeric(r[close_col], errors='coerce').dropna()
+            if len(vals) > 0:
+                print(f'    ✅ 获取成功: {len(vals)}条, 末值={fmt_result(vals.iloc[-1])}')
+                stats['ok'] += 1
+            else:
+                print(f'    ⚠️ 代码有效但数据全为None')
+                stats['warn'] += 1
+        else:
+            err = f'ErrorCode={r.ErrorCode}' if hasattr(r, 'ErrorCode') else '空返回'
+            print(f'    ❌ 失败: {err}')
+            stats['fail'] += 1
+
+        # 方式B: css USDCNY.IB
+        print('  方式B: css USDCNY.IB CLOSE')
+        r = c.css('USDCNY.IB', 'CLOSE', f'TradeDate={TEST_DATE},Ispandas=1')
+        if isinstance(r, pd.DataFrame) and not r.empty:
+            close_col = [col for col in r.columns if 'CLOSE' in str(col).upper()]
+            close_col = close_col[0] if close_col else r.columns[-1]
+            val = r[close_col].iloc[0]
+            if val is not None:
+                print(f'    ✅ 获取成功: {fmt_result(val)}')
+            else:
+                print(f'    ⚠️ 返回None')
+        else:
+            err = f'ErrorCode={r.ErrorCode}' if hasattr(r, 'ErrorCode') else '空返回'
+            print(f'    ❌ 失败: {err}')
+
+        # ==========================================
+        # 4. 测试 css (快照数据 - 对应Wind wss)
+        # ==========================================
+        print_section('4. css NAME 名称测试 (对应Wind wss sec_name)')
+
+        all_ichoice_codes = [v[0] for k, v in TEST_CODES.items()
+                             if v[0] is not None and k != 'USDCNY']
+
+        for ichoice_code in all_ichoice_codes:
+            wind_code = [k for k, v in TEST_CODES.items() if v[0] == ichoice_code][0]
+            try:
+                r = c.css(ichoice_code, 'NAME', f'TradeDate={TEST_DATE},Ispandas=1')
+                if isinstance(r, pd.DataFrame) and not r.empty:
+                    name_col = [col for col in r.columns if 'NAME' in str(col).upper()]
+                    name_col = name_col[0] if name_col else r.columns[-1]
+                    name = r[name_col].iloc[0]
+                    if name is not None:
+                        print(f'  ✅ {ichoice_code:16s} = {name}')
+                    else:
+                        print(f'  ⚠️ {ichoice_code:16s} = None')
+                else:
+                    err = f'ErrorCode={r.ErrorCode}' if hasattr(r, 'ErrorCode') else '?'
+                    print(f'  ❌ {ichoice_code:16s} 失败: {err}')
+            except Exception as e:
+                print(f'  ❌ {ichoice_code:16s} 异常: {e}')
+
+        # ==========================================
+        # 5. 测试收益率计算 (从csd首尾价格计算)
+        # ==========================================
+        print_section('5. 区间收益率测试 (首尾收盘价计算, 对应Wind pct_chg_per)')
+
+        working_codes = [
+            ('000300.SH', '000300.SH'),
+            ('000905.SH', '000905.SH'),
+            ('399006.SZ', '399006.SZ'),
+            ('000832.CSI', '000832.SH'),
+            ('H30269.CSI', 'H30269.CSI'),
+            ('885008.WI', '809007.EI'),
+            ('885005.WI', '809008.EI'),
+            ('885006.WI', '809009.EI'),
+            ('885007.WI', '809010.EI'),
+            ('885001.WI', '809002.EI'),
+        ]
+
+        for wind_code, ichoice_code in working_codes:
+            try:
+                r = c.csd(ichoice_code, 'CLOSE', TEST_START, TEST_END, 'Ispandas=1')
+                if isinstance(r, pd.DataFrame) and not r.empty:
+                    close_col = [col for col in r.columns if 'CLOSE' in str(col).upper()]
+                    close_col = close_col[0] if close_col else r.columns[-1]
+                    vals = pd.to_numeric(r[close_col], errors='coerce').dropna()
+                    if len(vals) >= 2:
+                        ret = (vals.iloc[-1] / vals.iloc[0] - 1) * 100
+                        print(f'  ✅ {wind_code:16s} ({ichoice_code:12s}): {ret:+.4f}%  '
+                              f'({fmt_result(vals.iloc[0])} → {fmt_result(vals.iloc[-1])})')
+                    else:
+                        print(f'  ⚠️ {wind_code:16s}: 数据不足({len(vals)}条)')
+                else:
+                    print(f'  ❌ {wind_code:16s}: 获取失败')
+            except Exception as e:
+                print(f'  ❌ {wind_code:16s}: {e}')
+
+        # ==========================================
+        # 6. 测试波动率计算所需的连续数据
+        # ==========================================
+        print_section('6. 波动率测试 (近30天日收盘价)')
+
+        vol_start = (datetime.strptime(TEST_END, '%Y-%m-%d') - timedelta(days=30)).strftime('%Y-%m-%d')
+
+        for wind_code, ichoice_code in working_codes[:5]:  # 只测前5个
+            try:
+                r = c.csd(ichoice_code, 'CLOSE', vol_start, TEST_END, 'Ispandas=1')
+                if isinstance(r, pd.DataFrame) and not r.empty:
+                    close_col = [col for col in r.columns if 'CLOSE' in str(col).upper()]
+                    close_col = close_col[0] if close_col else r.columns[-1]
+                    vals = pd.to_numeric(r[close_col], errors='coerce').dropna()
+                    if len(vals) >= 5:
+                        daily_ret = vals.pct_change().dropna()
+                        ann_vol = daily_ret.std() * np.sqrt(252)
+                        print(f'  ✅ {wind_code:16s}: {len(vals)}天数据, 年化波动率={ann_vol:.4f}')
+                    else:
+                        print(f'  ⚠️ {wind_code:16s}: 数据不足({len(vals)}条)')
+                else:
+                    print(f'  ❌ {wind_code:16s}: 获取失败')
+            except Exception as e:
+                print(f'  ❌ {wind_code:16s}: {e}')
+
+        # ==========================================
+        # 7. 测试债券属性 (城投/永续)
+        # ==========================================
+        print_section('7. 债券属性测试 (对应Wind municipalbondWind/perpetualornot)')
+
+        # 用几个真实的债券代码测试
+        test_bonds = ['240210.IB', '240215.IB', '230215.IB']
+        bonds_str = ','.join(test_bonds)
+
+        print(f'  测试代码: {bonds_str}')
+
+        # 尝试字段名组合
+        field_combos = [
+            ('MUNICIPALBOND,PERPETUAL', '标准字段'),
+            ('MUNICIPALBONDWIND,PERPETUALORNOT', 'Wind兼容字段'),
+        ]
+
+        for fields, label in field_combos:
+            try:
+                r = c.css(bonds_str, fields, 'Ispandas=1')
+                if isinstance(r, pd.DataFrame) and not r.empty:
+                    non_null = r.dropna(how='all')
+                    if len(non_null) > 0:
+                        print(f'  ✅ {label}: 返回{len(r)}行')
+                        print(f'     列名: {list(r.columns)}')
+                        print(f'     数据:\n{r.to_string(index=True)}')
+                    else:
+                        print(f'  ⚠️ {label}: 返回全为空')
+                else:
+                    err = f'ErrorCode={r.ErrorCode}' if hasattr(r, 'ErrorCode') else '?'
+                    print(f'  ❌ {label}: 失败 ({err})')
+            except Exception as e:
+                print(f'  ❌ {label}: 异常 {e}')
+
+        # ==========================================
+        # 8. 汇总
+        # ==========================================
+        print_section('8. 测试汇总')
+        print(f'  ✅ 成功: {stats["ok"]}')
+        print(f'  ⚠️ 有限(代码有效但无数据权限): {stats["warn"]}')
+        print(f'  ❌ 失败: {stats["fail"]}')
+        print(f'  ⏭️ 跳过(无对应代码): {stats["skip"]}')
+
+        total = stats['ok'] + stats['warn'] + stats['fail'] + stats['skip']
+        print(f'  合计测试: {total}')
+
+        if stats['warn'] > 0:
+            print(f'\n  ⚠️ 无数据权限的代码需要联系东方财富开通权限，或切回Wind获取。')
+            print(f'     当前可通过 config.py 中 DATA_SOURCE="wind" 切换回Wind数据源。')
+
+    finally:
+        print(f'\n正在断开iChoice连接...')
+        c.stop()
+        print('完成。')
+
+
+if __name__ == '__main__':
+    main()

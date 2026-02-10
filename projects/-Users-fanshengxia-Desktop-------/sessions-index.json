@@ -91,6 +91,32 @@
       "gitBranch": "main",
       "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
       "isSidechain": false
+    },
+    {
+      "sessionId": "2e6e1fbd-fab4-4853-bb00-3ec2abc6f26c",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/2e6e1fbd-fab4-4853-bb00-3ec2abc6f26c.jsonl",
+      "fileMtime": 1769777380143,
+      "firstPrompt": "你是什么模型",
+      "summary": "Market Review Skill Creation & GitHub Upload",
+      "messageCount": 40,
+      "created": "2026-01-25T04:21:56.911Z",
+      "modified": "2026-01-25T08:16:19.799Z",
+      "gitBranch": "main",
+      "projectPath": "/Users/fanshengxia/Desktop/市场观点美化",
+      "isSidechain": false
+    },
+    {
+      "sessionId": "29e33a11-3797-4c6d-922b-46c8a34c8db2",
+      "fullPath": "/Users/fanshengxia/.claude/projects/-Users-fanshengxia-Desktop-------/29e33a11-3797-4c6d-922b-46c8a34c8db2.jsonl",
+      "fileMtime": 1769937862454,
+      "firstPrompt": "我需要统计我的债券建仓情况，我的建仓数据全部在/Users/fanshengxia/Desktop/债券建仓登记/正式指令台账信息2026-01-30.xlsx这个文件夹下，我需要生成类似这个文件的格式/Users/fanshengxia/Desktop/债券建仓登记/多资产投资助理二级台账人员.xlsx，其中分2个，对于同业存单（债券简称中含有“CD”）生成二级NCD和货币类资产建仓这个shee…",
+      "summary": "Bond Position Report & Market Review Skills",
+      "messageCount": 34,
+      "created": "2026-01-30T12:49:33.308Z",
+      "modified": "2026-01-30T13:27:17.962Z",
+      "gitBranch": "",
+      "projectPath": "/Users/fanshengxia/Desktop/债券建仓登记",
+      "isSidechain": false
     }
   ],
   "originalPath": "/Users/fanshengxia/Desktop/市场观点美化"

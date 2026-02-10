@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+周报自动化主控制脚本
+一键执行完整的Python数据处理流程
+- 实时显示子脚本输出
+- 清晰展示错误信息
+"""
+
+import os
+import sys
+import subprocess
+import time
+from datetime import datetime
+from config import Config
+
+
+def run_script(script_name, description, args=None):
+    """
+    执行指定的Python脚本，实时显示输出
+    """
+    print(f"\n{'='*60}")
+    print(f"🔄 开始执行: {description}")
+    print(f"📄 脚本文件: {script_name}")
+    print(f"⏰ 开始时间: {datetime.now().strftime('%H:%M:%S')}")
+    print(f"{'='*60}\n")
+
+    script_path = os.path.join(Config.BASE_DIR, script_name)
+
+    # 检查脚本是否存在
+    if not os.path.exists(script_path):
+        print(f"❌ 错误: 脚本文件不存在 - {script_path}")
+        return False
+
+    try:
+        command = [sys.executable, "-u", script_path]  # -u 禁用输出缓冲
+        if args:
+            command.extend(args)
+
+        # 使用 Popen 实时显示输出
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # 合并 stderr 到 stdout
+            text=True,
+            bufsize=1,  # 行缓冲
+            cwd=Config.BASE_DIR,
+            env={**os.environ, 'PYTHONUNBUFFERED': '1'}  # 确保 Python 不缓冲输出
+        )
+
+        # 实时读取并显示输出
+        output_lines = []
+        while True:
+            line = process.stdout.readline()
+            if line:
+                print(f"  {line}", end='')  # 添加缩进以区分子脚本输出
+                output_lines.append(line)
+            elif process.poll() is not None:
+                break
+
+        # 读取剩余输出
+        remaining = process.stdout.read()
+        if remaining:
+            print(f"  {remaining}", end='')
+            output_lines.append(remaining)
+
+        return_code = process.returncode
+        end_time = datetime.now().strftime('%H:%M:%S')
+
+        if return_code == 0:
+            print(f"\n{'─'*60}")
+            print(f"✅ {description} - 执行成功 (结束时间: {end_time})")
+            return True
+        else:
+            print(f"\n{'─'*60}")
+            print(f"❌ {description} - 执行失败 (返回码: {return_code})")
+            print(f"⏰ 结束时间: {end_time}")
+
+            # 如果输出中包含错误信息，高亮显示
+            error_keywords = ['Error', 'Exception', 'Traceback', '错误', '失败']
+            error_lines = [l for l in output_lines if any(k in l for k in error_keywords)]
+            if error_lines:
+                print(f"\n🔍 关键错误信息:")
+                for line in error_lines[-10:]:  # 显示最后10条错误相关行
+                    print(f"   ⚠️  {line.strip()}")
+
+            return False
+
+    except FileNotFoundError:
+        print(f"❌ 错误: Python 解释器未找到")
+        return False
+    except Exception as e:
+        print(f"❌ 执行异常: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def main():
+    """主控制函数"""
+    start_time = datetime.now()
+
+    print(f"""
+╔══════════════════════════════════════════════════════════════╗
+║         🏦 多资产投资部产品周报自动化系统                    ║
+╠══════════════════════════════════════════════════════════════╣
+║  📅 报告日期: {Config.YUNZUOGAILAN_DATE}                                       ║
+║  📁 数据目录: {Config.DATA_DIR:<45} ║
+║  📊 输出目录: {Config.OUTPUT_DIR:<45} ║
+╚══════════════════════════════════════════════════════════════╝
+    """)
+
+    # 打印所有日期配置
+    print("📆 日期配置:")
+    print(f"   运作概览日期: {Config.YUNZUOGAILAN_DATE}")
+    print(f"   周报日期:     {Config.ZHOUBAO_DATE}")
+    print(f"   上周日期:     {Config.LASTW}")
+    print(f"   上月最后一天: {Config.LASTM}")
+    print(f"   上年最后一天: {Config.LASTY}")
+    print(f"   本周一日期:   {Config.WEEK_MON}")
+    print(f"   下周一日期:   {Config.BEGIN_DATE_NEXT_W}")
+    print(f"   下周五日期:   {Config.CLOSING_DATE_NEXT_W}")
+
+    print(f"\n{'═'*60}")
+
+    # 确认执行
+    user_input = input("\n确认执行完整流程吗？(y/n): ").strip().lower()
+    if user_input != 'y':
+        print("❌ 用户取消执行")
+        return
+
+    # 执行流程
+    steps = [
+        ("move_files.py", "1. 数据源文件移动"),
+        ("update_new_product_catgoery.py", "2. AI产品分类更新"),
+        ("generate_report.py", "3. 主要结果表生成"),
+        ("calculate_all_benchmarks.py", "4. 业绩基准表现计算"),
+        ("yield_forecast.py", "5. 收益预测数据生成")
+    ]
+
+    print(f"\n📋 执行计划: 共 {len(steps)} 个步骤")
+    for script, desc in steps:
+        print(f"   • {desc} ({script})")
+    print()
+
+    success_count = 0
+    failed_step = None
+
+    for i, (script, description) in enumerate(steps, 1):
+        args = None
+        if script == "calculate_all_benchmarks.py":
+            args = ["--date", Config.ZHOUBAO_DATE]
+
+        print(f"\n📍 进度: [{i}/{len(steps)}]")
+
+        if run_script(script, description, args=args):
+            success_count += 1
+        else:
+            failed_step = description
+            print(f"\n{'!'*60}")
+            print(f"❌ 流程在步骤 [{i}/{len(steps)}] '{description}' 失败")
+            print(f"{'!'*60}")
+
+            # 询问是否继续
+            if i < len(steps):
+                cont = input("\n是否跳过此步骤继续执行后续步骤？(y/n): ").strip().lower()
+                if cont != 'y':
+                    break
+
+    # 计算总耗时
+    end_time = datetime.now()
+    duration = end_time - start_time
+    minutes, seconds = divmod(duration.total_seconds(), 60)
+
+    print(f"\n{'═'*60}")
+    print(f"📊 执行结果汇总")
+    print(f"{'═'*60}")
+    print(f"   成功步骤: {success_count}/{len(steps)}")
+    print(f"   总耗时:   {int(minutes)} 分 {int(seconds)} 秒")
+    print(f"   开始时间: {start_time.strftime('%H:%M:%S')}")
+    print(f"   结束时间: {end_time.strftime('%H:%M:%S')}")
+
+    if success_count == len(steps):
+        print(f"\n✅ Python数据处理阶段全部完成！")
+        print(f"\n📋 后续手动步骤:")
+        print(f"   6. 打开 '周报生成工具_加权.xlsm' 执行VBA宏")
+        print(f"   7. 在Word模板中执行VBA生成最终报告")
+        print(f"   8. 发送PDF周报至邮箱")
+    else:
+        print(f"\n❌ 部分步骤执行失败")
+        if failed_step:
+            print(f"   失败步骤: {failed_step}")
+        print(f"   请检查上述错误信息后重试")
+
+    print(f"{'═'*60}\n")
+
+
+if __name__ == "__main__":
+    main()

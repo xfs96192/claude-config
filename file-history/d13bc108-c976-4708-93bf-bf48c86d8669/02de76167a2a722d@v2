@@ -1,0 +1,267 @@
+"""
+丰利兴动多策略一年持有期3号增强型 产品净值与业绩基准对比分析
+需要在Wind终端环境中运行
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from WindPy import w
+from datetime import datetime
+import matplotlib.dates as mdates
+
+# 设置中文字体
+plt.rcParams['font.sans-serif'] = ['SimHei', 'Arial Unicode MS']
+plt.rcParams['axes.unicode_minus'] = False
+
+# ==================== 参数设置 ====================
+excel_file = '/Users/fanshengxia/Desktop/业绩评价/单个产品及业绩基准对比表现/净值走势图2026-01-28.xlsx'
+
+# 时间范围（起息日开始）
+start_date = '2025-07-11'
+end_date = '2026-01-26'
+
+# 产品信息
+product_name = '丰利兴动多策略一年持有期3号增强型'
+product_code = '9S650300'
+
+# 业绩基准配置：中证800指数收益率*15% + 中债-新综合全价（1-3年）指数收益率*85%
+benchmark_config = {
+    '中证800指数': {
+        'code': '000906.SH',
+        'weight': 0.15
+    },
+    '中债-新综合全价（1-3年）指数': {
+        'code': 'CBA00123.CS',
+        'weight': 0.85
+    }
+}
+
+print("=" * 80)
+print(f"{product_name} 产品净值与业绩基准对比分析")
+print("=" * 80)
+
+# ==================== 1. 读取产品净值数据 ====================
+print("\n[1] 读取产品净值数据...")
+df_product = pd.read_excel(excel_file)
+df_product.columns = ['日期', '单位净值']
+df_product['日期'] = pd.to_datetime(df_product['日期'])
+
+# 筛选时间范围
+df_product = df_product[(df_product['日期'] >= start_date) &
+                        (df_product['日期'] <= end_date)].copy()
+df_product = df_product.sort_values('日期').reset_index(drop=True)
+
+print(f"产品净值数据点数: {len(df_product)}")
+print(f"起始日期: {df_product['日期'].iloc[0].strftime('%Y-%m-%d')}")
+print(f"结束日期: {df_product['日期'].iloc[-1].strftime('%Y-%m-%d')}")
+print(f"起始净值: {df_product['单位净值'].iloc[0]:.6f}")
+print(f"最新净值: {df_product['单位净值'].iloc[-1]:.6f}")
+
+# ==================== 2. 启动Wind接口 ====================
+print("\n[2] 启动Wind接口...")
+w.start()
+print("Wind接口启动成功")
+
+# ==================== 3. 获取基准指数数据 ====================
+print("\n[3] 获取基准指数数据...")
+
+# 获取中证800指数数据
+print(f"  获取中证800指数 ({benchmark_config['中证800指数']['code']}) 数据...")
+csi800_data = w.wsd(
+    benchmark_config['中证800指数']['code'],
+    "close",
+    start_date,
+    end_date,
+    "Fill=Previous"
+)
+
+if csi800_data.ErrorCode != 0:
+    print(f"  错误: {csi800_data.Data}")
+    raise Exception(f"获取中证800指数数据失败: {csi800_data.Data}")
+
+# 获取中债-新综合全价（1-3年）指数数据
+print(f"  获取中债-新综合全价（1-3年）指数 ({benchmark_config['中债-新综合全价（1-3年）指数']['code']}) 数据...")
+bond_data = w.wsd(
+    benchmark_config['中债-新综合全价（1-3年）指数']['code'],
+    "close",
+    start_date,
+    end_date,
+    "Fill=Previous"
+)
+
+if bond_data.ErrorCode != 0:
+    print(f"  错误: {bond_data.Data}")
+    raise Exception(f"获取中债指数数据失败: {bond_data.Data}")
+
+# 创建基准数据DataFrame
+df_benchmark = pd.DataFrame({
+    '日期': csi800_data.Times,
+    '中证800指数': csi800_data.Data[0],
+    '中债指数': bond_data.Data[0]
+})
+
+df_benchmark['日期'] = pd.to_datetime(df_benchmark['日期'])
+
+print(f"基准数据点数: {len(df_benchmark)}")
+print(f"基准数据日期范围: {df_benchmark['日期'].iloc[0].strftime('%Y-%m-%d')} 至 {df_benchmark['日期'].iloc[-1].strftime('%Y-%m-%d')}")
+
+# ==================== 4. 合并数据并计算业绩基准净值 ====================
+print("\n[4] 计算业绩基准净值...")
+
+df_merged = pd.merge(df_product, df_benchmark, on='日期', how='inner')
+print(f"合并后数据点数: {len(df_merged)}")
+
+if len(df_merged) == 0:
+    raise Exception("合并后没有数据！请检查日期范围和数据可用性。")
+
+# 计算各指数的日收益率
+df_merged['中证800日收益率'] = df_merged['中证800指数'].pct_change()
+df_merged['中债日收益率'] = df_merged['中债指数'].pct_change()
+
+# 计算基准组合日收益率
+df_merged['基准日收益率'] = (
+    df_merged['中证800日收益率'] * benchmark_config['中证800指数']['weight'] +
+    df_merged['中债日收益率'] * benchmark_config['中债-新综合全价（1-3年）指数']['weight']
+)
+
+# 将第一天的NaN替换为0
+df_merged['基准日收益率'] = df_merged['基准日收益率'].fillna(0)
+
+# 计算累计基准净值
+df_merged['基准净值'] = (1 + df_merged['基准日收益率']).cumprod()
+
+print("基准净值计算完成")
+
+# ==================== 5. 计算业绩指标 ====================
+print("\n[5] 计算业绩指标...")
+
+# 产品收益率
+product_return = (df_merged['单位净值'].iloc[-1] / df_merged['单位净值'].iloc[0] - 1) * 100
+
+# 基准收益率
+benchmark_return = (df_merged['基准净值'].iloc[-1] / df_merged['基准净值'].iloc[0] - 1) * 100
+
+# 超额收益
+excess_return = product_return - benchmark_return
+
+# 计算年化收益率
+days = (df_merged['日期'].iloc[-1] - df_merged['日期'].iloc[0]).days
+product_annual_return = ((1 + product_return / 100) ** (365 / days) - 1) * 100 if days > 0 else 0
+benchmark_annual_return = ((1 + benchmark_return / 100) ** (365 / days) - 1) * 100 if days > 0 else 0
+
+# 计算波动率
+product_volatility = df_merged['单位净值'].pct_change().std() * np.sqrt(252) * 100
+benchmark_volatility = df_merged['基准净值'].pct_change().std() * np.sqrt(252) * 100
+
+# 计算最大回撤
+def calculate_max_drawdown(series):
+    cumulative = (1 + series.pct_change()).cumprod()
+    running_max = cumulative.expanding().max()
+    drawdown = (cumulative - running_max) / running_max
+    return drawdown.min() * 100
+
+product_max_dd = calculate_max_drawdown(df_merged['单位净值'])
+benchmark_max_dd = calculate_max_drawdown(df_merged['基准净值'])
+
+print(f"\n{'=' * 70}")
+print(f"业绩统计 ({df_merged['日期'].iloc[0].strftime('%Y-%m-%d')} 至 {df_merged['日期'].iloc[-1].strftime('%Y-%m-%d')})")
+print(f"{'=' * 70}")
+print(f"区间天数: {days} 天")
+print(f"\n产品净值:")
+print(f"  起始净值: {df_merged['单位净值'].iloc[0]:.6f}")
+print(f"  最新净值: {df_merged['单位净值'].iloc[-1]:.6f}")
+print(f"  区间收益率: {product_return:.2f}%")
+print(f"  年化收益率: {product_annual_return:.2f}%")
+print(f"  年化波动率: {product_volatility:.2f}%")
+print(f"  最大回撤: {product_max_dd:.2f}%")
+print(f"\n业绩基准:")
+print(f"  起始净值: {df_merged['基准净值'].iloc[0]:.6f}")
+print(f"  最新净值: {df_merged['基准净值'].iloc[-1]:.6f}")
+print(f"  区间收益率: {benchmark_return:.2f}%")
+print(f"  年化收益率: {benchmark_annual_return:.2f}%")
+print(f"  年化波动率: {benchmark_volatility:.2f}%")
+print(f"  最大回撤: {benchmark_max_dd:.2f}%")
+print(f"\n超额收益: {excess_return:.2f}%")
+print(f"\n基准构成:")
+print(f"  中证800指数: {benchmark_config['中证800指数']['weight'] * 100:.0f}%")
+print(f"  中债-新综合全价（1-3年）指数: {benchmark_config['中债-新综合全价（1-3年）指数']['weight'] * 100:.0f}%")
+print(f"{'=' * 70}")
+
+# ==================== 6. 数据导出 ====================
+print("\n[6] 导出数据...")
+output_df = df_merged[['日期', '单位净值', '基准净值', '中证800指数', '中债指数']].copy()
+output_df['产品收益率(%)'] = (output_df['单位净值'] / output_df['单位净值'].iloc[0] - 1) * 100
+output_df['基准收益率(%)'] = (output_df['基准净值'] / output_df['基准净值'].iloc[0] - 1) * 100
+output_df['超额收益(%)'] = output_df['产品收益率(%)'] - output_df['基准收益率(%)']
+
+output_df['日期'] = output_df['日期'].dt.strftime('%Y-%m-%d')
+
+output_file = '/Users/fanshengxia/Desktop/业绩评价/单个产品及业绩基准对比表现/多策略1Y_净值对比数据.xlsx'
+output_df.to_excel(output_file, index=False)
+print(f"数据已导出至: {output_file}")
+print(f"导出数据行数: {len(output_df)}")
+
+# ==================== 7. 绘制对比图表 ====================
+print("\n[7] 绘制净值对比图表...")
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
+fig.suptitle(f'{product_name} vs 业绩基准 净值走势对比',
+             fontsize=16, fontweight='bold', y=0.995)
+
+# 图1: 净值走势对比
+ax1.plot(df_merged['日期'], df_merged['单位净值'],
+         linewidth=2.5, label=product_name, color='#2E86DE', marker='o', markersize=3)
+ax1.plot(df_merged['日期'], df_merged['基准净值'],
+         linewidth=2.5, label='业绩基准', color='#EE5A6F', marker='s', markersize=3)
+
+ax1.set_xlabel('日期', fontsize=11, fontweight='bold')
+ax1.set_ylabel('净值', fontsize=11, fontweight='bold')
+ax1.set_title('净值走势对比', fontsize=13, fontweight='bold', pad=15)
+ax1.legend(loc='best', fontsize=10, framealpha=0.9)
+ax1.grid(True, alpha=0.3, linestyle='--')
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+ax1.tick_params(axis='x', rotation=45)
+
+# 添加文字标注
+textstr = (f'产品收益率: {product_return:.2f}%\n'
+           f'基准收益率: {benchmark_return:.2f}%\n'
+           f'超额收益: {excess_return:.2f}%\n\n'
+           f'产品波动率: {product_volatility:.2f}%\n'
+           f'基准波动率: {benchmark_volatility:.2f}%')
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+ax1.text(0.02, 0.98, textstr, transform=ax1.transAxes, fontsize=9,
+         verticalalignment='top', bbox=props)
+
+# 图2: 累计收益率对比
+product_cum_return = (df_merged['单位净值'] / df_merged['单位净值'].iloc[0] - 1) * 100
+benchmark_cum_return = (df_merged['基准净值'] / df_merged['基准净值'].iloc[0] - 1) * 100
+excess_cum_return = product_cum_return - benchmark_cum_return
+
+ax2.plot(df_merged['日期'], product_cum_return,
+         linewidth=2.5, label='产品收益率', color='#2E86DE', marker='o', markersize=3)
+ax2.plot(df_merged['日期'], benchmark_cum_return,
+         linewidth=2.5, label='基准收益率', color='#EE5A6F', marker='s', markersize=3)
+ax2.plot(df_merged['日期'], excess_cum_return,
+         linewidth=2, label='超额收益', color='#26C281', linestyle='--', marker='^', markersize=3)
+
+ax2.set_xlabel('日期', fontsize=11, fontweight='bold')
+ax2.set_ylabel('收益率 (%)', fontsize=11, fontweight='bold')
+ax2.set_title('累计收益率对比', fontsize=13, fontweight='bold', pad=15)
+ax2.legend(loc='best', fontsize=10, framealpha=0.9)
+ax2.grid(True, alpha=0.3, linestyle='--')
+ax2.axhline(y=0, color='black', linestyle='-', linewidth=0.8, alpha=0.5)
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+ax2.tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+chart_file = '/Users/fanshengxia/Desktop/业绩评价/单个产品及业绩基准对比表现/多策略1Y_净值对比图.png'
+plt.savefig(chart_file, dpi=300, bbox_inches='tight')
+print(f"图表已保存至: {chart_file}")
+
+plt.show()
+
+# ==================== 8. 关闭Wind接口 ====================
+w.stop()
+print("\n分析完成！")
+print("=" * 80)

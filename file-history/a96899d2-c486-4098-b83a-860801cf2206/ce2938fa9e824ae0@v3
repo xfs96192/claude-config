@@ -1,0 +1,473 @@
+# -*- coding: utf-8 -*-
+"""
+配置文件 - 统一管理所有路径和参数
+确保数据计算逻辑完全不变，仅优化路径管理
+"""
+import os
+from datetime import datetime
+from datetime import timedelta
+
+class Config:
+    """项目配置类 - 集中管理所有路径和参数"""
+    
+    # ===================
+    # 基础路径配置
+    # ===================
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATA_DIR = os.path.join(BASE_DIR, "数据")
+    OUTPUT_DIR = os.path.join(BASE_DIR, "输出结果")
+    
+    # ===================
+    # 数据子目录路径
+    # ===================
+    # 产品净值数据
+    NET_VALUE_DIR = os.path.join(DATA_DIR, "产品净值数据")
+    
+    # 产品业绩指标数据
+    PERFORMANCE_DIR = os.path.join(DATA_DIR, "产品业绩指标数据")
+    
+    # 产品运作概览数据
+    OVERVIEW_PARENT_DIR = os.path.join(DATA_DIR, "产品运作概览数据-母产品")
+    OVERVIEW_BOTH_DIR = os.path.join(DATA_DIR, "产品运作概览数据-母子产品")
+    
+    # 周度更新数据
+    WEEKLY_DATA_DIR = os.path.join(DATA_DIR, "周度更新数据")
+    
+    # 资产持仓数据
+    ASSET_DIR = os.path.join(DATA_DIR, "资产持仓数据")
+    
+    # 收益测算数据
+    YIELD_CALC_DIR = os.path.join(DATA_DIR, "收益测算数据")
+
+    # ===================
+    # 重要日期配置
+    # ===================
+    # 注意：这些日期需要根据实际情况手动更新
+    YUNZUOGAILAN_DATE = '20251231'  # 运作概览数据日期
+    
+    # 根据运作概览日期计算其他相关日期
+    # 将字符串日期转换为datetime对象
+    base_date = datetime.strptime(YUNZUOGAILAN_DATE, '%Y%m%d')
+    # 计算上周
+    lastweek = base_date - timedelta(days=7)
+    LASTW = lastweek.strftime('%Y%m%d')
+    # 计算上月最后一天
+    last_month = base_date.replace(day=1) - timedelta(days=1)
+    LASTM =last_month.strftime('%Y%m%d')
+
+    # 计算上年最后一天
+    last_year = base_date.replace(month=1, day=1) - timedelta(days=1)
+    LASTY = last_year.strftime('%Y%m%d')
+
+    # 周报日期与运作概览日期相同
+    ZHOUBAO_DATE = YUNZUOGAILAN_DATE
+
+    # 上周日期
+    DATE_LASTW = LASTW
+    LAST_WEEK = DATE_LASTW
+
+    # 计算本周一日期（向前找到最近的周一）
+    week_day = base_date.weekday()
+    monday = base_date - timedelta(days=week_day)
+    WEEK_MON = monday.strftime('%Y-%m-%d')
+
+    # 计算下周一和下周五日期
+    next_monday = monday + timedelta(days=7)
+    next_friday = next_monday + timedelta(days=4)
+    BEGIN_DATE_NEXT_W = next_monday.strftime('%Y-%m-%d')
+    CLOSING_DATE_NEXT_W = next_friday.strftime('%Y-%m-%d')
+    
+    # ===================
+    # 投资经理分组配置
+    # ===================
+    INVESTMENT_MANAGERS = {
+        'first': ['徐莹','胡艳婷','姜锡峰','朱轶伦'],
+        'second': ['严泓','高翰昆','薛纪晔','任雁','周仕盈'],
+        'third': ['杨漠','余洁雅','张玉杰'],
+        'all_list': ['徐莹','严泓','薛纪晔','朱轶伦','姜锡峰','高翰昆','胡艳婷','任雁','王浩','张雅婕','周仕盈','孙新华','杨漠','余洁雅','张玉杰']
+    }
+    
+    # ===================
+    # 产品分类和排序配置
+    # ===================
+    PRODUCT_RANKING = [
+        ('中低波稳健产品','悦动稳享短持'),
+        ('中低波稳健产品','悦动稳/纯享'),
+        ('中高波市值产品','和瑞BOF'),
+        ('外币产品','外币低波'),
+        ('外币产品','外币进取'),
+        ('外币产品','外币混合'),
+        ('中高波市值产品','悦动青云'),
+        ('中高波市值产品','其他进取'),
+        ('中低波稳健产品','FOF')
+    ]
+    
+    # ===================
+    # 数据文件名模板
+    # ===================
+    # 产品运作概览文件名模板
+    OVERVIEW_TEMPLATE = "产品运作概览信息表增加指标变化_{date}.xlsx"
+    
+    # 8资产大表文件名模板  
+    ASSET_TABLE_TEMPLATE = "8资产大表{date}.xlsx"
+    
+    # 输出结果文件名模板
+    OUTPUT_TEMPLATE = "输出结果{date}.xlsx"
+    
+    # 中收分析报表模板
+    INCOME_ANALYSIS_TEMPLATE_M = "中收分析报表-产品明细-{date}-m.xlsx"
+    INCOME_ANALYSIS_TEMPLATE_Y = "中收分析报表-产品明细-{date}-y.xlsx"
+    
+    # ===================
+    # 业务参数配置
+    # ===================
+    # 趴账收益率
+    RET_ON_ACCOUNT = 0.015
+    
+    # 杠杆成本
+    LEVERAGE_COST = 0.016
+    
+    # 兴合4号成本
+    XINGHE4_COST = 0.07
+
+    # ===================
+    # API配置
+    # ===================
+    # DeepSeek API配置
+    DEEPSEEK_API_KEY = "sk-18da7927fc3444508482c5c66b051fc2"
+    DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+    DEEPSEEK_MODEL = "deepseek-reasoner"
+
+    # ===================
+    # 市场指数配置
+    # ===================
+    # 市场指数Wind代码（用于计算指数收益率）
+    MARKET_INDEX_CODES = [
+        '885005.WI',   # 中债-综合财富(总值)指数
+        'CBA00111.CS', # 中债-新综合全价指数
+        'CBA00121.CS', # 中债-国债总全价指数
+        'CBA00101.CS', # 中债-综合指数
+        '885008.WI',   # 中债-信用债总财富指数
+        '885006.WI',   # 中债-企业债总财富指数
+        '885007.WI',   # 中债-短融总财富指数
+        '885001.WI',   # 中债-新综合财富指数
+        '000300.SH',   # 沪深300
+    ]
+
+    # 汇率获取日期（用于美元产品换算）
+    EXCHANGE_RATE_DATE = '20241229'
+
+    # ===================
+    # 渠道配置
+    # ===================
+    # 渠道名称到简称的映射
+    CHANNEL_SHORT_NAMES = {
+        "兴业银行": "兴业",
+        "招商银行股份有限公司": "招商",
+        "中信银行股份有限公司": "中信",
+        "上海浦东发展银行股份有限公司": "浦发",
+        '上海银行': '上海银行',
+        "工商银行": "工商",
+        "民生银行": "民生",
+        "浙商银行": "浙商",
+        "广发银行股份有限公司": "广发",
+        "交通银行股份有限公司": "交通",
+        '建设银行股份有限公司': '建行',
+        "宁波银行": "宁波",
+        "中国光大银行": "光大",
+        "平安银行股份有限公司": "平安",
+        "中小银行": "中小",
+        '华夏银行': '华夏银行',
+        "网商银行": "网商",
+        "钱大掌柜": "钱大",
+        "财富云": "财富云",
+    }
+
+    # ===================
+    # 委外专户配置（经常变动，请在此处维护）
+    # ===================
+
+    # 兴合系列产品清单（用于11.兴合产品持仓明细）
+    # 产品名称会自动拼接为 "兴业期货-{名称}集合资产管理计划"
+    XINGHE_PRODUCTS = ['兴合1号', '兴合2号', '兴合3号', '兴合6号', '兴合11号']
+
+    # 兴合系列产品清单2（用于11.4母分类-兴合持仓明细）
+    XINGHE_PRODUCTS_2 = ['兴合1号', '兴合5号', '兴合7号', '兴合8号', '丰和1号', '丰和2号', '丰泰2号']
+
+    # 可转债专户映射（简称 -> 全称）
+    CONVERTIBLE_BOND_ACCOUNTS = {
+        '睿郡2号': '兴业信托·兴享稳健睿郡2号',
+        '睿郡3号': '兴业信托·兴享稳健睿郡3号证券投资集合资金信托计划',
+        '步步高28号': '兴证全球新步步高28号集合资产管理计划',
+        '中欧1号': '中欧基金-优选可转债1号集合资产管理计划',
+        '东方红1号': '东方红资管-优选可转债1号集合资管计划',
+        '中金1号': '中金赢和1号集合资产管理计划',
+        '兴腾睿选3号': '中信期货兴腾睿选3号管理人中管理人（MOM）集合资产管理计划',
+    }
+
+    # 可转债ETF清单
+    CONVERTIBLE_BOND_ETF = [
+        '海富通上证投资级可转债及可交换债券交易型开放式指数证券投资基金',
+        '博时中证可转债及可交换债券交易型开放式指数证券投资基金',
+    ]
+
+    # 量化策略标签清单
+    QUANT_STRATEGY_LABELS = ['量化中性', '量化指增', '量化CTA', '兴合4号']
+
+    # 黄金专户映射（简称 -> 全称）
+    GOLD_ACCOUNTS = {
+        '兴业期货黄金增强1号': '兴业期货-黄金指数增强1号集合资产管理计划',
+    }
+
+    # 黄金ETF清单
+    GOLD_ETF = [
+        "华安黄金易(ETF)(518880.SH)",
+        "华夏黄金ETF(518850.SH)",
+        "黄金股ETF(517520.SH)",
+        "华夏中证沪深港黄金产业股票ETF(159562.SZ)",
+        "易方达黄金ETF(159934.SZ)",
+        "华夏黄金ETF联接C(008702.OF)",
+    ]
+
+    # 权益专户映射（简称 -> 全称）
+    EQUITY_ACCOUNTS = {
+        '圆信永丰基本面驱动9号': '圆信永丰基本面驱动9号集合资产管理计划.',
+        '景顺长城致远2号': '景顺长城基金致远2号集合资产管理计划',
+        '兴享稳健日斗1号': '兴享稳健日斗1号证券投资集合资金信托计划',
+        '常春藤1号': '兴业信托·兴享稳健常春藤1号',
+        '常春藤2号': '兴业信托·兴享稳健常春藤2号证券投资集合资金信托计划',
+        "睿远红利1号": "睿远基金汇见红利1号集合资产管理计划",
+        "中欧科技兴盛1号": "中欧基金兴盛1号集合资产管理计划",
+    }
+
+    # ===================
+    # AI总结文字Prompt模板（经常变动，请在此处维护）
+    # 使用 {变量名} 作为占位符，代码中会自动替换
+    # ===================
+
+    # 中收总结Prompt模板
+    # 占位符: {date} - 更新日期, {data} - 分系列中收数据
+    PROMPT_ZHONGSHOU = """
+我需要更新我的周报中团队中收数据的情况。
+文字如下："注：1）2025 年12⽉产品委多资产投资部中收计划0.62e（含0.60 费率中收+0.02e 前端收费+0.00e 超额管理费），截⽌20251016 ⽉度中收0.36e（含
+0.32e 费率中收+0.02e 前端收费+0.02e 超额管理费，为实际已产⽣现⾦流的超额管理费）。
+2）2025 年多资产投资部中收计划5.67e（约含5.2e 费率中收+0.4e 前端收费+0.1e 超额管理费），截⽌20250807 全年中收3.46e（含2.89e 费率中收
++0.45e 前端收费+0.12e 超额管理费，为实际已产⽣现⾦流的超额管理费）。
+3）中收报表随系统⼝径进⾏调整，⽬前已包含前端收费产品的计提调整。
+4）超额管理费包含⽬前已产⽣实际现⾦流的超额管理费，不含计提待发⽣。
+5）外币产品的超额管理费计价单位为美元，报表计算时已调整为⼈⺠币。
+"
+请只用返回你更新后的文本内容给我，其中最新的更新日期为{date}。最新的部门的中收规模数据如下，你应该关注合计变化来更新数据。
+其中文字中的提前收费为前端收费，超额中收为超额管理费，费率中收应为中收减前端收费减超额管理费。你不用调整计划中收除非到了下一个月。
+
+分系列中收数据：{data}"""
+
+    # 规模总结Prompt模板
+    # 占位符: {date} - 更新日期, {channel_data} - 分渠道规模数据, {series_data} - 分系列规模数据
+    PROMPT_GUIMO = """我需要更新我的周报中团队规模数据的情况。
+文字如下："截⽌ 20250807，多资产投资部管理的在运作理财产品规模 3049 亿，较上⽉底增加约 26 亿（截⽌2025 年7
+⽉底3023 亿规模），较去年底增加约694 亿（截⽌2024 年底运作规模约2355 亿）。其中⾏内余额为2094 亿（相
+⽐上⽉底2080亿规模增加约14 亿，⽐去年底余额1630 亿增加约464 亿），⾏外余额为955 亿（相⽐上⽉底943
+亿增加约12亿，⽐去年底余额725亿增加约230亿）""
+请只用返回你更新后的文本内容给我，不需要调整格式，其中最新的更新日期为{date}。最新的产品的行内外和产品规模合计数据如下，你应该关注合计变化来更新数据：
+分渠道规模数据:{channel_data}。
+分系列规模数据：{series_data}"""
+
+    # 到期总结模板
+    # 占位符: {total} - 合计到期规模, {fengbi} - 封闭到期规模, {dingkai} - 定开到期规模
+    PROMPT_DAOQI = "下周合计到期规模{total:.2f}亿元\n封闭合计到期规模{fengbi:.2f}亿元\n定开合计到期规模{dingkai:.2f}亿元"
+
+    # ===================
+    # 方法函数：获取具体文件路径
+    # ===================
+    @classmethod
+    def get_overview_file_path(cls, date=None):
+        """获取产品运作概览文件路径"""
+        if date is None:
+            date = cls.YUNZUOGAILAN_DATE
+        filename = cls.OVERVIEW_TEMPLATE.format(date=date)
+        return os.path.join(cls.OVERVIEW_BOTH_DIR, filename)
+    
+    @classmethod
+    def get_asset_table_path(cls, date=None):
+        """获取8资产大表文件路径"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = cls.ASSET_TABLE_TEMPLATE.format(date=date)
+        return os.path.join(cls.ASSET_DIR, filename)
+    
+    @classmethod
+    def get_output_path(cls, date=None):
+        """获取输出结果文件路径"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = cls.OUTPUT_TEMPLATE.format(date=date)
+        return os.path.join(cls.OUTPUT_DIR, filename)
+    
+    @classmethod
+    def get_weekly_data_file(cls, file_prefix, date=None):
+        """获取周度数据文件路径"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = f"{file_prefix}{date}.xlsx"
+        return os.path.join(cls.WEEKLY_DATA_DIR, filename)
+    
+    @classmethod
+    def get_overview_history_file(cls, date=None):
+        """获取历史运作概览文件路径"""
+        if date is None:
+            date = cls.YUNZUOGAILAN_DATE
+        filename = f"产品运作概览信息表增加指标变化_{date}.xlsx"
+        return os.path.join(cls.OVERVIEW_BOTH_DIR, filename)
+    
+    @classmethod
+    def get_current_overview_file(cls, date=None):
+        """获取当前产品运作概览信息表文件路径"""
+        if date is None:
+            date = cls.YUNZUOGAILAN_DATE
+        filename = f"产品运作概览信息表_{date}.xlsx"
+        return os.path.join(cls.OVERVIEW_BOTH_DIR, filename)
+    
+    @classmethod
+    def get_performance_file(cls, date=None):
+        """获取内部产品业绩文件路径"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = f"内部产品业绩_{date}.xlsx"
+        return os.path.join(cls.PERFORMANCE_DIR, filename)
+    
+    @classmethod
+    def get_base_data_file(cls, filename):
+        """获取底层数据文件路径"""
+        return os.path.join(cls.DATA_DIR, filename)
+    
+    @classmethod
+    def get_overview_parent_file(cls, date=None, suffix="-仅母产品"):
+        """获取运作概览母产品文件路径"""
+        if date is None:
+            date = cls.YUNZUOGAILAN_DATE
+        filename = f"产品运作概览{date}{suffix}.xlsx"
+        return os.path.join(cls.OVERVIEW_PARENT_DIR, filename)
+    
+    @classmethod
+    def get_output_result_file(cls, date=None):
+        """获取历史输出结果文件路径（用于对比）"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = f"输出结果{date}.xlsx"
+        return os.path.join(cls.OUTPUT_DIR, filename)
+    
+    @classmethod
+    def get_current_output_writer(cls, date=None):
+        """获取当前输出文件的ExcelWriter路径"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = f"输出结果{date}.xlsx"
+        return os.path.join(cls.OUTPUT_DIR, filename)
+    
+    @classmethod
+    def get_asset_table_file(cls, date=None):
+        """获取8资产大表文件路径"""
+        if date is None:
+            date = cls.ZHOUBAO_DATE
+        filename = f"8资产大表{date}.xlsx"
+        return os.path.join(cls.ASSET_DIR, filename)
+    
+    @classmethod
+    def ensure_directories(cls):
+        """确保所有必要的目录存在"""
+        dirs_to_create = [
+            cls.DATA_DIR,
+            cls.OUTPUT_DIR,
+            cls.NET_VALUE_DIR,
+            cls.PERFORMANCE_DIR,
+            cls.OVERVIEW_PARENT_DIR,
+            cls.OVERVIEW_BOTH_DIR,
+            cls.WEEKLY_DATA_DIR,
+            cls.ASSET_DIR,
+            cls.YIELD_CALC_DIR,
+
+        ]
+        
+        for directory in dirs_to_create:
+            if not os.path.exists(directory):
+                os.makedirs(directory, exist_ok=True)
+                print(f"创建目录: {directory}")
+
+# ===================
+# 向后兼容的变量映射
+# ===================
+# 为了确保原代码正常运行，提供向后兼容的变量
+
+# 原代码中的变量映射到新配置
+Underlying_data_folder_path = Config.DATA_DIR + "/"
+data_folder = Config.DATA_DIR + "/"
+COOKED_FOLDER = Config.NET_VALUE_DIR
+
+# 日期变量
+yunzuogailan_date = Config.YUNZUOGAILAN_DATE
+zhoubao_date = Config.ZHOUBAO_DATE
+lastm = Config.LASTM
+lasty = Config.LASTY
+date_lastw = Config.DATE_LASTW
+lastw = Config.LASTW
+week_Mon = Config.WEEK_MON
+last_week = Config.LAST_WEEK
+begin_date_next_w = Config.BEGIN_DATE_NEXT_W
+closing_date_next_w = Config.CLOSING_DATE_NEXT_W
+
+
+# 投资经理配置
+first = Config.INVESTMENT_MANAGERS['first']
+second = Config.INVESTMENT_MANAGERS['second']
+third = Config.INVESTMENT_MANAGERS['third']
+investment_manager_list = Config.INVESTMENT_MANAGERS['all_list']
+
+# 产品排序
+rank_here = Config.PRODUCT_RANKING
+
+# 业务参数
+ret_on_account = Config.RET_ON_ACCOUNT
+leverage_cost = Config.LEVERAGE_COST
+xinghe4cost = Config.XINGHE4_COST
+
+# API配置
+deepseek_api_key = Config.DEEPSEEK_API_KEY
+deepseek_base_url = Config.DEEPSEEK_BASE_URL
+deepseek_model = Config.DEEPSEEK_MODEL
+
+# 市场指数配置
+wind_code_list = Config.MARKET_INDEX_CODES
+exchange_rate_date = Config.EXCHANGE_RATE_DATE
+
+# 渠道配置
+qudao_forshort_dict = Config.CHANNEL_SHORT_NAMES
+
+# 委外专户配置
+xinghe_list = Config.XINGHE_PRODUCTS
+xinghe_list_2 = Config.XINGHE_PRODUCTS_2
+zhuanzhai_dict = Config.CONVERTIBLE_BOND_ACCOUNTS
+ETF_bond_list = Config.CONVERTIBLE_BOND_ETF
+quant_list = Config.QUANT_STRATEGY_LABELS
+gold_dict = Config.GOLD_ACCOUNTS
+gold_ETF_bond_list = Config.GOLD_ETF
+equity_dict = Config.EQUITY_ACCOUNTS
+
+if __name__ == "__main__":
+    # 创建必要的目录结构
+    Config.ensure_directories()
+    print("配置文件加载完成")
+    print(f"数据目录: {Config.DATA_DIR}")
+    print(f"输出目录: {Config.OUTPUT_DIR}")    
+    # 打印所有日期配置
+    print("\n日期配置:")
+    print(f"运作概览日期: {Config.YUNZUOGAILAN_DATE}")
+    print(f"周报日期: {Config.ZHOUBAO_DATE}")
+    print(f"上周日期: {Config.LASTW}")
+    print(f"上月最后一天: {Config.LASTM}")
+    print(f"上年最后一天: {Config.LASTY}")
+    print(f"本周一日期: {Config.WEEK_MON}")
+    print(f"下周一日期: {Config.BEGIN_DATE_NEXT_W}")
+    print(f"下周五日期: {Config.CLOSING_DATE_NEXT_W}")
+
+

@@ -1,0 +1,627 @@
+"""
+数据加载模块
+
+集中管理所有数据读取逻辑，包括：
+- 产品净值数据（带缓存）
+- 产品运作概览数据
+- 渠道保有量数据
+- 底层数据汇总
+- 周度更新数据
+- 各类Excel数据文件
+
+使用方法：
+    from load_data import DataLoader
+
+    loader = DataLoader()
+    nav_data, nav_pivot = loader.load_nav_data()
+    yunzuogailan = loader.load_yunzuogailan(date)
+"""
+
+import os
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import pickle
+import glob
+import warnings
+from typing import Tuple, Dict, Optional, List
+
+from config import Config
+
+warnings.filterwarnings("ignore")
+
+
+class DataLoader:
+    """
+    统一数据加载器
+
+    集中管理所有数据读取操作，支持缓存和数据验证
+    """
+
+    def __init__(self):
+        """初始化数据加载器"""
+        self._cache = {}  # 内存缓存
+        self._product_info_df = None  # DAP产品信息表缓存
+
+    # ==================== 1. 产品净值数据 ====================
+
+    def load_nav_data(self, force_rebuild: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        读取产品净值数据，使用缓存机制大幅提升性能
+
+        缓存策略：
+        1. 首次运行：读取所有Excel文件，保存为parquet缓存
+        2. 后续运行：只读取新增/修改的文件，与缓存合并
+        3. 相同日期+产品代码的数据，保留最新文件的值
+
+        参数：
+            force_rebuild: 是否强制重建缓存（默认False）
+
+        返回：
+            Tuple[DataFrame, DataFrame]: (原始数据, 数据透视表)
+        """
+        import time
+
+        COOKED_FOLDER = Config.NET_VALUE_DIR
+
+        # 缓存目录和文件
+        cache_dir = os.path.join(os.path.dirname(COOKED_FOLDER), '.nav_cache')
+        cache_data_file = os.path.join(cache_dir, 'nav_master_data.parquet')
+        cache_meta_file = os.path.join(cache_dir, 'nav_metadata.pkl')
+
+        # 确保缓存目录存在
+        os.makedirs(cache_dir, exist_ok=True)
+
+        # 获取所有Excel文件及其修改时间
+        excel_files = glob.glob(os.path.join(COOKED_FOLDER, '*.xlsx'))
+        excel_files = [f for f in excel_files if not os.path.basename(f).startswith('~$')]
+
+        current_files_info = {}
+        for f in excel_files:
+            mtime = os.path.getmtime(f)
+            current_files_info[f] = mtime
+
+        print(f"📂 净值数据文件夹: {COOKED_FOLDER}")
+        print(f"📊 发现 {len(excel_files)} 个Excel文件")
+
+        # 加载缓存元数据
+        cached_files_info = {}
+        cached_data = None
+
+        if not force_rebuild and os.path.exists(cache_meta_file) and os.path.exists(cache_data_file):
+            try:
+                with open(cache_meta_file, 'rb') as f:
+                    cached_files_info = pickle.load(f)
+                cached_data = pd.read_parquet(cache_data_file)
+                print(f"✅ 已加载缓存数据: {len(cached_data)} 条记录")
+            except Exception as e:
+                print(f"⚠️ 缓存加载失败，将重建缓存: {e}")
+                cached_files_info = {}
+                cached_data = None
+
+        # 找出需要读取的文件（新增或修改的）
+        files_to_read = []
+        for f, mtime in current_files_info.items():
+            if f not in cached_files_info or cached_files_info[f] != mtime:
+                files_to_read.append(f)
+
+        needed_cols = ['估值日', '产品代码', '累计净值']
+
+        if len(files_to_read) == 0 and cached_data is not None:
+            print(f"✅ 所有文件均已缓存，无需重新读取")
+            data = cached_data
+        else:
+            print(f"📖 需要读取 {len(files_to_read)} 个文件（新增或已修改）")
+
+            # 读取新文件
+            start_time = time.time()
+            new_dfs = []
+
+            for i, f in enumerate(files_to_read, 1):
+                if i % 10 == 0 or i == len(files_to_read):
+                    print(f"   读取进度: {i}/{len(files_to_read)} - {os.path.basename(f)}")
+                try:
+                    df = pd.read_excel(f, usecols=needed_cols)
+                    df['_source_file'] = f
+                    new_dfs.append(df)
+                except Exception as e:
+                    print(f"   ⚠️ 读取失败: {os.path.basename(f)} - {e}")
+
+            read_time = time.time() - start_time
+            print(f"   读取耗时: {read_time:.1f} 秒")
+
+            # 合并新数据与缓存数据
+            if new_dfs:
+                new_data = pd.concat(new_dfs, ignore_index=True)
+
+                if cached_data is not None and len(files_to_read) < len(excel_files):
+                    modified_files = [f for f in files_to_read if f in cached_files_info]
+                    if modified_files and '_source_file' in cached_data.columns:
+                        cached_data = cached_data[~cached_data['_source_file'].isin(modified_files)]
+
+                    data = pd.concat([cached_data, new_data], ignore_index=True)
+                    print(f"   增量合并完成: 缓存 {len(cached_data)} + 新增 {len(new_data)} 条")
+                else:
+                    data = new_data
+            else:
+                data = cached_data if cached_data is not None else pd.DataFrame(columns=needed_cols)
+
+        # 去重
+        before_dedup = len(data)
+        data.drop_duplicates(subset=['估值日', '产品代码'], keep='last', inplace=True)
+        print(f"   去重: {before_dedup} -> {len(data)} 条记录")
+
+        # 保存更新后的缓存
+        if len(files_to_read) > 0 or not os.path.exists(cache_data_file):
+            try:
+                if '产品代码' in data.columns:
+                    data['产品代码'] = data['产品代码'].astype(str)
+                data.to_parquet(cache_data_file, index=False)
+                with open(cache_meta_file, 'wb') as f:
+                    pickle.dump(current_files_info, f)
+                print(f"💾 缓存已更新: {cache_data_file}")
+            except Exception as e:
+                print(f"⚠️ 缓存保存失败: {e}")
+
+        # 构建透视表
+        print(f"🔄 构建数据透视表...")
+        pivot_data = data[['估值日', '产品代码', '累计净值']].copy()
+
+        data_transposition = pd.pivot_table(
+            pivot_data,
+            index='估值日',
+            columns='产品代码',
+            values='累计净值',
+            aggfunc='median'
+        )
+
+        try:
+            data_transposition.index = pd.to_datetime(data_transposition.index, format='%Y/%m/%d')
+        except:
+            data_transposition.index = pd.to_datetime(data_transposition.index, errors='coerce')
+
+        data_transposition = data_transposition.sort_index()
+        data_transposition.columns = data_transposition.columns.astype(str)
+
+        print(f"✅ 数据加载完成: {len(data_transposition)} 个交易日, {len(data_transposition.columns)} 个产品")
+
+        return data, data_transposition
+
+    # ==================== 2. DAP产品信息表 ====================
+
+    def load_product_info_dap(self) -> pd.DataFrame:
+        """
+        加载DAP产品信息表
+
+        返回：
+            DataFrame: 产品信息表，以产品代码为索引
+        """
+        if self._product_info_df is None:
+            self._product_info_df = pd.read_excel(
+                Config.get_weekly_data_file('理财产品信息查询'),
+                index_col=0
+            )
+        return self._product_info_df
+
+    # ==================== 3. 产品运作概览数据 ====================
+
+    def load_yunzuogailan_raw(self) -> pd.DataFrame:
+        """
+        加载原始产品运作概览数据
+
+        返回：
+            DataFrame: 原始运作概览数据
+        """
+        yunzuogailan_before = pd.read_excel(
+            Config.get_weekly_data_file('产品运作概览'),
+            index_col=0
+        )
+        yunzuogailan_before.drop_duplicates(inplace=True)
+        # 处理pas导出的业绩基准，x号被导出为&times;
+        yunzuogailan_before['业绩基准'] = yunzuogailan_before['业绩基准'].map(
+            lambda s: s.replace("&times;", "*") if (isinstance(s, str)) and ("&times;" in s) else s
+        )
+        return yunzuogailan_before
+
+    def load_baoyou_data(self) -> pd.DataFrame:
+        """
+        加载各渠道保有量数据
+
+        返回：
+            DataFrame: 渠道保有量数据
+        """
+        Baoyou_df = pd.read_excel(
+            Config.get_weekly_data_file('各渠道保有量'),
+            index_col=0
+        )
+        # 删除渠道保有量中子产品的渠道为-的
+        Baoyou_df_sub = Baoyou_df[Baoyou_df['渠道名称'] != '-']
+        Baoyou_df_mom = Baoyou_df[Baoyou_df.apply(lambda x: '(子' not in x['产品简称'], axis=1)]
+        Baoyou_df = pd.concat([Baoyou_df_mom, Baoyou_df_sub])
+        Baoyou_df.drop_duplicates(inplace=True)
+        return Baoyou_df
+
+    def load_channel_data(self) -> pd.DataFrame:
+        """
+        加载渠道数据
+
+        返回：
+            DataFrame: 渠道数据
+        """
+        return pd.read_excel(
+            Config.get_weekly_data_file('各渠道保有量'),
+            index_col=0
+        )
+
+    # ==================== 4. 底层数据汇总 ====================
+
+    def load_classification_df(self) -> pd.DataFrame:
+        """
+        加载多资产品类标签数据
+
+        返回：
+            DataFrame: 品类分类数据，以母产品代码为索引
+        """
+        classification_df = pd.read_excel(
+            Config.get_base_data_file('底层数据汇总.xlsx'),
+            sheet_name='多资产品类标签',
+            index_col='母产品代码'
+        )
+        # 处理重复母产品代码
+        classification_df = classification_df[~classification_df.index.duplicated(keep='first')]
+        return classification_df
+
+    def load_parent_sort(self, columns: List[str] = None) -> pd.DataFrame:
+        """
+        加载销售战报系列分类数据
+
+        参数：
+            columns: 需要返回的列名列表，默认返回['母分类', '总分类']
+
+        返回：
+            DataFrame: 系列分类数据，以多资产品类为索引
+        """
+        if columns is None:
+            columns = ['母分类', '总分类']
+
+        Parent_sort = pd.read_excel(
+            Config.get_base_data_file('底层数据汇总.xlsx'),
+            sheet_name='销售战报系列分类',
+            index_col=0
+        )[columns]
+        # 去重
+        Parent_sort = Parent_sort[~Parent_sort.index.duplicated(keep='first')]
+        return Parent_sort
+
+    def load_asset_classification(self) -> pd.DataFrame:
+        """
+        加载资产分类勾稽关系数据
+
+        返回：
+            DataFrame: 资产分类数据
+        """
+        return pd.read_excel(
+            Config.get_base_data_file('底层数据汇总.xlsx'),
+            sheet_name='资产分类勾稽关系',
+            index_col=0
+        )
+
+    def load_public_account_tag(self) -> pd.DataFrame:
+        """
+        加载委外公共策略专户标签数据
+
+        返回：
+            DataFrame: 专户标签数据
+        """
+        return pd.read_excel(
+            Config.get_base_data_file('底层数据汇总.xlsx'),
+            sheet_name='委外公共策略专户标签',
+            index_col=0
+        )
+
+    def load_public_strategy(self) -> pd.DataFrame:
+        """
+        加载公司公共策略专户数据
+
+        返回：
+            DataFrame: 公共策略专户数据
+        """
+        return pd.read_excel(
+            Config.get_base_data_file('底层数据汇总.xlsx'),
+            sheet_name='公司公共策略专户'
+        )
+
+    # ==================== 5. 历史运作概览数据 ====================
+
+    def load_overview_parent(self, date: str) -> pd.DataFrame:
+        """
+        加载指定日期的母产品运作概览数据
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+
+        返回：
+            DataFrame: 母产品运作概览数据
+        """
+        return pd.read_excel(
+            Config.get_overview_parent_file(date),
+            index_col=0
+        )
+
+    def load_overview_history(self, date: str) -> pd.DataFrame:
+        """
+        加载指定日期的历史运作概览数据（含母子产品）
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+
+        返回：
+            DataFrame: 历史运作概览数据
+        """
+        return pd.read_excel(
+            Config.get_overview_history_file(date),
+            index_col=0
+        )
+
+    # ==================== 6. 周度更新数据 ====================
+
+    def load_zhanbao_data(self) -> pd.DataFrame:
+        """
+        加载战报底表数据
+
+        返回：
+            DataFrame: 战报数据
+        """
+        zhanbao_df = pd.read_excel(
+            Config.get_weekly_data_file('战报底表(v2)'),
+            index_col=0
+        )
+        zhanbao_df = zhanbao_df[zhanbao_df['规模类型-简化'] == '销量']
+        return zhanbao_df
+
+    def load_chicang_data(self, date: str) -> pd.DataFrame:
+        """
+        加载持仓盈亏明细数据
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+
+        返回：
+            DataFrame: 持仓明细数据
+        """
+        excel_name = f'持仓盈亏明细列表_{date}.xlsx'
+        Chicang_df = pd.read_excel(
+            os.path.join(Config.WEEKLY_DATA_DIR, excel_name)
+        )
+        Chicang_df.rename(columns={'资产简称': '债券简称'}, inplace=True)
+        Chicang_df.drop_duplicates(inplace=True)
+        return Chicang_df
+
+    def load_zhongshou_data(self, date: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        加载中收分析数据（月度和年度）
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+
+        返回：
+            Tuple[DataFrame, DataFrame]: (月度数据, 年度数据)
+        """
+        zhongshou_m_path = os.path.join(
+            Config.WEEKLY_DATA_DIR,
+            f'中收分析报表-产品明细-{date}-m.xlsx'
+        )
+        zhongshou_y_path = os.path.join(
+            Config.WEEKLY_DATA_DIR,
+            f'中收分析报表-产品明细-{date}-y.xlsx'
+        )
+        zhongshou_m = pd.read_excel(zhongshou_m_path, index_col=0, skiprows=1)
+        zhongshou_y = pd.read_excel(zhongshou_y_path, index_col=0, skiprows=1)
+        return zhongshou_m, zhongshou_y
+
+    def load_insurance_products(self) -> pd.DataFrame:
+        """
+        加载保险资管计划数据
+
+        返回：
+            DataFrame: 保险资管数据
+        """
+        return pd.read_excel(
+            Config.get_weekly_data_file('保险资管计划'),
+            index_col=0
+        )
+
+    def load_product_tosale(self) -> pd.DataFrame:
+        """
+        加载理财产品区间在售待售情况表
+
+        返回：
+            DataFrame: 待售产品数据
+        """
+        return pd.read_excel(
+            Config.get_weekly_data_file('理财产品区间在售待售情况表'),
+            index_col=0,
+            skiprows=1
+        )
+
+    def load_weiwai_overview(self) -> pd.DataFrame:
+        """
+        加载委外产品概览（团队视角）
+
+        返回：
+            DataFrame: 委外产品概览数据
+        """
+        return pd.read_excel(
+            Config.get_weekly_data_file('委外产品概览(团队视角)')
+        )[['委外资产', '最新规模']]
+
+    # ==================== 7. 业绩数据 ====================
+
+    def load_performance_data(self, date: str) -> pd.DataFrame:
+        """
+        加载产品业绩数据
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+
+        返回：
+            DataFrame: 业绩数据
+        """
+        return pd.read_excel(
+            Config.get_performance_file(date),
+            index_col=0
+        )
+
+    # ==================== 8. 输出结果文件 ====================
+
+    def load_output_result(self, date: str, sheet_name: str, **kwargs) -> pd.DataFrame:
+        """
+        加载历史输出结果文件
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+            sheet_name: 工作表名称
+            **kwargs: 其他read_excel参数
+
+        返回：
+            DataFrame: 输出结果数据
+        """
+        return pd.read_excel(
+            Config.get_output_result_file(date),
+            sheet_name=sheet_name,
+            **kwargs
+        )
+
+    def load_asset_table(self, date: str) -> pd.DataFrame:
+        """
+        加载资产大表数据
+
+        参数：
+            date: 日期字符串 (YYYYMMDD格式)
+
+        返回：
+            DataFrame: 资产大表数据
+        """
+        return pd.read_excel(
+            Config.get_asset_table_file(date),
+            index_col=0,
+            header=[0, 1, 2]
+        )
+
+
+# ==================== 辅助函数 ====================
+
+def map_product_xingtai(series_here: pd.Series) -> str:
+    """
+    判断产品形态
+
+    参数：
+        series_here: 产品数据行
+
+    返回：
+        str: 产品形态 (封闭/客户周期/日开/定开)
+    """
+    if series_here['产品开放形式'] == '封闭式':
+        return '封闭'
+    elif (series_here['产品开放形式'] == '开放式') and (series_here['周期属性'] == '客户周期'):
+        return '客户周期'
+    elif (series_here['产品开放形式'] == '开放式') and (series_here['周期属性'] == '产品周期') and (
+            series_here['周期天数'] == 1):
+        return '日开'
+    elif (series_here['产品开放形式'] == '开放式') and (series_here['周期属性'] == '产品周期'):
+        return '定开'
+    return None
+
+
+def get_zhaoshang_label(set_here: set) -> str:
+    """
+    获取招商标签
+
+    参数：
+        set_here: 渠道名称集合
+
+    返回：
+        str: 招商标签 (招商独有/招商共有/非招商)
+    """
+    if '招商银行股份有限公司' in set_here:
+        if len(set_here.difference({'-', '招商银行股份有限公司'})) == 0:
+            return '招商独有'
+        else:
+            return '招商共有'
+    else:
+        return '非招商'
+
+
+def get_qudao_label_detail(set_here: set) -> str:
+    """
+    获取所有的渠道标签详情
+
+    参数：
+        set_here: 渠道名称集合
+
+    返回：
+        str: 渠道标签详情（逗号分隔）
+    """
+    qudao_forshort_dict = Config.CHANNEL_SHORT_NAMES
+    qudao_rank_dict = dict(enumerate(qudao_forshort_dict.keys()))
+    qudao_rank_dict = dict([val, key] for key, val in qudao_rank_dict.items())
+
+    if "-" in set_here:
+        set_here.remove("-")
+
+    to_sort_list = list((x, qudao_rank_dict.get(x, 999)) for x in set_here)
+    to_sort_list.sort(key=lambda y: y[1])
+
+    return ",".join([qudao_forshort_dict.get(x[0], x[0]) for x in to_sort_list])
+
+
+def del_Innovation_department(mid_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    去掉量化和结构性产品，去掉创新部经理产品
+
+    参数：
+        mid_df: 产品数据DataFrame
+
+    返回：
+        DataFrame: 过滤后的数据
+    """
+    mid_df = mid_df[mid_df['多资产品类'].map(
+        lambda x: x not in ['结构性理财R2+', '结构性理财R3', '结构性理财R4', '量化系列', '量化系列(*)']
+    )]
+    mid_df = mid_df[mid_df['产品经理'].map(
+        lambda x: np.sum([k not in ['王浩', '张雅婕', '孙新华', ''] for k in str(x).split(',')]) != 0
+    )]
+    return mid_df
+
+
+# ==================== 便捷函数 ====================
+
+def get_data_loader() -> DataLoader:
+    """获取数据加载器单例"""
+    if not hasattr(get_data_loader, '_instance'):
+        get_data_loader._instance = DataLoader()
+    return get_data_loader._instance
+
+
+# ==================== 测试代码 ====================
+
+if __name__ == '__main__':
+    print("数据加载模块测试")
+    print("=" * 60)
+
+    loader = DataLoader()
+
+    print("\n1. 测试加载DAP产品信息...")
+    product_info = loader.load_product_info_dap()
+    print(f"   产品数量: {len(product_info)}")
+
+    print("\n2. 测试加载品类分类...")
+    classification = loader.load_classification_df()
+    print(f"   品类数量: {len(classification)}")
+
+    print("\n3. 测试加载系列分类...")
+    parent_sort = loader.load_parent_sort()
+    print(f"   分类数量: {len(parent_sort)}")
+
+    print("\n" + "=" * 60)
+    print("测试完成！")

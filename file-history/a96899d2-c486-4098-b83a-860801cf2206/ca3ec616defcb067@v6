@@ -1,0 +1,1651 @@
+# 导入包
+import os
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta, date
+import copy
+from utils import *
+import warnings
+warnings.filterwarnings("ignore")
+# 导入统一配置文件 - 保持所有计算逻辑不变
+from config import *
+# 导入数据验证模块 - 确保投资数据准确性
+from data_validator wo'dimport DataValidator, safe_read_excel, validate_critical_paths
+from openai import OpenAI
+# 导入市场数据提供者模块（封装Wind调用）
+from market_data_provider import MarketDataProvider
+import glob
+
+# 初始化市场数据提供者（单例模式）
+market_data = MarketDataProvider.get_instance()
+def get_wenzi_result(prompt):
+    client = OpenAI(api_key=Config.DEEPSEEK_API_KEY, base_url=Config.DEEPSEEK_BASE_URL)
+    response = client.chat.completions.create(
+        model=Config.DEEPSEEK_MODEL,
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant"},
+            {"role": "user", "content": prompt},
+        ],
+        stream=False
+    )
+    return response.choices[0].message.content
+
+# 初始化数据验证器
+validator = DataValidator(log_errors=True)
+
+# 验证关键路径
+print("🔍 开始验证关键数据路径...")
+path_validation = validate_critical_paths(Config)
+if not path_validation['is_valid']:
+    print("❌ 关键路径验证失败，请检查数据目录结构")
+    for error in path_validation['errors']:
+        print(f"   - {error}")
+
+## todo  周报文字部分自动更新产品计划及上个月的规模情况
+
+
+# 注意：以下变量已在config.py中统一配置，此处保留是为了向后兼容
+# 所有计算逻辑和数据处理保持完全不变
+# Underlying_data_folder_path, yunzuogailan_date, zhoubao_date 等变量
+# 现在都从config.py自动加载，确保数据计算结果完全一致
+
+
+def get_product_data(COOKED_FOLDER, force_rebuild=False):
+    """
+    读取产品净值数据，使用缓存机制大幅提升性能
+
+    缓存策略：
+    1. 首次运行：读取所有Excel文件，保存为parquet缓存
+    2. 后续运行：只读取新增/修改的文件，与缓存合并
+    3. 相同日期+产品代码的数据，保留最新文件的值
+
+    参数：
+        COOKED_FOLDER: 净值数据文件夹路径
+        force_rebuild: 是否强制重建缓存（默认False）
+    """
+    import pickle
+    import time
+
+    # 缓存目录和文件
+    cache_dir = os.path.join(os.path.dirname(COOKED_FOLDER), '.nav_cache')
+    cache_data_file = os.path.join(cache_dir, 'nav_master_data.parquet')
+    cache_meta_file = os.path.join(cache_dir, 'nav_metadata.pkl')
+
+    # 确保缓存目录存在
+    os.makedirs(cache_dir, exist_ok=True)
+
+    # 获取所有Excel文件及其修改时间
+    excel_files = glob.glob(os.path.join(COOKED_FOLDER, '*.xlsx'))
+    excel_files = [f for f in excel_files if not os.path.basename(f).startswith('~$')]  # 排除临时文件
+
+    current_files_info = {}
+    for f in excel_files:
+        mtime = os.path.getmtime(f)
+        current_files_info[f] = mtime
+
+    print(f"📂 净值数据文件夹: {COOKED_FOLDER}")
+    print(f"📊 发现 {len(excel_files)} 个Excel文件")
+
+    # 加载缓存元数据
+    cached_files_info = {}
+    cached_data = None
+
+    if not force_rebuild and os.path.exists(cache_meta_file) and os.path.exists(cache_data_file):
+        try:
+            with open(cache_meta_file, 'rb') as f:
+                cached_files_info = pickle.load(f)
+            cached_data = pd.read_parquet(cache_data_file)
+            print(f"✅ 已加载缓存数据: {len(cached_data)} 条记录")
+        except Exception as e:
+            print(f"⚠️ 缓存加载失败，将重建缓存: {e}")
+            cached_files_info = {}
+            cached_data = None
+
+    # 找出需要读取的文件（新增或修改的）
+    files_to_read = []
+    for f, mtime in current_files_info.items():
+        if f not in cached_files_info or cached_files_info[f] != mtime:
+            files_to_read.append(f)
+
+    needed_cols = ['估值日', '产品代码', '累计净值']
+
+    if len(files_to_read) == 0 and cached_data is not None:
+        print(f"✅ 所有文件均已缓存，无需重新读取")
+        data = cached_data
+    else:
+        print(f"📖 需要读取 {len(files_to_read)} 个文件（新增或已修改）")
+
+        # 读取新文件
+        start_time = time.time()
+        new_dfs = []
+
+        for i, f in enumerate(files_to_read, 1):
+            if i % 10 == 0 or i == len(files_to_read):
+                print(f"   读取进度: {i}/{len(files_to_read)} - {os.path.basename(f)}")
+            try:
+                df = pd.read_excel(f, usecols=needed_cols)
+                df['_source_file'] = f  # 记录来源文件用于追踪
+                new_dfs.append(df)
+            except Exception as e:
+                print(f"   ⚠️ 读取失败: {os.path.basename(f)} - {e}")
+
+        read_time = time.time() - start_time
+        print(f"   读取耗时: {read_time:.1f} 秒")
+
+        # 合并新数据与缓存数据
+        if new_dfs:
+            new_data = pd.concat(new_dfs, ignore_index=True)
+
+            if cached_data is not None and len(files_to_read) < len(excel_files):
+                # 增量更新：合并新旧数据
+                # 对于修改过的文件，需要先删除旧数据
+                modified_files = [f for f in files_to_read if f in cached_files_info]
+                if modified_files and '_source_file' in cached_data.columns:
+                    cached_data = cached_data[~cached_data['_source_file'].isin(modified_files)]
+
+                data = pd.concat([cached_data, new_data], ignore_index=True)
+                print(f"   增量合并完成: 缓存 {len(cached_data)} + 新增 {len(new_data)} 条")
+            else:
+                data = new_data
+        else:
+            data = cached_data if cached_data is not None else pd.DataFrame(columns=needed_cols)
+
+    # 去重：相同日期+产品代码保留最后出现的（即最新文件的数据）
+    before_dedup = len(data)
+    data.drop_duplicates(subset=['估值日', '产品代码'], keep='last', inplace=True)
+    print(f"   去重: {before_dedup} -> {len(data)} 条记录")
+
+    # 保存更新后的缓存
+    if len(files_to_read) > 0 or not os.path.exists(cache_data_file):
+        try:
+            # 确保产品代码为字符串类型，避免parquet保存失败（混合int/str类型会报错）
+            if '产品代码' in data.columns:
+                data['产品代码'] = data['产品代码'].astype(str)
+            data.to_parquet(cache_data_file, index=False)
+            with open(cache_meta_file, 'wb') as f:
+                pickle.dump(current_files_info, f)
+            print(f"💾 缓存已更新: {cache_data_file}")
+        except Exception as e:
+            print(f"⚠️ 缓存保存失败: {e}")
+
+    # 构建透视表
+    print(f"🔄 构建数据透视表...")
+
+    # 移除辅助列再做透视
+    pivot_data = data[['估值日', '产品代码', '累计净值']].copy()
+
+    data_transposition = pd.pivot_table(
+        pivot_data,
+        index='估值日',
+        columns='产品代码',
+        values='累计净值',
+        aggfunc='median'
+    )
+
+    # 优化日期转换 - 支持多种日期格式
+    try:
+        data_transposition.index = pd.to_datetime(data_transposition.index, format='%Y/%m/%d')
+    except:
+        data_transposition.index = pd.to_datetime(data_transposition.index, errors='coerce')
+
+    data_transposition = data_transposition.sort_index()
+    data_transposition.columns = data_transposition.columns.astype(str)
+
+    print(f"✅ 数据加载完成: {len(data_transposition)} 个交易日, {len(data_transposition.columns)} 个产品")
+
+    return data, data_transposition
+
+
+print("\n" + "="*60)
+print("📊 开始加载产品净值数据...")
+print("="*60)
+data, data_transposition = get_product_data(COOKED_FOLDER)
+print("="*60 + "\n")
+
+# DAP产品信息表
+Product_information_df_DAP = pd.read_excel(Config.get_weekly_data_file('理财产品信息查询'), index_col=0)
+
+
+# 判断产品形态
+def map_product_xingtai(series_here):
+    if series_here['产品开放形式'] == '封闭式':
+        return '封闭'
+    elif (series_here['产品开放形式'] == '开放式') and (series_here['周期属性'] == '客户周期'):
+        return '客户周期'
+    elif (series_here['产品开放形式'] == '开放式') and (series_here['周期属性'] == '产品周期') and (
+            series_here['周期天数'] == 1):
+        return '日开'
+    elif (series_here['产品开放形式'] == '开放式') and (series_here['周期属性'] == '产品周期'):
+        return '定开'
+
+
+# 获取招商标签
+def get_zhaoshang_label(set_here):
+    if '招商银行股份有限公司' in set_here:
+        if len(set_here.difference({'-', '招商银行股份有限公司'})) == 0:
+            return '招商独有'
+        else:
+            return '招商共有'
+    else:
+        return '非招商'
+
+
+# 获取所有的渠道标签
+def get_qudao_label_detail(set_here):
+    # 渠道简称匹配（从config.py读取配置）
+    qudao_forshort_dict = Config.CHANNEL_SHORT_NAMES
+    qudao_rank_dict = dict(enumerate(qudao_forshort_dict.keys()))
+    qudao_rank_dict = dict([val, key] for key, val in qudao_rank_dict.items())
+    if "-" in set_here:
+        set_here.remove("-")
+    to_sort_list = list((x, qudao_rank_dict[x]) for x in set_here)  # 按照由主到次对渠道展示顺序排序
+    to_sort_list.sort(key=lambda y: y[1])
+    return ",".join([qudao_forshort_dict[x[0]] for x in to_sort_list])
+
+
+def get_yunzuogailan(yunzuogailan_date):
+    yunzuogailan_before = pd.read_excel(Config.get_weekly_data_file('产品运作概览'), index_col=0)
+    yunzuogailan_before.drop_duplicates(inplace=True)
+    # 处理pas导出的业绩基准，x号被导出为&times;
+    yunzuogailan_before['业绩基准'] = yunzuogailan_before['业绩基准'].map(
+        lambda s: s.replace("&times;", "*") if (isinstance(s, str)) and ("&times;" in s) else s)
+    Baoyou_df = pd.read_excel(Config.get_weekly_data_file('各渠道保有量'), index_col=0)
+    # 删除渠道保有量中子产品的渠道为-的 这个是汇总条，会使得规模计算出错
+    Baoyou_df_sub = Baoyou_df[Baoyou_df['渠道名称'] != '-']
+    Baoyou_df_mom = Baoyou_df[Baoyou_df.apply(lambda x: '(子' not in x['产品简称'], axis=1)]
+    Baoyou_df = pd.concat([Baoyou_df_mom, Baoyou_df_sub])
+    Baoyou_df.drop_duplicates(inplace=True)
+
+    # 匹配理财产品的字母代码
+    yunzuogailan_before['母产品代码'] = yunzuogailan_before['产品简称'].map(
+        lambda x: yunzuogailan_before[yunzuogailan_before['产品简称'] == x.split('(子')[0]].index[0])
+    yunzuogailan_before = yunzuogailan_before[~(yunzuogailan_before['单位净值'].isnull())]
+    # 获取美元产品清单
+    Dollar_product_list = list(
+        set(Product_information_df_DAP[Product_information_df_DAP['币种'] == '美元'].index).intersection(
+            yunzuogailan_before.index))
+    yunzuogailan_before['净资产(亿)'] = yunzuogailan_before.apply(
+        lambda x: Baoyou_df.loc[x.name]['保有规模'].sum() / 100000000 if x.name in Dollar_product_list else x[
+            '净资产(亿)'], axis=1)
+    yunzuogailan_before = yunzuogailan_before.merge(Product_information_df_DAP[['币种']], left_index=True,
+                                                    right_index=True, how='left')
+
+    # 匹配叶老师的品类
+    classification_df = pd.read_excel(
+        Config.get_base_data_file('底层数据汇总.xlsx'),
+        sheet_name='多资产品类标签',
+        index_col='母产品代码'
+    )
+    # 处理可能存在的重复母产品代码，避免映射时返回Series导致后续merge报错
+    classification_df = classification_df[~classification_df.index.duplicated(keep='first')]
+    classification_ye = classification_df['多资产品类']
+    yunzuogailan_before['多资产品类'] = yunzuogailan_before['母产品代码'].map(
+        lambda x: classification_ye[x] if x in classification_ye.index else np.nan)
+    yunzuogailan_before['产品部品类'] = yunzuogailan_before['母产品代码'].map(
+        lambda x: classification_df['产品部品类'][x] if x in classification_ye.index else np.nan)
+    # 匹配产品运作周期
+    patern = pd.Series(Product_information_df_DAP.apply(map_product_xingtai, axis=1), name='形态')
+
+    ###product_code_df=pd.read_excel(Underlying_data_folder_path+'/子母产品代码-次更.xlsx',index_col=0)
+    Baoyou_df_merge = Baoyou_df.merge(yunzuogailan_before['母产品代码'], left_index=True, right_index=True, how='left')
+    yunzuogailan_before = yunzuogailan_before.merge(patern, left_index=True, right_index=True, how='left')
+    yunzuogailan_before = yunzuogailan_before.merge(Product_information_df_DAP[['周期天数', '产品模板中文名称']],
+                                                    left_index=True, right_index=True, how='left')
+    # 匹配招商标签
+    Zhaoshang_label_df = pd.DataFrame(
+        Baoyou_df_merge.groupby('母产品代码').apply(lambda x: get_zhaoshang_label(set(x['渠道名称']))),
+        columns=['是否招商'])
+    yunzuogailan_before = yunzuogailan_before.merge(Zhaoshang_label_df, left_on='母产品代码', right_index=True,
+                                                    how='left')
+    Qudao_label_df = pd.DataFrame(
+        Baoyou_df_merge.groupby('母产品代码').apply(lambda x: get_qudao_label_detail(set(x['渠道名称']))),
+        columns=['渠道明细'])
+
+    yunzuogailan_before = yunzuogailan_before.merge(Qudao_label_df, left_on='母产品代码', right_index=True, how='left')
+    # 如果是2023年12月31日的话，涉及部分拆分产品经理切换
+    if yunzuogailan_date in ['20231229', '20231231']:
+        yunzuogailan_before['产品经理'] = yunzuogailan_before.apply(
+            lambda x: Product_information_df_DAP.loc[x.name, '母产品投资经理'], axis=1)
+    yunzuogailan_before.rename(columns={'组合久期(多资产)': '组合久期'}, inplace=True)
+    yunzuogailan_before.rename(columns={'组合静态(多资产)': '组合静态'}, inplace=True)
+    yunzuogailan_before_v2 = yunzuogailan_before.merge(Product_information_df_DAP[['母子标志']], left_index=True,
+                                                       right_index=True, how='left')
+    # 对于非母子产品和子1份额，贴上“主要展示”标签 '非母子产品' '子产品' (子1)
+    yunzuogailan_before_v2['主要展示'] = yunzuogailan_before_v2.apply(
+        lambda x: '是' if ((x['母子标志'] == '非母子产品') or ('(子1)' in x['产品简称'])) else '否', axis=1)
+    Parent_sort = pd.read_excel(
+        Config.get_base_data_file('底层数据汇总.xlsx'),
+        sheet_name='销售战报系列分类',
+        index_col=0
+    )[['母分类']]
+    # 去重，确保索引（多资产品类）唯一
+    Parent_sort = Parent_sort[~Parent_sort.index.duplicated(keep='first')]
+    # 防御性处理：确保用于合并的键列为标量，避免出现 Series/列表 导致 merge 报错
+    if yunzuogailan_before_v2['多资产品类'].apply(lambda x: isinstance(x, pd.Series)).any():
+        print("⚠️ 检测到 '多资产品类' 列中存在 Series 值，已自动取第一个非空元素以确保合并正常进行。")
+        yunzuogailan_before_v2['多资产品类'] = yunzuogailan_before_v2['多资产品类'].apply(
+            lambda s: s.dropna().iloc[0] if isinstance(s, pd.Series) and len(s.dropna()) > 0 else (np.nan if isinstance(s, pd.Series) else s)
+        )
+    yunzuogailan_before_v2 = yunzuogailan_before_v2.merge(Parent_sort, left_on='多资产品类', right_index=True,
+                                                          how='left')
+
+    # 输出只保留母产品代码的另做备用
+    yunzuogailan_export = yunzuogailan_before_v2[yunzuogailan_before_v2['产品简称'].map(lambda x: '(子' not in x)]
+    # yunzuogailan_export['20231231净值']=yunzuogailan_export['母产品代码'].map(lambda x:data_transposition.loc['2023/12/31',x] if x in data_transposition.columns else np.nan)
+    keep_col_here = ['产品简称', '净资产(亿)', '形态', '多资产品类', '产品部品类', '单位净值', '累计年化', '杠杆',
+                     '组合久期', '组合静态', '权益仓位', '本期年化',
+                     '业绩基准', '运作天', '剩余天', '销售费', '管理费', '托管费', '产品经理', '起息日', '到期日',
+                     '周期天数', '是否招商', '产品模板中文名称', '母分类']
+    yunzuogailan_export = yunzuogailan_export[keep_col_here]
+    yunzuogailan_export.drop_duplicates().to_excel(Config.get_overview_parent_file(yunzuogailan_date))
+    # yunzuogailan_before_v2.drop_duplicates().to_excel(Underlying_data_folder_path+'/产品运作概览信息表.xlsx')
+    yzgl = yunzuogailan_before_v2.drop_duplicates().copy()
+    yzgl_lastw = pd.read_excel(Config.get_overview_history_file(lastw), index_col=0)
+    yzgl_lastm = pd.read_excel(Config.get_overview_history_file(lastm), index_col=0)
+    yzgl['久期变化-较上周'] = yzgl['组合久期'] - yzgl_lastw['组合久期']
+    yzgl['杠杆变化-较上周'] = yzgl['杠杆'] - yzgl_lastw['杠杆']
+    yzgl['权益仓位-较上周'] = yzgl['权益仓位'] - yzgl_lastw['权益仓位']
+    yzgl['久期变化-较上月'] = yzgl['组合久期'] - yzgl_lastm['组合久期']
+    yzgl['杠杆变化-较上月'] = yzgl['杠杆'] - yzgl_lastm['杠杆']
+    yzgl['权益仓位-较上月'] = yzgl['权益仓位'] - yzgl_lastm['权益仓位']  ###调整顺序
+    mu_col=['产品简称', '净资产(亿)', '5%流动性实际指标', '单位净值', '本期年化', '累计年化', '业绩基准', '杠杆',
+       '组合久期', '组合静态', '权益仓位', '衍生品仓位', '运作天', '剩余天','产品经理', '起息日', '到期日', '销售费',
+       '管理费', '托管费', '母产品代码', '币种', '多资产品类', '产品部品类', '形态', '周期天数',
+       '产品模板中文名称', '是否招商', '渠道明细', '母子标志', '主要展示', '母分类', '久期变化-较上周',
+       '杠杆变化-较上周', '权益仓位-较上周', '久期变化-较上月', '杠杆变化-较上月', '权益仓位-较上月']
+    yzgl[mu_col].to_excel(Config.get_overview_history_file(yunzuogailan_date))
+    print("基于仅母产品的表 更新品类清单后重跑")
+get_yunzuogailan(yunzuogailan_date)
+
+yunzuogailan_all = pd.read_excel(Config.get_overview_history_file(yunzuogailan_date), index_col=0)
+Channel_df = pd.read_excel(Config.get_weekly_data_file('各渠道保有量'), index_col=0)
+date = zhoubao_date
+# 1.匹配品类
+# 匹配叶老师的品类
+classification_df = pd.read_excel(
+    Config.get_base_data_file('底层数据汇总.xlsx'),
+    sheet_name='多资产品类标签',
+    index_col='母产品代码'
+)
+# 处理重复母产品代码，确保后续映射为标量
+classification_df = classification_df[~classification_df.index.duplicated(keep='first')]
+classification_ye = classification_df['多资产品类']
+
+writer = pd.ExcelWriter(Config.get_current_output_writer(date))
+
+
+# Channel_result1.to_excel(writer,sheet_name='1、分渠道余额')
+# Channel_result2.to_excel(writer,sheet_name='渠道明细')
+
+# 插入.去掉量化和结构性产品，去掉创新部经理产品
+def del_Innovation_department(mid_df):
+    mid_df = mid_df[mid_df['多资产品类'].map(
+        lambda x: x not in ['结构性理财R2+', '结构性理财R3', '结构性理财R4', '量化系列', '量化系列(*)'])]
+    mid_df = mid_df[mid_df['产品经理'].map(
+        lambda x: np.sum([k not in ['王浩', '张雅婕', '孙新华', ''] for k in x.split(',')]) != 0)]
+    return mid_df
+
+
+# 匹配理财产品的字母代码
+Channel_df['母产品代码'] = Channel_df['产品简称'].map(
+    lambda x: Channel_df[Channel_df['产品简称'] == x.split('(子')[0]].index[0])
+Channel_df['多资产品类'] = Channel_df['母产品代码'].map(
+    lambda x: classification_ye[x] if x in classification_ye.index else np.nan)
+Channel_df = Channel_df.merge(yunzuogailan_all[['产品经理']], left_index=True, right_index=True, how='left')
+Channel_df = Channel_df[~pd.isnull(Channel_df['产品经理'])]  # 仅保留我部产品(与运作概览同清单)
+# 插入.去掉量化和结构性产品，去掉创新部经理产品
+Channel_df = del_Innovation_department(Channel_df)
+# 2.仅保留子产品df（渠道信息行）
+# 部分子产品的渠道名称为'-’，是因为其下还可以进一步展开
+# 并不是所有的母产品都是‘-’，因为还有母产品不含子产品，那母产品本身就是渠道数据，所以不能删除所有母产品
+Channel_df_subproduct = Channel_df[Channel_df['渠道名称'] != '-']
+Channel_df_subproduct['渠道-行内外'] = Channel_df_subproduct['渠道名称'].map(
+    lambda x: '行内' if x == '兴业银行' else '行外')
+# 匹配叶老师的子母分类关系
+Parent_sort = pd.read_excel(
+    Config.get_base_data_file('底层数据汇总.xlsx'),
+    sheet_name='销售战报系列分类',
+    index_col=0
+)[['母分类', '总分类']]
+# 去重，确保索引（多资产品类）唯一
+Parent_sort = Parent_sort[~Parent_sort.index.duplicated(keep='first')]
+Channel_df_subproduct = Channel_df_subproduct.merge(Parent_sort, left_on='多资产品类', right_index=True, how='left')
+
+
+
+def rank_by_sort(my_df, rank_def):
+    my_df = my_df.copy()
+    # 实际出现的索引集合
+    actual = list(my_df.index)
+    # 构造新的排序顺序：先放在 rank_def 中且实际出现的，再放其余实际出现但不在 rank_def 的
+    new_order = [x for x in rank_def if x in actual] + [x for x in actual if x not in rank_def]
+    # 依据 new_order 生成排序键
+    order_map = {val: i for i, val in enumerate(new_order)}
+    my_df['__order__'] = my_df.index.map(order_map).fillna(len(new_order))
+    my_df = my_df.sort_values('__order__').drop(columns='__order__')
+    return my_df
+
+
+
+# 对index文本按照指定顺序排序
+rank_here = [('中低波稳健产品', '悦动稳享短持'),
+             ('中低波稳健产品', '悦动稳/纯享'),
+             ('中低波稳健产品', '优先股短持'),
+             ('中低波稳健产品', '丰利/增盈'),
+             ('中低波稳健产品', '行外非标驱动型固收+'),
+             ('中高波市值产品', '和瑞BOF'),
+             ('中高波市值产品', '悦动短持/定开'),
+             ('中高波市值产品', '逸动短持'),
+             ('中高波市值产品', '灵动短持'),
+             ('中高波市值产品', '兴动短持'),
+             ('中高波市值产品', '含权定开/封闭'),
+             ('中高波市值产品', 'ESG联名'),
+             ('外币产品', '外币低波'),
+             ('外币产品', '外币市值'), ]
+
+# 改成数据透视表的那种格式
+Channel_result1 = pd.pivot_table(Channel_df_subproduct, index=['总分类', '母分类'], columns='渠道-行内外',
+                                 values=['保有规模'], aggfunc=np.sum) / 100000000  # 数据透视
+Channel_result1 = rank_by_sort(Channel_result1, rank_here)
+Channel_result2 = pd.pivot_table(Channel_df_subproduct, index=['渠道名称'], columns='总分类', values=['保有规模'],
+                                 aggfunc=np.sum) / 100000000
+Channel_result2['合计'] = Channel_result2.sum(axis=1)
+Channel_result2 = Channel_result2.sort_values('合计', ascending=False)  # 底表按照合计规模排序
+Channel_result2[('合计-相比上月', '')] = Channel_result2[('合计', '')] - \
+                                         pd.read_excel(Config.get_output_result_file(lastm), sheet_name='渠道明细',
+                                                       index_col=0, skiprows=[1, 2])['合计']
+Channel_result2[('合计-相比上年', '')] = Channel_result2[('合计', '')] - \
+                                         pd.read_excel(Config.get_output_result_file(lasty), sheet_name='渠道明细',
+                                                       index_col=0, skiprows=[1, 2])['合计']
+Channel_result1.to_excel(writer, sheet_name='1、分渠道余额')
+Channel_result2.to_excel(writer, sheet_name='渠道明细')
+
+now = zhoubao_date
+# 获取各分类的产品规模和款数
+yunzuogailan_now = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(now), index_col=0))
+yunzuogailan_lastm = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lastm), index_col=0))
+yunzuogailan_lasty = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lasty), index_col=0))
+
+lastm_delta_df = get_scaleandnum_by_sort(yunzuogailan_now) - get_scaleandnum_by_sort(yunzuogailan_lastm)
+lastm_delta_df.columns = ['规模-较上月末', '数量-较上月末']
+lasty_delta_df = get_scaleandnum_by_sort(yunzuogailan_now) - full_category_or_not(
+    get_scaleandnum_by_sort(yunzuogailan_lasty), rank_here).fillna(0)
+lasty_delta_df.columns = ['规模-较上年末', '数量-较上年末']
+
+cols = ['规模(亿)', '规模-较上月末', '规模-较上年末', '数量', '数量-较上月末', '数量-较上年末']
+result_3 = pd.concat([get_scaleandnum_by_sort(yunzuogailan_now), lastm_delta_df, lasty_delta_df], axis=1)[cols]
+result_3[['规模(亿)', '规模-较上月末', '规模-较上年末']] = result_3[
+    ['规模(亿)', '规模-较上月末', '规模-较上年末']].applymap(lambda x: '{:.2f}'.format(x) if not np.isnan(x) else x)
+result_3 = rank_by_sort(result_3, rank_here)
+result_3[cols].to_excel(writer, sheet_name='2、产品规模')
+
+# ！注：战报底表日期需要更新
+# month_now='2024-10'
+data_zhanbao = zhoubao_date  # 可修改战报日期
+zhanbao_df = pd.read_excel(Config.get_weekly_data_file('战报底表(v2)'), index_col=0)
+zhanbao_df = zhanbao_df[zhanbao_df['规模类型-简化'] == '销量']
+
+# 插入.去掉量化和结构性产品，去掉创新部经理产品
+if '产品经理' not in zhanbao_df.columns:
+    zhanbao_df = zhanbao_df.merge(yunzuogailan_all[['产品经理']], left_index=True, right_index=True, how='left')
+zhanbao_df.rename(columns={'品类': '多资产品类'}, inplace=True)
+# 对产品经理不是空的,判断是否是我部的产品
+zhanbao_df_1 = zhanbao_df[zhanbao_df['产品经理'].map(lambda x: not pd.isnull(x))]
+zhanbao_df_1 = del_Innovation_department(zhanbao_df_1)
+zhanbao_df_2 = zhanbao_df[zhanbao_df['产品经理'].map(lambda x: pd.isnull(x))]
+zhanbao_df = pd.concat([zhanbao_df_1, zhanbao_df_2])
+
+# 母产品代码和简称为空的，替换为子产品代码和简称
+zhanbao_df['母产品代码'] = zhanbao_df.apply(lambda x: x.name if pd.isnull(x['母产品代码']) else x['母产品代码'], axis=1)
+zhanbao_df['母产品简称'] = zhanbao_df.apply(lambda x: x['产品简称'] if pd.isnull(x['母产品简称']) else x['母产品简称'],
+                                            axis=1)
+
+kaifang_df = zhanbao_df[
+    (zhanbao_df['形态'] == '客户周期') | (zhanbao_df['形态'] == '最短持有期') | (zhanbao_df['形态'] == '定开') | (
+                zhanbao_df['形态'] == '日开')]
+# 按母产品汇总
+kaifang_df = kaifang_df.groupby('母产品代码').agg(
+    {'母产品简称': 'first', '多资产品类': 'first', '母品类': 'first', '起息日': 'first', '规模/变化（亿）': 'sum',
+     '产品经理': 'first'})
+# 去掉变动小于500w的产品-可能是净值变化造成，仅看大的
+kaifang_df = kaifang_df[kaifang_df['规模/变化（亿）'].map(lambda x: abs(x) >= 0.05)]
+
+kaifang_df.sort_values(by='规模/变化（亿）', ascending=False, inplace=True)
+kaifang_df['规模/变化（亿）'] = kaifang_df['规模/变化（亿）'].map(lambda x: '{:.2f}'.format(x) if not np.isnan(x) else x)
+# kaifang_df['投资经理']=[yunzuogailan_all.loc[x,'产品经理'] for x in kaifang_df.index] #代码功能写重了
+# 去掉封闭到期的
+kaifang_df = kaifang_df[kaifang_df['母品类'] != '封闭到期']
+kaifang_df.to_excel(writer, sheet_name='3、本⽉定开或客户周期产品规模变化')
+
+yunzuogailan_date = zhoubao_date
+xinfa_thisweek_df = zhanbao_df[zhanbao_df['起息日'] >= week_Mon]
+# 含有待起息产品的运作概览
+yunzuogailan_original = pd.read_excel(Config.get_weekly_data_file('产品运作概览'), index_col=0)
+# 匹配理财产品的子母代码
+yunzuogailan_original['母产品代码'] = yunzuogailan_original['产品简称'].map(
+    lambda x: yunzuogailan_original[yunzuogailan_original['产品简称'] == x.split('(子')[0]].index[0])
+yunzuogailan_original = yunzuogailan_original[['产品简称', '母产品代码', '产品经理']].drop_duplicates()
+
+# 匹配新发产品的母产品代码，如果没有用子产品代码替代
+for mid_ind in xinfa_thisweek_df.index:
+    if mid_ind in yunzuogailan_original.index:
+        mother_indx = yunzuogailan_original.loc[mid_ind, '母产品代码']
+        xinfa_thisweek_df.loc[mid_ind, '母产品代码'] = mother_indx
+        xinfa_thisweek_df.loc[mid_ind, '母产品简称'] = yunzuogailan_original.loc[mother_indx, '产品简称']
+        xinfa_thisweek_df.loc[mid_ind, '产品经理'] = yunzuogailan_original.loc[mother_indx, '产品经理']
+    else:
+        xinfa_thisweek_df.loc[mid_ind, '母产品代码'] = mid_ind
+        xinfa_thisweek_df.loc[mid_ind, '母产品简称'] = xinfa_thisweek_df.loc[mid_ind, '产品简称']
+
+xinfa_thisweek_qudao = xinfa_thisweek_df.reset_index().groupby(['母产品代码', '渠道-简化']).agg(
+    {'母产品简称': 'first', '多资产品类': 'first', '母品类': 'first', '起息日': 'first', '规模/变化（亿）': 'sum',
+     '战报到期日': 'first', '形态': 'first', '产品经理': 'first'})
+xinfa_thisweek_sum = xinfa_thisweek_df.reset_index().groupby(['母产品代码']).agg(
+    {'母产品简称': 'first', '多资产品类': 'first', '母品类': 'first', '起息日': 'first', '规模/变化（亿）': 'sum',
+     '战报到期日': 'first', '形态': 'first', '产品经理': 'first'})
+
+# 单独列示行内行外的规模值
+for mid_ind in xinfa_thisweek_sum.index:
+    if (mid_ind, '行内') in xinfa_thisweek_qudao.index:
+        xinfa_thisweek_sum.loc[mid_ind, '行内(亿)'] = xinfa_thisweek_qudao.loc[(mid_ind, '行内'), '规模/变化（亿）']
+    if (mid_ind, '行外') in xinfa_thisweek_qudao.index:
+        xinfa_thisweek_sum.loc[mid_ind, '行外(亿)'] = xinfa_thisweek_qudao.loc[(mid_ind, '行外'), '规模/变化（亿）']
+
+# 当本周无新发产品时，xinfa_thisweek_sum 可能为空或缺少指定列，先做安全处理
+if xinfa_thisweek_sum.empty:
+    # 创建一个空表但保留必要列，防止后续报错
+    result_3_2_df = pd.DataFrame(columns=['母产品简称', '销量(亿)', '行内(亿)', '行外(亿)', '多资产品类',
+                                          '母品类', '起息日', '到期日', '形态', '产品经理'])
+else:
+    # 仅保留实际存在的列
+    keep_columns_xinfa = ['母产品简称', '规模/变化（亿）', '行内(亿)', '行外(亿)', '多资产品类', '母品类', '起息日',
+                          '战报到期日', '形态', '产品经理']
+    # 取交集，避免 KeyError
+    cols_available = [c for c in keep_columns_xinfa if c in xinfa_thisweek_sum.columns]
+    xinfa_thisweek_sum = xinfa_thisweek_sum[cols_available].copy()
+    xinfa_thisweek_sum.rename(columns={'规模/变化（亿）': '销量(亿)', '战报到期日': '到期日'}, inplace=True)
+    result_3_2_df = xinfa_thisweek_sum[xinfa_thisweek_sum['销量(亿)'] != 0]
+    result_3_2_df.sort_values(by='起息日', ascending=True, inplace=True)
+
+result_3_2_df.to_excel(writer, sheet_name='本周新发产品')
+# xinfa_thisweek_sum[xinfa_thisweek_sum['销量(亿)']!=0].to_excel('test1.xlsx',sheet_name='3、本周新发产品')
+
+product_tosale_df = pd.read_excel(Config.get_weekly_data_file('理财产品区间在售待售情况表'), index_col=0, skiprows=1)
+product_tosale_df = product_tosale_df.merge(Product_information_df_DAP['母产品投资经理'], left_index=True,
+                                            right_index=True, how='left')
+first = ['徐莹', '胡艳婷', '姜锡峰', '朱轶伦','李佳航',"苏文津","夏凡盛","黄亦尧"]
+second = ['严泓', '高翰昆', '薛纪晔', '任雁', '周仕盈',"罗谨深"]
+third = ['杨漠', '余洁雅', '张玉杰','廖炯臣']
+
+
+def manager_in_or_not(s: str, y: list):
+    if pd.isnull(s):
+        return False
+    else:
+        for mid_y in y:
+            if mid_y in s:
+                return True
+        return False
+
+
+product_tosale_df_new = product_tosale_df[
+    product_tosale_df['母产品投资经理'].map(lambda x: manager_in_or_not(x, first + second + third))]
+date_here = zhoubao_date[:4] + '-' + zhoubao_date[4:6] + '-' + zhoubao_date[6:]
+product_tosale_df_final = product_tosale_df_new[product_tosale_df_new['成立日'] > date_here]
+product_tosale_df_final.drop_duplicates(inplace=True)
+keep_columns = ['母子产品标识', '产品简称', '产品开放形式', '募集期(起)', '募集期(止)',
+                '成立日', '到期日', '规模上限(亿)', '销售币种']
+# product_tosale_df_final[keep_columns].to_excel('test.xlsx')
+product_tosale_df_final_v1 = product_tosale_df_final[keep_columns]
+product_tosale_df_final_v2 = product_tosale_df_final_v1[product_tosale_df_final_v1.apply(lambda x: False if ( \
+                                                                                                                        x[
+                                                                                                                            '产品简称'] in
+                                                                                                                        product_tosale_df_final_v1[
+                                                                                                                            '产品简称']) and (
+                                                                                                                        x[
+                                                                                                                            '母子产品标识'] == '母产品') else True,
+                                                                                         axis=1)]
+product_tosale_df_final_v2.sort_values(by='成立日', ascending=True, inplace=True)
+product_tosale_df_final_v2.to_excel(writer, sheet_name='待售产品')
+
+# 多资产产品监控
+start_date = ''  # 数据区间开始，可选“”或者'2024-10-16'
+end_date = ''  # 数据截止时间，可选“”或者'2024-04-15'
+# 使用配置的数据目录，不再使用硬编码路径
+# path='/Users/fanshengxia/Desktop/周报/2.多资产产品监控'
+
+data_transposition.replace(0, np.nan, inplace=True)
+if start_date == "":
+    data_transposition_here = data_transposition
+else:
+    data_transposition_here = data_transposition.loc[start_date:]
+
+if end_date == "":
+    data_transposition_here.apply(performance_calculate_optimize).T.to_excel(Config.get_performance_file(zhoubao_date))
+    print('数据截止时间为' + str(data_transposition_here.index[-1]))
+else:
+    data_transposition_here.loc[:end_date].apply(performance_calculate_optimize).T.to_excel(
+        Config.get_performance_file(end_date))
+    print('数据截止时间为' + str(data_transposition_here.loc[:end_date].index[-1]))
+
+# now='20241024'
+Parent_sort = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='销售战报系列分类', index_col=0)[
+    ['母分类', '总分类']]
+
+
+# yunzuogailan_now=del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(now),index_col=0))
+
+
+# 最短持有期产品用A份额替代
+year_col = f"{int(str(zhoubao_date)[:4])}年年化收益率"
+def weighted_avg(group):
+    w_fields = [
+        '累计年化', '近1月年化收益率', '近3月年化收益率',
+        '近6月年化收益率', '近1年年化收益率', year_col, '近1年年化波动率'
+    ]
+    results = {}
+
+    for field in w_fields:
+        # 仅保留该字段不为空的行
+        mask = group[field].notna()
+        if mask.any():  # 至少有一个有效样本
+            weight_valid = group.loc[mask, '净资产(亿)']
+            total_weight = weight_valid.sum()
+            results[field] = (
+                    (group.loc[mask, field] * weight_valid).sum() / total_weight
+            )
+        else:  # 全部为空，返回 NaN
+            results[field] = np.nan
+
+    return pd.Series(results)
+yunzuogailan_all = del_Innovation_department(
+    pd.read_excel(Config.get_overview_history_file(yunzuogailan_date), index_col=0))
+
+# 筛选持有期和其他产品
+to_merge_chiyouqi_code = yunzuogailan_all[
+    yunzuogailan_all.apply(lambda x: (x['主要展示'] == '是') & (x['形态'] in ['客户周期', '日开']), axis=1)]
+to_merge_other_code = yunzuogailan_all[
+    yunzuogailan_all.apply(lambda x: (x['母子标志'] in ['非母子产品', '母产品']) & (x['形态'] in ['封闭', '定开']),
+                           axis=1)]
+yunzuogailan_now = pd.concat([to_merge_chiyouqi_code, to_merge_other_code])
+
+# 获取收益率和波动率数据
+keep_cols = ['近1月年化收益率', '近3月年化收益率', '近6月年化收益率', '近1年年化收益率', year_col, '近1年年化波动率']
+yunzuogailan_now_5 = yunzuogailan_now.merge(Parent_sort['总分类'], left_on='多资产品类', right_index=True, how='left')
+perf_df = pd.read_excel(Config.get_performance_file(zhoubao_date), index_col=0)
+keep_cols = [c for c in keep_cols if c in perf_df.columns]
+yunzuogailan_now_ret = yunzuogailan_now_5.merge(
+    perf_df[keep_cols],
+    left_index=True, right_index=True, how='left')
+yunzuogailan_now_ret['累计年化'] = yunzuogailan_now_ret['累计年化'].map(
+    lambda x: float(x[:-1]) / 100 if isinstance(x, str) else x)
+
+# 对近1年年化收益率为0或缺失的产品，用成立以来年化收益率替代
+yunzuogailan_now_ret['近1年年化收益率'] = yunzuogailan_now_ret.apply(
+    lambda row: row['累计年化'] if (pd.isna(row['近1年年化收益率']) or row['近1年年化收益率'] == 0) else row['近1年年化收益率'],
+    axis=1
+)
+
+# 计算费后平均
+result_5 = yunzuogailan_now_ret[['总分类', '母分类'] + ['累计年化'] + keep_cols].groupby(['总分类', '母分类']).mean()[
+    ['累计年化'] + keep_cols]
+result_5 = rank_by_sort(result_5, rank_here)
+result_5.to_excel(writer, sheet_name='系列产品业绩-费后平均')
+
+# 计算费后加权
+result_5_weight = yunzuogailan_now_ret.groupby(['总分类', '母分类']).apply(weighted_avg)
+result_5_weight = rank_by_sort(result_5_weight, rank_here)
+result_5_weight.to_excel(writer, sheet_name='系列产品业绩-费后加权')
+
+# 计算费前数据
+yunzuogailan_add_fee = yunzuogailan_now_ret.copy()
+w_field = ['累计年化', '近1月年化收益率', '近3月年化收益率', '近6月年化收益率', '近1年年化收益率', year_col, '近1年年化波动率']
+yunzuogailan_add_fee[w_field] = yunzuogailan_add_fee[w_field].add(
+    yunzuogailan_add_fee[['销售费', '管理费', '托管费']].sum(axis=1), axis=0)
+
+# 计算费前加权
+result_series_performance = yunzuogailan_add_fee.groupby(['总分类', '母分类']).apply(weighted_avg)
+result_series_performance = rank_by_sort(result_series_performance, rank_here)
+result_series_performance.to_excel(writer, sheet_name='系列产品业绩-费前加权')
+
+# 计算费前平均
+result_series_performance_average = yunzuogailan_add_fee[['总分类', '母分类'] + w_field + ['近1年年化波动率']].groupby(
+    ['总分类', '母分类']).mean()
+result_series_performance_average = rank_by_sort(result_series_performance_average, rank_here)
+result_series_performance_average.to_excel(writer, sheet_name='系列产品业绩-费前平均')
+# 筛选持有期产品，不包含外币
+yunzuogailan_now_ret_chiyouqi = yunzuogailan_now_ret[yunzuogailan_now_ret.apply(
+    lambda x: (x['形态'] in ['客户周期', '日开']) and (x['母分类'] in ['悦动稳享短持', '优先股短持', '悦动短持/定开']),
+    axis=1)]
+yunzuogailan_now_ret_chiyouqi.rename(columns={'累计年化': '成立以来年化', year_col: '今年以来年化'},
+                                     inplace=True)
+
+# 朱老师的悦动稳享9M281010单独处理，母产品业绩有误
+yunzuogailan_now_ret_chiyouqi.loc[
+    '9M281010', ['成立以来年化', '近1月年化收益率', '近3月年化收益率', '近6月年化收益率', '近1年年化收益率',
+                 '今年以来年化']] = \
+    pd.read_excel(Config.get_performance_file(zhoubao_date), index_col=0).loc[
+        '9A281010', ['成立以来年化收益率', '近1月年化收益率', '近3月年化收益率', '近6月年化收益率', '近1年年化收益率',
+                     year_col]].values
+
+# 2024年后成立的，今年以来年化为空，用成立以来年化替代
+yunzuogailan_now_ret_chiyouqi['今年以来年化'] = yunzuogailan_now_ret_chiyouqi.apply(
+    lambda x: x['成立以来年化'] if pd.isnull(x['今年以来年化']) else x['今年以来年化'], axis=1)
+
+
+def get_Scale_weighting_ret(my_df):
+    keep_ret_cols = ['成立以来年化', '今年以来年化']
+    ret_sum_df = (my_df[keep_ret_cols].multiply(my_df['净资产(亿)'], axis="index")).sum()
+    scale_sum_df = ((my_df[keep_ret_cols] / my_df[keep_ret_cols]).multiply(my_df['净资产(亿)'], axis="index")).sum()
+    return ret_sum_df / scale_sum_df
+
+
+result_df_52 = yunzuogailan_now_ret_chiyouqi.groupby('母分类').apply(get_Scale_weighting_ret)
+result_df_52.rename(index={'悦动短持/定开': '悦动短持'}, inplace=True)
+rank_chiyouqi = ['悦动稳享短持', '优先股短持', '悦动短持']
+rank_by_sort(result_df_52, rank_chiyouqi).to_excel(writer, sheet_name='5.2 最短持有期产品业绩表现1')
+
+
+# rank_by_sort(result_df_52,rank_chiyouqi).to_excel('test.xlsx',sheet_name='5.2 最短持有期产品业绩表现1')
+
+def get_zhouqi_scale_v2(x):
+    if x == 1:
+        return '日盈'
+    elif x < 30:
+        return '<1M'
+    elif x < 31 * 3:
+        return '1M-3M'
+    elif x < 31 * 6:
+        return '3M-6M'
+    elif x < 12 * 31:
+        return '6M-1Y'
+    elif x >= 12 * 31:
+        return '>1Y'
+    else:
+        return 'error'
+
+
+yunzuogailan_now_ret_chiyouqi['持有期标签'] = yunzuogailan_now_ret_chiyouqi['周期天数'].map(get_zhouqi_scale_v2)
+yunzuogailan_now_ret_chiyouqi['母分类'] = yunzuogailan_now_ret_chiyouqi['母分类'].map(
+    lambda x: '悦动短持' if x == '悦动短持/定开' else x)
+result_df_52_3 = yunzuogailan_now_ret_chiyouqi.groupby(['母分类', '持有期标签']).apply(get_Scale_weighting_ret)
+result_df_52_3['数量'] = yunzuogailan_now_ret_chiyouqi.groupby(['母分类', '持有期标签'])['产品简称'].count()
+rank_chiyouqi_v3 = [('悦动稳享短持', '<1M'),
+                    ('悦动稳享短持', '1M-3M'),
+                    ('悦动稳享短持', '3M-6M'),
+                    ('悦动稳享短持', '6M-1Y'),
+                    ('悦动短持', '<1M'),
+                    ('悦动短持', '1M-3M'),
+                    ('悦动短持', '3M-6M'),
+                    ('悦动短持', '6M-1Y'),
+                    ('优先股短持', '1M-3M')]
+rank_by_sort(result_df_52_3, rank_chiyouqi_v3).to_excel(writer, sheet_name='5.2 最短持有期产品业绩表现2')
+# 获取各分类的产品规模和款数
+now = zhoubao_date
+# lastm='20250228'  跟着上面一起改了
+# lasty='20241231'  跟着上面一起改了
+yunzuogailan_now = del_Innovation_department(pd.read_excel( \
+    Config.get_overview_parent_file(now), index_col=0))
+yunzuogailan_lastw = del_Innovation_department(pd.read_excel( \
+    Config.get_overview_parent_file(lastw), index_col=0))
+yunzuogailan_lastm = del_Innovation_department(pd.read_excel( \
+    Config.get_overview_parent_file(lastm), index_col=0))
+yunzuogailan_lasty = del_Innovation_department(pd.read_excel( \
+    Config.get_overview_parent_file(lasty), index_col=0))
+
+first = ['徐莹', '胡艳婷', '姜锡峰', '朱轶伦','李佳航',"苏文津","夏凡盛","黄亦尧"]
+second = ['严泓', '高翰昆', '薛纪晔', '任雁', '周仕盈',"罗谨深"]
+third = ['杨漠', '余洁雅', '张玉杰','廖炯臣']
+
+manager_belong_to = {'投资经理姓名': '处室', }
+team = ['一处', '二处', '外币']
+team_list = [first, second, third]
+for i in range(len(team)):
+    for name_here in team_list[i]:
+        manager_belong_to[name_here] = team[i]
+
+Parent_sort = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='销售战报系列分类', index_col=0)[
+    ['母分类', '总分类']]
+
+
+# 删除非我部门投资经理
+def clear_manager_name(s: str):
+    merge_s = []
+    for mid_s in s.split(','):
+        #         if mid_s in first+second+third+quant:
+        if mid_s in first + second + third:
+            merge_s.append(mid_s)
+    return ','.join(merge_s)
+
+
+# 有多个投资经理共同管理的数据，要复制一条数据给每个投资经理，规模和个数减半
+def adjust_manager_aum(mid_data):
+    import pandas as pd  # Ensure pandas is imported
+
+    final_mid_data = mid_data.copy()
+    final_mid_data['双挂调整后规模'] = final_mid_data['净资产(亿)']
+    final_mid_data['双挂调整后产品只数'] = 1
+
+    # Create a list to store new rows
+    new_rows = []
+
+    for indx in mid_data.index:
+        mng_list = mid_data.loc[indx, '产品经理'].split(',')
+        if len(mng_list) > 1:
+            i = 0
+            for mng in mng_list:
+                if i == 0:
+                    final_mid_data.loc[indx, '产品经理'] = mng
+                    final_mid_data.loc[indx, '双挂调整后规模'] = final_mid_data.loc[indx, '双挂调整后规模'] / 2
+                    final_mid_data.loc[indx, '双挂调整后产品只数'] = 1 / len(mng_list)
+                    i += 1
+                else:
+                    mid_series = final_mid_data.loc[indx].copy()
+                    mid_series['产品经理'] = mng
+                    # Instead of append, we'll collect new rows and concat later
+                    new_rows.append(pd.DataFrame(mid_series).T)
+
+    # If we have new rows, concatenate them to the original dataframe
+    if new_rows:
+        final_mid_data = pd.concat([final_mid_data] + new_rows, ignore_index=False)
+
+    return final_mid_data
+
+
+# 匹配子母分类关系+对投资经理进行处理
+def get_scaleandnum_by_sort_manager(my_df):
+    Parent_sort = \
+    pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='销售战报系列分类', index_col=0)[
+        ['母分类', '总分类']]
+    my_df = my_df.merge(Parent_sort, left_on='多资产品类', right_index=True, how='left')
+    my_df['产品经理'] = my_df['产品经理'].map(clear_manager_name)
+
+    return adjust_manager_aum(my_df)
+
+
+result_now = get_scaleandnum_by_sort_manager(yunzuogailan_now).groupby('产品经理').agg(
+    {'双挂调整后规模': 'sum', '双挂调整后产品只数': 'sum'})
+
+rikai_now = get_scaleandnum_by_sort_manager(yunzuogailan_now)
+rikai_now = rikai_now[rikai_now['形态'].map(lambda x: x in ['日开', '客户周期', '最短持有期'])].groupby('产品经理').agg(
+    {'双挂调整后规模': 'sum', '双挂调整后产品只数': 'sum'})
+rikai_now.rename(columns={'双挂调整后规模': '最短持有期规模', '双挂调整后产品只数': '最短持有期产品只数'}, inplace=True)
+result_df_here = []
+cols_to_append = ['-较上周', '-较上月末', '-较上年末']
+for i in range(3):
+    mid_df = [yunzuogailan_lastw, yunzuogailan_lastm, yunzuogailan_lasty][i]
+    result_df_i = result_now - get_scaleandnum_by_sort_manager(mid_df).groupby('产品经理').agg(
+        {'双挂调整后规模': 'sum', '双挂调整后产品只数': 'sum'})
+    result_df_i.columns = [x + cols_to_append[i] for x in ['双挂调整后规模', '双挂调整后产品只数']]
+    result_df_here.append(result_df_i)
+
+result_df_here = pd.concat([result_now] + result_df_here + [rikai_now], axis=1)
+
+cols_here = ['双挂调整后规模', '双挂调整后规模-较上周', '双挂调整后规模-较上月末', '双挂调整后规模-较上年末',
+             '最短持有期规模',
+             '双挂调整后产品只数', '双挂调整后产品只数-较上周', '双挂调整后产品只数-较上月末',
+             '双挂调整后产品只数-较上年末', '最短持有期产品只数']
+indx_here = ['严泓', '徐莹', '杨漠', '高翰昆', '姜锡峰', '余洁雅', '薛纪晔', '胡艳婷', '朱轶伦', '任雁',
+             '张玉杰','廖炯臣','李佳航',"苏文津","夏凡盛","黄亦尧","罗谨深"]
+result_df_here = result_df_here[cols_here]
+result_df_here =result_df_here.dropna(axis=0,how='all')
+result_df_here = rank_by_sort(result_df_here, indx_here)
+result_df_here[['双挂调整后规模', '双挂调整后规模-较上周', '双挂调整后规模-较上月末', '双挂调整后规模-较上年末',
+                '最短持有期规模']] = result_df_here[
+    ['双挂调整后规模', '双挂调整后规模-较上周', '双挂调整后规模-较上月末', '双挂调整后规模-较上年末',
+     '最短持有期规模']].applymap(lambda x: '{:.2f}'.format(x))
+result_df_here.to_excel(writer, sheet_name='投资经理维度产品规模和数量')
+# result_df_here.to_excel('test2.xlsx',sheet_name='投资经理维度产品规模和数量')
+
+yunzuogailan_now_65 = yunzuogailan_now.copy()
+yunzuogailan_now_65['形态'] = yunzuogailan_now_65['形态'].map(lambda x: '最短持有期' if x == '客户周期' else x)
+yunzuogailan_now_65 = yunzuogailan_now_65.merge(Parent_sort['总分类'], left_on='多资产品类', right_index=True,
+                                                how='left')
+result_df_here_65 = pd.concat([pd.pivot_table(yunzuogailan_now_65, index=['总分类', '母分类'], columns='形态',
+                                              values=['净资产(亿)'], aggfunc='count'), \
+                               pd.pivot_table(yunzuogailan_now_65, index=['总分类', '母分类'], columns='形态',
+                                              values=['净资产(亿)'], aggfunc=np.sum)], axis=1)
+result_df_here_65.to_excel(writer, sheet_name='不同形态产品规模和数量')
+
+# 招商产品列表
+# 改成展示子产品
+zhaoshang_product_list = list(set(Channel_df[Channel_df['渠道名称'] == '招商银行股份有限公司'].index))
+zhaoshang_product_df = yunzuogailan_all.loc[zhaoshang_product_list]
+
+
+def get_yejijizhunxiaxian(x: str):
+    if not pd.isnull(x):
+        try:
+            float(x.split('-')[0][:-1])
+            return x.split('-')[0]
+        except ValueError:
+            return ""
+    else:
+        return x
+
+
+zhaoshang_product_df['业绩基准下限'] = zhaoshang_product_df['业绩基准'].map(get_yejijizhunxiaxian)
+
+# 获取超额业绩<0清单
+zhaoshang_product_df['本期年化'] = zhaoshang_product_df['本期年化'].map(
+    lambda x: float(x[:-1]) / 100 if isinstance(x, str) else x)  # 约定年化的数据类型
+zhaoshangfinal = zhaoshang_product_df[(zhaoshang_product_df['本期年化'] * 100 - zhaoshang_product_df[
+    '业绩基准下限'].map(lambda x: float(x[:-1]) if (x != "") & (not pd.isnull(x)) else -100)) < 0]
+# 匹配招商规模
+zhaoshang_scale = Channel_df[Channel_df['渠道名称'] == '招商银行股份有限公司']['保有规模'] / 100000000
+zhaoshangfinal['招商代销规模'] = [zhaoshang_scale[ind] for ind in zhaoshangfinal.index]
+# 仅保留成立大于一月的
+zhaoshangfinal = zhaoshangfinal[zhaoshangfinal['运作天'] > 30]
+zhaoshangfinal = zhaoshangfinal[zhaoshangfinal['招商代销规模'] > 0.1]
+zhaoshangfinal.sort_values('剩余天', ascending=True, inplace=True)  # 底表按照剩余天排序
+zhaoshangfinal.to_excel(writer, sheet_name='招商在售产品不达基准')
+# zhaoshangfinal.to_excel('test.xlsx',sheet_name='招商在售产品不达基准')
+
+yunzuogailan_all['业绩基准下限'] = yunzuogailan_all['业绩基准'].map(get_yejijizhunxiaxian)
+yunzuogailan_all['本期年化'] = yunzuogailan_all['本期年化'].map(
+    lambda x: float(x[:-1]) / 100 if isinstance(x, str) else x)  # 约定年化的数据类型
+yunzuogailan_all = yunzuogailan_all[(yunzuogailan_all['本期年化'] * 100 - yunzuogailan_all['业绩基准下限'].map(
+    lambda x: float(x[:-1]) if (x != "") & (not pd.isnull(x)) else -100)) < 0]
+bdjz_100 = yunzuogailan_all[(yunzuogailan_all['形态'].isin(['封闭', '定开'])) & (yunzuogailan_all['剩余天'] < 100)]
+bdjz_100['本期年化-业绩基准下限（BP）'] = (bdjz_100['本期年化'] - (bdjz_100['业绩基准下限'].str[:-1]).astype(
+    float) / 100) * 10000
+bdjz_100['本期年化-业绩基准下限（BP）'] = bdjz_100['本期年化-业绩基准下限（BP）'].astype(int)
+bdjz_100 =bdjz_100[bdjz_100['母分类'] !='外币低波']  ##剔除外币产品 系统数据不准确
+bdjz_100.to_excel(writer, sheet_name='封闭及定开产品100日内不大业绩产品清单')
+
+date = zhoubao_date
+
+date_lastw = lastw
+date_lastm = lastm
+date_lasty = lasty
+excel_name = '持仓盈亏明细列表_' + date + '.xlsx'
+yunzuogailan_all = pd.read_excel(Config.get_overview_history_file(date), index_col=0)
+Chicang_df = pd.read_excel(os.path.join(Config.WEEKLY_DATA_DIR, excel_name))
+Chicang_df.rename(columns={'资产简称': '债券简称'}, inplace=True)  ###按照老的简称计算
+Chicang_df.drop_duplicates(inplace=True)
+Chicang_df = Chicang_df.merge(yunzuogailan_all['币种'], left_on='产品代码', right_index=True, how='left')
+# 产品计价单位为美元的，需要转换成人民币
+# 注：我们pas系统的逻辑是展示本币规模，本币是指产品的销售单位/计价单位，目前美元产品底层资产只有美元资产，展示规模为美元；人民币产品底层资产，美元的会转成人民币，人民币的直接展示人民币
+EXchange_rate = market_data.get_exchange_rate('USDCNY', Config.EXCHANGE_RATE_DATE)
+Chicang_df['日终市值(元)-产品法估值'] = Chicang_df.apply(
+    lambda x: x['日终市值(元)-产品法估值'] * EXchange_rate if x['币种'] == '美元' else x['日终市值(元)-产品法估值'],
+    axis=1)
+
+# 暂时代码——新基金类型互认基金和基准做市基金的'日终市值(元)-产品法估值'是0，但是有持仓成本和持有期收益数据，所以暂时用二者计算代替
+to_fill_indx = Chicang_df[Chicang_df['日终市值(元)-产品法估值'] == 0].index
+Chicang_df.loc[to_fill_indx, '日终市值(元)-产品法估值'] = Chicang_df.loc[to_fill_indx, '持仓成本(元)'] + Chicang_df.loc[
+    to_fill_indx, '持有期收益']
+Chicang_df['日终市值(元)-产品法估值'] = Chicang_df['日终市值(元)-产品法估值'].fillna(0)
+
+# 获取资产勾稽关系和保险资管产品
+asset_classification_joint_df = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'),
+                                              sheet_name='资产分类勾稽关系', index_col=0)
+insurance_pdct_df = pd.read_excel(Config.get_weekly_data_file('保险资管计划'), index_col=0)  # 近7天年化收益
+# 匹配资产小类和勾稽关系下的三级分类
+Chicang_df = Chicang_df.merge(asset_classification_joint_df[['编号', '三级分类']], left_on='新版资产小类',
+                              right_index=True, how='left')
+# 标记保险资管资产
+mid_df = Chicang_df[Chicang_df['新版资产小类'] == '委外现金管理投资']
+insurance_pdct_name_list = list(insurance_pdct_df.index) + ['英大资产-聚鑫22号', '大家资管稳健精选15号']
+insurance_pdct_indx = mid_df[mid_df['债券简称'].map(lambda x: x in insurance_pdct_name_list)].index
+Chicang_df.loc[insurance_pdct_indx, '编号'] = '1.2'
+Chicang_df.loc[insurance_pdct_indx, '三级分类'] = '1.2 保险协议存款'
+# 细化3.4-3.5中的城投和永续
+# 单独提出所有的债券数据获取城投和永续信息
+bond_set_df = pd.DataFrame(list(set(Chicang_df[Chicang_df['编号'] == '3.4-3.5']['外部代码'])), columns=['外部代码'])
+
+# 获取Wind数据——最好不要重复跑，可用数据量有限
+bond_code_list = list(bond_set_df['外部代码'].values)
+wind_result = market_data.get_bond_attributes(bond_code_list)
+bond_set_df[['是否城投', '是否永续']] = wind_result.values
+# 通过城投和永续匹配三级分类的勾稽表
+to_merge_df = pd.DataFrame(
+    [['是', '否', '3.4.1 非永续城投债'], ['是', '是', '3.4.2 永续城投债'], ['否', '否', '3.5.1 非永续产业债'],
+     ['否', '是', '3.5.2 永续产业债']], columns=['是否城投', '是否永续', '三级分类'])
+bond_set_df = bond_set_df.merge(to_merge_df, left_on=['是否城投', '是否永续'], right_on=['是否城投', '是否永续'],
+                                how='left')
+# 合并到持仓表
+Chicang_df['三级分类-new'] = Chicang_df.apply(
+    lambda x: bond_set_df.set_index('外部代码').loc[x['外部代码'], '三级分类'] if x['编号'] == '3.4-3.5' else x[
+        '三级分类'], axis=1)
+# 匹配多资产品类
+yunzuogailan_now = pd.read_excel(Config.get_overview_parent_file(date), index_col=0)
+Parent_sort = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='销售战报系列分类', index_col=0)[
+    ['母分类', '总分类']]
+Chicang_df2 = Chicang_df.merge(yunzuogailan_now[['多资产品类', '产品经理']], left_on='产品代码', right_index=True,
+                               how='left')
+Chicang_df2 = Chicang_df2[
+    Chicang_df2.apply(lambda x: not pd.isnull(x['产品经理']), axis=1)]  # 匹配不到产品经理的是当天产品已经到期了，但是pas持仓仍有拉取
+Chicang_df2 = del_Innovation_department(Chicang_df2)  # 插入.去掉量化和结构性产品，去掉创新部经理产品
+Chicang_df2 = Chicang_df2.merge(Parent_sort, left_on='多资产品类', right_index=True, how='left')
+
+result_df_8_initial = pd.pivot_table(Chicang_df2, index=['三级分类-new'], columns=['总分类', '母分类'],
+                                     values=['日终市值(元)-产品法估值'], aggfunc=np.sum) / 100000000  # 专户持仓的数据透视
+
+# 细化7.2 委外债券投资的子项
+Outsourced_bond_asset_df = Chicang_df2[Chicang_df2['三级分类'] == '7.2 委外债券投资']
+public_account_tag_df = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='委外公共策略专户标签',
+                                      index_col=0)
+Outsourced_bond_asset_df_new = Outsourced_bond_asset_df.merge(public_account_tag_df, left_on='债券简称',
+                                                              right_index=True, how='left')
+Outsourced_bond_tag = {'收盘价法': '7.2.1 收盘价专户',
+                       '利率债收盘价': '7.2.2 利率债收盘价专户',
+                       '模型法': '7.2.3 模型法专户',
+                       '可转债': '7.2.4 可转债专户',
+                       '恒定久期': '7.2.5 恒定久期专户',
+                       '固收+委外': '7.2.6 固收+委外专户',
+                       'W专户': '7.2.7 W专户',
+                       '绿色债': '7.2.8 绿色债专户',
+                       '外币专户': '7.2.9 外币专户', }
+# 额外定义补充的分类，非由汇总的pivot_table计算
+Outsourced_bond_asset_df_new['四级分类'] = Outsourced_bond_asset_df_new['标签'].map(
+    lambda x: Outsourced_bond_tag[x] if x in Outsourced_bond_tag.keys() else '7.2.10 其他')
+Outsourced_bond_asset_result = pd.pivot_table(Outsourced_bond_asset_df_new, index=['四级分类'],
+                                              columns=['总分类', '母分类'], values=['日终市值(元)-产品法估值'],
+                                              aggfunc=np.sum) / 100000000  # 专户持仓的数据透视
+result_df_8 = pd.concat([result_df_8_initial.rename_axis(''), Outsourced_bond_asset_result.rename_axis('')])
+result_df_8.to_excel(Config.get_asset_table_file(date))
+result_df_lastw = pd.read_excel(Config.get_asset_table_file(date_lastw), index_col=0, header=[0, 1, 2])
+result_df_lastm = pd.read_excel(Config.get_asset_table_file(lastm), index_col=0, header=[0, 1, 2])
+result_df_lasty = pd.read_excel(Config.get_asset_table_file(lasty), index_col=0, header=[0, 1, 2])
+# 合并本周数据和相比之前，并调节多重索引
+result_df_8_final = pd.concat([result_df_8, result_df_8.sum(axis=1) - result_df_lastw.sum(axis=1),
+                               result_df_8.sum(axis=1) - result_df_lastm.sum(axis=1),
+                               result_df_8.sum(axis=1) - result_df_lasty.sum(axis=1)], axis=1)
+
+# result_df_8_final.to_excel('test.xlsx',sheet_name='8.资产大表')
+
+# 补充本币的相比上周、相比上月、相比上年(去掉外币产品）
+foreign_currency_products_cols = [
+    ('日终市值(元)-产品法估值', '外币产品', '外币低波'),
+    ('日终市值(元)-产品法估值', '外币产品', '外币市值')
+]
+
+# 获取所有非外币产品列
+all_columns_8 = list(result_df_8.columns)
+domestic_columns_8 = [col for col in all_columns_8 if col not in foreign_currency_products_cols]
+
+all_columns_lastw = list(result_df_lastw.columns)
+domestic_columns_lastw = [col for col in all_columns_lastw if col not in foreign_currency_products_cols]
+
+all_columns_lastm = list(result_df_lastm.columns)
+domestic_columns_lastm = [col for col in all_columns_lastm if col not in foreign_currency_products_cols]
+
+all_columns_lasty = list(result_df_lasty.columns)
+domestic_columns_lasty = [col for col in all_columns_lasty if col not in foreign_currency_products_cols]
+
+# 使用列表而不是集合来计算国内货币数据
+result_df_8_domestic_currency = result_df_8[domestic_columns_8].sum(axis=1)
+result_df_lastw_domestic_currency = result_df_lastw[domestic_columns_lastw].sum(axis=1)
+result_df_lastm_domestic_currency = result_df_lastm[domestic_columns_lastm].sum(axis=1)
+result_df_lasty_domestic_currency = result_df_lasty[domestic_columns_lasty].sum(axis=1)
+
+# 将国内货币的比较数据合并到最终结果
+result_df_8_final = pd.concat([
+    result_df_8_final,
+    result_df_8_domestic_currency - result_df_lastw_domestic_currency,
+    result_df_8_domestic_currency - result_df_lastm_domestic_currency,
+    result_df_8_domestic_currency - result_df_lasty_domestic_currency
+], axis=1)
+
+# 设置最终结果的列名
+result_df_8_final.columns = pd.MultiIndex.from_tuples(
+    tuple(result_df_8.columns) +
+    (("", "", '相比上周'),
+     ("", "", '相比上月'),
+     ("", "", '相比上年'),
+     ("", "", '相比上周-不含外币产品'),
+     ("", "", '相比上月-不含外币产品'),
+     ("", "", '相比上年-不含外币产品'))
+)
+
+# 将结果写入Excel
+result_df_8_final.to_excel(writer, sheet_name='8.资产大表')
+
+date = zhoubao_date
+zhongshou_m_path = os.path.join(Config.WEEKLY_DATA_DIR, f'中收分析报表-产品明细-{date}-m.xlsx')
+zhongshou_y_path = os.path.join(Config.WEEKLY_DATA_DIR, f'中收分析报表-产品明细-{date}-y.xlsx')
+zhongshou_m = pd.read_excel(zhongshou_m_path, index_col=0, skiprows=1)
+zhongshou_y = pd.read_excel(zhongshou_y_path, index_col=0, skiprows=1)
+# 注：合享和BOF的销售管理费=0.额外加上本月新起息合享的份额*销售管理费*运作天数/365
+
+classification_df = pd.read_excel(
+    Config.get_base_data_file('底层数据汇总.xlsx'),
+    sheet_name='多资产品类标签',
+    index_col='母产品代码'
+)
+# 去重防止索引重复导致merge或映射异常
+classification_df = classification_df[~classification_df.index.duplicated(keep='first')]
+classification_ye = classification_df[['多资产品类']]
+
+
+def zhongshou_df_processing_v2(df_here, period_here: str):  # 根据计财部新调整的表格计算。前端收费产品不用再手动调整，
+    # 例zhongshou_df_processing(zhongshou_m,'本月','2024-03')
+    fixed_cols = ['产品简称', '产品经理', '投资团队', '团队划分', '产品线']
+    df_here.columns = fixed_cols + list(df_here.columns[5:])
+    df_here = df_here[df_here['团队划分'] == '5.多资产投资部']
+    # 单独拉取销售管理费和投资管理费，方便后面调整计算中收
+    df_here.columns = [''.join(x.split('\n')) for x in df_here.columns]
+    zhongshou_cols = ['销售管理费（扣减代销）', '投资管理费', '超额管理费（代客系统）', '中收（扣减代销）',
+                      '当年行内前端销售管理费']  # 扣减代销中收
+    df_here = df_here[fixed_cols + zhongshou_cols]
+    # 删除中收为0的行，有一些是老产品或者未发行产品
+    df_here = df_here[df_here['中收（扣减代销）'].map(lambda x: x > 0.00001)]
+    # 匹配品类
+    df_here = df_here.merge(classification_ye, left_index=True, right_index=True, how='left')
+    df_here = del_Innovation_department(df_here)  # 插入.去掉量化和结构性产品，去掉创新部经理产品,先不去，目前统一考核
+    df_here = df_here.merge(Parent_sort, left_on='多资产品类', right_index=True, how='left')
+    # 汇总系列结果
+    mid_result = df_here.groupby(['总分类', '母分类']).sum()[
+        ['中收（扣减代销）', '销售管理费（扣减代销）', '投资管理费', '超额管理费（代客系统）', '当年行内前端销售管理费']]
+    mid_cols = [period_here + x for x in ['中收', '销售管理费', '投资管理费(含超额)', '超额管理费', '前端收费']]
+    mid_result.columns = mid_cols
+    return mid_result
+
+
+result_9 = pd.concat([zhongshou_df_processing_v2(zhongshou_m, '-'.join([date[:4], date[4:6]])),
+                      zhongshou_df_processing_v2(zhongshou_y, date[:4])], axis=1)
+result_9 = rank_by_sort(result_9, rank_here)
+result_9.to_excel(writer, sheet_name='9.中收监控')
+
+
+# result_9.to_excel('test.xlsx',sheet_name='9.中收监控')
+
+# 判断品类Index是否齐全
+def full_category_or_not(df_def, rank_def):
+    df_def = df_def.copy()
+    for x in rank_def:
+        if x not in df_def.index:
+            df_def.loc[x, :] = None
+    return df_def
+
+
+date = zhoubao_date
+yunzuogailan_now = del_Innovation_department(pd.read_excel(
+    Config.get_overview_parent_file(date), index_col=0))
+yunzuogailan_now['到期月份'] = yunzuogailan_now['到期日'].map(lambda x: x[:-3])
+Parent_sort = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='销售战报系列分类', index_col=0)
+yunzuogailan_here = yunzuogailan_now.merge(Parent_sort[['总分类']], left_on='多资产品类', right_index=True, how='left')
+# 仅看周报下周后的到期情况
+yunzuogailan_here = yunzuogailan_here[yunzuogailan_here['到期日'] >= begin_date_next_w]
+yunzuogailan_here_fengbi = yunzuogailan_here[yunzuogailan_here['形态'] == '封闭']
+yunzuogailan_here_dingkai = yunzuogailan_here[yunzuogailan_here['形态'] == '定开']
+output_sheetname = ['10.未来全年产品到期情况', '10.未来全年产品到期情况-定开']
+k = 0
+for yunzuogailan_here_to_cal in [yunzuogailan_here_fengbi, yunzuogailan_here_dingkai]:
+    result_df_10 = pd.pivot_table(yunzuogailan_here_to_cal, index=['总分类', '母分类'], columns='到期月份',
+                                  values=['净资产(亿)'], aggfunc=np.sum)  # 数据透视
+    result_df_10 = rank_by_sort(full_category_or_not(result_df_10, rank_here), rank_here).T  # 对分类进行排序-展示优化
+    result_df_10.index = result_df_10.loc['净资产(亿)'].index  # 多重indx索引转成单索引float
+    result_df_10[[float(x[:4]) < 2029 for x in result_df_10.index]].to_excel(writer, sheet_name=output_sheetname[k])
+    k += 1
+keep_cols = ['产品简称', '净资产(亿)', '形态', '母分类', '多资产品类', '单位净值', '本期年化', '业绩基准', '运作天',
+             '剩余天', '产品经理',
+             '起息日', '到期日']
+result_df_10_2 = yunzuogailan_here[
+    (yunzuogailan_here['到期日'] <= closing_date_next_w) & (yunzuogailan_here['到期日'] >= begin_date_next_w)][
+    keep_cols]
+result_df_10_2.sort_values(by='到期日', ascending=True, inplace=True)
+result_df_10_2.to_excel(writer, sheet_name='10.下周到期产品清单')
+
+print('下周合计到期规模{:.2f}亿元'.format(result_df_10_2['净资产(亿)'].sum()))
+print('封闭合计到期规模{:.2f}亿元'.format(result_df_10_2[result_df_10_2['形态'] == '封闭']['净资产(亿)'].sum()))
+print('定开合计到期规模{:.2f}亿元'.format(result_df_10_2[result_df_10_2['形态'] == '定开']['净资产(亿)'].sum()))
+date = zhoubao_date
+excel_name = '持仓盈亏明细列表_' + date + '.xlsx'
+Chicang_df = pd.read_excel(os.path.join(Config.WEEKLY_DATA_DIR, excel_name))
+Chicang_df.rename(columns={'资产简称': '债券简称'}, inplace=True)  ###按照老的简称计算
+Chicang_df.drop_duplicates(inplace=True)
+
+# 兴合系列
+Weiwai_df = Chicang_df[Chicang_df['新版资产大类'] == '委外投资'].copy()
+xinghe_list = Config.XINGHE_PRODUCTS  # 需要展示的兴合清单（在config.py中配置）
+concat_xinghe_series = []  # 合并的兴合持仓金额
+for i in range(len(xinghe_list)):
+    ww_asset = '兴业期货-' + xinghe_list[i] + '集合资产管理计划'
+    concat_xinghe_series.append(pd.Series(
+        Weiwai_df[Weiwai_df['债券简称'] == ww_asset].groupby('产品代码')['日终市值(元)-产品法估值'].sum() / 100000000,
+        name=xinghe_list[i] + '-金额'))
+
+concat_xinghe_df = pd.concat(concat_xinghe_series, axis=1)
+concat_xinghe_df = concat_xinghe_df.merge(yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']],
+                                          left_index=True, right_index=True, how='left')
+concat_xinghe_pct_df = concat_xinghe_df[[x + '-金额' for x in xinghe_list]].div(concat_xinghe_df['净资产(亿)'], axis=0)
+concat_xinghe_pct_df.columns = [x + '-占比' for x in xinghe_list]
+result_df_11_1 = pd.concat(
+    [concat_xinghe_df[[x + '-金额' for x in xinghe_list] + ['产品简称', '产品经理', '多资产品类']],
+     concat_xinghe_pct_df], axis=1)
+result_df_11_1.to_excel(writer, sheet_name='11.兴合产品持仓明细')
+
+# 可转债专户
+Weiwai_df = Chicang_df[Chicang_df['新版资产大类'] == '委外投资'].copy()
+concat_zhuanzhai_series = []  # 合并的兴合持仓金额
+zhuanzhai_dict = Config.CONVERTIBLE_BOND_ACCOUNTS  # 可转债专户（在config.py中配置）
+# 手工增加可转债专户的配置情况
+zhuanzhai_list = []
+for shortname in zhuanzhai_dict.keys():
+    concat_zhuanzhai_series.append(pd.Series(
+        Weiwai_df[Weiwai_df['债券简称'] == zhuanzhai_dict[shortname]].groupby('产品代码')[
+            '日终市值(元)-产品法估值'].sum() / 100000000, name=shortname + '-金额'))
+    zhuanzhai_list += [shortname]
+
+# 手工增加可转债基金的配置情况（在config.py中配置）
+ETF_bond_list = Config.CONVERTIBLE_BOND_ETF
+concat_zhuanzhai_series.append(pd.Series(
+    Chicang_df[Chicang_df['债券简称'].apply(lambda x: x in ETF_bond_list)].groupby('产品代码')[
+        '日终市值(元)-产品法估值'].sum() / 100000000, name='可转债ETF-金额'))
+zhuanzhai_list += ['可转债ETF']
+
+concat_zhuanzhai_df = pd.concat(concat_zhuanzhai_series, axis=1)
+concat_zhuanzhai_df = concat_zhuanzhai_df.merge(yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']],
+                                                left_index=True, right_index=True, how='left')
+concat_zhuanzhai_pct_df = concat_zhuanzhai_df[[x + '-金额' for x in zhuanzhai_list]].div(
+    concat_zhuanzhai_df['净资产(亿)'], axis=0)
+concat_zhuanzhai_pct_df.columns = [x + '-占比' for x in zhuanzhai_list]
+result_df_11_1_1 = pd.concat(
+    [concat_zhuanzhai_df[[x + '-金额' for x in zhuanzhai_list] + ['产品简称', '产品经理', '多资产品类']],
+     concat_zhuanzhai_pct_df], axis=1)
+result_df_11_1_1.to_excel(writer, sheet_name='11.1 可转债专户持仓明细')
+# result_df_11_1_1.to_excel(Underlying_data_folder_path+'test2.xlsx',sheet_name='11.1 可转债专户持仓明细')
+
+# 补充委外专户的标签
+public_account_tag_df = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='委外公共策略专户标签',
+                                      index_col=0)
+Weiwai_df_full = Weiwai_df.merge(public_account_tag_df, left_on='债券简称', right_index=True, how='left')
+# 补充产品的品类
+Weiwai_df_full = Weiwai_df_full.merge(yunzuogailan_now[['多资产品类']], left_on='产品代码', right_index=True,
+                                      how='left')
+Weiwai_df_full = Weiwai_df_full.merge(Parent_sort[['母分类', '总分类']], left_on='多资产品类', right_index=True,
+                                      how='left')
+
+# 量化策略专户和兴合4的配置情况（细化标签，在config.py中配置）
+concat_quant_series = []
+quant_list = Config.QUANT_STRATEGY_LABELS
+concat_quant_series.append(pd.Series(Weiwai_df_full[Weiwai_df_full['标签'] == '量化中性'].groupby('产品代码')[
+                                         '日终市值(元)-产品法估值'].sum() / 100000000, name='量化中性'))
+concat_quant_series.append(pd.Series(Weiwai_df_full[Weiwai_df_full['标签'] == '量化指增'].groupby('产品代码')[
+                                         '日终市值(元)-产品法估值'].sum() / 100000000, name='量化指增'))
+concat_quant_series.append(pd.Series(Weiwai_df_full[Weiwai_df_full['标签'] == '量化CTA'].groupby('产品代码')[
+                                         '日终市值(元)-产品法估值'].sum() / 100000000, name='量化CTA'))
+concat_quant_series.append(pd.Series(
+    Weiwai_df_full[Weiwai_df_full['债券简称'] == '兴业期货-兴合4号集合资产管理计划'].groupby('产品代码')[
+        '日终市值(元)-产品法估值'].sum() / 100000000, name='兴合4号'))
+concat_quant_df = pd.concat(concat_quant_series, axis=1)
+concat_quant_df = concat_quant_df.merge(yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)']], left_index=True,
+                                        right_index=True, how='left')
+concat_quant_pct_df = concat_quant_df[quant_list].div(concat_quant_df['净资产(亿)'], axis=0)
+concat_quant_pct_df.columns = [x + '-占比' for x in quant_list]
+result_df_11_3 = pd.concat([concat_quant_df[quant_list + ['产品简称', '产品经理']], concat_quant_pct_df], axis=1)
+result_df_11_3.dropna(subset=['产品简称', '产品经理'], inplace=True)
+result_df_11_3.to_excel(writer, sheet_name='11.2量化和可转债持仓明细')
+
+
+
+# 计算持仓的规模及占比(单个理财产品持仓占产品规模的比-的平均)
+result_df_11_2_amt = pd.pivot_table(Weiwai_df_full, index=['总分类', '母分类'], columns='标签',
+                                    values=['日终市值(元)-产品法估值'], aggfunc=np.sum) / 100000000  # 数据透视
+yunzuogailan_here = yunzuogailan_now.merge(Parent_sort[['总分类']], left_on='多资产品类', right_index=True, how='left')
+# 占比计算方式1：除以系列规模
+result_df_11_2_pct_2 = result_df_11_2_amt.div(yunzuogailan_here.groupby(['总分类', '母分类'])['净资产(亿)'].sum(),
+                                              axis=0)
+# 占比计算方式2：之前的百分比计算方式不合理，之前是全部理财产品持仓/全部理财产品规模，很多理财产品并未持有专户的会摊薄持仓比例
+Weiwai_df_simplify = pd.pivot_table(Weiwai_df_full, index=['产品代码'], columns='标签',
+                                    values=['日终市值(元)-产品法估值'], aggfunc=np.sum) / 100000000  # 数据透视
+Weiwai_df_simplify.columns = Weiwai_df_simplify['日终市值(元)-产品法估值'].columns
+Weiwai_df_simplify = Weiwai_df_simplify.merge(yunzuogailan_here[['净资产(亿)']], left_index=True, right_index=True,
+                                              how='left')
+result_df_11_2_pct = Weiwai_df_simplify.div(Weiwai_df_simplify['净资产(亿)'], axis=0).merge(
+    yunzuogailan_here[['母分类', '总分类']], left_index=True, right_index=True, how='left')
+result_df_11_2_pct = result_df_11_2_pct.groupby(['总分类', '母分类']).mean()
+rank_by_sort(full_category_or_not(result_df_11_2_amt, rank_here), rank_here).to_excel(writer,
+                                                                                      sheet_name='11.2.1其他委外专户金额配置情况')
+rank_by_sort(full_category_or_not(result_df_11_2_pct, rank_here), rank_here).to_excel(writer,
+                                                                                      sheet_name='11.2.2其他委外专户配置占比情况')
+rank_by_sort(full_category_or_not(result_df_11_2_pct_2, rank_here), rank_here).to_excel(writer,
+                                                                                        sheet_name='11.2.3其他委外专户配置占比情况-除以系列规模')
+
+# 其他衍生品持仓情况
+Weiwai_df = Chicang_df[Chicang_df['新版资产大类'] == '委外投资'].copy()
+xinghe_list = Config.XINGHE_PRODUCTS_2  # 需要展示的兴合清单（在config.py中配置）
+concat_xinghe_series = []  # 合并的兴合持仓金额
+for i in range(len(xinghe_list)):
+    ww_asset = '兴业期货-' + xinghe_list[i] + '集合资产管理计划'
+    concat_xinghe_series.append(pd.Series(
+        Weiwai_df[Weiwai_df['债券简称'] == ww_asset].groupby('产品代码')['日终市值(元)-产品法估值'].sum() / 100000000,
+        name=xinghe_list[i] + '-金额'))
+# 手工增加灵动1号的配置情况
+concat_xinghe_series.append(pd.Series(
+    Weiwai_df[Weiwai_df['债券简称'] == '兴业期货-财智人生灵动1号单一资产管理计划'].groupby('产品代码')[
+        '日终市值(元)-产品法估值'].sum() / 100000000, name='灵动1号-金额'))
+xinghe_list += ['灵动1号']
+concat_xinghe_df = pd.concat(concat_xinghe_series, axis=1)
+concat_xinghe_df = concat_xinghe_df.merge(yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']],
+                                          left_index=True, right_index=True, how='left')
+concat_xinghe_pct_df = concat_xinghe_df[[x + '-金额' for x in xinghe_list]].div(concat_xinghe_df['净资产(亿)'], axis=0)
+concat_xinghe_pct_df.columns = [x + '-占比' for x in xinghe_list]
+result_df_11_4 = pd.concat(
+    [concat_xinghe_df[[x + '-金额' for x in xinghe_list] + ['产品简称', '产品经理', '多资产品类']],
+     concat_xinghe_pct_df], axis=1)
+result_df_11_4.dropna(subset=['产品简称', '产品经理'], inplace=True)  # 去掉创新部产品
+result_df_11_4.to_excel(writer, sheet_name='11.4其他衍生品专户持仓明细')
+# result_df_11_4.to_excel(Underlying_data_folder_path+'test1.xlsx',sheet_name='11.4其他衍生品专户持仓明细')
+
+# 汇总衍生品专户的配置情况
+Zhuanhu_label_df = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='委外公共策略专户标签',
+                                 index_col=0)
+derivative_zhuanhu_list = list(Zhuanhu_label_df[Zhuanhu_label_df['标签'] == '衍生品专户'].index)
+derivative_zhuanhu_df = Weiwai_df[Weiwai_df['债券简称'].map(lambda x: x in derivative_zhuanhu_list)]
+# 获取衍生品持仓明细
+derivative_zhuanhu_df = pd.pivot_table(derivative_zhuanhu_df, index=['产品代码'], columns='债券简称',
+                                       values=['日终市值(元)-产品法估值'], aggfunc=np.sum)
+derivative_zhuanhu_df.columns = [x[1][5:-8] for x in derivative_zhuanhu_df.columns]
+derivative_zhuanhu_df['衍生品专户持仓'] = derivative_zhuanhu_df.sum(axis=1)  # 汇总衍生品持仓金额
+derivative_zhuanhu_df = derivative_zhuanhu_df.merge(
+    yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']], left_index=True, right_index=True,
+    how='left')
+derivative_zhuanhu_df['衍生品专户持仓比例'] = derivative_zhuanhu_df['衍生品专户持仓'].div(
+    derivative_zhuanhu_df['净资产(亿)'], axis=0) / 100000000
+derivative_zhuanhu_df.dropna(subset=['产品简称', '产品经理'], inplace=True)  # 去掉创新部产品
+derivative_zhuanhu_df.to_excel(writer, sheet_name='11.5全部衍生品专户持仓占比')
+# derivative_zhuanhu_df.to_excel(Underlying_data_folder_path+'test2.xlsx',sheet_name='11.5全部衍生品专户持仓占比')
+
+# 非标持仓明细
+feibiao_df = Chicang_df[Chicang_df.apply(
+    lambda x: (x['新版资产大类'] in ['非标准化债权类资产', '理财直接融资工具', '新增可投资资产']) or (
+                x['新版资产小类'] in ['同业借款']), axis=1)]
+feibiao_pct_df = pd.DataFrame(feibiao_df.groupby('产品代码')['日终市值(元)-产品法估值'].sum())
+feibiao_pct_df = feibiao_pct_df.merge(yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']],
+                                      left_index=True, right_index=True, how='left')
+feibiao_pct_df['非标占比'] = feibiao_pct_df['日终市值(元)-产品法估值'] / feibiao_pct_df['净资产(亿)'] / 100000000
+feibiao_pct_df.to_excel(writer, sheet_name='11.6非标持仓占比')
+# feibiao_pct_df.to_excel('test.xlsx',sheet_name='11.6非标持仓占比')
+
+
+# 黄金专户配置（在config.py中配置）
+gold_dict = Config.GOLD_ACCOUNTS
+gold_ETF_bond_list = Config.GOLD_ETF
+
+
+
+#['华安易富黄金交易型开放式证券投资基金']
+
+# 权益专户配置（在config.py中配置）
+equity_dict = Config.EQUITY_ACCOUNTS
+
+def get_zhdata(zhuanzhai_dict, ETF_bond_list):
+    # 可转债专户
+    Weiwai_df = Chicang_df[Chicang_df['新版资产大类'] == '委外投资'].copy()
+    concat_zhuanzhai_series = []  # 合并的兴合持仓金额
+    # 手工增加可转债专户的配置情况
+    zhuanzhai_list = []
+    for shortname in zhuanzhai_dict.keys():
+        concat_zhuanzhai_series.append(pd.Series(
+            Weiwai_df[Weiwai_df['债券简称'] == zhuanzhai_dict[shortname]].groupby('产品代码')[
+                '日终市值(元)-产品法估值'].sum() / 100000000, name=shortname + '-金额'))
+        zhuanzhai_list += [shortname]
+    # 手工增加可转债基金的配置情况
+    concat_zhuanzhai_series.append(pd.Series(
+        Chicang_df[Chicang_df['债券简称'].apply(lambda x: x in ETF_bond_list)].groupby('产品代码')[
+            '日终市值(元)-产品法估值'].sum() / 100000000, name='黄金ETF-金额'))
+    zhuanzhai_list += ['黄金ETF']
+    concat_zhuanzhai_df = pd.concat(concat_zhuanzhai_series, axis=1)
+    concat_zhuanzhai_df = concat_zhuanzhai_df.merge(
+        yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']], left_index=True, right_index=True,
+        how='left')
+    concat_zhuanzhai_pct_df = concat_zhuanzhai_df[[x + '-金额' for x in zhuanzhai_list]].div(
+        concat_zhuanzhai_df['净资产(亿)'], axis=0)
+    concat_zhuanzhai_pct_df.columns = [x + '-占比' for x in zhuanzhai_list]
+    result_df_11_1_1 = pd.concat(
+        [concat_zhuanzhai_df[[x + '-金额' for x in zhuanzhai_list] + ['产品简称', '产品经理', '多资产品类']],
+         concat_zhuanzhai_pct_df], axis=1)
+    return result_df_11_1_1
+
+def get_equity_data(equity_dict):
+    # 权益专户
+    Weiwai_df = Chicang_df[Chicang_df['新版资产大类'] == '委外投资'].copy()
+    concat_equity_series = []  # 合并的权益专户持仓金额
+    equity_list = []
+    
+    # 手工增加权益专户的配置情况
+    for shortname in equity_dict.keys():
+        concat_equity_series.append(pd.Series(
+            Weiwai_df[Weiwai_df['债券简称'] == equity_dict[shortname]].groupby('产品代码')[
+                '日终市值(元)-产品法估值'].sum() / 100000000, name=shortname + '-金额'))
+        equity_list += [shortname]
+    
+    # 合并数据
+    concat_equity_df = pd.concat(concat_equity_series, axis=1)
+    concat_equity_df = concat_equity_df.merge(
+        yunzuogailan_now[['产品简称', '产品经理', '净资产(亿)', '多资产品类']], left_index=True, right_index=True,
+        how='left')
+    
+    # 计算占比
+    concat_equity_pct_df = concat_equity_df[[x + '-金额' for x in equity_list]].div(
+        concat_equity_df['净资产(亿)'], axis=0)
+    concat_equity_pct_df.columns = [x + '-占比' for x in equity_list]
+    
+    # 合并结果
+    result_df = pd.concat(
+        [concat_equity_df[[x + '-金额' for x in equity_list] + ['产品简称', '产品经理', '多资产品类']],
+         concat_equity_pct_df], axis=1)
+    return result_df
+# 生成黄金持仓数据
+hg_asset = get_zhdata(gold_dict, gold_ETF_bond_list)
+hg_asset[['产品简称', '产品经理', '多资产品类', '兴业期货黄金增强1号-金额', '黄金ETF-金额', '兴业期货黄金增强1号-占比',
+          '黄金ETF-占比']].to_excel(writer, sheet_name='黄金持仓')
+
+# 生成权益专户持仓数据
+equity_asset = get_equity_data(equity_dict)
+output_cols = ['产品简称', '产品经理', '多资产品类'] + \
+             [x + suffix for x in equity_dict.keys() for suffix in ['-金额', '-占比']]
+equity_asset[output_cols].to_excel(writer, sheet_name='权益专户持仓')
+
+# 生成公共策略持仓概况
+# 读取公共策略数据
+ggcc = pd.read_excel(Config.get_base_data_file('底层数据汇总.xlsx'), sheet_name='公司公共策略专户')
+wwgl = pd.read_excel(Config.get_weekly_data_file('委外产品概览(团队视角)'))[['委外资产','最新规模']]
+
+# 计算持仓汇总
+chicangsum = Chicang_df.groupby('债券简称')['日终市值(元)-产品法估值'].sum()/100000000
+
+# 合并数据
+ggcc = pd.merge(ggcc, wwgl, left_on='资产名称', right_on='委外资产', how='left')
+ggcc = pd.merge(ggcc, chicangsum, left_on='资产名称', right_index=True, how='left')
+
+# 重命名列并计算占比
+ggcc = ggcc.rename(columns={'日终市值(元)-产品法估值':'多资产投持仓-亿', "最新规模":'专户规模'})
+ggcc['多资产持仓占比'] = ggcc['多资产投持仓-亿']/ggcc['专户规模']
+
+# 输出结果
+ggcc[['所属部门', '策略标签', '资产代码', '资产名称', '资产简称', '专户规模', 
+      '多资产投持仓-亿', '多资产持仓占比']].to_excel(writer, sheet_name='公共策略持仓概况')
+
+          
+date = zhoubao_date
+yunzuogailan_now = del_Innovation_department(pd.read_excel(
+    Config.get_overview_parent_file(date), index_col=0))
+part_nav_df = data_transposition.loc[:, yunzuogailan_now.index].tail(7 + 1)  # 周净值变化
+# 周内日净值变化平均
+rweek = pd.DataFrame((part_nav_df.tail(1).values / part_nav_df.head(1).values - 1) * 10000, columns=part_nav_df.columns,
+                     index=['周净值变化bp']).T
+rweek_average = ((part_nav_df / part_nav_df.shift(1) - 1) * 10000).mean(axis=0)
+nav_change_df = pd.concat([rweek, rweek_average], axis=1)
+nav_change_df.columns = ['周净值变化bp', '周内日均净值变化bp']
+nav_change_df_keep = nav_change_df[
+    (abs(nav_change_df['周净值变化bp']) >= 20) | (abs(nav_change_df['周内日均净值变化bp']) >= 3)]  # 筛选标准
+# nav_change_df.iplot()
+
+
+result_df_12 = nav_change_df_keep.merge(
+    yunzuogailan_now[['产品简称', '净资产(亿)', '形态', '多资产品类', '单位净值', '累计年化', '杠杆', '组合久期',
+                      '组合静态', '权益仓位', '本期年化', '业绩基准', '运作天', '剩余天', '产品经理', '起息日',
+                      '到期日']], left_index=True, right_index=True, how='left')
+result_df_12.sort_values('周内日均净值变化bp', ascending=True, inplace=True)  # 底表按照净值波动
+result_df_12.to_excel(writer, sheet_name='12.周净值高波动产品清单')
+# result_df_12.to_excel('test.xlsx',sheet_name='12.周净值高波动产品清单')
+
+now = zhoubao_date
+# lastm='20250228'
+# lasty='20241231'
+
+# 获取各分类的产品规模和款数
+yunzuogailan_now = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(now), index_col=0))
+yunzuogailan_lastm = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lastm), index_col=0))
+yunzuogailan_lasty = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lasty), index_col=0))
+
+
+def get_zhouqi_scale(x):
+    if x < 30 * 7:
+        return '<6M'
+    elif (x >= 30 * 7) and (x < 13 * 30):
+        return '6M-1Y'
+    elif x >= 13 * 30:
+        return '>1Y'
+    else:
+        return 'error'
+
+
+def get_zhouqi_scale_df(df_f, name: str):
+    mid_df = df_f.copy()
+    mid_df['周期区间'] = mid_df['周期天数'].map(get_zhouqi_scale)
+    result_df = pd.concat([mid_df.groupby(['周期区间', '形态'])['净资产(亿)'].sum(),
+                           mid_df.groupby(['周期区间', '形态'])['净资产(亿)'].count()], axis=1)
+    result_df.columns = [name + x for x in ['规模(亿)', '数量']]
+    return result_df
+
+
+final_df = pd.concat([get_zhouqi_scale_df(yunzuogailan_lasty, '2024'), get_zhouqi_scale_df(yunzuogailan_now, '最新')],
+                     axis=1)
+final_df['vlookup标签'] = [''.join(list(x)) for x in final_df.index]
+keep_columns = ['vlookup标签'] + list(final_df.columns[:-1])
+
+# final_df[keep_columns].to_excel('test3.xlsx',sheet_name='13.不同周期产品规模')
+final_df[keep_columns].to_excel(writer, sheet_name='13.不同周期产品规模')
+
+now = zhoubao_date
+month7 = '20240731'
+lasty = '20241231'
+
+# 获取各分类的产品规模和款数
+yunzuogailan_now = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(now), index_col=0))
+yunzuogailan_month7 = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(month7), index_col=0))
+yunzuogailan_lasty = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lasty), index_col=0))
+
+yunzuogailan_now = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(now), index_col=0))
+yunzuogailan_month7 = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(month7), index_col=0))
+yunzuogailan_lasty = del_Innovation_department(pd.read_excel(Config.get_overview_parent_file(lasty), index_col=0))
+
+
+def match_kehuzhouqi_narrowed(x: str):
+    if x == '客户多周期债基净值型产品':
+        return '客户周期'
+    elif x == '客户锁定期':
+        return '最短持有期'
+    else:
+        return ''
+
+
+def get_kehuzhouqi_narrowed_scale(my_df, col_str: str):
+    # col_str='2023年底'
+    mid_df = my_df[my_df['产品模板中文名称'].map(lambda x: x in ['客户多周期债基净值型产品', '客户锁定期'])]
+    mid_df['周期区间'] = mid_df['周期天数'].map(get_zhouqi_scale)
+    result_df = pd.pivot_table(mid_df, index=['周期区间'], columns='产品模板中文名称', values=['净资产(亿)'],
+                               aggfunc=np.sum)  # 一维变二维
+    result_df.columns = [col_str + match_kehuzhouqi_narrowed(x[1]) for x in list(result_df.columns)]
+    return result_df
+
+
+result_df_14 = pd.concat([get_kehuzhouqi_narrowed_scale(yunzuogailan_lasty, '2024年底'),
+                          get_kehuzhouqi_narrowed_scale(yunzuogailan_month7, '2024年7月'),
+                          get_kehuzhouqi_narrowed_scale(yunzuogailan_now, '最新')], axis=1)
+# result_df_14.to_excel('test.xlsx',sheet_name='14.狭义客户周期和最短持有期的产品规模跟踪')
+result_df_14.to_excel(writer, sheet_name='14.狭义客户周期和最短持有期的产品规模跟踪')
+wind_code_list = Config.MARKET_INDEX_CODES  # 市场指数代码（在config.py中配置）
+result_list = []
+for deltadays in [30, 30 * 3, 30 * 6, 365]:
+    startDate = ''.join(
+        str((datetime.strptime(zhoubao_date, '%Y%m%d') - timedelta(days=deltadays)).date()).split(
+            '-'))
+    returns = market_data.get_index_returns(wind_code_list, startDate, zhoubao_date)
+    result_list.append(np.array(returns) * 365 / deltadays)
+# 计算2026年年化收益（每年需更新年末日期）
+deltadays = (datetime.strptime(zhoubao_date, '%Y%m%d') - datetime.strptime('20251231', '%Y%m%d')).days
+returns = market_data.get_index_returns(wind_code_list, '20251231', zhoubao_date)
+result_list.append(np.array(returns) * 365 / deltadays)
+result_list.append(np.array(market_data.get_index_names(wind_code_list)))
+result_df = pd.DataFrame(result_list).T
+result_df.index = wind_code_list
+result_df.columns = ['近1月年化收益率', '近3月年化收益率', '近6月年化收益率', '近1年年化收益率', '2026年年化收益率',
+                     '指数简称']
+# result_df.to_excel('test.xlsx',sheet_name='15.市场指数收益')
+result_df.to_excel(writer, sheet_name='15.市场指数收益')
+
+nav_date = yunzuogailan_date
+yunzuogailan_now = del_Innovation_department(
+    pd.read_excel(Config.get_overview_parent_file(yunzuogailan_date), index_col=0))
+yunzuogailan_now['累积净值'] = [data_transposition.loc[nav_date, x] for x in yunzuogailan_now.index]
+yunzuogailan_now['累积净值-上周'] = [data_transposition.loc[pd.to_datetime(nav_date) - timedelta(7), x] for x in
+                                     yunzuogailan_now.index]
+yunzuogailan_now['累积净值-上月末'] = [
+    data_transposition.loc[pd.to_datetime(nav_date) - timedelta(int(nav_date[-2:])), x] for x in yunzuogailan_now.index]
+pojing_df = yunzuogailan_now[yunzuogailan_now['累积净值'] < 1].copy()
+
+pojing_df['较上周净值变化'] = pojing_df['累积净值'] / pojing_df['累积净值-上周'] - 1
+pojing_df['较上月末净值变化'] = pojing_df['累积净值'] / pojing_df['累积净值-上月末'] - 1
+pojing_df['检测时点'] = nav_date
+pojing_df['产品份额（亿份）'] = pojing_df['净资产(亿)'] / pojing_df['单位净值']
+pojing_df = pojing_df.reset_index()
+pojing_df_final = pojing_df[
+    ['检测时点', '产品简称', '产品代码', '产品经理', '产品份额（亿份）', '到期日', '累积净值', '较上周净值变化',
+     '较上月末净值变化']]
+quant = ['王浩', '张雅婕', '孙新华']
+
+
+def manager_in_or_not(s: str, y: list):
+    sum_here = 0
+    for mid_y in y:
+        if mid_y in s:
+            sum_here += 1
+    if sum_here > 0:
+        return 1
+    else:
+        return 0
+
+
+pojing_df_final = pojing_df_final[pojing_df_final['产品经理'].map(lambda x: manager_in_or_not(x, quant)) == 0]
+pojing_df_final.to_excel(writer, sheet_name='破净结果')
+
+
+
+prompt_zs="""
+我需要更新我的周报中团队中收数据的情况。
+文字如下："注：1）2025 年12⽉产品委多资产投资部中收计划0.62e（含0.60 费率中收+0.02e 前端收费+0.00e 超额管理费），截⽌20251016 ⽉度中收0.36e（含
+0.32e 费率中收+0.02e 前端收费+0.02e 超额管理费，为实际已产⽣现⾦流的超额管理费）。
+2）2025 年多资产投资部中收计划5.67e（约含5.2e 费率中收+0.4e 前端收费+0.1e 超额管理费），截⽌20250807 全年中收3.46e（含2.89e 费率中收
++0.45e 前端收费+0.12e 超额管理费，为实际已产⽣现⾦流的超额管理费）。
+3）中收报表随系统⼝径进⾏调整，⽬前已包含前端收费产品的计提调整。
+4）超额管理费包含⽬前已产⽣实际现⾦流的超额管理费，不含计提待发⽣。
+5）外币产品的超额管理费计价单位为美元，报表计算时已调整为⼈⺠币。
+"
+请只用返回你更新后的文本内容给我，其中最新的更新日期为%s。最新的部门的中收规模数据如下，你应该关注合计变化来更新数据。
+其中文字中的提前收费为前端收费，超额中收为超额管理费，费率中收应为中收减前端收费减超额管理费。你不用调整计划中收除非到了下一个月。
+
+分系列中收数据：%s"""%(yunzuogailan_date,round(result_9.sum(axis=0),2))
+
+prompt_gm="""我需要更新我的周报中团队规模数据的情况。
+文字如下："截⽌ 20250807，多资产投资部管理的在运作理财产品规模 3049 亿，较上⽉底增加约 26 亿（截⽌2025 年7
+⽉底3023 亿规模），较去年底增加约694 亿（截⽌2024 年底运作规模约2355 亿）。其中⾏内余额为2094 亿（相
+⽐上⽉底2080亿规模增加约14 亿，⽐去年底余额1630 亿增加约464 亿），⾏外余额为955 亿（相⽐上⽉底943
+亿增加约12亿，⽐去年底余额725亿增加约230亿）""
+请只用返回你更新后的文本内容给我，不需要调整格式，其中最新的更新日期为%s。最新的产品的行内外和产品规模合计数据如下，你应该关注合计变化来更新数据：
+分渠道规模数据:%s。
+分系列规模数据：%s"""%(yunzuogailan_date,round(Channel_result1.sum(axis=0),0),round(result_3.astype(float).sum(axis=0),0))
+daoqi_summary ='下周合计到期规模{:.2f}亿元'.format(result_df_10_2['净资产(亿)'].sum())+'\n'+'封闭合计到期规模{:.2f}亿元'.format(result_df_10_2[result_df_10_2['形态'] == '封闭']['净资产(亿)'].sum())+'\n'+'定开合计到期规模{:.2f}亿元'.format(result_df_10_2[result_df_10_2['形态'] == '定开']['净资产(亿)'].sum())
+guimo_summary= get_wenzi_result(prompt_gm)
+zhongshou_summary= get_wenzi_result(prompt_zs)
+
+wenzi = {'到期文字':daoqi_summary,'中收文字':zhongshou_summary,'规模文字':guimo_summary}
+wenzidf = pd.DataFrame([wenzi]).T.rename(columns={0:'文字'})
+wenzidf.to_excel(writer, sheet_name='总结文字')
+
+writer.close()

@@ -1,0 +1,561 @@
+"""
+市场数据提供者模块
+
+该模块封装所有Wind数据获取逻辑，便于后续切换数据源。
+目前仅支持Wind，后续可扩展Tushare、AKShare等。
+
+使用方法:
+    from market_data_provider import MarketDataProvider
+
+    # 获取单例实例
+    provider = MarketDataProvider.get_instance()
+
+    # 或手动创建并连接
+    provider = MarketDataProvider()
+    provider.connect()
+
+    # 获取指数收盘价序列
+    data = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+
+    # 获取汇率
+    rate = provider.get_exchange_rate('USDCNY', '2024-12-31')
+
+    # 获取债券属性
+    attrs = provider.get_bond_attributes(['bond1', 'bond2'])
+
+    # 获取指数区间收益率
+    returns = provider.get_index_returns(['000300.SH', 'CBA00101.CS'], '2024-01-01', '2024-12-31')
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, date
+from typing import Optional, Dict, List, Union, Tuple
+
+
+class MarketDataProvider:
+    """
+    市场数据提供者
+
+    封装Wind API调用，后续可扩展支持其他数据源
+    """
+
+    _instance = None  # 单例实例
+
+    def __init__(self):
+        self._connected = False
+        self._w = None
+
+    @classmethod
+    def get_instance(cls) -> 'MarketDataProvider':
+        """获取单例实例（自动连接）"""
+        if cls._instance is None:
+            cls._instance = cls()
+            cls._instance.connect()
+        return cls._instance
+
+    @property
+    def is_connected(self) -> bool:
+        """是否已连接"""
+        return self._connected
+
+    def connect(self, wait_time: int = 60) -> bool:
+        """
+        建立Wind连接
+
+        Args:
+            wait_time: 等待超时时间(秒)
+
+        Returns:
+            bool: 连接是否成功
+        """
+        if self._connected:
+            return True
+
+        try:
+            from WindPy import w
+            self._w = w
+
+            if not w.isconnected():
+                result = w.start(waitTime=wait_time)
+                if result.ErrorCode != 0:
+                    print(f"Wind启动失败，错误码: {result.ErrorCode}")
+                    self._connected = False
+                    return False
+
+            self._connected = True
+            print("Wind连接成功")
+            return True
+
+        except ImportError:
+            print("错误: 未安装WindPy，请先安装Wind终端和Python插件")
+            self._connected = False
+            return False
+        except Exception as e:
+            print(f"Wind连接异常: {e}")
+            self._connected = False
+            return False
+
+    def disconnect(self) -> None:
+        """断开Wind连接"""
+        if self._w and self._connected:
+            try:
+                self._w.stop()
+            except:
+                pass
+        self._connected = False
+
+    # ==================== 日期工具 ====================
+
+    @staticmethod
+    def to_date(value) -> Optional[date]:
+        """将各种日期格式转换为 Python date 对象"""
+        if value is None:
+            return None
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return value
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, str):
+            try:
+                return pd.to_datetime(value).date()
+            except:
+                return None
+        ts = pd.to_datetime(value, errors='coerce')
+        if pd.isna(ts):
+            return None
+        return ts.date()
+
+    # ==================== 指数数据 ====================
+
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """
+        获取指数收盘价序列
+
+        Args:
+            code: Wind代码 (如 '000300.SH', 'CBA00103.CS')
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            pd.Series: index为date，values为收盘价；失败返回None
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+
+        if start_dt is None or end_dt is None:
+            return None
+
+        try:
+            wsd_data = self._w.wsd(code, "close", start_dt, end_dt, "")
+
+            if wsd_data.ErrorCode != 0:
+                print(f"  [Wind Error] 获取 {code} 失败: {wsd_data.ErrorCode}")
+                return None
+
+            times = wsd_data.Times
+            data = wsd_data.Data[0]
+
+            # 过滤无效数据
+            valid_times = []
+            valid_data = []
+            for t, d in zip(times, data):
+                if d is not None and not np.isnan(d):
+                    if isinstance(t, datetime):
+                        t = t.date()
+                    valid_times.append(t)
+                    valid_data.append(d)
+
+            if not valid_times:
+                return None
+
+            series = pd.Series(valid_data, index=valid_times)
+            series = series.sort_index()
+            return series
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取 {code} 异常: {e}")
+            return None
+
+    def get_index_returns(
+        self,
+        codes: List[str],
+        start_date: str,
+        end_date: str
+    ) -> Optional[List[float]]:
+        """
+        获取多个指数的区间收益率
+
+        Args:
+            codes: Wind代码列表
+            start_date: 开始日期 (格式: YYYYMMDD)
+            end_date: 结束日期 (格式: YYYYMMDD)
+
+        Returns:
+            List[float]: 收益率列表，与codes顺序对应；失败返回None
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        try:
+            result = self._w.wss(
+                codes,
+                "pct_chg_per",
+                f"startDate={start_date};endDate={end_date}"
+            )
+
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取指数收益率失败: {result.ErrorCode}")
+                return None
+
+            return result.Data[0]
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取指数收益率异常: {e}")
+            return None
+
+    def get_index_names(self, codes: List[str]) -> Optional[List[str]]:
+        """
+        获取指数名称
+
+        Args:
+            codes: Wind代码列表
+
+        Returns:
+            List[str]: 名称列表
+        """
+        if not self._connected or self._w is None:
+            return None
+
+        try:
+            result = self._w.wss(codes, "sec_name")
+            if result.ErrorCode != 0:
+                return None
+            return result.Data[0]
+        except:
+            return None
+
+    def get_index_volatility(
+        self,
+        codes: List[str],
+        start_date: str,
+        end_date: str
+    ) -> Optional[List[float]]:
+        """
+        获取多个指数的区间年化波动率
+
+        Args:
+            codes: Wind代码列表
+            start_date: 开始日期 (格式: YYYYMMDD)
+            end_date: 结束日期 (格式: YYYYMMDD)
+
+        Returns:
+            List[float]: 年化波动率列表，与codes顺序对应；失败返回None
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        try:
+            # 使用Wind的stdevry指标计算年化波动率
+            result = self._w.wss(
+                codes,
+                "stdevry",
+                f"startDate={start_date};endDate={end_date}"
+            )
+
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取波动率失败: {result.ErrorCode}")
+                return None
+
+            return result.Data[0]
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取波动率异常: {e}")
+            return None
+
+    # ==================== 汇率数据 ====================
+
+    def get_exchange_rate(
+        self,
+        currency_pair: str,
+        trade_date: str
+    ) -> Optional[float]:
+        """
+        获取汇率
+
+        Args:
+            currency_pair: 货币对 (如 'USDCNY')
+            trade_date: 交易日期 (格式: YYYYMMDD)
+
+        Returns:
+            float: 汇率；失败返回None
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        try:
+            wind_code = f"{currency_pair}.EX"
+            result = self._w.wss(
+                wind_code,
+                "close",
+                f"tradeDate={trade_date};priceAdj=U;cycle=D"
+            )
+
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取汇率失败: {result.ErrorCode}")
+                return None
+
+            return result.Data[0][0]
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取汇率异常: {e}")
+            return None
+
+    # ==================== 债券数据 ====================
+
+    def get_bond_attributes(
+        self,
+        bond_codes: List[str]
+    ) -> Optional[pd.DataFrame]:
+        """
+        获取债券属性（是否城投、是否永续）
+
+        Args:
+            bond_codes: 债券代码列表
+
+        Returns:
+            pd.DataFrame: columns=['是否城投', '是否永续']，index为债券代码
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        if not bond_codes:
+            return pd.DataFrame(columns=['是否城投', '是否永续'])
+
+        try:
+            result = self._w.wss(
+                bond_codes,
+                "municipalbondWind, perpetualornot",
+                ""
+            )
+
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取债券属性失败: {result.ErrorCode}")
+                return None
+
+            df = pd.DataFrame(result.Data).T
+            df.columns = ['是否城投', '是否永续']
+            df.index = bond_codes
+            return df
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取债券属性异常: {e}")
+            return None
+
+    # ==================== 通用WSS接口 ====================
+
+    def wss(
+        self,
+        codes: Union[str, List[str]],
+        fields: str,
+        options: str = ""
+    ) -> Optional[pd.DataFrame]:
+        """
+        通用WSS接口（获取快照数据）
+
+        Args:
+            codes: Wind代码（单个或列表）
+            fields: 字段（逗号分隔）
+            options: 参数字符串
+
+        Returns:
+            pd.DataFrame: 结果数据
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        try:
+            if isinstance(codes, str):
+                codes = [codes]
+
+            result = self._w.wss(codes, fields, options)
+
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] WSS调用失败: {result.ErrorCode}")
+                return None
+
+            # 构建DataFrame
+            field_list = [f.strip() for f in fields.split(',')]
+            df = pd.DataFrame(result.Data).T
+            df.columns = field_list
+            df.index = codes
+            return df
+
+        except Exception as e:
+            print(f"  [Wind Exception] WSS调用异常: {e}")
+            return None
+
+    def wsd(
+        self,
+        codes: Union[str, List[str]],
+        fields: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date],
+        options: str = ""
+    ) -> Optional[pd.DataFrame]:
+        """
+        通用WSD接口（获取时间序列数据）
+
+        Args:
+            codes: Wind代码（单个或列表）
+            fields: 字段（逗号分隔）
+            start_date: 开始日期
+            end_date: 结束日期
+            options: 参数字符串
+
+        Returns:
+            pd.DataFrame: 结果数据，index为日期
+        """
+        if not self._connected or self._w is None:
+            print("Wind未连接")
+            return None
+
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+
+        try:
+            result = self._w.wsd(codes, fields, start_dt, end_dt, options)
+
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] WSD调用失败: {result.ErrorCode}")
+                return None
+
+            # 构建DataFrame
+            times = [t.date() if isinstance(t, datetime) else t for t in result.Times]
+            field_list = [f.strip() for f in fields.split(',')]
+
+            if isinstance(codes, str):
+                df = pd.DataFrame(result.Data).T
+                df.columns = field_list
+                df.index = times
+            else:
+                # 多代码情况，结构更复杂
+                df = pd.DataFrame(result.Data).T
+                df.index = times
+
+            return df
+
+        except Exception as e:
+            print(f"  [Wind Exception] WSD调用异常: {e}")
+            return None
+
+
+# ==================== 便捷函数 ====================
+
+def get_data_provider() -> MarketDataProvider:
+    """获取数据提供者单例"""
+    return MarketDataProvider.get_instance()
+
+
+def calculate_return(series: pd.Series, start_date: date, end_date: date) -> float:
+    """
+    计算区间收益率
+
+    Args:
+        series: 价格序列 (index为date)
+        start_date: 开始日期
+        end_date: 结束日期
+
+    Returns:
+        float: 区间收益率，失败返回0.0
+    """
+    if series is None or series.empty:
+        return 0.0
+
+    try:
+        # 获取最接近的有效价格
+        if start_date < series.index[0]:
+            p_start = series.iloc[0]
+        else:
+            p_start = series.asof(start_date)
+
+        if end_date < series.index[0]:
+            p_end = series.iloc[0]
+        else:
+            p_end = series.asof(end_date)
+
+        if pd.isna(p_start) or pd.isna(p_end) or p_start == 0:
+            return 0.0
+
+        return (p_end / p_start) - 1.0
+
+    except Exception:
+        return 0.0
+
+
+def annualize_return(total_return: float, days: int) -> float:
+    """
+    年化收益率（单利）
+
+    Args:
+        total_return: 区间总收益率
+        days: 天数
+
+    Returns:
+        float: 年化收益率
+    """
+    if days <= 0:
+        return 0.0
+    return total_return / days * 365.0
+
+
+# ==================== 测试代码 ====================
+
+if __name__ == '__main__':
+    print("市场数据提供者模块测试")
+    print("=" * 50)
+
+    provider = MarketDataProvider()
+
+    if provider.connect():
+        print("\n1. 测试获取沪深300收盘价...")
+        data = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+        if data is not None:
+            print(f"   数据条数: {len(data)}")
+            print(f"   日期范围: {data.index[0]} ~ {data.index[-1]}")
+
+        print("\n2. 测试获取汇率...")
+        rate = provider.get_exchange_rate('USDCNY', '20241231')
+        if rate:
+            print(f"   USD/CNY: {rate}")
+
+        print("\n3. 测试获取指数收益率...")
+        codes = ['000300.SH', 'CBA00101.CS']
+        returns = provider.get_index_returns(codes, '20240101', '20241231')
+        if returns:
+            for c, r in zip(codes, returns):
+                print(f"   {c}: {r*100:.2f}%" if r else f"   {c}: N/A")
+
+        print("\n4. 测试获取指数名称...")
+        names = provider.get_index_names(codes)
+        if names:
+            for c, n in zip(codes, names):
+                print(f"   {c}: {n}")
+
+        provider.disconnect()
+    else:
+        print("Wind连接失败")

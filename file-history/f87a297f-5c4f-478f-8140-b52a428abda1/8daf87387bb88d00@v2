@@ -1,0 +1,1211 @@
+"""
+市场数据提供者模块
+
+该模块封装市场数据获取逻辑，支持Wind和iChoice(EMQuantAPI)两种数据源。
+通过config.py中的DATA_SOURCE配置项切换数据源，默认使用iChoice。
+
+所有调用方（generate_report.py, calculate_all_benchmarks.py等）无需修改。
+
+使用方法:
+    from market_data_provider import MarketDataProvider
+
+    # 获取单例实例（自动根据配置选择数据源并连接）
+    provider = MarketDataProvider.get_instance()
+
+    # 或手动创建并连接
+    provider = MarketDataProvider(source='ichoice')  # 或 'wind'
+    provider.connect()
+
+    # 获取指数收盘价序列
+    data = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+
+    # 获取汇率
+    rate = provider.get_exchange_rate('USDCNY', '2024-12-31')
+
+    # 获取债券属性
+    attrs = provider.get_bond_attributes(['bond1', 'bond2'])
+
+    # 获取指数区间收益率
+    returns = provider.get_index_returns(['000300.SH', 'CBA00101.CS'], '2024-01-01', '2024-12-31')
+"""
+
+import pandas as pd
+import numpy as np
+import sys
+from datetime import datetime, date
+from typing import Optional, Dict, List, Union, Tuple
+
+
+class MarketDataProvider:
+    """
+    市场数据提供者
+
+    支持Wind和iChoice(EMQuantAPI)两种后端数据源。
+    通过source参数选择，公共接口保持不变。
+    """
+
+    _instance = None  # 单例实例
+
+    def __init__(self, source: str = None):
+        """
+        Args:
+            source: 数据源 ('ichoice' 或 'wind')，默认从config读取
+        """
+        self._connected = False
+        self._w = None       # Wind API对象
+        self._c = None       # iChoice API模块
+
+        if source is None:
+            try:
+                from config import Config
+                source = Config.DATA_SOURCE
+            except (ImportError, AttributeError):
+                source = 'wind'
+        self._source = source.lower()
+
+    @classmethod
+    def get_instance(cls) -> 'MarketDataProvider':
+        """获取单例实例（自动连接）"""
+        if cls._instance is None:
+            cls._instance = cls()
+            cls._instance.connect()
+        return cls._instance
+
+    @property
+    def is_connected(self) -> bool:
+        """是否已连接"""
+        return self._connected
+
+    @property
+    def source(self) -> str:
+        """当前数据源"""
+        return self._source
+
+    # ==================== 连接管理 ====================
+
+    def connect(self, wait_time: int = 60) -> bool:
+        """
+        建立数据源连接
+
+        Args:
+            wait_time: 等待超时时间(秒)，仅Wind使用
+
+        Returns:
+            bool: 连接是否成功
+        """
+        if self._connected:
+            return True
+
+        if self._source == 'ichoice':
+            return self._connect_ichoice()
+        else:
+            return self._connect_wind(wait_time)
+
+    def _connect_wind(self, wait_time: int = 60) -> bool:
+        """建立Wind连接"""
+        try:
+            from WindPy import w
+            self._w = w
+
+            if not w.isconnected():
+                result = w.start(waitTime=wait_time)
+                if result.ErrorCode != 0:
+                    print(f"Wind启动失败，错误码: {result.ErrorCode}")
+                    self._connected = False
+                    return False
+
+            self._connected = True
+            print("Wind连接成功")
+            return True
+
+        except ImportError:
+            print("错误: 未安装WindPy，请先安装Wind终端和Python插件")
+            self._connected = False
+            return False
+        except Exception as e:
+            print(f"Wind连接异常: {e}")
+            self._connected = False
+            return False
+
+    def _connect_ichoice(self) -> bool:
+        """建立iChoice(EMQuantAPI)连接"""
+        try:
+            from config import Config
+            sdk_path = Config.ICHOICE_SDK_PATH
+            username = Config.ICHOICE_USERNAME
+            password = Config.ICHOICE_PASSWORD
+        except (ImportError, AttributeError):
+            print("错误: config.py中缺少iChoice配置")
+            return False
+
+        try:
+            # 添加SDK路径
+            if sdk_path not in sys.path:
+                sys.path.insert(0, sdk_path)
+
+            from EmQuantAPI import c
+            self._c = c
+
+            # 登录
+            login_options = f"ForceLogin=1,UserName={username},Password={password}"
+            print(f"正在连接iChoice (EMQuantAPI)...")
+            result = c.start(login_options)
+
+            if result.ErrorCode != 0:
+                print(f"iChoice登录失败，错误码: {result.ErrorCode}, 错误信息: {result.ErrorMsg}")
+                self._connected = False
+                return False
+
+            self._connected = True
+            print("iChoice连接成功")
+            return True
+
+        except ImportError:
+            print(f"错误: 无法加载EmQuantAPI，请检查SDK路径: {sdk_path}")
+            self._connected = False
+            return False
+        except Exception as e:
+            print(f"iChoice连接异常: {e}")
+            self._connected = False
+            return False
+
+    def disconnect(self) -> None:
+        """断开数据源连接"""
+        if self._source == 'ichoice' and self._c and self._connected:
+            try:
+                self._c.stop()
+                print("iChoice连接已断开")
+            except:
+                pass
+        elif self._source == 'wind' and self._w and self._connected:
+            try:
+                self._w.stop()
+            except:
+                pass
+        self._connected = False
+
+    # ==================== 代码映射 ====================
+
+    def _map_code(self, wind_code: str) -> str:
+        """
+        将Wind代码映射为iChoice代码
+
+        映射规则:
+        1. 先查精确映射表 (WIND_TO_ICHOICE)
+        2. 后缀自动转换: .SI → .SWI
+        3. 其他代码原样返回（iChoice兼容大部分Wind代码）
+        """
+        if self._source != 'ichoice':
+            return wind_code
+
+        try:
+            from config import Config
+            # 检查不可用代码
+            if wind_code in Config.ICHOICE_UNAVAILABLE_CODES:
+                return None
+
+            # 精确映射
+            if wind_code in Config.WIND_TO_ICHOICE:
+                mapped = Config.WIND_TO_ICHOICE[wind_code]
+                return mapped
+        except (ImportError, AttributeError):
+            pass
+
+        # 后缀自动转换
+        if wind_code.endswith('.SI'):
+            return wind_code.replace('.SI', '.SWI')
+
+        # 默认原样返回
+        return wind_code
+
+    def _map_codes(self, codes: Union[str, List[str]]) -> Union[str, List[str]]:
+        """批量映射代码，返回与输入相同的类型"""
+        if isinstance(codes, str):
+            return self._map_code(codes)
+        return [self._map_code(c) for c in codes]
+
+    # ==================== 日期工具 ====================
+
+    @staticmethod
+    def to_date(value) -> Optional[date]:
+        """将各种日期格式转换为 Python date 对象"""
+        if value is None:
+            return None
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return value
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, str):
+            try:
+                return pd.to_datetime(value).date()
+            except:
+                return None
+        ts = pd.to_datetime(value, errors='coerce')
+        if pd.isna(ts):
+            return None
+        return ts.date()
+
+    @staticmethod
+    def _format_date(dt) -> str:
+        """将日期格式化为 YYYY-MM-DD 字符串（iChoice需要）"""
+        if isinstance(dt, str):
+            # 处理 YYYYMMDD 格式
+            if len(dt) == 8 and dt.isdigit():
+                return f"{dt[:4]}-{dt[4:6]}-{dt[6:8]}"
+            return dt
+        if isinstance(dt, (date, datetime)):
+            return dt.strftime('%Y-%m-%d')
+        return str(dt)
+
+    # ==================== 指数数据 ====================
+
+    def get_index_close(
+        self,
+        code: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date]
+    ) -> Optional[pd.Series]:
+        """
+        获取指数收盘价序列
+
+        Args:
+            code: Wind代码 (如 '000300.SH', 'CBA00103.CS')
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            pd.Series: index为date，values为收盘价；失败返回None
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        if self._source == 'ichoice':
+            return self._get_index_close_ichoice(code, start_date, end_date)
+        else:
+            return self._get_index_close_wind(code, start_date, end_date)
+
+    def _get_index_close_wind(self, code, start_date, end_date):
+        """Wind实现: 获取指数收盘价"""
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+        if start_dt is None or end_dt is None:
+            return None
+
+        try:
+            wsd_data = self._w.wsd(code, "close", start_dt, end_dt, "")
+            if wsd_data.ErrorCode != 0:
+                print(f"  [Wind Error] 获取 {code} 失败: {wsd_data.ErrorCode}")
+                return None
+
+            times = wsd_data.Times
+            data = wsd_data.Data[0]
+
+            valid_times = []
+            valid_data = []
+            for t, d in zip(times, data):
+                if d is not None and not np.isnan(d):
+                    if isinstance(t, datetime):
+                        t = t.date()
+                    valid_times.append(t)
+                    valid_data.append(d)
+
+            if not valid_times:
+                return None
+
+            series = pd.Series(valid_data, index=valid_times)
+            series = series.sort_index()
+            return series
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取 {code} 异常: {e}")
+            return None
+
+    def _get_index_close_ichoice(self, code, start_date, end_date):
+        """iChoice实现: 获取指数收盘价"""
+        mapped_code = self._map_code(code)
+        if mapped_code is None:
+            print(f"  [iChoice] {code} 在iChoice中不可用，跳过")
+            return None
+
+        start_str = self._format_date(start_date)
+        end_str = self._format_date(end_date)
+
+        try:
+            result = self._c.csd(mapped_code, "CLOSE", start_str, end_str, "Ispandas=1")
+
+            if isinstance(result, pd.DataFrame) and not result.empty:
+                # csd返回DataFrame，列: CODES, DATES, CLOSE等
+                df = result.copy()
+
+                # 找到日期列和数据列
+                date_col = None
+                close_col = None
+                for col in df.columns:
+                    col_upper = str(col).upper()
+                    if 'DATE' in col_upper:
+                        date_col = col
+                    elif 'CLOSE' in col_upper:
+                        close_col = col
+
+                if date_col is None or close_col is None:
+                    # 尝试按位置: 通常是 CODES, DATES, CLOSE
+                    if len(df.columns) >= 3:
+                        date_col = df.columns[1]
+                        close_col = df.columns[2]
+                    elif len(df.columns) >= 2:
+                        date_col = df.columns[0]
+                        close_col = df.columns[1]
+                    else:
+                        print(f"  [iChoice] {code} 返回列格式异常: {list(df.columns)}")
+                        return None
+
+                # 转换日期
+                df[date_col] = pd.to_datetime(df[date_col])
+                df = df.dropna(subset=[close_col])
+                df[close_col] = pd.to_numeric(df[close_col], errors='coerce')
+                df = df.dropna(subset=[close_col])
+
+                if df.empty:
+                    return None
+
+                series = pd.Series(
+                    df[close_col].values,
+                    index=[d.date() if isinstance(d, (datetime, pd.Timestamp)) else d for d in df[date_col]]
+                )
+                series = series.sort_index()
+                return series
+            else:
+                # 非DataFrame返回，检查EmQuantData对象
+                if hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+                    print(f"  [iChoice Error] 获取 {code}(→{mapped_code}) 失败: {result.ErrorCode} {getattr(result, 'ErrorMsg', '')}")
+                else:
+                    print(f"  [iChoice] 获取 {code}(→{mapped_code}) 返回空数据")
+                return None
+
+        except Exception as e:
+            print(f"  [iChoice Exception] 获取 {code}(→{mapped_code}) 异常: {e}")
+            return None
+
+    def get_index_returns(
+        self,
+        codes: List[str],
+        start_date: str,
+        end_date: str
+    ) -> Optional[List[float]]:
+        """
+        获取多个指数的区间收益率
+
+        Args:
+            codes: Wind代码列表
+            start_date: 开始日期 (格式: YYYYMMDD)
+            end_date: 结束日期 (格式: YYYYMMDD)
+
+        Returns:
+            List[float]: 收益率列表，与codes顺序对应；失败返回None
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        if self._source == 'ichoice':
+            return self._get_index_returns_ichoice(codes, start_date, end_date)
+        else:
+            return self._get_index_returns_wind(codes, start_date, end_date)
+
+    def _get_index_returns_wind(self, codes, start_date, end_date):
+        """Wind实现: 获取指数区间收益率"""
+        try:
+            result = self._w.wss(
+                codes,
+                "pct_chg_per",
+                f"startDate={start_date};endDate={end_date}"
+            )
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取指数收益率失败: {result.ErrorCode}")
+                return None
+            return result.Data[0]
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取指数收益率异常: {e}")
+            return None
+
+    def _get_index_returns_ichoice(self, codes, start_date, end_date):
+        """
+        iChoice实现: 获取指数区间收益率
+        iChoice没有直接的pct_chg_per，从首尾收盘价计算
+        """
+        returns = []
+        start_str = self._format_date(start_date)
+        end_str = self._format_date(end_date)
+
+        for code in codes:
+            mapped_code = self._map_code(code)
+            if mapped_code is None:
+                print(f"  [iChoice] {code} 不可用，收益率设为None")
+                returns.append(None)
+                continue
+
+            try:
+                # 获取起止日收盘价
+                result = self._c.csd(mapped_code, "CLOSE", start_str, end_str, "Ispandas=1")
+
+                if isinstance(result, pd.DataFrame) and not result.empty:
+                    df = result.copy()
+                    # 找close列
+                    close_col = None
+                    for col in df.columns:
+                        if 'CLOSE' in str(col).upper():
+                            close_col = col
+                            break
+                    if close_col is None:
+                        close_col = df.columns[-1]
+
+                    df[close_col] = pd.to_numeric(df[close_col], errors='coerce')
+                    df = df.dropna(subset=[close_col])
+
+                    if len(df) >= 2:
+                        start_price = df[close_col].iloc[0]
+                        end_price = df[close_col].iloc[-1]
+                        if start_price != 0 and not pd.isna(start_price):
+                            ret = (end_price / start_price - 1) * 100  # Wind返回百分比
+                            returns.append(ret)
+                        else:
+                            returns.append(None)
+                    elif len(df) == 1:
+                        returns.append(0.0)
+                    else:
+                        returns.append(None)
+                else:
+                    if hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+                        print(f"  [iChoice Error] {code}(→{mapped_code}) 收益率获取失败: {result.ErrorCode}")
+                    returns.append(None)
+
+            except Exception as e:
+                print(f"  [iChoice Exception] {code} 收益率计算异常: {e}")
+                returns.append(None)
+
+        return returns
+
+    def get_index_names(self, codes: List[str]) -> Optional[List[str]]:
+        """
+        获取指数名称
+
+        Args:
+            codes: Wind代码列表
+
+        Returns:
+            List[str]: 名称列表
+        """
+        if not self._connected:
+            return None
+
+        if self._source == 'ichoice':
+            return self._get_index_names_ichoice(codes)
+        else:
+            return self._get_index_names_wind(codes)
+
+    def _get_index_names_wind(self, codes):
+        """Wind实现: 获取指数名称"""
+        try:
+            result = self._w.wss(codes, "sec_name")
+            if result.ErrorCode != 0:
+                return None
+            return result.Data[0]
+        except:
+            return None
+
+    def _get_index_names_ichoice(self, codes):
+        """iChoice实现: 获取指数名称"""
+        names = []
+        today_str = datetime.now().strftime('%Y%m%d')
+
+        for code in codes:
+            mapped_code = self._map_code(code)
+            if mapped_code is None:
+                names.append(code)  # 不可用代码，用原始代码作为名称
+                continue
+
+            try:
+                result = self._c.css(mapped_code, "NAME", f"TradeDate={today_str},Ispandas=1")
+
+                if isinstance(result, pd.DataFrame) and not result.empty:
+                    # 找NAME列
+                    name_col = None
+                    for col in result.columns:
+                        if 'NAME' in str(col).upper():
+                            name_col = col
+                            break
+                    if name_col is None:
+                        name_col = result.columns[-1]
+
+                    val = result[name_col].iloc[0]
+                    names.append(str(val) if pd.notna(val) else code)
+                else:
+                    if hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+                        # 尝试从EmQuantData对象提取
+                        if hasattr(result, 'Data') and mapped_code in result.Data:
+                            val = result.Data[mapped_code][0]
+                            names.append(str(val) if val else code)
+                        else:
+                            names.append(code)
+                    else:
+                        names.append(code)
+
+            except Exception as e:
+                print(f"  [iChoice] 获取 {code} 名称异常: {e}")
+                names.append(code)
+
+        return names
+
+    def get_index_volatility(
+        self,
+        codes: List[str],
+        start_date: str,
+        end_date: str
+    ) -> Optional[List[float]]:
+        """
+        获取多个指数的区间年化波动率（手动计算版）
+
+        逻辑:
+            1. 获取日收盘价
+            2. 计算日收益率 (pct_change)
+            3. 计算标准差并年化 (std * sqrt(252))
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        try:
+            df_close = self.wsd(codes, "close", start_date, end_date, "")
+
+            if df_close is None or df_close.empty:
+                print(f"  [Calculated] 获取收盘价数据为空或失败: {start_date} - {end_date}")
+                return [None] * len(codes) if isinstance(codes, list) else [None]
+
+            vol_series = df_close.pct_change().std(ddof=1) * np.sqrt(252)
+
+            result_list = []
+            if isinstance(codes, list):
+                for i in range(len(codes)):
+                    try:
+                        val = vol_series.iloc[i]
+                        if pd.isna(val):
+                            result_list.append(None)
+                        else:
+                            result_list.append(float(val))
+                    except IndexError:
+                        result_list.append(None)
+            else:
+                val = vol_series.iloc[0] if len(vol_series) > 0 else np.nan
+                result_list.append(float(val) if not pd.isna(val) else None)
+
+            return result_list
+
+        except Exception as e:
+            print(f"  [Calculated] 计算波动率异常: {e}")
+            return None
+
+    # ==================== 汇率数据 ====================
+
+    def get_exchange_rate(
+        self,
+        currency_pair: str,
+        trade_date: str
+    ) -> Optional[float]:
+        """
+        获取汇率
+
+        Args:
+            currency_pair: 货币对 (如 'USDCNY')
+            trade_date: 交易日期 (格式: YYYYMMDD)
+
+        Returns:
+            float: 汇率；失败返回None
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        if self._source == 'ichoice':
+            return self._get_exchange_rate_ichoice(currency_pair, trade_date)
+        else:
+            return self._get_exchange_rate_wind(currency_pair, trade_date)
+
+    def _get_exchange_rate_wind(self, currency_pair, trade_date):
+        """Wind实现: 获取汇率"""
+        try:
+            wind_code = f"{currency_pair}.EX"
+            result = self._w.wss(
+                wind_code,
+                "close",
+                f"tradeDate={trade_date};priceAdj=U;cycle=D"
+            )
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取汇率失败: {result.ErrorCode}")
+                return None
+            return result.Data[0][0]
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取汇率异常: {e}")
+            return None
+
+    def _get_exchange_rate_ichoice(self, currency_pair, trade_date):
+        """iChoice实现: 获取汇率"""
+        # iChoice汇率代码格式: USDCNY.IB
+        ichoice_code = f"{currency_pair}.IB"
+        date_str = self._format_date(trade_date)
+
+        try:
+            result = self._c.csd(ichoice_code, "CLOSE", date_str, date_str, "Ispandas=1")
+
+            if isinstance(result, pd.DataFrame) and not result.empty:
+                close_col = None
+                for col in result.columns:
+                    if 'CLOSE' in str(col).upper():
+                        close_col = col
+                        break
+                if close_col is None:
+                    close_col = result.columns[-1]
+
+                val = pd.to_numeric(result[close_col].iloc[0], errors='coerce')
+                if pd.notna(val):
+                    return float(val)
+
+            # 备用方案: 用css
+            result2 = self._c.css(ichoice_code, "CLOSE", f"TradeDate={trade_date},Ispandas=1")
+            if isinstance(result2, pd.DataFrame) and not result2.empty:
+                close_col = None
+                for col in result2.columns:
+                    if 'CLOSE' in str(col).upper():
+                        close_col = col
+                        break
+                if close_col is None:
+                    close_col = result2.columns[-1]
+
+                val = pd.to_numeric(result2[close_col].iloc[0], errors='coerce')
+                if pd.notna(val):
+                    return float(val)
+
+            print(f"  [iChoice] 获取汇率 {currency_pair} 失败")
+            return None
+
+        except Exception as e:
+            print(f"  [iChoice Exception] 获取汇率异常: {e}")
+            return None
+
+    # ==================== 债券数据 ====================
+
+    def get_bond_attributes(
+        self,
+        bond_codes: List[str]
+    ) -> Optional[pd.DataFrame]:
+        """
+        获取债券属性（是否城投、是否永续）
+
+        Args:
+            bond_codes: 债券代码列表
+
+        Returns:
+            pd.DataFrame: columns=['是否城投', '是否永续']，index为债券代码
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        if not bond_codes:
+            return pd.DataFrame(columns=['是否城投', '是否永续'])
+
+        if self._source == 'ichoice':
+            return self._get_bond_attributes_ichoice(bond_codes)
+        else:
+            return self._get_bond_attributes_wind(bond_codes)
+
+    def _get_bond_attributes_wind(self, bond_codes):
+        """Wind实现: 获取债券属性"""
+        try:
+            result = self._w.wss(
+                bond_codes,
+                "municipalbondWind, perpetualornot",
+                ""
+            )
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] 获取债券属性失败: {result.ErrorCode}")
+                return None
+
+            df = pd.DataFrame(result.Data).T
+            df.columns = ['是否城投', '是否永续']
+            df.index = bond_codes
+            return df
+
+        except Exception as e:
+            print(f"  [Wind Exception] 获取债券属性异常: {e}")
+            return None
+
+    def _get_bond_attributes_ichoice(self, bond_codes):
+        """iChoice实现: 获取债券属性"""
+        try:
+            codes_str = ','.join(bond_codes)
+
+            # 尝试iChoice字段名（可能与Wind不同）
+            result = self._c.css(codes_str, "MUNICIPALBOND,PERPETUAL", "Ispandas=1")
+
+            if isinstance(result, pd.DataFrame) and not result.empty:
+                df = result.copy()
+                # 重命名列
+                col_mapping = {}
+                for col in df.columns:
+                    col_upper = str(col).upper()
+                    if 'MUNICIPAL' in col_upper:
+                        col_mapping[col] = '是否城投'
+                    elif 'PERPETUAL' in col_upper:
+                        col_mapping[col] = '是否永续'
+
+                if col_mapping:
+                    df = df.rename(columns=col_mapping)
+                else:
+                    # 按位置重命名
+                    if len(df.columns) >= 2:
+                        df.columns = ['是否城投', '是否永续']
+
+                # 确保index为代码
+                if list(df.index) != bond_codes:
+                    df.index = bond_codes[:len(df)]
+
+                return df
+
+            # 如果上面失败，尝试备用字段名
+            print(f"  [iChoice] 债券属性标准字段失败，尝试备用字段...")
+            result2 = self._c.css(codes_str, "MUNICIPALBONDWIND,PERPETUALORNOT", "Ispandas=1")
+
+            if isinstance(result2, pd.DataFrame) and not result2.empty:
+                df = result2.copy()
+                if len(df.columns) >= 2:
+                    df.columns = ['是否城投', '是否永续']
+                df.index = bond_codes[:len(df)]
+                return df
+
+            print(f"  [iChoice Warning] 获取债券属性失败，返回空DataFrame")
+            df = pd.DataFrame(index=bond_codes, columns=['是否城投', '是否永续'])
+            df['是否城投'] = None
+            df['是否永续'] = None
+            return df
+
+        except Exception as e:
+            print(f"  [iChoice Exception] 获取债券属性异常: {e}")
+            df = pd.DataFrame(index=bond_codes, columns=['是否城投', '是否永续'])
+            df['是否城投'] = None
+            df['是否永续'] = None
+            return df
+
+    # ==================== 通用WSS接口 ====================
+
+    def wss(
+        self,
+        codes: Union[str, List[str]],
+        fields: str,
+        options: str = ""
+    ) -> Optional[pd.DataFrame]:
+        """
+        通用WSS/CSS接口（获取快照数据）
+
+        Args:
+            codes: 代码（单个或列表）
+            fields: 字段（逗号分隔）
+            options: 参数字符串
+
+        Returns:
+            pd.DataFrame: 结果数据
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        if self._source == 'ichoice':
+            return self._wss_ichoice(codes, fields, options)
+        else:
+            return self._wss_wind(codes, fields, options)
+
+    def _wss_wind(self, codes, fields, options=""):
+        """Wind实现: 通用WSS"""
+        try:
+            if isinstance(codes, str):
+                codes = [codes]
+
+            result = self._w.wss(codes, fields, options)
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] WSS调用失败: {result.ErrorCode}")
+                return None
+
+            field_list = [f.strip() for f in fields.split(',')]
+            df = pd.DataFrame(result.Data).T
+            df.columns = field_list
+            df.index = codes
+            return df
+
+        except Exception as e:
+            print(f"  [Wind Exception] WSS调用异常: {e}")
+            return None
+
+    def _wss_ichoice(self, codes, fields, options=""):
+        """iChoice实现: 通用CSS (对应Wind WSS)"""
+        try:
+            if isinstance(codes, str):
+                codes = [codes]
+
+            # 映射代码
+            mapped_codes = []
+            original_codes = []
+            for code in codes:
+                mapped = self._map_code(code)
+                if mapped is not None:
+                    mapped_codes.append(mapped)
+                    original_codes.append(code)
+
+            if not mapped_codes:
+                return None
+
+            codes_str = ','.join(mapped_codes)
+            fields_upper = fields.upper()
+
+            # 转换Wind options格式到iChoice格式
+            # Wind: "startDate=X;endDate=Y" → iChoice用逗号
+            ichoice_options = options.replace(';', ',') if options else ""
+            if ichoice_options:
+                ichoice_options += ",Ispandas=1"
+            else:
+                ichoice_options = "Ispandas=1"
+
+            result = self._c.css(codes_str, fields_upper, ichoice_options)
+
+            if isinstance(result, pd.DataFrame) and not result.empty:
+                field_list = [f.strip() for f in fields.split(',')]
+                df = result.copy()
+                # 尝试对齐列名
+                if len(df.columns) == len(field_list):
+                    df.columns = field_list
+                df.index = original_codes[:len(df)]
+                return df
+
+            # 尝试从EmQuantData对象构建
+            if hasattr(result, 'ErrorCode'):
+                if result.ErrorCode != 0:
+                    print(f"  [iChoice Error] CSS调用失败: {result.ErrorCode} {getattr(result, 'ErrorMsg', '')}")
+                    return None
+                # 从EmQuantData手动构建DataFrame
+                if hasattr(result, 'Data') and result.Data:
+                    field_list = [f.strip() for f in fields.split(',')]
+                    rows = []
+                    for mc in mapped_codes:
+                        if mc in result.Data:
+                            rows.append(result.Data[mc])
+                        else:
+                            rows.append([None] * len(field_list))
+                    df = pd.DataFrame(rows, columns=field_list, index=original_codes[:len(rows)])
+                    return df
+
+            return None
+
+        except Exception as e:
+            print(f"  [iChoice Exception] CSS调用异常: {e}")
+            return None
+
+    def wsd(
+        self,
+        codes: Union[str, List[str]],
+        fields: str,
+        start_date: Union[str, date],
+        end_date: Union[str, date],
+        options: str = ""
+    ) -> Optional[pd.DataFrame]:
+        """
+        通用WSD/CSD接口（获取时间序列数据）
+
+        Args:
+            codes: 代码（单个或列表）
+            fields: 字段（逗号分隔）
+            start_date: 开始日期
+            end_date: 结束日期
+            options: 参数字符串
+
+        Returns:
+            pd.DataFrame: 结果数据，index为日期
+        """
+        if not self._connected:
+            print(f"{self._source}未连接")
+            return None
+
+        if self._source == 'ichoice':
+            return self._wsd_ichoice(codes, fields, start_date, end_date, options)
+        else:
+            return self._wsd_wind(codes, fields, start_date, end_date, options)
+
+    def _wsd_wind(self, codes, fields, start_date, end_date, options=""):
+        """Wind实现: 通用WSD"""
+        start_dt = self.to_date(start_date)
+        end_dt = self.to_date(end_date)
+
+        try:
+            result = self._w.wsd(codes, fields, start_dt, end_dt, options)
+            if result.ErrorCode != 0:
+                print(f"  [Wind Error] WSD调用失败: {result.ErrorCode}")
+                return None
+
+            times = [t.date() if isinstance(t, datetime) else t for t in result.Times]
+            field_list = [f.strip() for f in fields.split(',')]
+
+            if isinstance(codes, str):
+                df = pd.DataFrame(result.Data).T
+                df.columns = field_list
+                df.index = times
+            else:
+                df = pd.DataFrame(result.Data).T
+                df.index = times
+
+            return df
+
+        except Exception as e:
+            print(f"  [Wind Exception] WSD调用异常: {e}")
+            return None
+
+    def _wsd_ichoice(self, codes, fields, start_date, end_date, options=""):
+        """iChoice实现: 通用CSD (对应Wind WSD)"""
+        start_str = self._format_date(start_date)
+        end_str = self._format_date(end_date)
+
+        try:
+            is_single = isinstance(codes, str)
+            code_list = [codes] if is_single else codes
+
+            # 映射代码
+            mapped_list = []
+            valid_indices = []
+            for i, code in enumerate(code_list):
+                mapped = self._map_code(code)
+                if mapped is not None:
+                    mapped_list.append(mapped)
+                    valid_indices.append(i)
+
+            if not mapped_list:
+                return None
+
+            fields_upper = fields.upper()
+
+            # 构建options
+            ichoice_options = "Ispandas=1"
+            if options:
+                extra = options.replace(';', ',').strip()
+                if extra:
+                    ichoice_options = f"{extra},{ichoice_options}"
+
+            # 逐个代码获取然后合并（iChoice csd多代码返回长格式，需要pivot）
+            all_series = {}
+
+            for idx, mapped_code in enumerate(mapped_list):
+                result = self._c.csd(mapped_code, fields_upper, start_str, end_str, ichoice_options)
+
+                if isinstance(result, pd.DataFrame) and not result.empty:
+                    df = result.copy()
+
+                    # 找日期列和数据列
+                    date_col = None
+                    for col in df.columns:
+                        col_upper = str(col).upper()
+                        if 'DATE' in col_upper:
+                            date_col = col
+                            break
+
+                    if date_col is None:
+                        # 尝试按位置：通常第2列是日期
+                        if len(df.columns) >= 3:
+                            date_col = df.columns[1]
+                        else:
+                            date_col = df.columns[0]
+
+                    df[date_col] = pd.to_datetime(df[date_col])
+                    dates = [d.date() if isinstance(d, (datetime, pd.Timestamp)) else d for d in df[date_col]]
+
+                    # 提取数值列（排除CODES和DATES列）
+                    value_cols = [c for c in df.columns if str(c).upper() not in ('CODES', 'DATES', str(date_col).upper())]
+                    if not value_cols:
+                        # 最后一列作为值
+                        value_cols = [df.columns[-1]]
+
+                    if len(value_cols) == 1:
+                        vals = pd.to_numeric(df[value_cols[0]], errors='coerce').values
+                        all_series[valid_indices[idx]] = pd.Series(vals, index=dates)
+                    else:
+                        # 多字段
+                        for vi, vc in enumerate(value_cols):
+                            key = (valid_indices[idx], vi)
+                            vals = pd.to_numeric(df[vc], errors='coerce').values
+                            all_series[key] = pd.Series(vals, index=dates)
+
+                elif hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+                    print(f"  [iChoice Error] CSD {mapped_code} 失败: {result.ErrorCode}")
+
+            if not all_series:
+                return None
+
+            # 构建结果DataFrame
+            field_list = [f.strip() for f in fields.split(',')]
+
+            if is_single:
+                if len(field_list) == 1:
+                    if 0 in all_series:
+                        s = all_series[0]
+                        df_out = pd.DataFrame({field_list[0]: s.values}, index=s.index)
+                        return df_out
+                else:
+                    # 多字段单代码
+                    data_dict = {}
+                    for vi, fn in enumerate(field_list):
+                        key = (0, vi)
+                        if key in all_series:
+                            data_dict[fn] = all_series[key]
+                    if data_dict:
+                        return pd.DataFrame(data_dict)
+            else:
+                # 多代码（get_index_volatility使用的场景）
+                # 返回DataFrame，列为0,1,2...对应codes的顺序
+                if all(isinstance(k, int) for k in all_series.keys()):
+                    # 单字段多代码
+                    combined = pd.DataFrame(all_series)
+                    # 填补缺失代码列
+                    for i in range(len(code_list)):
+                        if i not in combined.columns:
+                            combined[i] = np.nan
+                    combined = combined.sort_index()
+                    combined = combined[sorted(combined.columns)]
+                    return combined
+
+            return None
+
+        except Exception as e:
+            print(f"  [iChoice Exception] CSD调用异常: {e}")
+            return None
+
+
+# ==================== 便捷函数 ====================
+
+def get_data_provider() -> MarketDataProvider:
+    """获取数据提供者单例"""
+    return MarketDataProvider.get_instance()
+
+
+def calculate_return(series: pd.Series, start_date: date, end_date: date) -> float:
+    """
+    计算区间收益率
+
+    Args:
+        series: 价格序列 (index为date)
+        start_date: 开始日期
+        end_date: 结束日期
+
+    Returns:
+        float: 区间收益率，失败返回0.0
+    """
+    if series is None or series.empty:
+        return 0.0
+
+    try:
+        if start_date < series.index[0]:
+            p_start = series.iloc[0]
+        else:
+            p_start = series.asof(start_date)
+
+        if end_date < series.index[0]:
+            p_end = series.iloc[0]
+        else:
+            p_end = series.asof(end_date)
+
+        if pd.isna(p_start) or pd.isna(p_end) or p_start == 0:
+            return 0.0
+
+        return (p_end / p_start) - 1.0
+
+    except Exception:
+        return 0.0
+
+
+def annualize_return(total_return: float, days: int) -> float:
+    """
+    年化收益率（单利）
+
+    Args:
+        total_return: 区间总收益率
+        days: 天数
+
+    Returns:
+        float: 年化收益率
+    """
+    if days <= 0:
+        return 0.0
+    return total_return / days * 365.0
+
+
+# ==================== 测试代码 ====================
+
+if __name__ == '__main__':
+    print("市场数据提供者模块测试")
+    print("=" * 50)
+
+    provider = MarketDataProvider()
+    print(f"数据源: {provider.source}")
+
+    if provider.connect():
+        try:
+            print(f"\n1. 测试获取沪深300收盘价...")
+            data = provider.get_index_close('000300.SH', '2024-01-01', '2024-12-31')
+            if data is not None:
+                print(f"   数据条数: {len(data)}")
+                print(f"   日期范围: {data.index[0]} ~ {data.index[-1]}")
+                print(f"   首值: {data.iloc[0]:.4f}, 末值: {data.iloc[-1]:.4f}")
+            else:
+                print("   获取失败")
+
+            print(f"\n2. 测试获取汇率...")
+            rate = provider.get_exchange_rate('USDCNY', '20241229')
+            if rate:
+                print(f"   USD/CNY: {rate}")
+            else:
+                print("   获取失败")
+
+            print(f"\n3. 测试获取指数收益率...")
+            codes = ['000300.SH', 'CBA00101.CS']
+            returns = provider.get_index_returns(codes, '20240101', '20241231')
+            if returns:
+                for c_code, r in zip(codes, returns):
+                    if r is not None:
+                        print(f"   {c_code}: {r:.4f}%")
+                    else:
+                        print(f"   {c_code}: N/A")
+            else:
+                print("   获取失败")
+
+            print(f"\n4. 测试获取指数名称...")
+            names = provider.get_index_names(codes)
+            if names:
+                for c_code, n in zip(codes, names):
+                    print(f"   {c_code}: {n}")
+            else:
+                print("   获取失败")
+
+            print(f"\n5. 测试代码映射 (仅iChoice模式)...")
+            test_codes = ['885008.WI', '885001.WI', '000832.CSI', '000300.SH', '885007.WI']
+            for tc in test_codes:
+                mapped = provider._map_code(tc)
+                print(f"   {tc} → {mapped}")
+
+            print(f"\n6. 测试获取中债指数...")
+            data2 = provider.get_index_close('CBA00101.CS', '2025-01-01', '2025-06-30')
+            if data2 is not None:
+                print(f"   数据条数: {len(data2)}")
+                print(f"   日期范围: {data2.index[0]} ~ {data2.index[-1]}")
+            else:
+                print("   获取失败")
+
+        finally:
+            provider.disconnect()
+    else:
+        print(f"{provider.source}连接失败")

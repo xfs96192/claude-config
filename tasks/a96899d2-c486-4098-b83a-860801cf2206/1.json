@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "Create load_data.py module with all data loading functions",
+  "description": "Extract all data loading functions from 周报结果表生成.py into a new load_data.py module, including:\n- get_product_data (NAV cache loading)\n- get_yunzuogailan (overview data loading)\n- Various Excel file loading utilities\n- Data validation and preprocessing functions",
+  "activeForm": "Creating load_data.py module",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

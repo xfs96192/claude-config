@@ -1,0 +1,28 @@
+/Users/fanshengxia/.openclaw/completions/openclaw.zsh:3570: command not found: compdef
+(base) fanshengxia@FanshengdeMacBook-Pro-87 周报V2 % python /Users/fanshengxia/Desktop/周报V2/test_ichoice.py
+iChoice (EMQuantAPI) 数据获取全量测试
+测试日期范围: 2025-01-06 ~ 2025-01-10
+快照日期: 20250110
+============================================================
+
+============================================================
+  1. 连接iChoice
+============================================================
+  正在登录...
+[EmQuantAPI Python] [Em_Info][2026-02-10 11:05:27]:The current version is EmQuantAPI(V2.6.1.3).
+
+[EmQuantAPI Python] [Em_Info][2026-02-10 11:05:27]:connect server...
+
+[EmQuantAPI Python] [Em_Error][2026-02-10 11:05:27]:try recv failed: 36
+
+[EmQuantAPI Python] [Em_Error][2026-02-10 11:05:27]:user pwd login start fail: network connection closed when recv
+
+[EmQuantAPI Python] [Em_Info][2026-02-10 11:05:27]:The current version is EmQuantAPI(V2.6.1.3).
+
+[EmQuantAPI Python] [Em_Info][2026-02-10 11:05:27]:connect server...
+
+[EmQuantAPI Python] [Em_Error][2026-02-10 11:05:27]:try recv failed: 36
+
+[EmQuantAPI Python] [Em_Error][2026-02-10 11:05:27]:user pwd login start fail: network connection closed when recv
+
+❌ 登录失败: ErrorCode=10002004, network connection closed when recv

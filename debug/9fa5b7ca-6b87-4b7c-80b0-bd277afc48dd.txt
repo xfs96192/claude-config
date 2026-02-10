@@ -1,0 +1,21 @@
+2026-01-26T15:30:34.887Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude, /Users/fanshengxia/.claude, /Users/fanshengxia/.claude...
+2026-01-26T15:30:34.890Z [DEBUG] [init] configureGlobalMTLS starting
+2026-01-26T15:30:34.891Z [DEBUG] [init] configureGlobalMTLS complete
+2026-01-26T15:30:34.891Z [DEBUG] [init] configureGlobalAgents starting
+2026-01-26T15:30:34.891Z [DEBUG] [init] configureGlobalAgents complete
+2026-01-26T15:30:34.912Z [DEBUG] [render] initYoga starting
+2026-01-26T15:30:34.924Z [DEBUG] [render] initYoga complete
+2026-01-26T15:30:34.926Z [DEBUG] [render] first ink render: 854ms since process start
+2026-01-26T15:30:34.962Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills, /Users/fanshengxia/.claude/skills...
+2026-01-26T15:30:44.908Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.82920.1769441444908
+2026-01-26T15:30:44.908Z [DEBUG] Preserving file permissions: 100644
+2026-01-26T15:30:44.909Z [DEBUG] Temp file written successfully, size: 37066 bytes
+2026-01-26T15:30:44.909Z [DEBUG] Applied original permissions to temp file
+2026-01-26T15:30:44.909Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.82920.1769441444908 to /Users/fanshengxia/.claude.json
+2026-01-26T15:30:44.910Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-01-26T15:30:45.013Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.82920.1769441445013
+2026-01-26T15:30:45.013Z [DEBUG] Preserving file permissions: 100644
+2026-01-26T15:30:45.013Z [DEBUG] Temp file written successfully, size: 36702 bytes
+2026-01-26T15:30:45.013Z [DEBUG] Applied original permissions to temp file
+2026-01-26T15:30:45.013Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.82920.1769441445013 to /Users/fanshengxia/.claude.json
+2026-01-26T15:30:45.014Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
