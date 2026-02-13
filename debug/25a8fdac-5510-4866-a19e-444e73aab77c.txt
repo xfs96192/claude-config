@@ -1,0 +1,810 @@
+2026-02-11T10:00:37.011Z [DEBUG] [init] configureGlobalMTLS starting
+2026-02-11T10:00:37.011Z [DEBUG] [init] configureGlobalMTLS complete
+2026-02-11T10:00:37.011Z [DEBUG] [init] configureGlobalAgents starting
+2026-02-11T10:00:37.011Z [DEBUG] [init] configureGlobalAgents complete
+2026-02-11T10:00:37.017Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["mcp__pencil"]
+2026-02-11T10:00:37.018Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-02-11T10:00:37.025Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-02-11T10:00:37.025Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-02-11T10:00:37.025Z [DEBUG] [ToolSearch:optimistic] mode=tst-auto, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-02-11T10:00:37.026Z [DEBUG] [STARTUP] Running setup()...
+2026-02-11T10:00:37.026Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1770804037026_bpkqkp
+2026-02-11T10:00:37.032Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-02-11T10:00:37.045Z [DEBUG] Error log sink initialized
+2026-02-11T10:00:37.048Z [DEBUG] [STARTUP] setup() completed in 22ms
+2026-02-11T10:00:37.048Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-02-11T10:00:37.049Z [DEBUG] Loaded 20 unique skills (20 unconditional, 0 conditional, managed: 0, user: 20, project: 0, additional: 0, legacy commands: 0)
+2026-02-11T10:00:37.051Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-02-11T10:00:37.064Z [DEBUG] Cannot acquire lock for 2.1.39 - held by PID 74467
+2026-02-11T10:00:37.065Z [ERROR] Error: Error: NON-FATAL: Lock acquisition failed for /Users/fanshengxia/.local/share/claude/versions/2.1.39 (expected in multi-process scenarios)
+    at wVR (/$bunfs/root/claude:3626:2098)
+    at DjA (/$bunfs/root/claude:3626:1209)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T10:00:37.084Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-02-11T10:00:37.086Z [DEBUG] [Claude in Chrome] Extension not found in any browser
+2026-02-11T10:00:38.559Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804038559
+2026-02-11T10:00:38.559Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:38.559Z [DEBUG] Temp file written successfully, size: 48353 bytes
+2026-02-11T10:00:38.559Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:38.559Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804038559 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:38.560Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:40.269Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1770804037026_bpkqkp
+2026-02-11T10:00:40.270Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-02-11T10:00:40.270Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.2.0
+2026-02-11T10:00:40.270Z [DEBUG] Plugin superpowers@claude-plugins-official version 4.2.0 already cached at /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0
+2026-02-11T10:00:40.286Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/hooks/hooks.json
+2026-02-11T10:00:40.286Z [DEBUG] Found 1 plugins (1 enabled, 0 disabled)
+2026-02-11T10:00:40.286Z [DEBUG] getPluginSkills: Processing 1 enabled plugins
+2026-02-11T10:00:40.286Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-02-11T10:00:40.286Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/skills
+2026-02-11T10:00:40.291Z [DEBUG] Loading hooks from plugin: superpowers
+2026-02-11T10:00:40.291Z [DEBUG] Registered 1 hooks from 1 plugins
+2026-02-11T10:00:40.291Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-02-11T10:00:40.291Z [DEBUG] Total plugin agents loaded: 1
+2026-02-11T10:00:40.291Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-02-11T10:00:40.291Z [DEBUG] Total plugin skills loaded: 14
+2026-02-11T10:00:40.291Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-02-11T10:00:40.291Z [DEBUG] Total plugin commands loaded: 3
+2026-02-11T10:00:40.291Z [DEBUG] getSkills returning: 20 skill dir commands, 14 plugin skills, 2 bundled skills
+2026-02-11T10:00:40.292Z [DEBUG] [STARTUP] Commands and agents loaded in 3244ms
+2026-02-11T10:00:40.292Z [DEBUG] Layout engine: yoga
+2026-02-11T10:00:40.306Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-02-11T10:00:40.307Z [DEBUG] [keybindings] KeybindingSetup initialized with 101 bindings, 0 warnings
+2026-02-11T10:00:40.311Z [DEBUG] [keybindings] Watching for changes to /Users/fanshengxia/.claude/keybindings.json
+2026-02-11T10:00:40.331Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-02-11T10:00:40.332Z [DEBUG] [STARTUP] showSetupScreens() completed in 26ms
+2026-02-11T10:00:40.332Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-02-11T10:00:40.333Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-02-11T10:00:40.333Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-02-11T10:00:40.391Z [DEBUG] [STARTUP] MCP configs loaded in 3373ms
+2026-02-11T10:00:40.394Z [DEBUG] MCP server "zen": Starting connection with timeout of 30000ms
+2026-02-11T10:00:40.396Z [DEBUG] MCP server "pencil": Starting connection with timeout of 30000ms
+2026-02-11T10:00:40.398Z [DEBUG] All plugins already exist, skipping migration
+2026-02-11T10:00:40.400Z [DEBUG] [Reconnection] computeInitialTeamContext: No teammate context set (not a teammate)
+2026-02-11T10:00:40.402Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804040402
+2026-02-11T10:00:40.402Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:40.402Z [DEBUG] Temp file written successfully, size: 48353 bytes
+2026-02-11T10:00:40.402Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:40.402Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804040402 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:40.403Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:40.405Z [DEBUG] Getting matching hook commands for SessionStart with query: startup
+2026-02-11T10:00:40.405Z [DEBUG] Found 1 hook matchers in settings
+2026-02-11T10:00:40.405Z [DEBUG] Matched 1 unique hooks for query "startup" (1 before deduplication)
+2026-02-11T10:00:40.405Z [DEBUG] Loaded 1 installed plugins from /Users/fanshengxia/.claude/plugins/installed_plugins.json
+2026-02-11T10:00:40.405Z [DEBUG] Initialized versioned plugins system with 1 plugins
+2026-02-11T10:00:40.418Z [DEBUG] Git remote URL: null
+2026-02-11T10:00:40.418Z [DEBUG] No git remote URL found
+2026-02-11T10:00:40.420Z [DEBUG] Hooks: Config-based async hook, backgrounding process async_hook_40112
+2026-02-11T10:00:40.420Z [DEBUG] Hooks: Registering async hook async_hook_40112 (SessionStart:startup) with timeout 600000ms
+2026-02-11T10:00:40.421Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2026-02-11T10:00:40.429Z [DEBUG] [keybindings] KeybindingSetup initialized with 101 bindings, 0 warnings
+2026-02-11T10:00:40.494Z [DEBUG] [REPL:mount] REPL mounted, disabled=false
+2026-02-11T10:00:40.496Z [DEBUG] Official marketplace auto-install skipped: already_attempted
+2026-02-11T10:00:40.497Z [DEBUG] performStartupChecks called
+2026-02-11T10:00:40.497Z [DEBUG] Trust not accepted for current directory - skipping plugin installations
+2026-02-11T10:00:40.499Z [DEBUG] No CLAUDE.md/rules files found
+2026-02-11T10:00:40.501Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude/settings.json...
+2026-02-11T10:00:41.131Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804041131
+2026-02-11T10:00:41.131Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:41.132Z [DEBUG] Temp file written successfully, size: 48354 bytes
+2026-02-11T10:00:41.132Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:41.132Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804041131 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:41.132Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:41.133Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804041133
+2026-02-11T10:00:41.134Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:41.134Z [DEBUG] Temp file written successfully, size: 48355 bytes
+2026-02-11T10:00:41.134Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:41.134Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804041133 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:41.134Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:41.136Z [DEBUG] [claudeai-mcp] Checking gate (cached)...
+2026-02-11T10:00:41.136Z [DEBUG] [claudeai-mcp] Gate returned: true
+2026-02-11T10:00:41.136Z [DEBUG] [claudeai-mcp] Fetching from https://api.anthropic.com/v1/mcp_servers?limit=1000
+2026-02-11T10:00:41.137Z [DEBUG] Loaded plugins - Enabled: 1, Disabled: 0, Commands: 3, Agents: 1, Errors: 0
+2026-02-11T10:00:41.137Z [DEBUG] AutoUpdaterWrapper: Installation type: native
+2026-02-11T10:00:41.138Z [DEBUG] Hooks: Adding stdout to async_hook_40112: {
+  "hookSpecificOutput": {
+    "hookEventName": "...
+2026-02-11T10:00:41.139Z [DEBUG] MCP server "zen": Connection failed after 747ms: ENOENT: no such file or directory, posix_spawn '/Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python'
+2026-02-11T10:00:41.139Z [ERROR] MCP server "zen" Connection failed: ENOENT: no such file or directory, posix_spawn '/Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python'
+2026-02-11T10:00:41.140Z [DEBUG] Total LSP servers loaded: 0
+2026-02-11T10:00:41.140Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-02-11T10:00:41.140Z [DEBUG] LSP manager initialized with 0 servers
+2026-02-11T10:00:41.140Z [DEBUG] LSP server manager initialized successfully
+2026-02-11T10:00:41.140Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-02-11T10:00:41.146Z [DEBUG] Org fast mode: enabled
+2026-02-11T10:00:41.146Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills...
+2026-02-11T10:00:41.161Z [DEBUG] High write ratio: blit=0, write=1294 (100.0% writes), screen=24x144
+2026-02-11T10:00:41.172Z [ERROR] MCP server "pencil" Server stderr: 2026/02/11 18:00:40 [MCP] Starting server in stdio mode
+2026/02/11 18:00:40 [WebSocketClient] server connected to WebSocket server
+2026/02/11 18:00:40 [WebSocketClient] received client ID: b00ddc36-af68-453f-bdc1-35e1d5b1ea7c
+2026-02-11T10:00:41.172Z [DEBUG] MCP server "pencil": Successfully connected to stdio server in 777ms
+2026-02-11T10:00:41.172Z [DEBUG] MCP server "pencil": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"serverVersion":{"name":"pencil","version":"1.0.0"}}
+2026-02-11T10:00:41.227Z [DEBUG] High write ratio: blit=0, write=1294 (100.0% writes), screen=24x144
+2026-02-11T10:00:41.531Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/Users/fanshengxia/.local/share/claude/versions/2.1.39)
+2026-02-11T10:00:41.644Z [DEBUG] [claudeai-mcp] Fetched 0 servers
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.943Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.943Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.944Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.944Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.944Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.944Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.944Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.944Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.944Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.945Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.974Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__batch_get
+2026-02-11T10:00:41.974Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_screenshot
+2026-02-11T10:00:41.974Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__find_empty_space_on_canvas
+2026-02-11T10:00:41.974Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__batch_design
+2026-02-11T10:00:41.974Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__snapshot_layout
+2026-02-11T10:00:41.974Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__open_document
+2026-02-11T10:00:41.975Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_variables
+2026-02-11T10:00:41.975Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_style_guide
+2026-02-11T10:00:41.975Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_editor_state
+2026-02-11T10:00:41.976Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__set_variables
+2026-02-11T10:00:41.976Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__search_all_unique_properties
+2026-02-11T10:00:41.976Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__replace_all_matching_properties
+2026-02-11T10:00:41.976Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_style_guide_tags
+2026-02-11T10:00:41.976Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_guidelines
+2026-02-11T10:00:41.976Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:00:41.982Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:41.982Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:41.982Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:41.983Z [DEBUG] countToolDefinitionTokens returned 0 for 20 tools: Task, TaskOutput, Bash, Glob, Grep, ExitPlanMode, Read, Edit, Write, NotebookEdit, WebFetch, WebSear...
+2026-02-11T10:00:42.006Z [ERROR] AxiosError: Error
+    at vk (/$bunfs/root/claude:42:1144)
+    at <anonymous> (/$bunfs/root/claude:43:10097)
+    at emit (node:events:92:22)
+    at endReadableNT (internal:streams/readable:861:50)
+    at processTicksAndRejections (native:7:39)
+    at request (/$bunfs/root/claude:45:2149)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T10:00:43.073Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T10:00:43.074Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T10:00:49.954Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:00:49.954Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:00:49.954Z [DEBUG] Hooks: Found 1 total hooks in registry
+2026-02-11T10:00:49.954Z [DEBUG] Hooks: Checking hook async_hook_40112 (SessionStart:startup) - attachmentSent: false, stdout length: 4296
+2026-02-11T10:00:49.954Z [DEBUG] Hooks: Hook shell status completed
+2026-02-11T10:00:49.954Z [DEBUG] Hooks: Processing 7 lines of stdout for async_hook_40112
+2026-02-11T10:00:49.955Z [DEBUG] Sending 35 skills via attachment (initial, 35 total sent)
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:using-git-worktrees" (userFacingName="using-git-worktrees")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:test-driven-development" (userFacingName="test-driven-development")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:systematic-debugging" (userFacingName="systematic-debugging")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:using-superpowers" (userFacingName="using-superpowers")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:dispatching-parallel-agents" (userFacingName="dispatching-parallel-agents")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:executing-plans" (userFacingName="executing-plans")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:finishing-a-development-branch" (userFacingName="finishing-a-development-branch")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:brainstorming" (userFacingName="brainstorming")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:writing-plans" (userFacingName="writing-plans")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:requesting-code-review" (userFacingName="requesting-code-review")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:receiving-code-review" (userFacingName="receiving-code-review")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:writing-skills" (userFacingName="writing-skills")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:verification-before-completion" (userFacingName="verification-before-completion")
+2026-02-11T10:00:49.955Z [DEBUG] Skill prompt: showing "superpowers:subagent-driven-development" (userFacingName="subagent-driven-development")
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: Found JSON line: {...
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: Failed to parse JSON from async_hook_40112: {
+2026-02-11T10:00:49.955Z [DEBUG] Hook SessionStart:startup (SessionStart) success:
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>"
+  }
+}
+2026-02-11T10:00:49.955Z [DEBUG] Invalidating session env cache after SessionStart hook async_hook_40112 completed
+2026-02-11T10:00:49.955Z [DEBUG] Invalidating session environment cache
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: checkForNewResponses returning 1 responses
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: getAsyncHookResponseAttachments found 1 responses
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: Creating attachment for async_hook_40112 (SessionStart:startup): {}
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: Removed 1 delivered hooks from registry
+2026-02-11T10:00:49.955Z [DEBUG] Hooks: getAsyncHookResponseAttachments found 1 attachments
+2026-02-11T10:00:49.957Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2026-02-11T10:00:49.957Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:00:49.957Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-02-11T10:00:49.957Z [DEBUG] FileHistory: Added snapshot for c0af7e59-8064-43dd-bc1e-22cda77266e3, tracking 0 files
+2026-02-11T10:00:49.958Z [DEBUG] [useDeferredValue] Messages deferred by 3 (1→4)
+2026-02-11T10:00:49.980Z [DEBUG] High write ratio: blit=0, write=1386 (100.0% writes), screen=26x144
+2026-02-11T10:00:49.983Z [DEBUG] Started caffeinate to prevent sleep
+2026-02-11T10:00:49.985Z [DEBUG] [useDeferredValue] Messages deferred by 3 (1→4)
+2026-02-11T10:00:49.989Z [DEBUG] [SystemPrompt] path=simple proactive=false
+2026-02-11T10:00:49.992Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:00:49.992Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.39.a32; cc_entrypoint=cli; cch=00000;
+2026-02-11T10:00:49.993Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:49.993Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:49.996Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804049996
+2026-02-11T10:00:49.996Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:49.997Z [DEBUG] Temp file written successfully, size: 48356 bytes
+2026-02-11T10:00:49.997Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:49.997Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804049996 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:49.997Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:50.001Z [DEBUG] Total plugin output styles loaded: 0
+2026-02-11T10:00:50.003Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804050003
+2026-02-11T10:00:50.003Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:50.003Z [DEBUG] Temp file written successfully, size: 48357 bytes
+2026-02-11T10:00:50.004Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:50.004Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804050003 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:50.004Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:50.007Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:50.021Z [DEBUG] autocompact: tokens=3384 threshold=167000 effectiveWindow=180000
+2026-02-11T10:00:50.025Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804050025
+2026-02-11T10:00:50.025Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:00:50.025Z [DEBUG] Temp file written successfully, size: 48358 bytes
+2026-02-11T10:00:50.025Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:00:50.025Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804050025 to /Users/fanshengxia/.claude.json
+2026-02-11T10:00:50.025Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:00:50.027Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:00:50.035Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:50.035Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:50.035Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:50.064Z [DEBUG] Stats cache is up to date
+2026-02-11T10:00:50.066Z [DEBUG] [useDeferredValue] Messages deferred by 3 (1→4)
+2026-02-11T10:00:50.102Z [DEBUG] High write ratio: blit=0, write=1732 (100.0% writes), screen=30x144
+2026-02-11T10:00:52.081Z [DEBUG] Successfully refreshed marketplace: claude-plugins-official
+2026-02-11T10:00:52.081Z [DEBUG] Plugin autoupdate: checking installed plugins
+2026-02-11T10:00:52.083Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1770804052083_zv0vf8
+2026-02-11T10:00:52.472Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:00:53.671Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:00:54.888Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1770804052083_zv0vf8
+2026-02-11T10:00:54.888Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-02-11T10:00:54.888Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.2.0
+2026-02-11T10:00:56.141Z [DEBUG] [useDeferredValue] Messages deferred by 1 (4→5)
+2026-02-11T10:00:56.154Z [DEBUG] High write ratio: blit=0, write=1748 (100.0% writes), screen=30x144
+2026-02-11T10:00:58.122Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-02-11T10:00:58.123Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-02-11T10:00:58.123Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:00:58.123Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:00:58.141Z [DEBUG] [useDeferredValue] Messages deferred by 2 (5→7)
+2026-02-11T10:00:58.147Z [DEBUG] High write ratio: blit=0, write=1739 (100.0% writes), screen=30x144
+2026-02-11T10:00:58.169Z [DEBUG] tree-sitter: loaded from embedded
+2026-02-11T10:00:58.199Z [DEBUG] Creating shell snapshot for zsh (/bin/zsh)
+2026-02-11T10:00:58.202Z [DEBUG] Looking for shell config file: /Users/fanshengxia/.zshrc
+2026-02-11T10:00:58.202Z [DEBUG] Snapshots directory: /Users/fanshengxia/.claude/shell-snapshots
+2026-02-11T10:00:58.202Z [DEBUG] Creating snapshot at: /Users/fanshengxia/.claude/shell-snapshots/snapshot-zsh-1770804058202-m28t4s.sh
+2026-02-11T10:00:58.202Z [DEBUG] Shell binary exists: true
+2026-02-11T10:00:58.202Z [DEBUG] Execution timeout: 10000ms
+2026-02-11T10:00:58.204Z [DEBUG] [useDeferredValue] Messages deferred by 2 (5→7)
+2026-02-11T10:00:58.244Z [DEBUG] High write ratio: blit=0, write=1824 (100.0% writes), screen=34x144
+2026-02-11T10:00:59.303Z [DEBUG] Shell snapshot created successfully (1732 bytes)
+2026-02-11T10:00:59.303Z [DEBUG] No session environment scripts found
+2026-02-11T10:00:59.352Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:00:59.352Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:59.352Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:59.353Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-02-11T10:00:59.353Z [DEBUG] Found 5 hook matchers in settings
+2026-02-11T10:00:59.353Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:00:59.353Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:59.354Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:00:59.354Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:00:59.354Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-02-11T10:00:59.354Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-02-11T10:00:59.355Z [DEBUG] autocompact: tokens=32561 threshold=167000 effectiveWindow=180000
+2026-02-11T10:00:59.356Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:00:59.359Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:00:59.359Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:00:59.359Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:00:59.361Z [DEBUG] [useDeferredValue] Messages deferred by 1 (7→8)
+2026-02-11T10:00:59.367Z [DEBUG] High write ratio: blit=0, write=1824 (100.0% writes), screen=34x144
+2026-02-11T10:00:59.399Z [DEBUG] High write ratio: blit=0, write=1824 (100.0% writes), screen=34x144
+2026-02-11T10:01:00.609Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:03.134Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:06.392Z [DEBUG] [useDeferredValue] Messages deferred by 1 (8→9)
+2026-02-11T10:01:06.426Z [DEBUG] High write ratio: blit=0, write=1813 (100.0% writes), screen=34x144
+2026-02-11T10:01:10.158Z [DEBUG] executePreToolHooks called for tool: Skill
+2026-02-11T10:01:10.159Z [DEBUG] Getting matching hook commands for PreToolUse with query: Skill
+2026-02-11T10:01:10.159Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:01:10.159Z [DEBUG] Matched 0 unique hooks for query "Skill" (0 before deduplication)
+2026-02-11T10:01:10.162Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770804070162
+2026-02-11T10:01:10.162Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:01:10.162Z [DEBUG] Temp file written successfully, size: 48358 bytes
+2026-02-11T10:01:10.162Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:01:10.162Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770804070162 to /Users/fanshengxia/.claude.json
+2026-02-11T10:01:10.164Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:01:10.165Z [DEBUG] Metadata string for pdf:
+2026-02-11T10:01:10.165Z [DEBUG] <command-message>pdf</command-message>
+<command-name>/pdf</command-name>
+<command-args>extract tables and holdings data from all green development quarterly reports in /Users/fanshengxia/Desktop/季报获取/
+2026-02-11T10:01:10.165Z [DEBUG] command-message tags in metadata: 1
+2026-02-11T10:01:10.166Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:01:10.166Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:01:10.166Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-02-11T10:01:10.166Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-02-11T10:01:10.166Z [DEBUG] processPromptSlashCommand creating 3 messages for pdf
+2026-02-11T10:01:10.166Z [DEBUG] Message 1: <command-message>pdf</command-message>
+<command-name>/pdf</command-name>
+<command-args>extract tables and holdings data from all green development quarterly reports in /Users/fanshengxia/Desktop/季报获取/
+2026-02-11T10:01:10.166Z [DEBUG] Message 2 [META]: [{"type":"text","text":"Base directory for this skill: /Users/fanshengxia/.claude/skills/pdf\n\n# PDF Processing Guide\n\n## Overview\n\nThis guide covers essential PDF processing operations using Pyt
+2026-02-11T10:01:10.166Z [DEBUG] Message 3: [ATTACHMENT]
+2026-02-11T10:01:10.166Z [DEBUG] SkillTool returning 2 newMessages for skill pdf
+2026-02-11T10:01:10.166Z [DEBUG] newMessage 1: [{"type":"text","text":"Base directory for this skill: /Users/fanshengxia/.claude/skills/pdf\n\n# PDF Processing Guide\n\n## Overview\n\nThis guide co...
+2026-02-11T10:01:10.167Z [DEBUG] Getting matching hook commands for PostToolUse with query: Skill
+2026-02-11T10:01:10.167Z [DEBUG] Found 5 hook matchers in settings
+2026-02-11T10:01:10.167Z [DEBUG] Matched 0 unique hooks for query "Skill" (0 before deduplication)
+2026-02-11T10:01:10.168Z [DEBUG] [useDeferredValue] Messages deferred by 5 (9→14)
+2026-02-11T10:01:10.204Z [DEBUG] High write ratio: blit=0, write=1916 (100.0% writes), screen=39x144
+2026-02-11T10:01:10.247Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:01:10.247Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:01:10.247Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-02-11T10:01:10.247Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-02-11T10:01:10.248Z [DEBUG] autocompact: tokens=35383 threshold=167000 effectiveWindow=180000
+2026-02-11T10:01:10.248Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:01:10.250Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:01:10.250Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:01:10.251Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:01:12.010Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:16.010Z [DEBUG] [useDeferredValue] Messages deferred by 1 (14→15)
+2026-02-11T10:01:16.041Z [DEBUG] High write ratio: blit=0, write=1932 (100.0% writes), screen=39x144
+2026-02-11T10:01:23.528Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-02-11T10:01:23.529Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-02-11T10:01:23.529Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:01:23.529Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:01:23.540Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:01:23.540Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:01:23.540Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:01:23.541Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:01:23.541Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:01:23.541Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:01:23.541Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:01:23.541Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:01:23.541Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:01:23.542Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:01:23.542Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:01:23.542Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:01:23.545Z [DEBUG] [useDeferredValue] Messages deferred by 2 (15→17)
+2026-02-11T10:01:23.574Z [DEBUG] High write ratio: blit=0, write=2076 (100.0% writes), screen=45x144
+2026-02-11T10:01:27.303Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:27.380Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:29.695Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:29.838Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "python3:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2026-02-11T10:01:29.840Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2026-02-11T10:01:29.841Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2026-02-11T10:01:29.841Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:01:29.841Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:01:29.857Z [DEBUG] High write ratio: blit=0, write=2949 (100.0% writes), screen=80x144
+2026-02-11T10:01:29.859Z [DEBUG] Stopped caffeinate, allowing sleep
+2026-02-11T10:01:35.862Z [DEBUG] Getting matching hook commands for Notification with query: permission_prompt
+2026-02-11T10:01:35.862Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:01:35.862Z [DEBUG] Matched 0 unique hooks for query "permission_prompt" (0 before deduplication)
+2026-02-11T10:01:37.323Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2026-02-11T10:01:37.323Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2026-02-11T10:01:37.325Z [DEBUG] Writing to temp file: /Users/fanshengxia/Desktop/季报获取/.claude/settings.local.json.tmp.39994.1770804097325
+2026-02-11T10:01:37.325Z [DEBUG] Temp file written successfully, size: 72 bytes
+2026-02-11T10:01:37.325Z [DEBUG] Renaming /Users/fanshengxia/Desktop/季报获取/.claude/settings.local.json.tmp.39994.1770804097325 to /Users/fanshengxia/Desktop/季报获取/.claude/settings.local.json
+2026-02-11T10:01:37.326Z [DEBUG] File /Users/fanshengxia/Desktop/季报获取/.claude/settings.local.json written atomically
+2026-02-11T10:01:37.331Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(python3:*)"]
+2026-02-11T10:01:37.356Z [DEBUG] High write ratio: blit=0, write=2080 (100.0% writes), screen=45x144
+2026-02-11T10:01:37.364Z [DEBUG] Started caffeinate to prevent sleep
+2026-02-11T10:01:37.366Z [DEBUG] AutoUpdaterWrapper: Installation type: native
+2026-02-11T10:01:37.995Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T10:01:37.997Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T10:01:39.342Z [DEBUG] [useDeferredValue] Messages deferred by 1 (17→18)
+2026-02-11T10:01:39.350Z [DEBUG] High write ratio: blit=0, write=2107 (100.0% writes), screen=46x144
+2026-02-11T10:01:39.387Z [DEBUG] High write ratio: blit=0, write=2112 (100.0% writes), screen=46x144
+2026-02-11T10:01:39.577Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:01:39.577Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:01:39.577Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:01:39.578Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-02-11T10:01:39.578Z [DEBUG] Found 5 hook matchers in settings
+2026-02-11T10:01:39.578Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:01:39.578Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:01:39.580Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:01:39.580Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:01:39.580Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-02-11T10:01:39.580Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-02-11T10:01:39.581Z [DEBUG] autocompact: tokens=36965 threshold=167000 effectiveWindow=180000
+2026-02-11T10:01:39.581Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:01:39.584Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:01:39.584Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:01:39.584Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:01:39.586Z [DEBUG] [useDeferredValue] Messages deferred by 1 (18→19)
+2026-02-11T10:01:39.594Z [DEBUG] High write ratio: blit=0, write=2080 (100.0% writes), screen=45x144
+2026-02-11T10:01:39.621Z [DEBUG] High write ratio: blit=0, write=2119 (100.0% writes), screen=48x144
+2026-02-11T10:01:40.734Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:43.030Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:01:48.720Z [DEBUG] [useDeferredValue] Messages deferred by 1 (19→20)
+2026-02-11T10:01:48.759Z [DEBUG] High write ratio: blit=0, write=2136 (100.0% writes), screen=48x144
+2026-02-11T10:02:09.160Z [ERROR] SyntaxError: SyntaxError: JSON Parse error: Unrecognized token '我'
+    at <parse> (:0)
+    at parse (unknown)
+    at <anonymous> (/$bunfs/root/claude:62:1142)
+    at A (/$bunfs/root/claude:11:7851)
+    at DY_ (/$bunfs/root/claude:1136:4218)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T10:02:12.687Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-02-11T10:02:12.689Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-02-11T10:02:12.689Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:02:12.689Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:02:12.726Z [DEBUG] [useDeferredValue] Messages deferred by 2 (20→22)
+2026-02-11T10:02:12.756Z [DEBUG] High write ratio: blit=0, write=2256 (100.0% writes), screen=54x144
+2026-02-11T10:02:14.726Z [DEBUG] [useDeferredValue] Messages deferred by 1 (22→23)
+2026-02-11T10:02:14.734Z [DEBUG] High write ratio: blit=0, write=2283 (100.0% writes), screen=55x144
+2026-02-11T10:02:14.765Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:15.728Z [DEBUG] [useDeferredValue] Messages deferred by 1 (23→24)
+2026-02-11T10:02:15.760Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:16.730Z [DEBUG] [useDeferredValue] Messages deferred by 1 (24→25)
+2026-02-11T10:02:16.738Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:16.770Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:17.736Z [DEBUG] [useDeferredValue] Messages deferred by 1 (25→26)
+2026-02-11T10:02:17.777Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:18.739Z [DEBUG] [useDeferredValue] Messages deferred by 1 (26→27)
+2026-02-11T10:02:18.768Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:19.742Z [DEBUG] [useDeferredValue] Messages deferred by 1 (27→28)
+2026-02-11T10:02:19.749Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:19.773Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:20.741Z [DEBUG] [useDeferredValue] Messages deferred by 1 (28→29)
+2026-02-11T10:02:20.748Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:20.780Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:21.741Z [DEBUG] [useDeferredValue] Messages deferred by 1 (29→30)
+2026-02-11T10:02:21.749Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:21.782Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:22.748Z [DEBUG] [useDeferredValue] Messages deferred by 1 (30→31)
+2026-02-11T10:02:22.774Z [DEBUG] High write ratio: blit=0, write=2301 (100.0% writes), screen=55x144
+2026-02-11T10:02:22.792Z [DEBUG] High write ratio: blit=0, write=2302 (100.0% writes), screen=55x144
+2026-02-11T10:02:23.157Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:02:23.158Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:02:23.158Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:02:23.159Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-02-11T10:02:23.159Z [DEBUG] Found 5 hook matchers in settings
+2026-02-11T10:02:23.159Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:02:23.159Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:02:23.160Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:02:23.160Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:02:23.160Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-02-11T10:02:23.160Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-02-11T10:02:23.161Z [DEBUG] autocompact: tokens=40721 threshold=167000 effectiveWindow=180000
+2026-02-11T10:02:23.161Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:02:23.165Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:02:23.165Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:02:23.165Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:02:23.170Z [DEBUG] [useDeferredValue] Messages deferred by 1 (31→32)
+2026-02-11T10:02:23.179Z [DEBUG] High write ratio: blit=0, write=2256 (100.0% writes), screen=54x144
+2026-02-11T10:02:23.213Z [DEBUG] High write ratio: blit=0, write=2361 (100.0% writes), screen=58x144
+2026-02-11T10:02:24.589Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:02:26.059Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:02:32.147Z [DEBUG] [useDeferredValue] Messages deferred by 1 (32→33)
+2026-02-11T10:02:32.215Z [DEBUG] High write ratio: blit=0, write=2378 (100.0% writes), screen=58x144
+2026-02-11T10:02:34.246Z [ERROR] Error: Error: This PDF has 11 pages, which is too many to read at once. Use the pages parameter to read specific page ranges (e.g., pages: "1-5"). Maximum 20 pages per request.
+    at call (/$bunfs/root/claude:3301:1431)
+    at async <anonymous> (/$bunfs/root/claude:5800:1669)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T10:02:34.286Z [ERROR] Error: Error: This PDF has 11 pages, which is too many to read at once. Use the pages parameter to read specific page ranges (e.g., pages: "1-5"). Maximum 20 pages per request.
+    at call (/$bunfs/root/claude:3301:1431)
+    at async <anonymous> (/$bunfs/root/claude:5800:1669)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T10:02:59.008Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-02-11T10:02:59.010Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-02-11T10:02:59.010Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:02:59.010Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:02:59.046Z [DEBUG] [useDeferredValue] Messages deferred by 2 (33→35)
+2026-02-11T10:02:59.094Z [DEBUG] High write ratio: blit=0, write=2503 (100.0% writes), screen=64x144
+2026-02-11T10:03:01.047Z [DEBUG] [useDeferredValue] Messages deferred by 1 (35→36)
+2026-02-11T10:03:01.055Z [DEBUG] High write ratio: blit=0, write=2530 (100.0% writes), screen=65x144
+2026-02-11T10:03:01.092Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:02.048Z [DEBUG] [useDeferredValue] Messages deferred by 1 (36→37)
+2026-02-11T10:03:02.055Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:02.084Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:03.050Z [DEBUG] [useDeferredValue] Messages deferred by 1 (37→38)
+2026-02-11T10:03:03.081Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:04.050Z [DEBUG] [useDeferredValue] Messages deferred by 1 (38→39)
+2026-02-11T10:03:04.088Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:05.053Z [DEBUG] [useDeferredValue] Messages deferred by 1 (39→40)
+2026-02-11T10:03:05.060Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:05.093Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:06.055Z [DEBUG] [useDeferredValue] Messages deferred by 1 (40→41)
+2026-02-11T10:03:06.062Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:06.086Z [DEBUG] High write ratio: blit=0, write=2552 (100.0% writes), screen=65x144
+2026-02-11T10:03:07.055Z [DEBUG] [useDeferredValue] Messages deferred by 1 (41→42)
+2026-02-11T10:03:07.092Z [DEBUG] High write ratio: blit=0, write=2553 (100.0% writes), screen=65x144
+2026-02-11T10:03:08.057Z [DEBUG] [useDeferredValue] Messages deferred by 1 (42→43)
+2026-02-11T10:03:08.064Z [DEBUG] High write ratio: blit=0, write=2553 (100.0% writes), screen=65x144
+2026-02-11T10:03:08.092Z [DEBUG] High write ratio: blit=0, write=2553 (100.0% writes), screen=65x144
+2026-02-11T10:03:09.059Z [DEBUG] [useDeferredValue] Messages deferred by 1 (43→44)
+2026-02-11T10:03:09.067Z [DEBUG] High write ratio: blit=0, write=2553 (100.0% writes), screen=65x144
+2026-02-11T10:03:09.091Z [DEBUG] High write ratio: blit=0, write=2554 (100.0% writes), screen=65x144
+2026-02-11T10:03:09.349Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-02-11T10:03:09.349Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:03:09.349Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:03:09.350Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-02-11T10:03:09.350Z [DEBUG] Found 5 hook matchers in settings
+2026-02-11T10:03:09.350Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-02-11T10:03:09.350Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:03:09.352Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-02-11T10:03:09.352Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-02-11T10:03:09.352Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-02-11T10:03:09.352Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-02-11T10:03:09.353Z [DEBUG] autocompact: tokens=44971 threshold=167000 effectiveWindow=180000
+2026-02-11T10:03:09.353Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-11T10:03:09.357Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-11T10:03:09.357Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-11T10:03:09.358Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-11T10:03:09.361Z [DEBUG] [useDeferredValue] Messages deferred by 2 (44→46)
+2026-02-11T10:03:09.382Z [DEBUG] High write ratio: blit=0, write=2504 (100.0% writes), screen=64x144
+2026-02-11T10:03:09.423Z [DEBUG] High write ratio: blit=0, write=2714 (100.0% writes), screen=68x144
+2026-02-11T10:03:10.882Z [DEBUG] Stream started - received first chunk
+2026-02-11T10:04:17.769Z [ERROR] API error (attempt 1/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h15m8s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h15m8.442802342s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"8108.442802342s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:04:17.776Z [DEBUG] [useDeferredValue] Messages deferred by 1 (46→47)
+2026-02-11T10:04:17.809Z [DEBUG] High write ratio: blit=0, write=2714 (100.0% writes), screen=68x144
+2026-02-11T10:05:25.347Z [ERROR] API error (attempt 2/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h14m0s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h14m0.895379274s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"8040.895379274s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:05:25.352Z [DEBUG] [useDeferredValue] Messages deferred by 1 (47→48)
+2026-02-11T10:05:25.393Z [DEBUG] High write ratio: blit=0, write=2714 (100.0% writes), screen=68x144
+2026-02-11T10:05:37.371Z [DEBUG] Restarting caffeinate to maintain sleep prevention
+2026-02-11T10:05:37.371Z [DEBUG] Stopped caffeinate, allowing sleep
+2026-02-11T10:05:37.373Z [DEBUG] Started caffeinate to prevent sleep
+2026-02-11T10:05:40.344Z [DEBUG] BigQuery metrics export: trust not established, skipping
+2026-02-11T10:06:34.395Z [ERROR] API error (attempt 3/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h12m51s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h12m51.696026813s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7971.696026813s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:06:34.399Z [DEBUG] [useDeferredValue] Messages deferred by 1 (48→49)
+2026-02-11T10:06:34.435Z [DEBUG] High write ratio: blit=0, write=2714 (100.0% writes), screen=68x144
+2026-02-11T10:07:46.671Z [ERROR] API error (attempt 4/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h11m39s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h11m39.531646163s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7899.531646163s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:07:46.694Z [DEBUG] [useDeferredValue] Messages deferred by 1 (49→50)
+2026-02-11T10:07:46.831Z [DEBUG] High write ratio: blit=0, write=3705 (100.0% writes), screen=77x144
+2026-02-11T10:09:00.308Z [ERROR] API error (attempt 5/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h10m25s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h10m25.784344705s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7825.784344705s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:09:00.324Z [DEBUG] [useDeferredValue] Messages deferred by 1 (50→51)
+2026-02-11T10:09:00.371Z [DEBUG] High write ratio: blit=0, write=3704 (100.0% writes), screen=77x144
+2026-02-11T10:09:37.371Z [DEBUG] Restarting caffeinate to maintain sleep prevention
+2026-02-11T10:09:37.388Z [DEBUG] Started caffeinate to prevent sleep
+2026-02-11T10:10:15.078Z [ERROR] API error (attempt 6/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h9m11s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h9m11.126983184s\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7751.126983184s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:10:15.090Z [DEBUG] [useDeferredValue] Messages deferred by 1 (51→52)
+2026-02-11T10:10:15.168Z [DEBUG] High write ratio: blit=0, write=3704 (100.0% writes), screen=77x144
+2026-02-11T10:11:38.831Z [ERROR] API error (attempt 7/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h7m47s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h7m47.272531447s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7667.272531447s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:11:38.839Z [DEBUG] [useDeferredValue] Messages deferred by 1 (52→53)
+2026-02-11T10:11:38.882Z [DEBUG] High write ratio: blit=0, write=3705 (100.0% writes), screen=77x144
+2026-02-11T10:13:24.075Z [ERROR] API error (attempt 8/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h6m2s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"quotaResetDelay\": \"2h6m2.128671814s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7562.128671814s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:13:24.109Z [DEBUG] [useDeferredValue] Messages deferred by 1 (53→54)
+2026-02-11T10:13:24.244Z [DEBUG] High write ratio: blit=0, write=3703 (100.0% writes), screen=77x144
+2026-02-11T10:13:37.373Z [DEBUG] Restarting caffeinate to maintain sleep prevention
+2026-02-11T10:13:37.378Z [DEBUG] Started caffeinate to prevent sleep
+2026-02-11T10:15:11.922Z [ERROR] API error (attempt 9/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h4m14s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"uiMessage\": \"true\",\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h4m14.208828613s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7454.208828613s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:15:11.924Z [DEBUG] [useDeferredValue] Messages deferred by 1 (54→55)
+2026-02-11T10:15:11.968Z [DEBUG] High write ratio: blit=0, write=3705 (100.0% writes), screen=77x144
+2026-02-11T10:16:54.581Z [ERROR] API error (attempt 10/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h2m31s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h2m31.5227377s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7351.522737700s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:16:54.605Z [DEBUG] [useDeferredValue] Messages deferred by 1 (55→56)
+2026-02-11T10:16:54.648Z [DEBUG] High write ratio: blit=0, write=3704 (100.0% writes), screen=77x144
+2026-02-11T10:17:37.373Z [DEBUG] Restarting caffeinate to maintain sleep prevention
+2026-02-11T10:17:37.382Z [DEBUG] Started caffeinate to prevent sleep
+2026-02-11T10:18:36.719Z [ERROR] API error (attempt 11/11): 429 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h0m49s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h0m49.397513322s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7249.397513322s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:18:36.728Z [ERROR] Error in API request: 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h0m49s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h0m49.397513322s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7249.397513322s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+2026-02-11T10:18:36.738Z [ERROR] Error: Error: 429 {"error":{"id":"err_retry_exhausted","message":"All 2 attempts failed. Last status: 429 Too Many Requests. Error: HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You have exhausted your capacity on this model. Your quota will reset after 2h0m49s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"QUOTA_EXHAUSTED\",\n        \"domain\": \"cloudcode-pa.googleapis.com\",\n        \"metadata\": {\n          \"model\": \"claude-sonnet-4-5-thinking\",\n          \"quotaResetDelay\": \"2h0m49.397513322s\",\n          \"quotaResetTimeStamp\": \"2026-02-11T12:18:56Z\",\n          \"uiMessage\": \"true\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"7249.397513322s\"\n      }\n    ]\n  }\n}\n","type":"rate_limit_error"},"type":"error"}
+    at generate (/$bunfs/root/claude:319:9006)
+    at makeRequest (/$bunfs/root/claude:358:5435)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T10:18:36.787Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2026-02-11T10:18:36.787Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:18:36.787Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-02-11T10:18:36.809Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770805116809
+2026-02-11T10:18:36.809Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:18:36.810Z [DEBUG] Temp file written successfully, size: 50170 bytes
+2026-02-11T10:18:36.810Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:18:36.810Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770805116809 to /Users/fanshengxia/.claude.json
+2026-02-11T10:18:36.810Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:18:36.815Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.39994.1770805116815
+2026-02-11T10:18:36.816Z [DEBUG] Preserving file permissions: 100644
+2026-02-11T10:18:36.816Z [DEBUG] Temp file written successfully, size: 50170 bytes
+2026-02-11T10:18:36.816Z [DEBUG] Applied original permissions to temp file
+2026-02-11T10:18:36.816Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.39994.1770805116815 to /Users/fanshengxia/.claude.json
+2026-02-11T10:18:36.816Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-11T10:18:36.820Z [DEBUG] [useDeferredValue] Messages deferred by 2 (56→58)
+2026-02-11T10:18:36.837Z [DEBUG] Stopped caffeinate, allowing sleep
+2026-02-11T10:18:36.858Z [DEBUG] High write ratio: blit=0, write=3659 (100.0% writes), screen=76x144
+2026-02-11T10:19:36.854Z [DEBUG] Getting matching hook commands for Notification with query: idle_prompt
+2026-02-11T10:19:36.854Z [DEBUG] Found 0 hook matchers in settings
+2026-02-11T10:19:36.854Z [DEBUG] Matched 0 unique hooks for query "idle_prompt" (0 before deduplication)
+2026-02-11T10:20:40.344Z [DEBUG] BigQuery metrics export: trust not established, skipping
+2026-02-11T10:31:39.350Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T10:31:39.356Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T11:10:41.573Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T11:10:41.574Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T11:27:45.891Z [ERROR] Error: Error: 1P event logging: 3 events failed to export (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T11:27:45.892Z [ERROR] Error: Error: {"message":"Failed to export 3 events (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 3 events (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T11:42:57.223Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T11:42:57.224Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:00:02.705Z [ERROR] Error: Error: {"message":"Operation timed out.","originalLine":"1886","originalColumn":"90803","line":"1886","column":"90803","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:1886:90803)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:16930)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:00:02.710Z [ERROR] Error: Error: 1P event logging: 3 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:00:02.710Z [ERROR] Error: Error: {"message":"Failed to export 3 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 3 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:20:10.877Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T12:20:10.881Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T12:20:23.748Z [ERROR] Error: Error: 1P event logging: 6 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:20:23.749Z [ERROR] Error: Error: {"message":"Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:53:55.861Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T12:53:55.884Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T13:54:27.379Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T13:54:27.379Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T14:45:58.215Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T14:45:58.226Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T14:46:13.255Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T14:46:13.256Z [ERROR] Error: Error: {"message":"Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T15:56:25.477Z [DEBUG] Slow render: 96.8ms, screen: 77x144, damage: 144x77 at (0,0), changes: 84
+2026-02-11T15:56:55.215Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T15:56:55.216Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T17:35:45.589Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T17:35:45.604Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T17:35:58.249Z [ERROR] Error: Error: 1P event logging: 6 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T17:35:58.251Z [ERROR] Error: Error: {"message":"Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T18:10:22.852Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T18:10:22.855Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T18:26:30.462Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T18:26:30.465Z [ERROR] Error: Error: {"message":"Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T19:07:10.545Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T19:07:10.548Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T19:46:17.593Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T19:46:17.600Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T21:24:05.358Z [ERROR] Error: Error: 1P event logging: 1 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T21:24:05.360Z [ERROR] Error: Error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T21:24:20.350Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T21:24:20.356Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T22:48:47.568Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T22:48:47.569Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T23:49:20.594Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-11T23:49:20.609Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-11T23:49:33.203Z [ERROR] Error: Error: 1P event logging: 6 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-11T23:49:33.204Z [ERROR] Error: Error: {"message":"Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T00:36:18.388Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T00:36:18.389Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at OE8 (/$bunfs/root/claude:3624:2077)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T00:50:19.293Z [ERROR] Error: Error: {"message":"Operation timed out.","originalLine":"1886","originalColumn":"90803","line":"1886","column":"90803","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:1886:90803)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:16930)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T00:50:19.305Z [ERROR] Error: Error: 1P event logging: 3 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:1891:2350)
+    at async doExport (/$bunfs/root/claude:1891:1257)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T00:50:19.306Z [ERROR] Error: Error: {"message":"Failed to export 3 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"1891","originalColumn":"1409","line":"1891","column":"1409","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 3 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:1891:1409)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:1934:25028)
+    at <anonymous> (/$bunfs/root/claude:1886:19938)
+    at Iv7 (/$bunfs/root/claude:1886:20482)
+    at <anonymous> (/$bunfs/root/claude:1887:17366)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T01:02:45.284Z [DEBUG] High write ratio: blit=0, write=3512 (100.0% writes), screen=78x123
+2026-02-12T01:02:47.911Z [DEBUG] High write ratio: blit=0, write=3659 (100.0% writes), screen=76x144
+2026-02-12T01:03:41.653Z [DEBUG] Getting matching hook commands for SessionEnd with query: other
+2026-02-12T01:03:41.653Z [DEBUG] Found 0 hook matchers in settings
+2026-02-12T01:03:41.653Z [DEBUG] Matched 0 unique hooks for query "other" (0 before deduplication)

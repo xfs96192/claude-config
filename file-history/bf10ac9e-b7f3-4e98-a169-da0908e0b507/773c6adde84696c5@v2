@@ -1,0 +1,287 @@
+"""FastAPI REST endpoints for iChoice data system"""
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import JSONResponse
+from typing import List, Optional
+from pydantic import BaseModel
+from datetime import datetime
+
+from config.config import settings
+from src.database.models import Database
+
+# Initialize FastAPI app
+app = FastAPI(
+    title=settings.API_TITLE,
+    version=settings.API_VERSION,
+    description="REST API for iChoice financial market data"
+)
+
+# Initialize database
+db = Database(settings.DATABASE_PATH)
+
+
+# ==================== Request Models ====================
+
+class BatchDataRequest(BaseModel):
+    """Request model for batch data query"""
+    codes: List[str]
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    field_name: Optional[str] = None
+
+
+class UpdateRequest(BaseModel):
+    """Request model for manual update trigger"""
+    update_type: str = "smart"  # smart/full/incremental/retry
+
+
+# ==================== Endpoints ====================
+
+@app.get("/")
+async def root():
+    """API root endpoint"""
+    return {
+        "name": settings.API_TITLE,
+        "version": settings.API_VERSION,
+        "status": "running",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get("/indicators")
+async def get_indicators(category: Optional[str] = None):
+    """Get list of indicators
+
+    Args:
+        category: Filter by category (债券/宏观/权益/资金/外汇/商品/海外/可转债)
+
+    Returns:
+        List of indicators with metadata
+    """
+    try:
+        indicators = db.get_indicators(category=category)
+        return {
+            "count": len(indicators),
+            "category": category,
+            "indicators": indicators
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/indicators/{ichoice_code}")
+async def get_indicator_detail(ichoice_code: str):
+    """Get indicator details including available fields
+
+    Args:
+        ichoice_code: iChoice indicator code
+
+    Returns:
+        Indicator metadata and field information
+    """
+    try:
+        indicator = db.get_indicator_by_code(ichoice_code)
+        if not indicator:
+            raise HTTPException(status_code=404, detail=f"Indicator {ichoice_code} not found")
+
+        fields = db.get_indicator_fields(ichoice_code)
+        data_count = db.get_data_count(ichoice_code)
+        last_date = db.get_last_update_date(ichoice_code)
+
+        return {
+            "indicator": indicator,
+            "fields": fields,
+            "data_count": data_count,
+            "last_update_date": last_date
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/data/{ichoice_code}")
+async def get_time_series_data(
+    ichoice_code: str,
+    field_name: Optional[str] = Query(None, description="Field name (e.g., 'CLOSE', 'value')"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)")
+):
+    """Get time series data for an indicator
+
+    Args:
+        ichoice_code: iChoice indicator code
+        field_name: Field name filter (optional, returns all fields if not specified)
+        start_date: Start date filter (YYYY-MM-DD)
+        end_date: End date filter (YYYY-MM-DD)
+
+    Returns:
+        Time series data
+    """
+    try:
+        # Check if indicator exists
+        indicator = db.get_indicator_by_code(ichoice_code)
+        if not indicator:
+            raise HTTPException(status_code=404, detail=f"Indicator {ichoice_code} not found")
+
+        # Get data
+        data = db.get_time_series_data(ichoice_code, field_name, start_date, end_date)
+
+        return {
+            "ichoice_code": ichoice_code,
+            "field_name": field_name,
+            "start_date": start_date,
+            "end_date": end_date,
+            "count": len(data),
+            "data": data
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/batch-data")
+async def get_batch_data(request: BatchDataRequest):
+    """Get batch data for multiple indicators
+
+    Args:
+        request: Batch data request with codes and date range
+
+    Returns:
+        Data for all requested indicators
+    """
+    try:
+        results = {}
+
+        for code in request.codes:
+            data = db.get_time_series_data(
+                code,
+                request.field_name,
+                request.start_date,
+                request.end_date
+            )
+            results[code] = {
+                "count": len(data),
+                "data": data
+            }
+
+        return {
+            "codes": request.codes,
+            "start_date": request.start_date,
+            "end_date": request.end_date,
+            "field_name": request.field_name,
+            "results": results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/status")
+async def get_status():
+    """Get system status and statistics
+
+    Returns:
+        System status, data completeness, and update statistics
+    """
+    try:
+        stats = db.get_statistics()
+        recent_logs = db.get_update_logs(limit=10)
+
+        return {
+            "status": "operational",
+            "timestamp": datetime.now().isoformat(),
+            "statistics": stats,
+            "recent_updates": recent_logs
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/fields")
+async def analyze_fields():
+    """Analyze multi-field indicators
+
+    Returns:
+        Statistics on field usage across indicators
+    """
+    try:
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        # Count fields per indicator
+        cursor.execute("""
+            SELECT ichoice_code, COUNT(*) as field_count
+            FROM indicator_fields
+            GROUP BY ichoice_code
+            HAVING field_count > 1
+            ORDER BY field_count DESC
+        """)
+
+        multi_field_indicators = [dict(row) for row in cursor.fetchall()]
+
+        # Field name distribution
+        cursor.execute("""
+            SELECT field_name, COUNT(*) as indicator_count
+            FROM indicator_fields
+            GROUP BY field_name
+            ORDER BY indicator_count DESC
+        """)
+
+        field_distribution = [dict(row) for row in cursor.fetchall()]
+
+        return {
+            "multi_field_count": len(multi_field_indicators),
+            "multi_field_indicators": multi_field_indicators,
+            "field_distribution": field_distribution
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/logs/{ichoice_code}")
+async def get_indicator_logs(ichoice_code: str, limit: int = 50):
+    """Get update logs for a specific indicator
+
+    Args:
+        ichoice_code: iChoice indicator code
+        limit: Maximum number of logs to return
+
+    Returns:
+        Update logs for the indicator
+    """
+    try:
+        logs = db.get_update_logs(ichoice_code=ichoice_code, limit=limit)
+        return {
+            "ichoice_code": ichoice_code,
+            "count": len(logs),
+            "logs": logs
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    try:
+        # Simple database query to verify connection
+        stats = db.get_statistics()
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host=settings.API_HOST, port=settings.API_PORT)

@@ -1,0 +1,328 @@
+#!/usr/bin/env python3
+"""Main entry point for iChoice Data System
+
+Commands:
+    init        - Initialize database and load indicators
+    update      - Run data update (smart/full/incremental/retry)
+    server      - Start REST API server
+    scheduler   - Start background scheduler
+    status      - Show system status
+    fields      - Analyze multi-field indicators
+    test        - Test iChoice API connection
+"""
+
+import sys
+import argparse
+import logging
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+from config.config import settings
+from src.database.models import Database
+from src.data_fetcher.ichoice_client import IChoiceClient
+from src.data_fetcher.indicator_loader import IndicatorLoader
+from src.scheduler.data_updater import DataUpdater
+
+
+def setup_logging():
+    """Setup logging configuration"""
+    log_dir = Path(settings.LOG_DIR)
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    logging.basicConfig(
+        level=getattr(logging, settings.LOG_LEVEL),
+        format=settings.LOG_FORMAT,
+        handlers=[
+            logging.FileHandler(log_dir / 'ichoice_data.log'),
+            logging.StreamHandler()
+        ]
+    )
+
+
+def cmd_init(args):
+    """Initialize database and load indicators"""
+    logger = logging.getLogger(__name__)
+    logger.info("=== Initializing iChoice Data System ===")
+
+    # Initialize database
+    db = Database(settings.DATABASE_PATH)
+    logger.info(f"Database initialized at {settings.DATABASE_PATH}")
+
+    # Load indicators from Excel
+    loader = IndicatorLoader(settings.INDICATOR_EXCEL_PATH)
+    indicators_count, fields_count = loader.populate_database(db)
+
+    logger.info(f"✓ Loaded {indicators_count} indicators with {fields_count} fields")
+
+    # Show statistics
+    stats = db.get_statistics()
+    logger.info(f"✓ Database ready: {stats['total_indicators']} indicators")
+    logger.info(f"✓ Categories: {stats['indicators_by_category']}")
+
+    print("\n✓ Initialization complete!")
+    print(f"  - Indicators loaded: {indicators_count}")
+    print(f"  - Fields defined: {fields_count}")
+    print(f"  - Database: {settings.DATABASE_PATH}")
+
+
+def cmd_update(args):
+    """Run data update"""
+    logger = logging.getLogger(__name__)
+    update_type = args.update_type
+
+    logger.info(f"=== Running {update_type} update ===")
+
+    # Initialize components
+    db = Database(settings.DATABASE_PATH)
+    client = IChoiceClient(
+        sdk_path=settings.ICHOICE_SDK_PATH,
+        username=settings.ICHOICE_USERNAME,
+        password=settings.ICHOICE_PASSWORD,
+        timeout=settings.ICHOICE_TIMEOUT
+    )
+    updater = DataUpdater(db, client)
+
+    # Run appropriate update
+    if update_type == 'smart':
+        updater.smart_incremental_update()
+    elif update_type == 'full':
+        updater.full_update(settings.HISTORICAL_START_YEAR)
+    elif update_type == 'incremental':
+        updater.incremental_update()
+    elif update_type == 'retry':
+        updater.retry_failed()
+    else:
+        logger.error(f"Unknown update type: {update_type}")
+        print(f"Error: Unknown update type '{update_type}'")
+        print("Valid types: smart, full, incremental, retry")
+        sys.exit(1)
+
+    # Show statistics
+    stats = db.get_statistics()
+    print("\n✓ Update complete!")
+    print(f"  - Total data points: {stats['total_data_points']:,}")
+    print(f"  - Indicators with data: {stats['indicators_with_data']}/{stats['total_indicators']}")
+    print(f"  - Data completeness: {stats['data_completeness']:.1f}%")
+    print(f"  - Updates today: {stats['updates_today']}")
+
+
+def cmd_server(args):
+    """Start REST API server"""
+    logger = logging.getLogger(__name__)
+    logger.info("=== Starting REST API Server ===")
+
+    print(f"Starting API server at http://{settings.API_HOST}:{settings.API_PORT}")
+    print(f"API documentation: http://localhost:{settings.API_PORT}/docs")
+    print("Press Ctrl+C to stop\n")
+
+    import uvicorn
+    from src.api.main import app
+
+    uvicorn.run(
+        app,
+        host=settings.API_HOST,
+        port=settings.API_PORT,
+        log_level=settings.LOG_LEVEL.lower()
+    )
+
+
+def cmd_scheduler(args):
+    """Start background scheduler"""
+    logger = logging.getLogger(__name__)
+    logger.info("=== Starting Background Scheduler ===")
+
+    # Initialize components
+    db = Database(settings.DATABASE_PATH)
+    client = IChoiceClient(
+        sdk_path=settings.ICHOICE_SDK_PATH,
+        username=settings.ICHOICE_USERNAME,
+        password=settings.ICHOICE_PASSWORD,
+        timeout=settings.ICHOICE_TIMEOUT
+    )
+    updater = DataUpdater(db, client)
+
+    print("Starting scheduler...")
+    print(f"  - Daily updates: {settings.DAILY_UPDATE_TIME} (weekdays)")
+    print(f"  - Weekly full update: {settings.WEEKLY_UPDATE_TIME} (Sunday)")
+    print("Press Ctrl+C to stop\n")
+
+    try:
+        updater.run_scheduler()
+    except KeyboardInterrupt:
+        print("\n\nStopping scheduler...")
+        updater.stop_scheduler()
+        print("✓ Scheduler stopped")
+
+
+def cmd_status(args):
+    """Show system status"""
+    logger = logging.getLogger(__name__)
+    logger.info("=== System Status ===")
+
+    db = Database(settings.DATABASE_PATH)
+    stats = db.get_statistics()
+
+    print("\n=== iChoice Data System Status ===\n")
+    print(f"Database: {settings.DATABASE_PATH}")
+    print(f"Total Indicators: {stats['total_indicators']}")
+    print(f"Indicators with Data: {stats['indicators_with_data']}")
+    print(f"Data Completeness: {stats['data_completeness']:.2f}%")
+    print(f"Total Data Points: {stats['total_data_points']:,}")
+    print(f"Updates Today: {stats['updates_today']}")
+    print(f"Failed Updates: {stats['failed_updates']}")
+
+    print("\n--- Indicators by Category ---")
+    for category, count in sorted(stats['indicators_by_category'].items()):
+        print(f"  {category}: {count}")
+
+    # Recent update logs
+    print("\n--- Recent Updates (Last 5) ---")
+    logs = db.get_update_logs(limit=5)
+    for log in logs:
+        status_icon = "✓" if log['status'] == 'success' else "✗"
+        print(f"  {status_icon} {log['ichoice_code']}.{log['field_name']} "
+              f"[{log['update_type']}] {log['records_count']} records - {log['update_time']}")
+
+
+def cmd_fields(args):
+    """Analyze multi-field indicators"""
+    logger = logging.getLogger(__name__)
+    logger.info("=== Analyzing Multi-Field Indicators ===")
+
+    db = Database(settings.DATABASE_PATH)
+    conn = db.get_connection()
+    cursor = conn.cursor()
+
+    # Multi-field indicators
+    cursor.execute("""
+        SELECT ichoice_code, COUNT(*) as field_count
+        FROM indicator_fields
+        GROUP BY ichoice_code
+        HAVING field_count > 1
+        ORDER BY field_count DESC
+    """)
+    multi_field = cursor.fetchall()
+
+    print("\n=== Multi-Field Indicators ===\n")
+    print(f"Total multi-field indicators: {len(multi_field)}\n")
+
+    for row in multi_field[:10]:
+        code = row['ichoice_code']
+        count = row['field_count']
+
+        # Get field details
+        fields = db.get_indicator_fields(code)
+        field_names = [f['field_name'] for f in fields]
+
+        print(f"  {code}: {count} fields - {', '.join(field_names)}")
+
+    # Field distribution
+    print("\n--- Field Name Distribution ---")
+    cursor.execute("""
+        SELECT field_name, COUNT(*) as count
+        FROM indicator_fields
+        GROUP BY field_name
+        ORDER BY count DESC
+    """)
+    for row in cursor.fetchall():
+        print(f"  {row['field_name']}: {row['count']} indicators")
+
+
+def cmd_test(args):
+    """Test iChoice API connection"""
+    logger = logging.getLogger(__name__)
+    logger.info("=== Testing iChoice API Connection ===")
+
+    print("Testing connection to iChoice API...")
+    print(f"SDK Path: {settings.ICHOICE_SDK_PATH}")
+    print(f"Username: {settings.ICHOICE_USERNAME}")
+    print(f"Timeout: {settings.ICHOICE_TIMEOUT}ms\n")
+
+    client = IChoiceClient(
+        sdk_path=settings.ICHOICE_SDK_PATH,
+        username=settings.ICHOICE_USERNAME,
+        password=settings.ICHOICE_PASSWORD,
+        timeout=settings.ICHOICE_TIMEOUT
+    )
+
+    print("Connecting... (this may take 2-3 minutes on first run)")
+    success = client.test_connection()
+
+    if success:
+        print("\n✓ Connection successful!")
+    else:
+        print("\n✗ Connection failed!")
+        print("Check logs for details")
+        sys.exit(1)
+
+
+def main():
+    """Main entry point"""
+    setup_logging()
+
+    parser = argparse.ArgumentParser(
+        description='iChoice Financial Data System',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    subparsers = parser.add_subparsers(dest='command', help='Command to run')
+
+    # init command
+    subparsers.add_parser('init', help='Initialize database and load indicators')
+
+    # update command
+    update_parser = subparsers.add_parser('update', help='Run data update')
+    update_parser.add_argument(
+        '--update-type',
+        choices=['smart', 'full', 'incremental', 'retry'],
+        default='smart',
+        help='Update type (default: smart)'
+    )
+
+    # server command
+    subparsers.add_parser('server', help='Start REST API server')
+
+    # scheduler command
+    subparsers.add_parser('scheduler', help='Start background scheduler')
+
+    # status command
+    subparsers.add_parser('status', help='Show system status')
+
+    # fields command
+    subparsers.add_parser('fields', help='Analyze multi-field indicators')
+
+    # test command
+    subparsers.add_parser('test', help='Test iChoice API connection')
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    # Execute command
+    commands = {
+        'init': cmd_init,
+        'update': cmd_update,
+        'server': cmd_server,
+        'scheduler': cmd_scheduler,
+        'status': cmd_status,
+        'fields': cmd_fields,
+        'test': cmd_test
+    }
+
+    try:
+        commands[args.command](args)
+    except KeyboardInterrupt:
+        print("\n\nInterrupted by user")
+        sys.exit(0)
+    except Exception as e:
+        logging.error(f"Command failed: {e}", exc_info=True)
+        print(f"\n✗ Error: {e}")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

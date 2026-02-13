@@ -1,0 +1,491 @@
+# iChoice 金融数据系统
+
+基于 iChoice/EMQuantAPI 的综合金融数据库系统，自动获取、存储和提供市场数据服务。采用经过验证的 `data_api` 系统架构，具备智能更新和多字段支持功能。
+
+## 🎯 核心功能
+
+- **多源数据支持**：同时支持 EDB（宏观经济）和 CSD（市场行情）数据源
+- **智能增量更新**：自动识别新增指标和存量指标
+  - 新增指标：自动获取 2000 年至今的完整历史数据
+  - 存量指标：仅获取上次更新日期之后的增量数据
+- **多字段支持**：支持单个指标的多维度数据（如股票指数同时存储收盘价和市盈率）
+- **自动调度**：工作日每天 18:00 增量更新，周日凌晨 02:00 完整刷新
+- **REST API**：功能完整的数据查询和系统管理接口
+- **健壮的错误处理**：超时保护、速率限制、重试机制
+
+## 📊 数据覆盖
+
+**8 大类共 453 个指标：**
+
+- **债券**：收益率曲线、信用利差
+- **宏观**：GDP、CPI、PMI、M2、社融
+- **权益**：A股指数、行业指数
+- **资金**：DR007、SHIBOR、IRS
+- **外汇**：汇率数据
+- **商品**：期货价格
+- **海外**：国际指数
+- **可转债**：可转债指数
+
+## 🚀 快速开始
+
+### 1. 安装依赖
+
+```bash
+cd /Users/fanshengxia/Desktop/ichoice_data
+
+# 安装 Python 依赖包
+pip install -r requirements.txt
+```
+
+### 2. 初始化数据库
+
+```bash
+# 从 Excel 加载 453 个指标并创建数据库表结构
+python main.py init
+```
+
+**预期输出：**
+
+```
+✓ 加载了 453 个指标，包含 600+ 个字段
+✓ 数据库就绪：453 个指标
+✓ 分类统计：{'债券': 120, '宏观': 85, '权益': 95, ...}
+```
+
+### 3. 测试连接
+
+```bash
+# 验证 iChoice API 连接（首次运行需要 2-3 分钟）
+python main.py test
+```
+
+### 4. 运行初始数据更新
+
+```bash
+# 智能更新：为所有新指标获取完整历史数据
+python main.py update --update-type smart
+```
+
+**可选的更新类型：**
+
+- `smart`（推荐）：新指标获取完整历史，存量指标增量更新
+- `full`：所有指标从 2000 年开始完整更新
+- `incremental`：传统增量更新（昨天到今天）
+- `retry`：仅重试失败的指标
+
+## 📅 自动更新
+
+### 启动后台调度器
+
+```bash
+# 前台运行调度器（按 Ctrl+C 停止）
+python main.py scheduler
+```
+
+**调度计划：**
+
+- **每日**：周一至周五 18:00（智能增量更新）
+- **每周**：周日 02:00（从 2000 年开始完整刷新）
+
+**生产环境部署（后台服务）：**
+
+```bash
+# 使用 nohup 运行
+nohup python main.py scheduler > logs/scheduler.log 2>&1 &
+
+# 或使用 systemd/launchd（推荐用于生产环境）
+# 参见下方部署章节
+```
+
+## 🔍 数据查询
+
+### 命令行查询
+
+```bash
+# 查看系统统计信息
+python main.py status
+
+# 分析多字段指标
+python main.py fields
+```
+
+### REST API
+
+```bash
+# 启动 API 服务器
+python main.py server
+
+# API 运行在 http://localhost:8001
+# 交互式文档：http://localhost:8001/docs
+```
+
+**主要 API 端点：**
+
+```bash
+# 获取所有指标
+curl "http://localhost:8001/indicators"
+
+# 按分类获取指标
+curl "http://localhost:8001/indicators?category=宏观"
+
+# 获取时间序列数据
+curl "http://localhost:8001/data/EMM00072301?start_date=2024-01-01"
+
+# 获取股票指数特定字段数据
+curl "http://localhost:8001/data/000300.SH?field_name=CLOSE&start_date=2025-01-01"
+
+# 批量查询多个指标
+curl -X POST "http://localhost:8001/batch-data" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "codes": ["000300.SH", "EMM00072301"],
+    "start_date": "2024-01-01",
+    "end_date": "2025-01-31"
+  }'
+
+# 系统状态
+curl "http://localhost:8001/status"
+```
+
+## 🏗️ 系统架构
+
+```
+ichoice_data/
+├── config/
+│   └── config.py              # 配置文件（账号、超时、速率限制）
+├── src/
+│   ├── database/
+│   │   └── models.py          # SQLite ORM（4张表，支持多字段）
+│   ├── data_fetcher/
+│   │   ├── ichoice_client.py  # iChoice API 封装（含超时处理）
+│   │   └── indicator_loader.py # Excel 指标加载器
+│   ├── scheduler/
+│   │   └── data_updater.py    # 智能更新逻辑 + 调度器
+│   └── api/
+│       └── main.py            # FastAPI REST 端点
+├── data/
+│   ├── 数据指标.xlsx           # 453个指标映射（Wind→Choice）
+│   └── ichoice_data.db        # SQLite 数据库（自动创建）
+├── logs/                      # 日志文件
+├── main.py                    # 主入口程序
+├── requirements.txt
+├── README.md                  # 英文文档
+└── README_CN.md              # 中文文档
+```
+
+## 💾 数据库设计
+
+**4张表及索引：**
+
+1. **indicators**：基础元数据（分类、名称、代码、数据源）
+2. **indicator_fields**：多字段映射（代码 → 字段）
+3. **time_series_data**：时间序列数据（代码 + 字段 + 日期 → 值）
+4. **update_logs**：更新历史记录（成功/失败、记录数）
+
+**多字段示例：**
+
+- `000300.SH`（沪深300）包含 2 个字段：
+  - `CLOSE`：收盘价
+  - `PETTM`：市盈率TTM
+
+## ⚙️ 配置说明
+
+**`config/config.py` 中的关键设置：**
+
+```python
+# iChoice 账号
+ICHOICE_USERNAME: str = "xylczh0181"
+ICHOICE_PASSWORD: str = "ef465509"
+ICHOICE_TIMEOUT: int = 300000  # 5分钟（重要：首次登录需下载配置）
+
+# 数据设置
+HISTORICAL_START_YEAR: int = 2000
+DEFAULT_START_DATE: str = "2000-01-01"
+
+# 速率限制
+EDB_MAX_INDICATORS_PER_REQUEST: int = 100
+CSD_RATE_LIMIT: int = 700  # 每分钟请求数
+REQUEST_INTERVAL: float = 1.0  # 请求间隔（秒）
+
+# 调度器
+DAILY_UPDATE_TIME: str = "18:00"
+WEEKLY_UPDATE_TIME: str = "02:00"
+
+# API
+API_PORT: int = 8001
+```
+
+## 🔧 技术细节
+
+### 数据源识别
+
+```python
+# EDB（宏观经济数据）
+EMM00072301  # 以 EMM/EMG/EMI/E 开头 → EDB
+→ 使用 c.edb()，字段名为 "value"
+
+# CSD（市场数据）
+000300.SH    # 包含交易所后缀（.SH/.SZ/.CSI/.SWI）→ CSD
+→ 使用 c.csd()，字段名为 "CLOSE"/"PETTM" 等
+```
+
+### 智能更新逻辑
+
+**新指标（数据库中无数据）：**
+
+```python
+# 获取从 2000-01-01 至今的完整历史数据
+start_date = "2000-01-01"
+update_type = "smart_new"
+```
+
+**存量指标：**
+
+```python
+# 增量更新：从 last_date + 1 至今天
+last_date = db.get_last_update_date(code, field)  # 如 "2025-02-10"
+start_date = last_date + 1 天  # "2025-02-11"
+update_type = "smart_existing"
+```
+
+### 关键：超时处理
+
+**为什么需要 5 分钟超时？**
+
+- 首次登录需下载 `ChoiceToHQ.xml`（2-3 分钟）
+- 多年历史数据查询可能需要 1-2 分钟
+- 默认 2 分钟超时会导致失败
+
+**实现方式：**
+
+```python
+# 所有 API 调用使用 subprocess，超时设置为 300 秒
+client = IChoiceClient(timeout=300000)  # 毫秒
+```
+
+### 速率限制
+
+**EDB API：**
+
+- 单次请求最多 100 个指标
+- 大批量查询自动分批：`fetch_edb_data(['EMM001', 'EMM002', ...], start, end)`
+
+**CSD API：**
+
+- 每分钟最多 700 个请求
+- 请求间隔 1 秒
+- 多年查询：逐个代码获取以避免超时
+
+## 📈 使用示例
+
+### 示例 1：获取 CPI 数据
+
+```bash
+# 使用 CLI
+python main.py status
+
+# 使用 API
+curl "http://localhost:8001/data/EMM00072301?start_date=2024-01-01&end_date=2024-12-31"
+```
+
+### 示例 2：获取股票指数多字段数据
+
+```bash
+# 获取沪深300的收盘价和市盈率
+curl "http://localhost:8001/data/000300.SH?start_date=2025-01-01"
+
+# 仅获取收盘价
+curl "http://localhost:8001/data/000300.SH?field_name=CLOSE&start_date=2025-01-01"
+```
+
+### 示例 3：批量查询多个指标
+
+```python
+import requests
+
+response = requests.post('http://localhost:8001/batch-data', json={
+    'codes': ['EMM00072301', '000300.SH', 'EMG00000155'],
+    'start_date': '2024-01-01',
+    'end_date': '2024-12-31'
+})
+
+data = response.json()
+for code, info in data['results'].items():
+    print(f"{code}: {info['count']} 条数据")
+```
+
+## 🔄 更新策略对比
+
+| 策略                    | 适用场景 | 新指标           | 存量指标                     |
+| ----------------------- | -------- | ---------------- | ---------------------------- |
+| **smart**（推荐） | 日常更新 | 2000至今完整数据 | 从上次日期增量更新           |
+| **full**          | 完整刷新 | 2000至今完整数据 | 2000至今完整数据（覆盖）     |
+| **incremental**   | 传统方式 | 仅昨天-今天      | 仅昨天-今天                  |
+| **retry**         | 修复失败 | 2000至今完整数据 | 2000至今完整数据（仅失败的） |
+
+## 🚨 故障排查
+
+### 连接超时
+
+**症状：**"Script execution exceeded 300000ms timeout"
+
+**解决方案：**
+
+```python
+# config.py 中已配置
+ICHOICE_TIMEOUT: int = 300000  # 5分钟
+
+# 如网络很慢，可增加到10分钟：
+ICHOICE_TIMEOUT: int = 600000
+```
+
+### EDB 批量大小错误
+
+**症状：**"EDB API supports max 100 indicators per request"
+
+**解决方案：**
+
+```python
+# 客户端已自动处理
+# 大批量请求自动分组为每组100个
+```
+
+### 失败的指标
+
+```bash
+# 查看系统状态，了解失败数量
+python main.py status
+
+# 仅重试失败的指标
+python main.py update --update-type retry
+```
+
+### 查看更新日志
+
+```bash
+# 通过 API
+curl "http://localhost:8001/logs/000300.SH"
+
+# 通过数据库
+sqlite3 data/ichoice_data.db "SELECT * FROM update_logs WHERE status='failed' LIMIT 10"
+```
+
+## 📊 性能指标
+
+**初始设置：**
+
+- 数据库初始化：< 1 秒
+- 加载指标：< 5 秒（453个指标）
+- 首次完整更新：4-6 小时（取决于网络）
+
+**日常更新：**
+
+- 智能增量更新：10-30 分钟（仅更新新数据）
+- 完整更新：4-6 小时（所有指标从2000年开始）
+
+**数据完整性目标：**
+
+- 首次完整更新后 > 95%
+- 重试失败指标后 98-100%
+
+## 🔐 安全提示
+
+- **账号信息**：存储在 `config/config.py`（生产环境建议使用环境变量）
+- **数据库**：SQLite 文件（`ichoice_data.db`）- 确保正确的文件权限
+- **API**：默认无认证 - 生产环境部署时建议添加 API Key 认证
+
+## 📝 命令参考
+
+```bash
+# 数据库与数据管理
+python main.py init                        # 初始化数据库
+python main.py update                      # 智能增量更新（默认）
+python main.py update --update-type full   # 完整历史更新
+python main.py update --update-type retry  # 仅重试失败的
+
+# 服务
+python main.py server                      # 启动 REST API
+python main.py scheduler                   # 启动后台调度器
+
+# 监控
+python main.py status                      # 系统状态
+python main.py fields                      # 多字段分析
+python main.py test                        # 测试 iChoice 连接
+```
+
+## 🎯 下一步操作
+
+1. **初始设置：**
+
+   ```bash
+   python main.py init
+   python main.py test
+   python main.py update --update-type full  # 需要 4-6 小时
+   ```
+2. **验证数据：**
+
+   ```bash
+   python main.py status
+   python main.py fields
+   ```
+3. **启动服务：**
+
+   ```bash
+   # 终端1：API服务器
+   python main.py server
+
+   # 终端2：调度器
+   python main.py scheduler
+   ```
+4. **生产环境部署：**
+
+   - 配置 systemd/launchd 服务运行调度器
+   - 配置反向代理（nginx）用于 API
+   - 添加 API 认证
+   - 设置数据库备份
+
+## 🔄 项目结构
+
+```
+✅ 15 个文件已创建：
+- 配置文件：config/config.py, requirements.txt
+- 数据库：src/database/models.py
+- 数据获取：src/data_fetcher/ichoice_client.py, indicator_loader.py
+- 调度器：src/scheduler/data_updater.py
+- API：src/api/main.py
+- 入口：main.py（可执行）
+- 文档：README.md（英文）, README_CN.md（中文）, .gitignore
+- 6 个 __init__.py 包文件
+```
+
+## 💡 常见问题
+
+### Q: 首次运行需要多长时间？
+
+A: 数据库初始化约5秒，首次完整数据更新需要4-6小时（453个指标 × 25年数据）。
+
+### Q: 如何只更新某个分类的数据？
+
+A: 当前版本更新所有指标。如需按分类更新，可修改 `data_updater.py` 中的 `smart_incremental_update()` 方法，添加分类过滤。
+
+### Q: 数据存储在哪里？2000
+
+A: SQLite数据库文件：`/Users/fanshengxia/Desktop/ichoice_data/data/ichoice_data.db`
+
+### Q: 如何备份数据？
+
+A: 直接复制 `ichoice_data.db` 文件即可。建议定期备份。
+
+### Q: API 可以远程访问吗？
+
+A: 默认绑定 0.0.0.0，可通过局域网访问。公网访问需配置防火墙和反向代理。
+
+## 📞 技术支持
+
+如有问题或需要帮助，请联系开发团队。
+
+---
+
+**开发技术栈：** Python 3.x | SQLite | FastAPI | EMQuantAPI | Schedule
+
+**适用部门：** 兴银理财多资产投资部

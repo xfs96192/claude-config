@@ -1,0 +1,265 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+163邮箱邮件下载工具
+下载最近1天的邮件及其附件
+"""
+
+import imaplib
+import email
+from email.header import decode_header
+import os
+from datetime import datetime, timedelta
+import sys
+
+
+class EmailDownloader:
+    def __init__(self, email_account, password):
+        """初始化邮件下载器"""
+        self.email_account = email_account
+        self.password = password
+        self.imap_server = "imap.163.com"
+        self.imap_port = 993
+        self.mail = None
+
+    def connect(self):
+        """连接到邮箱服务器"""
+        try:
+            print(f"正在连接到 {self.imap_server}...")
+            self.mail = imaplib.IMAP4_SSL(self.imap_server, self.imap_port)
+            self.mail.login(self.email_account, self.password)
+            print("✓ 登录成功！")
+            return True
+        except Exception as e:
+            print(f"✗ 登录失败: {e}")
+            return False
+
+    def decode_str(self, s):
+        """解码邮件头部信息"""
+        if s is None:
+            return ""
+        value, charset = decode_header(s)[0]
+        if charset:
+            try:
+                value = value.decode(charset)
+            except:
+                value = value.decode('utf-8', errors='ignore')
+        elif isinstance(value, bytes):
+            value = value.decode('utf-8', errors='ignore')
+        return str(value)
+
+    def get_emails_since_date(self, days=1):
+        """获取最近N天的邮件"""
+        try:
+            # 选择收件箱
+            status, message_count = self.mail.select('INBOX')
+            if status != 'OK':
+                print(f"选择收件箱失败: {message_count}")
+                return []
+
+            print(f"收件箱中共有 {message_count[0].decode()} 封邮件")
+
+            # 计算日期
+            since_date = (datetime.now() - timedelta(days=days)).strftime("%d-%b-%Y")
+            print(f"正在搜索 {since_date} 之后的邮件...")
+
+            # 搜索邮件
+            status, messages = self.mail.search(None, f'SINCE {since_date}')
+
+            if status != 'OK':
+                print("搜索邮件失败")
+                return []
+
+            email_ids = messages[0].split()
+            print(f"找到 {len(email_ids)} 封邮件")
+            return email_ids
+
+        except Exception as e:
+            print(f"获取邮件列表失败: {e}")
+            return []
+
+    def download_attachments(self, msg, save_dir):
+        """下载邮件附件"""
+        attachments = []
+
+        for part in msg.walk():
+            # 跳过非附件部分
+            if part.get_content_maintype() == 'multipart':
+                continue
+            if part.get('Content-Disposition') is None:
+                continue
+
+            # 获取附件文件名
+            filename = part.get_filename()
+            if filename:
+                filename = self.decode_str(filename)
+
+                # 创建保存目录
+                os.makedirs(save_dir, exist_ok=True)
+
+                # 保存附件
+                filepath = os.path.join(save_dir, filename)
+
+                # 如果文件已存在，添加数字后缀
+                counter = 1
+                base_name, extension = os.path.splitext(filename)
+                while os.path.exists(filepath):
+                    new_filename = f"{base_name}_{counter}{extension}"
+                    filepath = os.path.join(save_dir, new_filename)
+                    counter += 1
+
+                try:
+                    with open(filepath, 'wb') as f:
+                        f.write(part.get_payload(decode=True))
+                    attachments.append(filepath)
+                    print(f"  ✓ 保存附件: {filename}")
+                except Exception as e:
+                    print(f"  ✗ 保存附件失败 {filename}: {e}")
+
+        return attachments
+
+    def get_email_body(self, msg):
+        """获取邮件正文"""
+        body = ""
+
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                content_disposition = str(part.get("Content-Disposition"))
+
+                # 跳过附件
+                if "attachment" in content_disposition:
+                    continue
+
+                # 获取文本内容
+                if content_type == "text/plain":
+                    try:
+                        body = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                        break
+                    except:
+                        pass
+                elif content_type == "text/html" and not body:
+                    try:
+                        body = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                    except:
+                        pass
+        else:
+            try:
+                body = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
+            except:
+                pass
+
+        return body
+
+    def process_emails(self, email_ids, base_save_dir="attachments"):
+        """处理邮件列表"""
+        total_attachments = 0
+
+        for i, email_id in enumerate(email_ids, 1):
+            try:
+                # 获取邮件
+                status, msg_data = self.mail.fetch(email_id, '(RFC822)')
+
+                if status != 'OK':
+                    continue
+
+                # 解析邮件
+                raw_email = msg_data[0][1]
+                msg = email.message_from_bytes(raw_email)
+
+                # 获取邮件信息
+                subject = self.decode_str(msg.get('Subject', '无主题'))
+                from_addr = self.decode_str(msg.get('From', ''))
+                date = msg.get('Date', '')
+
+                print(f"\n[{i}/{len(email_ids)}] 邮件信息:")
+                print(f"  主题: {subject}")
+                print(f"  发件人: {from_addr}")
+                print(f"  日期: {date}")
+
+                # 创建以主题命名的文件夹（去除特殊字符）
+                safe_subject = "".join(c for c in subject if c.isalnum() or c in (' ', '-', '_')).strip()
+                if not safe_subject:
+                    safe_subject = f"邮件_{i}"
+
+                # 限制文件夹名长度
+                safe_subject = safe_subject[:50]
+
+                save_dir = os.path.join(base_save_dir, safe_subject)
+
+                # 下载附件
+                attachments = self.download_attachments(msg, save_dir)
+                total_attachments += len(attachments)
+
+                if not attachments:
+                    print("  (无附件)")
+
+                # 保存邮件正文
+                if attachments:  # 只在有附件时保存正文
+                    body = self.get_email_body(msg)
+                    if body:
+                        body_file = os.path.join(save_dir, "邮件正文.txt")
+                        with open(body_file, 'w', encoding='utf-8') as f:
+                            f.write(f"主题: {subject}\n")
+                            f.write(f"发件人: {from_addr}\n")
+                            f.write(f"日期: {date}\n")
+                            f.write(f"\n{'='*50}\n\n")
+                            f.write(body)
+                        print(f"  ✓ 保存邮件正文")
+
+            except Exception as e:
+                print(f"处理邮件 {email_id} 失败: {e}")
+                continue
+
+        return total_attachments
+
+    def close(self):
+        """关闭连接"""
+        if self.mail:
+            try:
+                self.mail.close()
+                self.mail.logout()
+                print("\n✓ 已断开连接")
+            except:
+                pass
+
+
+def main():
+    """主函数"""
+    # 邮箱配置
+    EMAIL_ACCOUNT = "xfs9619@163.com"
+    # 尝试使用第一个授权码，如果失败会提示用户
+    EMAIL_PASSWORD = "MQdAPtkntjYBh7Gu"  # 如果此密码不work，请尝试：KVxDp8sUBM6VKjeg
+
+    # 创建下载器
+    downloader = EmailDownloader(EMAIL_ACCOUNT, EMAIL_PASSWORD)
+
+    # 连接邮箱
+    if not downloader.connect():
+        print("\n提示: 如果登录失败，请尝试修改脚本中的 EMAIL_PASSWORD 为另一个授权码")
+        sys.exit(1)
+
+    try:
+        # 获取最近1天的邮件
+        email_ids = downloader.get_emails_since_date(days=1)
+
+        if not email_ids:
+            print("未找到邮件")
+            return
+
+        # 处理邮件
+        print("\n开始下载邮件和附件...")
+        total_attachments = downloader.process_emails(email_ids)
+
+        print("\n" + "="*50)
+        print(f"下载完成！")
+        print(f"  邮件总数: {len(email_ids)}")
+        print(f"  附件总数: {total_attachments}")
+        print(f"  保存位置: {os.path.abspath('attachments')}")
+
+    finally:
+        downloader.close()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,471 @@
+158:rqdatac.info
+242:rqdatac.init()
+248:rqdatac.info
+280:rqdatac.user.get_quota - 获取用户配额信息
+300:rqdatac.user.get_quota()
+320:rqdatac.init()
+322:rqdatac.get_price('000001.XSHE', start_date=20150101, end_date="2015-02-01")
+324:rqdatac.get_price('000002.XSHE', start_date=pandas.Timestamp("20150101"), end_date=datetime.datetime(2015,2,1))
+332:rqdatac.init()
+354:get_price('000001.XSHE', start_date=20150101, end_date=20150201)
+419:all_instruments - 获取所有合约基础信息
+420:instruments - 获取合约详细信息
+421:id_convert - 交易所代码转换
+422:get_price - 获取合约行情数据
+423:get_auction_info - 获取股票合约盘后数据
+424:get_ticks - 获取日内 tick 数据（试用版）
+425:get_live_ticks - 获取日内 tick 数据（支持日内时间切割）
+426:get_open_auction_info - 获取盘前集合竞价数据
+427:current_minute - 获取最近的分钟线数据
+428:get_price_change_rate - 获取历史涨跌幅
+429:current_snapshot - 获取当前行情快照
+430:get_trading_dates - 获取交易日列表
+431:get_previous_trading_date - 获取历史某个交易日
+432:get_next_trading_date - 获取未来某个交易日
+433:get_latest_trading_date - 获取当前最近一个交易日
+434:get_trading_hours - 获取合约连续竞价时间段（即将退役）
+435:get_trading_periods - 获取合约连续竞价时间段（新）
+436:get_yield_curve - 获取收益率曲线
+437:get_live_minute_price_change_rate - 获取当日分钟累计收益率（股票，指数）
+438:get_future_latest_trading_date - 获取当前最近一个期货交易日
+439:get_vwap - 获取日/分钟级别的 vwap 数据
+441:LiveMarketDataClient - websocket 实时行情推送方案
+483:all_instruments - 获取所有合约基础信息
+486:all_instruments(type=None, date=None, market='cn')
+571:instruments - 获取合约详细信息
+574:instruments(order_book_ids, market='cn')
+602:sector_code	str	板块缩写代码，全球通用标准定义
+603:sector_code_name	str	以当地语言为标准的板块代码名
+604:industry_code	str	国民经济行业分类代码，具体可参考下方“Industry 列表”
+605:industry_name	str	国民经济行业分类名称
+634:industry_name	str	行业分类名称
+739:id_convert - 交易所代码转换
+742:id_convert(order_book_ids,to=None)
+793:get_price - 获取合约行情数据
+796:get_price(order_book_ids, start_date=None, end_date=None, frequency='1d', fields=None, adjust_type='pre', skip_suspended=False, expect_df=True, time_slice=None, market='cn')
+1008:get_auction_info - 获取股票合约盘后数据
+1011:get_auction_info(order_book_ids, start_date=None, end_date=None, frequency='1d', fields=None, market='cn')
+1040:get_auction_info(['688012.XSHG','688011.XSHG'],'20190722','20190722','1d')
+1049:get_auction_info('688012.XSHG','20190722','20190722','1m')
+1061:get_auction_info('688012.XSHG','20190722','20190722','tick')
+1070:get_ticks - 获取日内 tick 数据（试用版）
+1073:get_ticks(order_book_id, start_date=None, end_date=None, expect_df=True, market='cn')
+1129:get_ticks('10002725',expect_df=False)
+1137:get_live_ticks - 获取日内 tick 数据（支持日内时间切割）
+1140:get_live_ticks(order_book_ids, start_dt=None, end_dt=None, fields=None, market='cn')
+1201:get_live_ticks(order_book_ids=['000001.XSHE','000006.XSHE'],start_dt='20200918091500',end_dt='20200918091530')
+1215:get_live_ticks(order_book_ids=['000001.XSHG','RB2101'],start_dt='20200918093100',end_dt='20200918093106',fields=['open','last','high'])
+1234:get_open_auction_info - 获取盘前集合竞价数据
+1237:get_open_auction_info(order_book_ids, start_date=None, end_date=None, fields =None, market='cn')
+1279:get_open_auction_info('000001.XSHE','20190102','20190105')
+1289:get_open_auction_info(['000001.XSHE','000002.XSHE'],'20190102','20190105')
+1299:current_minute - 获取最近的分钟线数据
+1302:current_minute(order_book_ids, skip_suspended=False, fields=None, market='cn')
+1333:current_minute(["000001.XSHE","600000.XSHG"])
+1342:current_minute(order_book_ids=['A2511','10009217'])
+1348:get_price_change_rate - 获取历史涨跌幅
+1351:get_price_change_rate(order_book_ids, start_date=None, end_date=None, expect_df=True, market='cn')
+1373:get_price_change_rate(['000001.XSHE', '000300.XSHG'], '20150801', '20150807')
+1382:current_snapshot - 获取当前行情快照
+1385:current_snapshot(order_book_ids, market='cn')
+1443:get_trading_dates - 获取交易日列表
+1446:get_trading_dates(start_date, end_date, market='cn')
+1465:get_trading_dates(start_date='20160505', end_date='20160505')
+1468:get_previous_trading_date - 获取历史某个交易日
+1471:get_previous_trading_date(date, n=1, market='cn')
+1490:get_previous_trading_date('20160502',n=1)
+1493:get_next_trading_date - 获取未来某个交易日
+1496:get_next_trading_date(date, n=1, market='cn')
+1515:get_next_trading_date(date='2016-05-01',n=1)
+1518:get_latest_trading_date - 获取当前最近一个交易日
+1521:get_latest_trading_date(market='cn')
+1538:get_latest_trading_date()
+1541:get_trading_hours - 获取合约连续竞价时间段（即将退役）
+1544:get_trading_hours(order_book_id, date=None, expected_fmt='str', frequency='1m', market='cn')
+1587:get_trading_periods - 获取合约连续竞价时间段（新）
+1590:get_trading_periods(order_book_ids, start_date =None, end_date=None, frequency='1m', market='cn')
+1628:get_yield_curve - 获取收益率曲线
+1631:get_yield_curve(start_date=None, end_date=None, tenor=None, market='cn')
+1653:get_yield_curve(start_date='20130104', end_date='20140104')
+1666:get_live_minute_price_change_rate - 获取当日分钟累计收益率（股票，指数）
+1669:rqdatac.get_live_minute_price_change_rate(order_book_ids)
+1689:rqdatac.get_live_minute_price_change_rate(['000001.XSHE','600000.XSHG'])
+1706:get_future_latest_trading_date - 获取当前最近一个期货交易日
+1709:get_future_latest_trading_date(market='cn')
+1726:get_future_latest_trading_date()
+1729:get_vwap - 获取日/分钟级别的 vwap 数据
+1732:rqdatac.get_vwap(order_book_ids, start_date=None, end_date=None, frequency='1d')
+1758:rqdatac.get_vwap('000001.XSHE',20240101,20240201)
+1790:rqdatac.get_vwap('IF2403',20240201,20240201,'1m')
+1837:LiveMarketDataClient - websocket 实时行情推送方案
+1850:rqdatac.init(username="license", password="邮件中一大串license的key")
+1927:get_pit_financials_ex - 查询季度财务信息(point-in-time 形式)
+1928:current_performance - 查询财务快报数据
+1929:performance_forecast - 查询业绩预告数据
+1931:get_factor - 获取因子值
+1932:get_all_factor_names - 获取因子字段列表
+1934:get_share_transformation - 获取股票转换股票代码信息
+1935:sector - 获取某板块股票列表
+1936:industry - 获取某行业股票列表
+1937:get_concept_list - 获取概念列表
+1938:get_concept - 获取所选概念对应股票列表
+1939:get_stock_concept - 获取所选股票对应概念
+1940:get_industry_mapping - 获取行业分类概览
+1941:get_industry - 获取某行业的股票列表
+1942:get_industry_change - 获取某行业的股票纳入剔除日期
+1943:get_instrument_industry - 获取股票的指定行业分类
+1944:get_turnover_rate - 获取历史换手率
+1945:get_dividend_info - 获取股票的分红信息
+1946:get_dividend - 获取股票现金分红数据
+1947:get_dividend_amount - 获取股票分红总额数据
+1948:get_split - 获取股票拆分数据
+1949:get_ex_factor - 获取复权因子
+1950:is_suspended - 判断股票是否全天停牌
+1951:is_st_stock - 查询股票是否为 ST 股
+1952:get_shares - 获取股本数据
+1953:get_main_shareholder - 获取主要 A 股股东信息
+1954:get_private_placement - 获取股票定向增发信息
+1955:get_allotment - 获取股票配股信息
+1956:get_block_trade - 获取大宗交易数据
+1957:get_symbol_change_info - 获取合约的历史简称信息
+1958:get_special_treatment_info - 获取合约特殊处理状态信息
+1959:current_freefloat_turnover - 获取当日累计自由流通换手率
+1960:get_holder_number - 获取股东户数
+1961:get_abnormal_stocks - 获取龙虎榜每日明细
+1962:get_abnormal_stocks_detail - 获取龙虎榜机构交易明细数据
+1963:get_buy_back - 获取回购数据
+1965:get_capital_flow - 获取股票资金流入流出
+1966:current_capital_flow_minute - 获取最近的分钟资金流数据
+1967:get_securities_margin - 获取融资融券信息
+1968:get_margin_stocks - 获取融资融券股票列表
+1969:get_eligible_securities_margin - 获取融资融券可充抵保证金证券信息
+1970:get_stock_connect - 获取沪深股通持股信息
+1971:current_stock_connect_quota - 获取沪深港通实时每日额度数据
+1972:get_stock_connect_quota - 获取沪深港通历史每日额度数据
+1974:get_incentive_plan - 获取合约股权激励数据
+1975:get_investor_ra - 获取投资者关系活动数据
+1976:get_announcement - 获取公司公告数据
+1977:get_audit_opinion - 获取财务报告审计意见
+1978:get_restricted_shares - 获取股票限售解禁明细数据
+1979:get_staff_count - 获取员工数量数据
+1980:get_leader_shares_change - 获取高管持股变动数据
+1981:get_forecast_report_date - 获取定期报告预约披露日
+2037:get_pit_financials_ex - 查询季度财务信息(point-in-time 形式)
+2040:get_pit_financials_ex(order_book_ids, fields, start_quarter, end_quarter, date=None, statements='latest', market='cn')
+2191:current_assets	流动资产合计： 指企业可以在一年内或者超过一年的一个营业周期内变现或者耗用的资产 :mba
+2272:current_liabilities	流动负债合计： 流动负债合计是指企业在一年内或超过一年的一个营业周期内需要偿还的债务 :mba
+2415:get_pit_financials_ex(fields=['revenue','net_profit'], start_quarter='2018q2', end_quarter='2018q3',order_book_ids=['000001.XSHE','000048.XSHE'])
+2426:get_pit_financials_ex(fields=['revenue','net_profit'], start_quarter='2018q2', end_quarter='2018q2',order_book_ids=['000001.XSHE','000048.XSHE'],statements='all')
+2439:get_pit_financials_ex(fields=['revenue','net_profit'], start_quarter='2018q2', end_quarter='2018q2',order_book_ids=['000001.XSHE','000048.XSHE'],statements='all',date='20190807')
+2447:current_performance - 查询财务快报数据
+2450:current_performance(order_book_ids, info_date=None, quarter=None, interval='1q', fields=None, market='cn')
+2518:current_performance('000004.XSHE')
+2525:current_performance('000004.XSHE',quarter='2017q4',fields='total_profit',interval='2q')
+2532:current_performance('000004.XSHE',info_date=20170331,fields='total_profit',interval='2q')
+2537:performance_forecast - 查询业绩预告数据
+2540:performance_forecast(order_book_ids, info_date=None, end_date=None, fields=None, market='cn')
+2580:performance_forecast('000001.XSHE')
+2587:performance_forecast(['000001.XSHE','000006.XSHE'],fields=['forecast_description','forecast_earning_floor'])
+2596:performance_forecast('000005.XSHE',end_date=20170331,fields=['forecast_description','forecast_earning_floor'])
+2659:get_factor - 获取因子值
+2662:get_factor(order_book_ids, factor, start_date=None, end_date=None, universe=None,expect_df=True, market='cn')
+2820:current_asset_turnover_lyr	流动资产周转率 lyr	营业收入 lyr /最新年报披露流动资产总计 lyr	operating_revenue_lyr_0 / current_assets_lyr_0
+2821:current_asset_turnover_ttm	流动资产周转率 ttm	营业收入 ttm / 当期报表披露流动资产总计 ttm	operating_revenue_ttm_0 / current_assets_ttm_0
+2915:current_asset_to_total_asset_lyr	流动资产比率 lyr	流动资产合计 lyr / 总资产 lyr	current_assets_lyr_0 / total_assets_lyr_0
+2916:current_asset_to_total_asset_ttm	流动资产比率 ttm	流动资产合计 ttm / 总资产 ttm	current_assets_ttm_0 / total_assets_ttm_0
+2917:current_asset_to_total_asset_lf	流动资产比率 lf	流动资产合计 mrq / 总资产 mrq	current_assets_mrq_0 / total_assets_mrq_0
+2927:current_debt_to_total_debt_lyr	流动负债率 lyr	流动负债合计 lyr / 负债合计 lyr	current_liabilities_lyr_0 / total_liabilities_lyr_0
+2928:current_debt_to_total_debt_ttm	流动负债率 ttm	流动负债合计 ttm / 负债合计 ttm	current_liabilities_ttm_0 / total_liabilities_ttm_0
+2929:current_debt_to_total_debt_lf	流动负债率 lf	流动负债合计 mrq / 负债合计 mrq	current_liabilities_mrq_0 / total_liabilities_mrq_0
+2933:current_ratio_lyr	流动比率 lyr	流动资产合计 lyr / 流动负债合计 lyr	current_assets_lyr_0 / current_liabilities_lyr_0
+2934:current_ratio_ttm	流动比率 ttm	流动资产合计 ttm / 流动负债合计 ttm	current_assets_ttm_0 / current_liabilities_ttm_0
+2935:current_ratio_lf	流动比率 lf	流动资产合计 mrq / 流动负债合计 mrq	current_assets_mrq_0 / current_liabilities_mrq_0
+3212:get_factor(['000001.XSHE','000002.XSHE'],'debt_to_equity_ratio',start_date='20180102',end_date='20180103')
+3224:get_factor(['000001.XSHE','600000.XSHG'],['MACD_DIFF','OBOS','AR'],'20200401','20200402')
+3235:get_factor(['000001.XSHE', '600000.XSHG'],'WorldQuant_alpha010', '20190601', '20190610')
+3461:get_all_factor_names - 获取因子字段列表
+3464:get_all_factor_names(type=None, market='cn')
+3495:rqdatac.get_all_factor_names(type='obos_indicator')
+3500:get_share_transformation - 获取股票转换股票代码信息
+3503:get_share_transformation(predecessor=None, market='cn')
+3533:sector - 获取某板块股票列表
+3536:sector(code, market='cn')
+3577:industry - 获取某行业股票列表
+3580:industry(code, market='cn')
+3694:industry('A01')
+3699:industry(industry_code.A01)
+3702:get_concept_list - 获取概念列表
+3705:get_concept_list(start_date=None, end_date=None, market='cn')
+3726:get_concept_list(start_date='2019-01-01', end_date='2020-01-01')
+3740:get_concept - 获取所选概念对应股票列表
+3743:get_concept(concepts, start_date=None, end_date=None, market='cn')
+3767:get_concept(['ETC概念','维生素'],start_date='2019-01-01', end_date='2021-01-01')
+3806:get_stock_concept - 获取所选股票对应概念
+3809:get_stock_concept(order_book_ids, market='cn')
+3831:get_stock_concept (['000002.XSHE','000504.XSHE'])
+3859:get_industry_mapping - 获取行业分类概览
+3862:get_industry_mapping(source='citics_2019', date=None, market='cn')
+3889:get_industry_mapping()
+3899:get_industry - 获取某行业的股票列表
+3902:get_industry(industry, source='citics_2019', date=None, market='cn')
+3909:industry	str	必填参数，可传入行业名称、行业指数代码或者行业代号
+3923:get_industry('银行')
+3961:get_industry(industry='621020',source='citics')
+3997:get_industry_change - 获取某行业的股票纳入剔除日期
+4000:get_industry_change(industry, source='citics_2019', level=None, market='cn')
+4007:industry	str	必填参数，可传入行业名称、行业指数代码或者行业代号
+4024:get_industry_change(industry='银行', level=1,source='citics_2019')
+4039:get_instrument_industry - 获取股票的指定行业分类
+4042:get_instrument_industry(order_book_ids, source='citics_2019', level=1, date=None, market='cn')
+4072:get_instrument_industry('000001.XSHE')
+4093:get_turnover_rate - 获取历史换手率
+4096:get_turnover_rate(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True, market='cn')
+4126:get_turnover_rate(['000001.XSHE', '601998.XSHG'], '20160801', '20160812', 'week')
+4136:get_dividend_info - 获取股票的分红信息
+4139:get_dividend_info(order_book_ids, start_date=None, end_date=None, market='cn')
+4168:get_dividend_info('000001.XSHE')
+4180:get_dividend - 获取股票现金分红数据
+4183:get_dividend(order_book_ids, start_date=None, end_date=None, expect_df=True, market='cn')
+4221:get_dividend('000001.XSHE', start_date='20130104', end_date='20140106')
+4227:get_dividend_amount - 获取股票分红总额数据
+4230:get_dividend_amount(order_book_ids, start_quarter = None, end_quarter = None, date = None, market = 'cn')
+4260:rqdatac.get_dividend_amount('000001.XSHE')
+4282:get_split - 获取股票拆分数据
+4285:get_split(order_book_ids, start_date=None, end_date=None, market='cn')
+4318:get_split('000001.XSHE', start_date='20100104', end_date='20140104')
+4324:get_ex_factor - 获取复权因子
+4327:get_ex_factor(order_book_ids, start_date=None, end_date=None, market='cn')
+4356:get_ex_factor('000001.XSHE', start_date='2013-01-04', end_date='2017-01-04')
+4372:is_suspended - 判断股票是否全天停牌
+4375:is_suspended(order_book_ids, start_date=None, end_date=None, market='cn')
+4396:is_suspended('武钢股份', start_date='20160624')
+4413:is_suspended(['武钢股份','000001.XSHE'], start_date='20160624')
+4426:is_st_stock - 查询股票是否为 ST 股
+4429:is_st_stock(order_book_ids, start_date=None, end_date=None, market='cn')
+4455:is_st_stock("002336.XSHE", "20160411", "20160510")
+4465:is_st_stock(["002336.XSHE", "000001.XSHE"], "2016-04-11", "2016-05-10")
+4473:get_shares - 获取股本数据
+4476:get_shares(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True, market='cn')
+4507:get_shares('000001.XSHE', start_date='20160801', end_date='20160806',expect_df=False)
+4519:get_shares('000001.XSHE', start_date='20160801', end_date='20160806', fields='total')
+4529:get_main_shareholder - 获取主要 A 股股东信息
+4532:get_main_shareholder(order_book_ids, start_date=None, end_date=None, is_total=False, start_rank=None, end_rank=None, market='cn')
+4542:is_total	bool	默认为 False, 即基于持有 A 股流通股。若为 True 则基于所有发行出的 A 股。
+4568:get_main_shareholder('000001.XSHE', start_date='20180301', end_date='20180315', is_total=False)
+4583:get_private_placement - 获取股票定向增发信息
+4586:get_private_placement(order_book_ids, start_date=None, end_date=None, progress='complete',issue_type='private', market='cn')
+4617:get_private_placement("000001.XSHE")
+4625:get_allotment - 获取股票配股信息
+4628:get_allotment(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+4658:get_allotment('300715.XSHE','20180101','20200101')
+4668:get_block_trade - 获取大宗交易数据
+4671:get_block_trade(order_book_ids, start_date=None, end_date=None, market='cn')
+4698:rqdatac.get_block_trade('000001.XSHE','20190101','20191010')
+4716:rqdatac.get_block_trade(['000001.XSHE','000046.XSHE'],'20190101','20191010')
+4732:get_symbol_change_info - 获取合约的历史简称信息
+4735:get_symbol_change_info(order_book_ids, market='cn')
+4758:rqdatac.get_symbol_change_info('000001.XSHE')
+4766:get_special_treatment_info - 获取合约特殊处理状态信息
+4769:get_special_treatment_info(order_book_ids, market='cn')
+4794:rqdatac.get_special_treatment_info('000020.XSHE')
+4804:current_freefloat_turnover - 获取当日累计自由流通换手率
+4807:rqdatac.current_freefloat_turnover(order_book_ids)
+4828:rqdatac.current_freefloat_turnover(['000001.XSHE','600000.XSHG'])
+4833:get_holder_number - 获取股东户数
+4836:rqdatac.get_holder_number(order_book_ids, start_date=None, end_date=None, market='cn')
+4866:rqdatac.get_holder_number('000001.XSHE')
+4875:get_abnormal_stocks - 获取龙虎榜每日明细
+4878:rqdatac.get_abnormal_stocks(start_date=None, end_date=None,types=None,market='cn')
+4913:rqdatac.get_abnormal_stocks(20240606,20240606)
+4930:get_abnormal_stocks_detail - 获取龙虎榜机构交易明细数据
+4933:rqdatac.get_abnormal_stocks_detail(order_book_ids,start_date=None,end_date=None,sides=None,types=None,market='cn')
+4970:rqdatac.get_abnormal_stocks_detail('000037.XSHE',20240606,20240606)
+4984:get_buy_back - 获取回购数据
+4987:rqdatac.get_buy_back(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+5031:rqdatac.get_buy_back('000026.XSHE',20200707,20200707)
+5040:get_capital_flow - 获取股票资金流入流出
+5043:get_capital_flow(order_book_ids, start_date=None, end_date=None, frequency='1d', market='cn')
+5097:get_capital_flow('000001.XSHE',start_date=20190412,end_date=20190412,frequency='tick')
+5117:get_capital_flow(['000001.XSHE','000002.XSHE'],start_date=20190412,end_date=20190415,frequency='1d')
+5127:current_capital_flow_minute - 获取最近的分钟资金流数据
+5130:current_capital_flow_minute(order_book_ids, market='cn')
+5156:current_capital_flow_minute(['000001.XSHE','600000.XSHG'])
+5163:get_securities_margin - 获取融资融券信息
+5166:get_securities_margin(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True, market='cn')
+5198:get_securities_margin('510050.XSHG', start_date='20160801', end_date='20160805',expect_df=False)
+5209:get_securities_margin(['XSHE', 'XSHG'],start_date='20160801', end_date='20160802', fields='margin_balance')
+5220:get_securities_margin('510050.XSHG', start_date='20160801', end_date='20160805', fields='margin_repayment')
+5229:get_margin_stocks - 获取融资融券股票列表
+5232:get_margin_stocks(date=None, exchange=None,margin_type='stock',market='cn')
+5252:get_margin_stocks(date='20190819',exchange=None,margin_type='stock')
+5261:get_margin_stocks(date='20190819',exchange=None,margin_type='cash')
+5270:get_margin_stocks(date='20190819',exchange='XSHE',margin_type='stock')
+5279:get_margin_stocks(date='20190819',exchange='XSHG',margin_type='cash')
+5285:get_eligible_securities_margin - 获取融资融券可充抵保证金证券信息
+5288:get_eligible_securities_margin(date=None, exchange=None,market='cn')
+5307:rqdatac.get_eligible_securities_margin(date=20260112,exchange='sh')
+5310:get_stock_connect - 获取沪深股通持股信息
+5313:get_stock_connect(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True)
+5342:get_stock_connect('000049.XSHE',start_date='2018-05-08',end_date='2018-05-10')
+5362:current_stock_connect_quota - 获取沪深港通实时每日额度数据
+5365:current_stock_connect_quota(connect=None, fields=None)
+5396:current_stock_connect_quota()
+5404:get_stock_connect_quota - 获取沪深港通历史每日额度数据
+5407:get_stock_connect_quota(connect=None, start_date=None, end_date=None, fields=None)
+5453:get_incentive_plan - 获取合约股权激励数据
+5456:rqdatac.get_incentive_plan(order_book_ids, start_date=None, end_date=None, market='cn')
+5485:rqdatac.get_incentive_plan('002074.XSHE')
+5493:get_investor_ra - 获取投资者关系活动数据
+5496:rqdatac.get_investor_ra(order_book_ids, start_date=None, end_date=None, market='cn')
+5522:rqdatac.get_investor_ra('002507.XSHE')
+5539:get_announcement - 获取公司公告数据
+5542:rqdatac.get_announcement(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+5575:rqdatac.get_announcement('000001.XSHE',20221001,20221010)
+5582:get_audit_opinion - 获取财务报告审计意见
+5585:get_audit_opinion(order_book_ids, start_quarter, end_quarter, date=None, type=None, opinion_types=None, market='cn')
+5629:rqdatac.get_audit_opinion('000001.XSHE', start_quarter='2023q4', end_quarter='2023q4',opinion_types=None)
+5635:get_restricted_shares - 获取股票限售解禁明细数据
+5638:rqdatac.get_restricted_shares(order_book_ids, start_date=None, end_date=None,market='cn')
+5667:rqdatac.get_restricted_shares('000001.XSHE',20100101,20240101)
+5676:get_staff_count - 获取员工数量数据
+5679:rqdatac.get_staff_count(order_book_ids, start_date=None, end_date=None, market='cn')
+5705:rqdatac.get_staff_count('000001.XSHE',start_date = 20240101,end_date = 20250801)
+5712:get_leader_shares_change - 获取高管持股变动数据
+5715:rqdatac.get_leader_shares_change(order_book_ids, start_date=None, end_date=None, market='cn')
+5737:current_shares	float	变动后持股数(股)
+5746:rqdatac.get_leader_shares_change('002559.XSHE',start_date= 20250723 ,end_date=20250729 , market='cn')
+5755:get_forecast_report_date - 获取定期报告预约披露日
+5758:rqdatac.get_forecast_report_date(order_book_ids , start_quarter , end_quarter, market='cn')
+5788:rqdatac.get_forecast_report_date(order_book_ids='000001.XSHE' , start_quarter='2024q1',end_quarter='2025q1', market='cn')
+5842:all_instruments - 获取所有合约基础信息
+5843:instruments - 获取合约详细信息
+5844:get_ex_factor - 获取复权因子
+5845:get_exchange_rate - 获取汇率信息
+5846:get_shares - 获取流通股信息
+5847:get_industry - 获取某行业的股票列表
+5848:get_industry_change - 获取某行业的股票纳入剔除日期
+5849:get_instrument_industry - 获取股票的指定行业分类
+5850:get_industry_mapping - 获取行业分类概览
+5851:get_turnover_rate - 获取历史换手率
+5852:get_dividend - 获取股票现金分红数据
+5855:get_price - 获取合约历史行情数据
+5857:get_pit_financials_ex - 查询季度财务信息(point-in-time 形式)
+5860:get_factor - 获取因子值
+5861:get_all_factor_names - 获取因子字段列表
+5904:all_instruments - 获取所有合约基础信息
+5907:rqdatac.all_instruments(type=None, market='hk', date=None)
+5946:instruments - 获取合约详细信息
+5949:rqdatac.instruments(order_book_ids, market='hk')
+5995:get_ex_factor - 获取复权因子
+5998:get_ex_factor(order_book_ids, start_date=None, end_date=None, market='hk')
+6027:rqdatac.get_ex_factor('00001.XHKG',market='hk')
+6086:get_exchange_rate - 获取汇率信息
+6089:get_exchange_rate(start_date=None, end_date=None, fields=None)
+6152:get_exchange_rate(20250210,20250210,fields =['currency_pair','middle_referrence_rate'])
+6167:get_shares - 获取流通股信息
+6170:get_shares(order_book_ids, start_date=None, end_date=None, fields=None, market='hk', expect_df=True)
+6201:get_shares(order_book_ids='00038.XHKG', start_date=20250715, end_date=20250720, fields=None, market='hk')
+6209:get_industry - 获取某行业的股票列表
+6212:get_industry(industry, source='citics_2019', date=None, market='hk')
+6219:industry	str	必填参数，可传入行业名称、行业指数代码或者行业代号
+6233:get_industry('原材料业',source='hsi',market='hk')
+6256:get_industry_change - 获取某行业的股票纳入剔除日期
+6259:get_industry_change(industry, source='citics_2019', level=None, market='hk')
+6266:industry	str	必填参数，可传入行业名称、行业指数代码或者行业代号
+6283:get_industry_change(industry='原材料业', level=1,source='hsi',market='hk')
+6298:get_instrument_industry - 获取股票的指定行业分类
+6301:get_instrument_industry(order_book_ids, source='citics_2019', level=1, date=None, market='hk')
+6330:get_instrument_industry(order_book_ids='00001.XHKG',market='hk')
+6343:get_industry_mapping - 获取行业分类概览
+6346:get_industry_mapping(source='citics_2019', date=None, market='hk')
+6373:get_industry_mapping(market='hk')
+6382:get_turnover_rate - 获取历史换手率
+6385:get_turnover_rate(order_book_ids, start_date=None, end_date=None, fields=None,expect_df=True,market='hk')
+6416:get_turnover_rate(['00001.XHKG', '00038.XHKG'], '20250804', '20250805', 'week', market='hk')
+6426:get_dividend - 获取股票现金分红数据
+6429:get_dividend(order_book_ids, start_date=None, end_date=None, expect_df=True, market='cn')
+6466:get_dividend('00001.XHKG',market='hk')
+6507:rqdatac.init()
+6508:rqdatac.hk.get_southbound_eligible_secs(trading_type='sh',date=20250929)
+6518:rqdatac.hk.get_southbound_eligible_secs(trading_type='sz',start_date=20250925,end_date=20250929)
+6534:get_price - 获取合约历史行情数据
+6537:get_price(order_book_ids, start_date=None, end_date=None, frequency='1d', fields=None, adjust_type='pre', skip_suspended=False, expect_df=True, time_slice=None, market='cn')
+6673:get_pit_financials_ex - 查询季度财务信息(point-in-time 形式)
+6676:get_pit_financials_ex(order_book_ids, fields, start_quarter, end_quarter, date=None, statements='latest', market='cn')
+6907:current_liabilities	流动负债合计
+6908:current_assets	流动资产合计
+7413:current_income_tax_liabilities	当期所得税负债
+7475:current_accts_payable_from_related_party	应付关连方款项(流动)
+7681:current_financial_leasing_liabilities	融资租赁负债(流动)
+7688:current_deferred_income	递延收入(流动)
+7693:current_financial_assets_recognized_at_fair_value_through_profit_or_loss	按公平值入损益金融资产-流动
+7696:current_assets_derivative_financial_instruments	衍生金融工具-流动资产
+7697:current_liabilities_derivative_financial_instruments	衍生金融工具-流动负债
+7706:current_assets	流动资产合计
+7707:current_liabilities	流动负债合计
+7722:current_provision	拨备（流动）
+7739:current_accounts_payable_to_related_parties	应付关连方款项(流动)
+7745:current_fixed_deposit	定期存款(流动)
+7756:current_other_loans	其他贷款(流动)
+7780:current_asset_adjustment_project	流动资产调整项目
+7788:current_prepaid_rent	预付租金(流动)
+7795:current_investment_contract_liabilities	投资合同负债-流动负债
+7809:current_financial_liabilities_at_fair_value_through_profit_or_loss	按公平值入损益金融负债-流动
+7810:current_other_financial_assets	其他金融资产(流动)
+7811:current_accounts_receivable_loans	应收贷款(流动)
+7820:current_other_financial_liabilities	其他金融负债(流动)
+7873:current_income_tax_liabilities	当期所得税负债
+7999:get_pit_financials_ex(fields=['turnover','begin_period_cash'], start_quarter='2023q1', end_quarter='2023q4',order_book_ids=['00001.XHKG'],statements='all',market='hk')
+8010:get_pit_financials_ex(fields=['turnover','begin_period_cash'], start_quarter='2023q1', end_quarter='2023q4',order_book_ids=['00001.XHKG'],statements='all',date = 20240321,market='hk')
+8019:get_pit_financials_ex(fields=['intangible_assets','revenue'], start_quarter='2024q3', end_quarter='2024q4',order_book_ids=['00038.XHKG','00763.XHKG'],market='hk')
+8030:rqdatac.hk.get_detailed_financial_items(order_book_ids, fields, start_quarter, end_quarter, date=None, statements='latest', market='hk')
+8070:rqdatac.init()
+8071:rqdatac.hk.get_detailed_financial_items(order_book_ids=['02318.XHKG'],start_quarter='2023q1', end_quarter='2023q2',fields=['other_operating_expense_items'],market='hk')
+8083:get_factor - 获取因子值
+8086:get_factor(order_book_ids, factor, start_date=None, end_date=None, universe=None, expect_df=True, market='cn')
+8116:get_factor('00020.XHKG',['hk_share_market_val','hk_share_market_val_in_circulation','hk_total_market_val'], 20250804,20250810,market='hk')
+8129:get_factor(['00020.XHKG','03750.XHKG'],['hk_share_market_val','hk_share_market_val_in_circulation','hk_total_market_val'], 20250804,20250805,market='hk')
+8138:get_all_factor_names - 获取因子字段列表
+8141:get_all_factor_names(type=None, market='cn')
+8161:get_all_factor_names(type='eod_indicator',market='hk')
+8169:rqdatac.hk.get_announcement(order_book_ids, start_date=None, end_date=None, fields=None, market='hk')
+8208:rqdatac.hk.get_announcement(order_book_ids=['00638.XHKG'],start_date=20251127,end_date=20251129,market='hk')
+8702:current_quarter - 季月（仅支持股指期货）
+17386:rqdatac.index_weights_ex(order_book_id, date=None, start_date=None, end_date=None, market='cn')
+18765:industry	str	行业名称
+18847:industry_citics	行业分类（中信一级）	
+18985:industry_citics              基础化工        1012022
+18986:industry_citics                建材        1012024
+19832:industry	str	必填参数，对应行业分类名称
+20220:get_factor_exposure - 获取一组股票的因子暴露度
+20221:get_descriptor_exposure - 获取一组股票的细分风格因子暴露度
+20222:get_stock_beta - 获取个股相对于某个基准的贝塔
+20223:get_factor_return - 获取因子收益率
+20224:get_specific_return - 获取个股特异收益率
+20225:get_factor_covariance - 获取因子协方差矩阵
+20226:get_specific_risk - 获取一组股票的特异波动率
+20413:get_factor_exposure - 获取一组股票的因子暴露度
+20416:get_factor_exposure(order_book_ids, start_date=None, end_date=None, factors=None, industry_mapping='sws_2021', model='v1', market='cn')
+20424:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20462:get_descriptor_exposure - 获取一组股票的细分风格因子暴露度
+20465:get_descriptor_exposure(order_book_ids, start_date, end_date, descriptors=None, model='v1', industry_mapping='sws_2021', market='cn')
+20476:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20507:get_stock_beta - 获取个股相对于某个基准的贝塔
+20510:get_stock_beta(order_book_ids, start_date, end_date, benchmark='000300.XSHG', model='v1', industry_mapping='sws_2021', market='cn')
+20521:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20543:get_factor_return - 获取因子收益率
+20546:get_factor_return(start_date, end_date, factors=None, universe='whole_market', method='implicit', industry_mapping='sws_2021', model='v1', market='cn')
+20555:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20582:get_specific_return - 获取个股特异收益率
+20585:get_specific_return(order_book_ids, start_date, end_date, model = 'v1',industry_mapping='sws_2021')
+20595:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20634:get_factor_covariance - 获取因子协方差矩阵
+20637:get_factor_covariance(date, horizon= 'daily', model = 'v1',industry_mapping='sws_2021')
+20647:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20725:get_specific_risk - 获取一组股票的特异波动率
+20728:get_specific_risk(order_book_ids, start_date, end_date, horizon= 'daily', model = 'v1',industry_mapping='sws_2021')
+20739:industry_mapping	str	'sws_2021' - 申万 2021 行业分类
+20836:get_spot_benchmark_price - 获取现货早午盘价
+20863:get_spot_benchmark_price - 获取现货早午盘价
+20866:get_price_change_rate(order_book_ids, start_date='20130104', end_date='20140104', expect_df=True)
+20890:rqdatac.get_spot_benchmark_price('AU9999.SGEX',20230501,20230508)

@@ -1,0 +1,52 @@
+2026-02-12T09:21:00.660Z [DEBUG] [init] configureGlobalMTLS starting
+2026-02-12T09:21:00.660Z [DEBUG] [init] configureGlobalMTLS complete
+2026-02-12T09:21:00.660Z [DEBUG] [init] configureGlobalAgents starting
+2026-02-12T09:21:00.660Z [DEBUG] [init] configureGlobalAgents complete
+2026-02-12T09:21:00.664Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["mcp__pencil"]
+2026-02-12T09:21:00.664Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-02-12T09:21:00.671Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-02-12T09:21:00.671Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-02-12T09:21:00.671Z [DEBUG] [ToolSearch:optimistic] mode=tst-auto, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-02-12T09:21:00.671Z [DEBUG] [STARTUP] Running setup()...
+2026-02-12T09:21:00.671Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1770888060671_l0lks3
+2026-02-12T09:21:00.676Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-02-12T09:21:00.685Z [DEBUG] Error log sink initialized
+2026-02-12T09:21:00.687Z [DEBUG] [STARTUP] setup() completed in 16ms
+2026-02-12T09:21:00.687Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-02-12T09:21:00.688Z [DEBUG] Loaded 20 unique skills (20 unconditional, 0 conditional, managed: 0, user: 20, project: 0, additional: 0, legacy commands: 0)
+2026-02-12T09:21:00.690Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-02-12T09:21:00.696Z [DEBUG] Cannot acquire lock for 2.1.39 - held by PID 4526
+2026-02-12T09:21:00.696Z [ERROR] Error: Error: NON-FATAL: Lock acquisition failed for /Users/fanshengxia/.local/share/claude/versions/2.1.39 (expected in multi-process scenarios)
+    at wVR (/$bunfs/root/claude:3626:2098)
+    at DjA (/$bunfs/root/claude:3626:1209)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T09:21:00.717Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-02-12T09:21:00.718Z [DEBUG] [Claude in Chrome] Extension not found in any browser
+2026-02-12T09:21:04.029Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1770888060671_l0lks3
+2026-02-12T09:21:04.030Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-02-12T09:21:04.030Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.2.0
+2026-02-12T09:21:04.031Z [DEBUG] Plugin superpowers@claude-plugins-official version 4.2.0 already cached at /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0
+2026-02-12T09:21:04.045Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/hooks/hooks.json
+2026-02-12T09:21:04.045Z [DEBUG] Found 1 plugins (1 enabled, 0 disabled)
+2026-02-12T09:21:04.045Z [DEBUG] getPluginSkills: Processing 1 enabled plugins
+2026-02-12T09:21:04.045Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-02-12T09:21:04.045Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/skills
+2026-02-12T09:21:04.049Z [DEBUG] Loading hooks from plugin: superpowers
+2026-02-12T09:21:04.049Z [DEBUG] Registered 1 hooks from 1 plugins
+2026-02-12T09:21:04.050Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-02-12T09:21:04.050Z [DEBUG] Total plugin agents loaded: 1
+2026-02-12T09:21:04.050Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-02-12T09:21:04.050Z [DEBUG] Total plugin skills loaded: 14
+2026-02-12T09:21:04.050Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-02-12T09:21:04.050Z [DEBUG] Total plugin commands loaded: 3
+2026-02-12T09:21:04.050Z [DEBUG] getSkills returning: 20 skill dir commands, 14 plugin skills, 2 bundled skills
+2026-02-12T09:21:04.055Z [DEBUG] [STARTUP] Commands and agents loaded in 3368ms
+2026-02-12T09:21:04.055Z [DEBUG] Layout engine: yoga
+2026-02-12T09:21:04.062Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-02-12T09:21:04.064Z [DEBUG] [keybindings] KeybindingSetup initialized with 101 bindings, 0 warnings
+2026-02-12T09:21:04.066Z [DEBUG] [keybindings] Watching for changes to /Users/fanshengxia/.claude/keybindings.json
+2026-02-12T09:21:04.071Z [DEBUG] Grove: Using fresh cached config
+2026-02-12T09:21:04.080Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-02-12T09:21:04.088Z [DEBUG] Git remote URL: null
+2026-02-12T09:21:04.088Z [DEBUG] No git remote URL found
+2026-02-12T09:21:04.088Z [DEBUG] Not in a GitHub repository, skipping path mapping update

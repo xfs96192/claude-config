@@ -1,0 +1,438 @@
+# iChoice Financial Data System
+
+A comprehensive financial database system that automatically fetches, stores, and serves market data from iChoice/EMQuantAPI. Designed to mirror the architecture of the proven `data_api` system with intelligent updates and multi-field support.
+
+## 🎯 Features
+
+- **Multi-Source Data**: Supports both EDB (macro/economic) and CSD (market) data sources
+- **Smart Incremental Updates**: Automatically detects new vs. existing indicators
+  - New indicators: Full historical data from 2000
+  - Existing indicators: Incremental updates from last date
+- **Multi-Field Support**: Handles indicators with multiple data dimensions (e.g., stock indices with CLOSE + PETTM)
+- **Automatic Scheduling**: Daily weekday updates at 18:00, weekly full refresh on Sunday 02:00
+- **REST API**: Full-featured API for data queries and system management
+- **Robust Error Handling**: Timeout protection, rate limiting, retry mechanisms
+
+## 📊 Data Coverage
+
+**453 Indicators across 8 categories:**
+- 债券 (Bonds): Yield curves, credit spreads
+- 宏观 (Macro): GDP, CPI, PMI, M2, social financing
+- 权益 (Equities): A-share indices, sector indices
+- 资金 (Rates): DR007, SHIBOR, IRS
+- 外汇 (FX): Exchange rates
+- 商品 (Commodities): Futures prices
+- 海外 (Overseas): International indices
+- 可转债 (Convertible Bonds): Convertible bond indices
+
+## 🚀 Quick Start
+
+### 1. Installation
+
+```bash
+cd /Users/fanshengxia/Desktop/ichoice_data
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Initialize Database
+
+```bash
+# Load 453 indicators from Excel and create database schema
+python main.py init
+```
+
+**Expected output:**
+```
+✓ Loaded 453 indicators with 600+ fields
+✓ Database ready: 453 indicators
+✓ Categories: {'债券': 120, '宏观': 85, '权益': 95, ...}
+```
+
+### 3. Test Connection
+
+```bash
+# Verify iChoice API connectivity (takes 2-3 min on first run)
+python main.py test
+```
+
+### 4. Run Initial Data Update
+
+```bash
+# Smart update: fetches full history for all new indicators
+python main.py update --update-type smart
+```
+
+**Alternative update types:**
+- `smart` (recommended): New indicators get full history, existing get incremental
+- `full`: Full historical update from 2000 for all indicators
+- `incremental`: Traditional incremental (yesterday to today)
+- `retry`: Retry only failed indicators
+
+## 📅 Automatic Updates
+
+### Start Background Scheduler
+
+```bash
+# Run scheduler in foreground (Ctrl+C to stop)
+python main.py scheduler
+```
+
+**Schedule:**
+- **Daily**: Monday-Friday at 18:00 (smart incremental)
+- **Weekly**: Sunday at 02:00 (full refresh from 2000)
+
+**For production (run as service):**
+```bash
+# Using nohup
+nohup python main.py scheduler > logs/scheduler.log 2>&1 &
+
+# Or using systemd/launchd (recommended for production)
+# See deployment section below
+```
+
+## 🔍 Data Queries
+
+### Command Line Status
+
+```bash
+# View system statistics
+python main.py status
+
+# Analyze multi-field indicators
+python main.py fields
+```
+
+### REST API
+
+```bash
+# Start API server
+python main.py server
+
+# API runs at http://localhost:8001
+# Interactive docs: http://localhost:8001/docs
+```
+
+**Key API Endpoints:**
+
+```bash
+# Get all indicators
+curl "http://localhost:8001/indicators"
+
+# Get indicators by category
+curl "http://localhost:8001/indicators?category=宏观"
+
+# Get time series data
+curl "http://localhost:8001/data/EMM00072301?start_date=2024-01-01"
+
+# Get specific field for stock index
+curl "http://localhost:8001/data/000300.SH?field_name=CLOSE&start_date=2025-01-01"
+
+# Batch query multiple indicators
+curl -X POST "http://localhost:8001/batch-data" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "codes": ["000300.SH", "EMM00072301"],
+    "start_date": "2024-01-01",
+    "end_date": "2025-01-31"
+  }'
+
+# System status
+curl "http://localhost:8001/status"
+```
+
+## 🏗️ Architecture
+
+```
+ichoice_data/
+├── config/
+│   └── config.py              # Settings (credentials, timeouts, rate limits)
+├── src/
+│   ├── database/
+│   │   └── models.py          # SQLite ORM (4 tables with multi-field support)
+│   ├── data_fetcher/
+│   │   ├── ichoice_client.py  # iChoice API wrapper with timeout handling
+│   │   └── indicator_loader.py # Excel indicator loader
+│   ├── scheduler/
+│   │   └── data_updater.py    # Smart update logic + scheduler
+│   └── api/
+│       └── main.py            # FastAPI REST endpoints
+├── data/
+│   ├── 数据指标.xlsx           # 453 indicator mappings (Wind→Choice)
+│   └── ichoice_data.db        # SQLite database (auto-created)
+├── logs/                      # Log files
+├── main.py                    # Main entry point
+├── requirements.txt
+└── README.md
+```
+
+## 💾 Database Schema
+
+**4 tables with indexes:**
+
+1. **indicators**: Base metadata (category, name, code, data source)
+2. **indicator_fields**: Multi-field mapping (code → fields)
+3. **time_series_data**: Time series with field support (code + field + date → value)
+4. **update_logs**: Update history tracking (success/failure, record counts)
+
+**Multi-field example:**
+- `000300.SH` (沪深300) has 2 fields:
+  - `CLOSE`: 收盘价 (close price)
+  - `PETTM`: 市盈率TTM (P/E ratio)
+
+## ⚙️ Configuration
+
+**Key settings in `config/config.py`:**
+
+```python
+# iChoice credentials
+ICHOICE_USERNAME: str = "xylczh0181"
+ICHOICE_PASSWORD: str = "ef465509"
+ICHOICE_TIMEOUT: int = 300000  # 5 min (CRITICAL for initial login)
+
+# Data settings
+HISTORICAL_START_YEAR: int = 2000
+DEFAULT_START_DATE: str = "2000-01-01"
+
+# Rate limits
+EDB_MAX_INDICATORS_PER_REQUEST: int = 100
+CSD_RATE_LIMIT: int = 700  # requests per minute
+REQUEST_INTERVAL: float = 1.0  # seconds between requests
+
+# Scheduler
+DAILY_UPDATE_TIME: str = "18:00"
+WEEKLY_UPDATE_TIME: str = "02:00"
+
+# API
+API_PORT: int = 8001
+```
+
+## 🔧 Technical Details
+
+### Data Source Detection
+
+```python
+# EDB (macro/economic data)
+EMM00072301  # Starts with EMM/EMG/EMI/E → EDB
+→ Uses c.edb(), field_name="value"
+
+# CSD (market data)
+000300.SH    # Has exchange suffix (.SH/.SZ/.CSI/.SWI) → CSD
+→ Uses c.csd(), field_name="CLOSE"/"PETTM"/etc.
+```
+
+### Smart Update Logic
+
+**New Indicator (no data in DB):**
+```python
+# Fetch full historical data from 2000-01-01 to today
+start_date = "2000-01-01"
+update_type = "smart_new"
+```
+
+**Existing Indicator:**
+```python
+# Incremental: fetch from last_date + 1 to today
+last_date = db.get_last_update_date(code, field)  # e.g., "2025-02-10"
+start_date = last_date + 1 day  # "2025-02-11"
+update_type = "smart_existing"
+```
+
+### Critical: Timeout Handling
+
+**Why 5-minute timeout?**
+- First login downloads `ChoiceToHQ.xml` (2-3 minutes)
+- Multi-year historical queries can take 1-2 minutes
+- Default 2-minute timeout causes failures
+
+**Implementation:**
+```python
+# All API calls use subprocess with 300-second timeout
+client = IChoiceClient(timeout=300000)  # milliseconds
+```
+
+### Rate Limiting
+
+**EDB API:**
+- Max 100 indicators per request
+- Batch large queries: `fetch_edb_data(['EMM001', 'EMM002', ...], start, end)`
+
+**CSD API:**
+- 700 requests/minute limit
+- Add 1-second delay between requests
+- For multi-year queries: fetch codes individually to avoid timeout
+
+## 📈 Usage Examples
+
+### Example 1: Get CPI Data
+
+```bash
+# Using CLI
+python main.py status
+
+# Using API
+curl "http://localhost:8001/data/EMM00072301?start_date=2024-01-01&end_date=2024-12-31"
+```
+
+### Example 2: Get Stock Index with Multiple Fields
+
+```bash
+# Get both CLOSE and PETTM for 沪深300
+curl "http://localhost:8001/data/000300.SH?start_date=2025-01-01"
+
+# Get only close price
+curl "http://localhost:8001/data/000300.SH?field_name=CLOSE&start_date=2025-01-01"
+```
+
+### Example 3: Batch Query Multiple Indicators
+
+```python
+import requests
+
+response = requests.post('http://localhost:8001/batch-data', json={
+    'codes': ['EMM00072301', '000300.SH', 'EMG00000155'],
+    'start_date': '2024-01-01',
+    'end_date': '2024-12-31'
+})
+
+data = response.json()
+for code, info in data['results'].items():
+    print(f"{code}: {info['count']} data points")
+```
+
+## 🔄 Update Strategies Compared
+
+| Strategy | Use Case | New Indicators | Existing Indicators |
+|----------|----------|----------------|---------------------|
+| **smart** (recommended) | Default daily updates | Full from 2000 | Incremental from last date |
+| **full** | Complete refresh | Full from 2000 | Full from 2000 (overwrites) |
+| **incremental** | Traditional | Yesterday-today only | Yesterday-today only |
+| **retry** | Fix failures | Full from 2000 | Full from 2000 (failed only) |
+
+## 🚨 Troubleshooting
+
+### Connection Timeout
+
+**Symptom:** "Script execution exceeded 300000ms timeout"
+
+**Solution:**
+```python
+# Already configured in config.py
+ICHOICE_TIMEOUT: int = 300000  # 5 minutes
+
+# For very slow connections, increase to 10 minutes:
+ICHOICE_TIMEOUT: int = 600000
+```
+
+### EDB Batch Size Error
+
+**Symptom:** "EDB API supports max 100 indicators per request"
+
+**Solution:**
+```python
+# Automatically handled by client
+# Large batches split into groups of 100
+```
+
+### Failed Indicators
+
+```bash
+# View system status to see failed count
+python main.py status
+
+# Retry failed indicators only
+python main.py update --update-type retry
+```
+
+### Check Update Logs
+
+```bash
+# Via API
+curl "http://localhost:8001/logs/000300.SH"
+
+# Via database
+sqlite3 data/ichoice_data.db "SELECT * FROM update_logs WHERE status='failed' LIMIT 10"
+```
+
+## 📊 Performance Metrics
+
+**Initial Setup:**
+- Database initialization: < 1 second
+- Indicator loading: < 5 seconds (453 indicators)
+- First full update: 4-6 hours (depends on network)
+
+**Daily Updates:**
+- Smart incremental: 10-30 minutes (only new data)
+- Full update: 4-6 hours (all indicators from 2000)
+
+**Data Completeness Target:**
+- > 95% after initial full update
+- 98-100% after retry of failed indicators
+
+## 🔐 Security Notes
+
+- **Credentials**: Stored in `config/config.py` (consider using environment variables for production)
+- **Database**: SQLite file (`ichoice_data.db`) - ensure proper file permissions
+- **API**: No authentication by default - add API key authentication for production deployment
+
+## 📝 Command Reference
+
+```bash
+# Database & Data Management
+python main.py init                        # Initialize database
+python main.py update                      # Smart incremental update (default)
+python main.py update --update-type full   # Full historical update
+python main.py update --update-type retry  # Retry failed only
+
+# Services
+python main.py server                      # Start REST API
+python main.py scheduler                   # Start background scheduler
+
+# Monitoring
+python main.py status                      # System status
+python main.py fields                      # Multi-field analysis
+python main.py test                        # Test iChoice connection
+```
+
+## 🎯 Next Steps
+
+1. **Initial Setup:**
+   ```bash
+   python main.py init
+   python main.py test
+   python main.py update --update-type full  # 4-6 hours
+   ```
+
+2. **Verify Data:**
+   ```bash
+   python main.py status
+   python main.py fields
+   ```
+
+3. **Start Services:**
+   ```bash
+   # Terminal 1: API server
+   python main.py server
+
+   # Terminal 2: Scheduler
+   python main.py scheduler
+   ```
+
+4. **Production Deployment:**
+   - Set up systemd/launchd service for scheduler
+   - Configure reverse proxy (nginx) for API
+   - Add API authentication
+   - Set up database backups
+
+## 📄 License
+
+Internal use for 兴银理财多资产投资部
+
+## 👤 Contact
+
+For questions or issues, contact the development team.
+
+---
+
+**Built with:** Python 3.x | SQLite | FastAPI | EMQuantAPI | Schedule

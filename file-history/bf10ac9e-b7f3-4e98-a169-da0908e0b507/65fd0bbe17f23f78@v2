@@ -1,0 +1,54 @@
+"""Configuration settings for iChoice Data System"""
+from pydantic_settings import BaseSettings
+from pathlib import Path
+
+
+class Settings(BaseSettings):
+    """Application settings"""
+
+    # Project paths
+    PROJECT_ROOT: Path = Path(__file__).parent.parent
+    DATABASE_PATH: str = str(PROJECT_ROOT / "data" / "ichoice_data.db")
+    INDICATOR_EXCEL_PATH: str = str(PROJECT_ROOT / "data" / "数据指标.xlsx")
+    LOG_DIR: str = str(PROJECT_ROOT / "logs")
+
+    # iChoice SDK configuration
+    ICHOICE_SDK_PATH: str = "/Users/fanshengxia/Desktop/ichoice/EMQuantAPI_Python/python3/"
+    ICHOICE_USERNAME: str = "xylczh0181"
+    ICHOICE_PASSWORD: str = "ef465509"
+    ICHOICE_TIMEOUT: int = 300000  # 5 minutes in milliseconds (CRITICAL for initial login)
+
+    # Data settings
+    HISTORICAL_START_YEAR: int = 2000
+    DEFAULT_START_DATE: str = "2000-01-01"
+
+    # Rate limits (from iChoice documentation)
+    EDB_MAX_INDICATORS_PER_REQUEST: int = 100  # EDB API limit
+    CSD_RATE_LIMIT: int = 700  # CSD requests per minute
+    REQUEST_INTERVAL: float = 1.0  # seconds between requests
+
+    # Scheduler settings
+    DAILY_UPDATE_TIME: str = "18:00"  # Weekday incremental updates
+    WEEKLY_UPDATE_TIME: str = "02:00"  # Sunday full update
+
+    # API settings
+    API_HOST: str = "0.0.0.0"
+    API_PORT: int = 8001  # Different from data_api (8000)
+    API_TITLE: str = "iChoice Financial Data API"
+    API_VERSION: str = "1.0.0"
+
+    # Logging
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    # Retry settings
+    MAX_RETRIES: int = 3
+    RETRY_DELAY: int = 5  # seconds
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
+# Global settings instance
+settings = Settings()

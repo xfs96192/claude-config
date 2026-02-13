@@ -1,0 +1,198 @@
+2026-02-12T11:49:38.982Z [DEBUG] [init] configureGlobalMTLS starting
+2026-02-12T11:49:38.982Z [DEBUG] [init] configureGlobalMTLS complete
+2026-02-12T11:49:38.982Z [DEBUG] [init] configureGlobalAgents starting
+2026-02-12T11:49:38.982Z [DEBUG] [init] configureGlobalAgents complete
+2026-02-12T11:49:38.987Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["mcp__pencil"]
+2026-02-12T11:49:38.987Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'projectSettings': ["mcp__pencil"]
+2026-02-12T11:49:38.987Z [DEBUG] Applying permission update: Adding 21 allow rule(s) to destination 'localSettings': ["Bash(sqlite3:*)","Skill(frontend-design)","Bash(open:*)","Bash(tree:*)","Bash(wc:*)","Bash(curl:*)","Bash(chmod:*)","Bash(./download-resources.sh:*)","Bash(file:*)","Bash(grep:*)","Bash(./verify-offline.sh:*)","Skill(xlsx)","Bash(python3:*)","Bash(zip:*)","Bash(python:*)","Skill(key-product-performance)","Skill(superpowers:writing-skills)","Bash(find:*)","Bash(cat:*)","Bash(npm cache clean:*)","WebFetch(domain:docs.molt.bot)"]
+2026-02-12T11:49:38.987Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-02-12T11:49:38.993Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-02-12T11:49:38.993Z [DEBUG] No version found for superpowers@claude-plugins-official, using 'unknown'
+2026-02-12T11:49:38.993Z [DEBUG] [ToolSearch:optimistic] mode=tst-auto, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-02-12T11:49:38.994Z [DEBUG] [STARTUP] Running setup()...
+2026-02-12T11:49:38.994Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1770896978994_1tenfd
+2026-02-12T11:49:39.000Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-02-12T11:49:39.010Z [DEBUG] Error log sink initialized
+2026-02-12T11:49:39.013Z [DEBUG] [STARTUP] setup() completed in 19ms
+2026-02-12T11:49:39.013Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-02-12T11:49:39.014Z [DEBUG] Loaded 20 unique skills (20 unconditional, 0 conditional, managed: 0, user: 20, project: 0, additional: 0, legacy commands: 0)
+2026-02-12T11:49:39.016Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-02-12T11:49:39.016Z [DEBUG] Acquired PID lock for 2.1.39 (PID 35070)
+2026-02-12T11:49:39.016Z [DEBUG] Acquired PID lock on running version: /Users/fanshengxia/.local/share/claude/versions/2.1.39
+2026-02-12T11:49:39.035Z [DEBUG] [Claude in Chrome] Found edge profiles: Default
+2026-02-12T11:49:39.036Z [DEBUG] [Claude in Chrome] Extension not found in any browser
+2026-02-12T11:49:40.541Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.35070.1770896980541
+2026-02-12T11:49:40.541Z [DEBUG] Preserving file permissions: 100644
+2026-02-12T11:49:40.541Z [DEBUG] Temp file written successfully, size: 53846 bytes
+2026-02-12T11:49:40.541Z [DEBUG] Applied original permissions to temp file
+2026-02-12T11:49:40.541Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.35070.1770896980541 to /Users/fanshengxia/.claude.json
+2026-02-12T11:49:40.542Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-12T11:49:42.027Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1770896978994_1tenfd
+2026-02-12T11:49:42.028Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-02-12T11:49:42.028Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.2.0
+2026-02-12T11:49:42.029Z [DEBUG] Plugin superpowers@claude-plugins-official version 4.2.0 already cached at /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0
+2026-02-12T11:49:42.044Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/hooks/hooks.json
+2026-02-12T11:49:42.044Z [DEBUG] Found 1 plugins (1 enabled, 0 disabled)
+2026-02-12T11:49:42.044Z [DEBUG] getPluginSkills: Processing 1 enabled plugins
+2026-02-12T11:49:42.044Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-02-12T11:49:42.044Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0/skills
+2026-02-12T11:49:42.051Z [DEBUG] Loading hooks from plugin: superpowers
+2026-02-12T11:49:42.051Z [DEBUG] Registered 1 hooks from 1 plugins
+2026-02-12T11:49:42.052Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-02-12T11:49:42.052Z [DEBUG] Total plugin agents loaded: 1
+2026-02-12T11:49:42.052Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-02-12T11:49:42.052Z [DEBUG] Total plugin skills loaded: 14
+2026-02-12T11:49:42.052Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-02-12T11:49:42.052Z [DEBUG] Total plugin commands loaded: 3
+2026-02-12T11:49:42.052Z [DEBUG] getSkills returning: 20 skill dir commands, 14 plugin skills, 2 bundled skills
+2026-02-12T11:49:42.052Z [DEBUG] [STARTUP] Commands and agents loaded in 3039ms
+2026-02-12T11:49:42.052Z [DEBUG] Layout engine: yoga
+2026-02-12T11:49:42.060Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-02-12T11:49:42.062Z [DEBUG] [keybindings] KeybindingSetup initialized with 101 bindings, 0 warnings
+2026-02-12T11:49:42.076Z [DEBUG] [keybindings] Watching for changes to /Users/fanshengxia/.claude/keybindings.json
+2026-02-12T11:49:43.638Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-02-12T11:49:43.639Z [DEBUG] [STARTUP] showSetupScreens() completed in 1579ms
+2026-02-12T11:49:43.639Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-02-12T11:49:43.639Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-02-12T11:49:43.639Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-02-12T11:49:43.685Z [DEBUG] [STARTUP] MCP configs loaded in 4698ms
+2026-02-12T11:49:43.687Z [DEBUG] MCP server "zen": Starting connection with timeout of 30000ms
+2026-02-12T11:49:43.689Z [DEBUG] MCP server "pencil": Starting connection with timeout of 30000ms
+2026-02-12T11:49:43.692Z [DEBUG] All plugins already exist, skipping migration
+2026-02-12T11:49:43.692Z [DEBUG] [Reconnection] computeInitialTeamContext: No teammate context set (not a teammate)
+2026-02-12T11:49:43.694Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.35070.1770896983694
+2026-02-12T11:49:43.694Z [DEBUG] Preserving file permissions: 100644
+2026-02-12T11:49:43.694Z [DEBUG] Temp file written successfully, size: 53846 bytes
+2026-02-12T11:49:43.694Z [DEBUG] Applied original permissions to temp file
+2026-02-12T11:49:43.694Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.35070.1770896983694 to /Users/fanshengxia/.claude.json
+2026-02-12T11:49:43.695Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-12T11:49:43.697Z [DEBUG] Getting matching hook commands for SessionStart with query: startup
+2026-02-12T11:49:43.697Z [DEBUG] Found 1 hook matchers in settings
+2026-02-12T11:49:43.697Z [DEBUG] Matched 1 unique hooks for query "startup" (1 before deduplication)
+2026-02-12T11:49:43.697Z [DEBUG] Loaded 1 installed plugins from /Users/fanshengxia/.claude/plugins/installed_plugins.json
+2026-02-12T11:49:43.697Z [DEBUG] Initialized versioned plugins system with 1 plugins
+2026-02-12T11:49:43.709Z [DEBUG] Git remote URL: null
+2026-02-12T11:49:43.709Z [DEBUG] No git remote URL found
+2026-02-12T11:49:43.710Z [DEBUG] Hooks: Config-based async hook, backgrounding process async_hook_35120
+2026-02-12T11:49:43.711Z [DEBUG] Hooks: Registering async hook async_hook_35120 (SessionStart:startup) with timeout 600000ms
+2026-02-12T11:49:43.711Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2026-02-12T11:49:43.714Z [DEBUG] [keybindings] KeybindingSetup initialized with 101 bindings, 0 warnings
+2026-02-12T11:49:43.758Z [DEBUG] [REPL:mount] REPL mounted, disabled=false
+2026-02-12T11:49:43.760Z [DEBUG] Official marketplace auto-install skipped: already_attempted
+2026-02-12T11:49:43.760Z [DEBUG] performStartupChecks called
+2026-02-12T11:49:43.760Z [DEBUG] Starting background plugin installations
+2026-02-12T11:49:43.760Z [DEBUG] performBackgroundPluginInstallations called
+2026-02-12T11:49:43.761Z [DEBUG] No CLAUDE.md/rules files found
+2026-02-12T11:49:43.768Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude/settings.json, /Users/fanshengxia/.claude/settings.local.json...
+2026-02-12T11:49:44.662Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.35070.1770896984662
+2026-02-12T11:49:44.662Z [DEBUG] Preserving file permissions: 100644
+2026-02-12T11:49:44.662Z [DEBUG] Temp file written successfully, size: 53847 bytes
+2026-02-12T11:49:44.662Z [DEBUG] Applied original permissions to temp file
+2026-02-12T11:49:44.662Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.35070.1770896984662 to /Users/fanshengxia/.claude.json
+2026-02-12T11:49:44.662Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-12T11:49:44.664Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.35070.1770896984664
+2026-02-12T11:49:44.664Z [DEBUG] Preserving file permissions: 100644
+2026-02-12T11:49:44.664Z [DEBUG] Temp file written successfully, size: 53848 bytes
+2026-02-12T11:49:44.664Z [DEBUG] Applied original permissions to temp file
+2026-02-12T11:49:44.664Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.35070.1770896984664 to /Users/fanshengxia/.claude.json
+2026-02-12T11:49:44.664Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-02-12T11:49:44.665Z [DEBUG] Found 1 enabled plugins
+2026-02-12T11:49:44.665Z [DEBUG] All plugins already exist, skipping migration
+2026-02-12T11:49:44.665Z [DEBUG] Found 1 installed plugins (V2 format)
+2026-02-12T11:49:44.666Z [DEBUG] [claudeai-mcp] Checking gate (cached)...
+2026-02-12T11:49:44.666Z [DEBUG] [claudeai-mcp] Gate returned: true
+2026-02-12T11:49:44.666Z [DEBUG] [claudeai-mcp] Fetching from https://api.anthropic.com/v1/mcp_servers?limit=1000
+2026-02-12T11:49:44.667Z [DEBUG] Loaded plugins - Enabled: 1, Disabled: 0, Commands: 3, Agents: 1, Errors: 0
+2026-02-12T11:49:44.667Z [DEBUG] Found 0 missing plugins (not installed):
+2026-02-12T11:49:44.667Z [DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+2026-02-12T11:49:44.667Z [DEBUG] AutoUpdaterWrapper: Installation type: native
+2026-02-12T11:49:44.669Z [DEBUG] Hooks: Adding stdout to async_hook_35120: {
+  "hookSpecificOutput": {
+    "hookEventName": "...
+2026-02-12T11:49:44.671Z [DEBUG] MCP server "zen": Connection failed after 986ms: ENOENT: no such file or directory, posix_spawn '/Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python'
+2026-02-12T11:49:44.671Z [ERROR] MCP server "zen" Connection failed: ENOENT: no such file or directory, posix_spawn '/Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python'
+2026-02-12T11:49:44.677Z [DEBUG] Total LSP servers loaded: 0
+2026-02-12T11:49:44.677Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-02-12T11:49:44.677Z [DEBUG] LSP manager initialized with 0 servers
+2026-02-12T11:49:44.677Z [DEBUG] LSP server manager initialized successfully
+2026-02-12T11:49:44.677Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-02-12T11:49:44.682Z [DEBUG] Org fast mode: enabled
+2026-02-12T11:49:44.682Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills, /Users/fanshengxia/.claude/skills...
+2026-02-12T11:49:44.706Z [ERROR] MCP server "pencil" Server stderr: 2026/02/12 19:49:43 [MCP] Starting server in stdio mode
+2026-02-12T11:49:44.706Z [DEBUG] MCP server "pencil": Successfully connected to stdio server in 1018ms
+2026-02-12T11:49:44.706Z [DEBUG] MCP server "pencil": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"serverVersion":{"name":"pencil","version":"1.0.0"}}
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.718Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.719Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__find_empty_space_on_canvas
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__snapshot_layout
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_style_guide
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__batch_design
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_screenshot
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__search_all_unique_properties
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__set_variables
+2026-02-12T11:49:44.885Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_variables
+2026-02-12T11:49:44.886Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_editor_state
+2026-02-12T11:49:44.886Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_guidelines
+2026-02-12T11:49:44.888Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__replace_all_matching_properties
+2026-02-12T11:49:44.888Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__batch_get
+2026-02-12T11:49:44.899Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__open_document
+2026-02-12T11:49:44.899Z [DEBUG] countToolDefinitionTokens returned 0 for 1 tools: mcp__pencil__get_style_guide_tags
+2026-02-12T11:49:44.899Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-02-12T11:49:44.904Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-02-12T11:49:44.904Z [DEBUG] [API:auth] OAuth token check starting
+2026-02-12T11:49:44.904Z [DEBUG] [API:auth] OAuth token check complete
+2026-02-12T11:49:44.912Z [DEBUG] countToolDefinitionTokens returned 0 for 20 tools: Task, TaskOutput, Bash, Glob, Grep, ExitPlanMode, Read, Edit, Write, NotebookEdit, WebFetch, WebSear...
+2026-02-12T11:49:44.977Z [DEBUG] [claudeai-mcp] Fetched 0 servers
+2026-02-12T11:49:45.740Z [ERROR] AxiosError: Error
+    at vk (/$bunfs/root/claude:42:1144)
+    at <anonymous> (/$bunfs/root/claude:43:10097)
+    at emit (node:events:92:22)
+    at endReadableNT (internal:streams/readable:861:50)
+    at processTicksAndRejections (native:7:39)
+    at request (/$bunfs/root/claude:45:2149)
+    at processTicksAndRejections (native:7:39)
+2026-02-12T11:49:46.364Z [DEBUG] Checking for native installer update to version 2.1.39
+2026-02-12T11:49:46.364Z [DEBUG] Found 2.1.39 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-02-12T11:50:02.430Z [DEBUG] Getting matching hook commands for SessionEnd with query: other
+2026-02-12T11:50:02.430Z [DEBUG] Found 0 hook matchers in settings
+2026-02-12T11:50:02.430Z [DEBUG] Matched 0 unique hooks for query "other" (0 before deduplication)

@@ -1,0 +1,316 @@
+"""Smart data updater with scheduler for iChoice data system"""
+import logging
+import time
+import schedule
+import threading
+from datetime import datetime, timedelta
+from typing import List, Dict, Optional
+import pandas as pd
+
+from config.config import settings
+from src.database.models import Database
+from src.data_fetcher.ichoice_client import IChoiceClient
+
+logger = logging.getLogger(__name__)
+
+
+class DataUpdater:
+    """Handles data updates with smart incremental logic"""
+
+    def __init__(self, db: Database, client: IChoiceClient):
+        """Initialize data updater
+
+        Args:
+            db: Database instance
+            client: IChoiceClient instance
+        """
+        self.db = db
+        self.client = client
+        self.is_running = False
+        self.scheduler_thread = None
+
+    def get_today(self) -> str:
+        """Get today's date in YYYY-MM-DD format"""
+        return datetime.now().strftime('%Y-%m-%d')
+
+    def smart_incremental_update(self):
+        """
+        Smart incremental update strategy:
+        - NEW indicators (no data in DB): Full historical from 2000-01-01
+        - EXISTING indicators: Incremental from last_date + 1 to today
+        """
+        logger.info("Starting smart incremental update...")
+        today = self.get_today()
+        indicators = self.db.get_indicators()
+
+        success_count = 0
+        failed_count = 0
+
+        for indicator in indicators:
+            ichoice_code = indicator['ichoice_code']
+            fields = self.db.get_indicator_fields(ichoice_code)
+
+            if not fields:
+                logger.warning(f"No fields defined for {ichoice_code}, skipping")
+                continue
+
+            for field_info in fields:
+                field_name = field_info['field_name']
+
+                try:
+                    # Check last update date for this field
+                    last_date = self.db.get_last_update_date(ichoice_code, field_name)
+
+                    if last_date is None:
+                        # New indicator/field: full historical
+                        start_date = settings.DEFAULT_START_DATE
+                        update_type = "smart_new"
+                        logger.info(f"New field {ichoice_code}.{field_name}: fetching from {start_date}")
+                    else:
+                        # Existing: incremental from last_date + 1
+                        start_dt = datetime.strptime(last_date, '%Y-%m-%d') + timedelta(days=1)
+                        start_date = start_dt.strftime('%Y-%m-%d')
+                        update_type = "smart_existing"
+
+                        if start_date > today:
+                            logger.debug(f"Already up-to-date: {ichoice_code}.{field_name}")
+                            continue
+
+                        logger.info(f"Incremental update {ichoice_code}.{field_name}: {start_date} to {today}")
+
+                    # Fetch and store data
+                    success = self.update_indicator_field(
+                        indicator, field_name, start_date, today, update_type
+                    )
+
+                    if success:
+                        success_count += 1
+                    else:
+                        failed_count += 1
+
+                    # Rate limiting
+                    time.sleep(settings.REQUEST_INTERVAL)
+
+                except Exception as e:
+                    logger.error(f"Error updating {ichoice_code}.{field_name}: {e}")
+                    failed_count += 1
+
+        logger.info(f"Smart update completed: {success_count} success, {failed_count} failed")
+
+    def full_update(self, start_year: int = 2000):
+        """Full historical update for all indicators
+
+        Args:
+            start_year: Start year for historical data
+        """
+        logger.info(f"Starting full historical update from {start_year}...")
+        start_date = f"{start_year}-01-01"
+        today = self.get_today()
+        indicators = self.db.get_indicators()
+
+        success_count = 0
+        failed_count = 0
+
+        for indicator in indicators:
+            ichoice_code = indicator['ichoice_code']
+            fields = self.db.get_indicator_fields(ichoice_code)
+
+            for field_info in fields:
+                field_name = field_info['field_name']
+
+                try:
+                    success = self.update_indicator_field(
+                        indicator, field_name, start_date, today, "full"
+                    )
+
+                    if success:
+                        success_count += 1
+                    else:
+                        failed_count += 1
+
+                    time.sleep(settings.REQUEST_INTERVAL)
+
+                except Exception as e:
+                    logger.error(f"Error in full update {ichoice_code}.{field_name}: {e}")
+                    failed_count += 1
+
+        logger.info(f"Full update completed: {success_count} success, {failed_count} failed")
+
+    def incremental_update(self):
+        """Traditional incremental update (from yesterday to today)"""
+        logger.info("Starting incremental update...")
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        today = self.get_today()
+        indicators = self.db.get_indicators()
+
+        success_count = 0
+        failed_count = 0
+
+        for indicator in indicators:
+            ichoice_code = indicator['ichoice_code']
+            fields = self.db.get_indicator_fields(ichoice_code)
+
+            for field_info in fields:
+                field_name = field_info['field_name']
+
+                try:
+                    success = self.update_indicator_field(
+                        indicator, field_name, yesterday, today, "incremental"
+                    )
+
+                    if success:
+                        success_count += 1
+                    else:
+                        failed_count += 1
+
+                    time.sleep(settings.REQUEST_INTERVAL)
+
+                except Exception as e:
+                    logger.error(f"Error in incremental update {ichoice_code}.{field_name}: {e}")
+                    failed_count += 1
+
+        logger.info(f"Incremental update completed: {success_count} success, {failed_count} failed")
+
+    def retry_failed(self):
+        """Retry failed indicators with full historical update"""
+        logger.info("Starting retry of failed indicators...")
+        failed_codes = self.db.get_failed_indicators()
+
+        if not failed_codes:
+            logger.info("No failed indicators to retry")
+            return
+
+        logger.info(f"Retrying {len(failed_codes)} failed indicators")
+        start_date = settings.DEFAULT_START_DATE
+        today = self.get_today()
+
+        success_count = 0
+        failed_count = 0
+
+        for ichoice_code in failed_codes:
+            indicator = self.db.get_indicator_by_code(ichoice_code)
+            if not indicator:
+                continue
+
+            fields = self.db.get_indicator_fields(ichoice_code)
+
+            for field_info in fields:
+                field_name = field_info['field_name']
+
+                try:
+                    success = self.update_indicator_field(
+                        indicator, field_name, start_date, today, "retry"
+                    )
+
+                    if success:
+                        success_count += 1
+                    else:
+                        failed_count += 1
+
+                    time.sleep(settings.REQUEST_INTERVAL)
+
+                except Exception as e:
+                    logger.error(f"Error retrying {ichoice_code}.{field_name}: {e}")
+                    failed_count += 1
+
+        logger.info(f"Retry completed: {success_count} success, {failed_count} failed")
+
+    def update_indicator_field(self, indicator: Dict, field_name: str,
+                              start_date: str, end_date: str,
+                              update_type: str) -> bool:
+        """Update single indicator field
+
+        Args:
+            indicator: Indicator dictionary from database
+            field_name: Field name to update
+            start_date: Start date (YYYY-MM-DD)
+            end_date: End date (YYYY-MM-DD)
+            update_type: Type of update (smart_new/smart_existing/full/incremental/retry)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        ichoice_code = indicator['ichoice_code']
+
+        try:
+            # Fetch data
+            logger.info(f"Fetching {ichoice_code}.{field_name} from {start_date} to {end_date}")
+            df = self.client.fetch_indicator_data(ichoice_code, field_name, start_date, end_date)
+
+            if df.empty:
+                logger.warning(f"No data returned for {ichoice_code}.{field_name}")
+                self.db.log_update(ichoice_code, field_name, update_type,
+                                  start_date, end_date, 0, "failed",
+                                  "No data returned")
+                return False
+
+            # Convert DataFrame to list of tuples
+            data_tuples = list(zip(df['date'].tolist(), df['value'].tolist()))
+
+            # Insert data
+            inserted_count = self.db.insert_time_series_data(ichoice_code, field_name, data_tuples)
+
+            # Log success
+            self.db.log_update(ichoice_code, field_name, update_type,
+                              start_date, end_date, inserted_count, "success", None)
+
+            logger.info(f"Successfully updated {ichoice_code}.{field_name}: {inserted_count} records")
+            return True
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Failed to update {ichoice_code}.{field_name}: {error_msg}")
+
+            # Log failure
+            self.db.log_update(ichoice_code, field_name, update_type,
+                              start_date, end_date, 0, "failed", error_msg)
+            return False
+
+    # ==================== Scheduler ====================
+
+    def setup_schedule(self):
+        """Configure scheduled tasks"""
+        logger.info("Setting up scheduler...")
+
+        # Daily incremental update (weekdays at 18:00)
+        schedule.every().monday.at(settings.DAILY_UPDATE_TIME).do(self.smart_incremental_update)
+        schedule.every().tuesday.at(settings.DAILY_UPDATE_TIME).do(self.smart_incremental_update)
+        schedule.every().wednesday.at(settings.DAILY_UPDATE_TIME).do(self.smart_incremental_update)
+        schedule.every().thursday.at(settings.DAILY_UPDATE_TIME).do(self.smart_incremental_update)
+        schedule.every().friday.at(settings.DAILY_UPDATE_TIME).do(self.smart_incremental_update)
+
+        # Weekly full update (Sunday at 02:00)
+        schedule.every().sunday.at(settings.WEEKLY_UPDATE_TIME).do(
+            lambda: self.full_update(settings.HISTORICAL_START_YEAR)
+        )
+
+        logger.info(f"Scheduled daily updates at {settings.DAILY_UPDATE_TIME} (weekdays)")
+        logger.info(f"Scheduled weekly full update at {settings.WEEKLY_UPDATE_TIME} (Sunday)")
+
+    def run_scheduler(self):
+        """Run scheduler in background thread"""
+        self.is_running = True
+        self.setup_schedule()
+
+        logger.info("Scheduler started, running in background...")
+
+        while self.is_running:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
+
+    def start_scheduler_background(self):
+        """Start scheduler in a separate thread"""
+        if self.scheduler_thread and self.scheduler_thread.is_alive():
+            logger.warning("Scheduler already running")
+            return
+
+        self.scheduler_thread = threading.Thread(target=self.run_scheduler, daemon=True)
+        self.scheduler_thread.start()
+        logger.info("Scheduler thread started")
+
+    def stop_scheduler(self):
+        """Stop the scheduler"""
+        self.is_running = False
+        if self.scheduler_thread:
+            self.scheduler_thread.join(timeout=5)
+        logger.info("Scheduler stopped")

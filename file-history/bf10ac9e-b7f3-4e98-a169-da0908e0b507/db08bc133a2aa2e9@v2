@@ -1,0 +1,389 @@
+"""Database models and operations for iChoice data storage"""
+import sqlite3
+import logging
+from datetime import datetime
+from typing import List, Dict, Optional, Tuple
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+
+class Database:
+    """Database interface for iChoice financial data"""
+
+    def __init__(self, db_path: str):
+        """Initialize database connection"""
+        self.db_path = db_path
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+        self.conn = None
+        self.initialize_database()
+
+    def get_connection(self) -> sqlite3.Connection:
+        """Get database connection with row factory"""
+        if self.conn is None:
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.conn.row_factory = sqlite3.Row
+        return self.conn
+
+    def initialize_database(self):
+        """Create database schema with multi-field support"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        # Table 1: indicators - Base indicator metadata
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS indicators (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                category TEXT NOT NULL,
+                name TEXT NOT NULL,
+                ichoice_code TEXT UNIQUE NOT NULL,
+                data_source TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # Table 2: indicator_fields - Multi-field mapping
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS indicator_fields (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ichoice_code TEXT NOT NULL,
+                field_name TEXT NOT NULL,
+                field_display_name TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (ichoice_code) REFERENCES indicators(ichoice_code),
+                UNIQUE(ichoice_code, field_name)
+            )
+        """)
+
+        # Table 3: time_series_data - Time series with field support
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS time_series_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ichoice_code TEXT NOT NULL,
+                field_name TEXT NOT NULL,
+                date TEXT NOT NULL,
+                value REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (ichoice_code) REFERENCES indicators(ichoice_code),
+                UNIQUE(ichoice_code, field_name, date)
+            )
+        """)
+
+        # Table 4: update_logs - Update history tracking
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS update_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ichoice_code TEXT NOT NULL,
+                field_name TEXT,
+                update_type TEXT NOT NULL,
+                start_date TEXT,
+                end_date TEXT,
+                records_count INTEGER DEFAULT 0,
+                status TEXT NOT NULL,
+                error_message TEXT,
+                update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (ichoice_code) REFERENCES indicators(ichoice_code)
+            )
+        """)
+
+        # Create indexes for performance
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_time_series_code_field_date
+            ON time_series_data(ichoice_code, field_name, date)
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_indicators_category
+            ON indicators(category)
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_update_logs_code
+            ON update_logs(ichoice_code)
+        """)
+
+        conn.commit()
+        logger.info("Database initialized successfully")
+
+    # ==================== Indicator Operations ====================
+
+    def insert_indicator(self, category: str, name: str, ichoice_code: str,
+                        data_source: str) -> int:
+        """Insert new indicator"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                INSERT INTO indicators (category, name, ichoice_code, data_source)
+                VALUES (?, ?, ?, ?)
+            """, (category, name, ichoice_code, data_source))
+            conn.commit()
+            logger.info(f"Inserted indicator: {ichoice_code} ({name})")
+            return cursor.lastrowid
+        except sqlite3.IntegrityError:
+            logger.warning(f"Indicator already exists: {ichoice_code}")
+            return -1
+
+    def insert_indicator_field(self, ichoice_code: str, field_name: str,
+                              field_display_name: str = None) -> int:
+        """Insert indicator field mapping"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                INSERT INTO indicator_fields (ichoice_code, field_name, field_display_name)
+                VALUES (?, ?, ?)
+            """, (ichoice_code, field_name, field_display_name))
+            conn.commit()
+            return cursor.lastrowid
+        except sqlite3.IntegrityError:
+            logger.debug(f"Field already exists: {ichoice_code}.{field_name}")
+            return -1
+
+    def get_indicators(self, category: str = None) -> List[Dict]:
+        """Get all indicators, optionally filtered by category"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        if category:
+            cursor.execute("""
+                SELECT * FROM indicators WHERE category = ? ORDER BY ichoice_code
+            """, (category,))
+        else:
+            cursor.execute("SELECT * FROM indicators ORDER BY category, ichoice_code")
+
+        return [dict(row) for row in cursor.fetchall()]
+
+    def get_indicator_by_code(self, ichoice_code: str) -> Optional[Dict]:
+        """Get indicator by code"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM indicators WHERE ichoice_code = ?", (ichoice_code,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+    def get_indicator_fields(self, ichoice_code: str) -> List[Dict]:
+        """Get all fields for an indicator"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM indicator_fields WHERE ichoice_code = ?
+        """, (ichoice_code,))
+        return [dict(row) for row in cursor.fetchall()]
+
+    # ==================== Time Series Operations ====================
+
+    def insert_time_series_data(self, ichoice_code: str, field_name: str,
+                               data: List[Tuple[str, float]]):
+        """Insert time series data (batch insert with IGNORE for duplicates)"""
+        if not data:
+            logger.warning(f"No data to insert for {ichoice_code}.{field_name}")
+            return 0
+
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        # Prepare data for batch insert
+        insert_data = [(ichoice_code, field_name, date, value) for date, value in data]
+
+        cursor.executemany("""
+            INSERT OR IGNORE INTO time_series_data (ichoice_code, field_name, date, value)
+            VALUES (?, ?, ?, ?)
+        """, insert_data)
+
+        conn.commit()
+        inserted = cursor.rowcount
+        logger.info(f"Inserted {inserted} records for {ichoice_code}.{field_name}")
+        return inserted
+
+    def get_time_series_data(self, ichoice_code: str, field_name: str = None,
+                            start_date: str = None, end_date: str = None) -> List[Dict]:
+        """Get time series data with optional field and date filtering"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        query = "SELECT * FROM time_series_data WHERE ichoice_code = ?"
+        params = [ichoice_code]
+
+        if field_name:
+            query += " AND field_name = ?"
+            params.append(field_name)
+
+        if start_date:
+            query += " AND date >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND date <= ?"
+            params.append(end_date)
+
+        query += " ORDER BY date"
+
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+    def get_last_update_date(self, ichoice_code: str, field_name: str = None) -> Optional[str]:
+        """Get the last date with data for an indicator (and field)"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        if field_name:
+            cursor.execute("""
+                SELECT MAX(date) as last_date
+                FROM time_series_data
+                WHERE ichoice_code = ? AND field_name = ?
+            """, (ichoice_code, field_name))
+        else:
+            cursor.execute("""
+                SELECT MAX(date) as last_date
+                FROM time_series_data
+                WHERE ichoice_code = ?
+            """, (ichoice_code,))
+
+        result = cursor.fetchone()
+        return result['last_date'] if result and result['last_date'] else None
+
+    def get_data_count(self, ichoice_code: str, field_name: str = None) -> int:
+        """Get count of data points for an indicator"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        if field_name:
+            cursor.execute("""
+                SELECT COUNT(*) as count
+                FROM time_series_data
+                WHERE ichoice_code = ? AND field_name = ?
+            """, (ichoice_code, field_name))
+        else:
+            cursor.execute("""
+                SELECT COUNT(*) as count
+                FROM time_series_data
+                WHERE ichoice_code = ?
+            """, (ichoice_code,))
+
+        return cursor.fetchone()['count']
+
+    # ==================== Update Log Operations ====================
+
+    def log_update(self, ichoice_code: str, field_name: Optional[str],
+                   update_type: str, start_date: str, end_date: str,
+                   records_count: int, status: str, error_message: str = None):
+        """Log update operation"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO update_logs
+            (ichoice_code, field_name, update_type, start_date, end_date,
+             records_count, status, error_message)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (ichoice_code, field_name, update_type, start_date, end_date,
+              records_count, status, error_message))
+
+        conn.commit()
+
+    def get_update_logs(self, ichoice_code: str = None, limit: int = 100) -> List[Dict]:
+        """Get recent update logs"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        if ichoice_code:
+            cursor.execute("""
+                SELECT * FROM update_logs
+                WHERE ichoice_code = ?
+                ORDER BY update_time DESC
+                LIMIT ?
+            """, (ichoice_code, limit))
+        else:
+            cursor.execute("""
+                SELECT * FROM update_logs
+                ORDER BY update_time DESC
+                LIMIT ?
+            """, (limit,))
+
+        return [dict(row) for row in cursor.fetchall()]
+
+    def get_failed_indicators(self) -> List[str]:
+        """Get indicators with failed updates or zero data"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        # Get indicators with failed status in latest update
+        cursor.execute("""
+            SELECT DISTINCT ul.ichoice_code
+            FROM update_logs ul
+            INNER JOIN (
+                SELECT ichoice_code, MAX(update_time) as max_time
+                FROM update_logs
+                GROUP BY ichoice_code
+            ) latest ON ul.ichoice_code = latest.ichoice_code
+                    AND ul.update_time = latest.max_time
+            WHERE ul.status = 'failed' OR ul.records_count = 0
+        """)
+
+        return [row['ichoice_code'] for row in cursor.fetchall()]
+
+    # ==================== Statistics ====================
+
+    def get_statistics(self) -> Dict:
+        """Get database statistics"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        stats = {}
+
+        # Total indicators
+        cursor.execute("SELECT COUNT(*) as count FROM indicators")
+        stats['total_indicators'] = cursor.fetchone()['count']
+
+        # Indicators by category
+        cursor.execute("""
+            SELECT category, COUNT(*) as count
+            FROM indicators
+            GROUP BY category
+        """)
+        stats['indicators_by_category'] = {row['category']: row['count']
+                                           for row in cursor.fetchall()}
+
+        # Total data points
+        cursor.execute("SELECT COUNT(*) as count FROM time_series_data")
+        stats['total_data_points'] = cursor.fetchone()['count']
+
+        # Indicators with data
+        cursor.execute("""
+            SELECT COUNT(DISTINCT ichoice_code) as count
+            FROM time_series_data
+        """)
+        stats['indicators_with_data'] = cursor.fetchone()['count']
+
+        # Data completeness
+        if stats['total_indicators'] > 0:
+            stats['data_completeness'] = (stats['indicators_with_data'] /
+                                         stats['total_indicators'] * 100)
+        else:
+            stats['data_completeness'] = 0
+
+        # Recent updates
+        cursor.execute("""
+            SELECT COUNT(*) as count
+            FROM update_logs
+            WHERE DATE(update_time) = DATE('now')
+        """)
+        stats['updates_today'] = cursor.fetchone()['count']
+
+        # Failed updates
+        cursor.execute("""
+            SELECT COUNT(*) as count
+            FROM update_logs
+            WHERE status = 'failed'
+        """)
+        stats['failed_updates'] = cursor.fetchone()['count']
+
+        return stats
+
+    def close(self):
+        """Close database connection"""
+        if self.conn:
+            self.conn.close()
+            self.conn = None

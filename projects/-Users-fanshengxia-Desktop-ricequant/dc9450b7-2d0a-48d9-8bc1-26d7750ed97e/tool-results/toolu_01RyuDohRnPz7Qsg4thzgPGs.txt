@@ -1,0 +1,1157 @@
+240:python
+241-import rqdatac
+--
+262:python
+263-[In]
+--
+298:python
+299-[In]
+--
+317:python
+318-import rqdatac, pandas, datetime
+--
+330:python
+331-import rqdatac
+--
+353:python
+354-get_price('000001.XSHE', start_date=20150101, end_date=20150201)
+--
+485:python
+486-all_instruments(type=None, date=None, market='cn')
+--
+520:python
+521-[In]all_instruments()
+--
+530:python
+531-[In]all_instruments(type='LOF')
+--
+541:python
+542-[In]all_instruments(type='Future')
+--
+551:python
+552-[In]all_instruments(type='Future', date='20160412')
+--
+561:python
+562-[In]all_instruments(type='Convertible')
+--
+573:python
+574-instruments(order_book_ids, market='cn')
+--
+709:python
+710-[In]instruments(['000001.XSHE', '000024.XSHE'])
+--
+715:python
+716-[In]: instruments('10000615')
+--
+720:python
+721-[In]instruments('000001.XSHE').days_from_listed('20160801')
+--
+725:python
+726-[In]instruments('10000068').days_from_listed('20150320')
+--
+730:python
+731-[In]instruments('IF1608').days_to_expire('20160801')
+--
+735:python
+736-[In] instruments('ZN2105C20000').days_to_expire('20201225')
+--
+741:python
+742-id_convert(order_book_ids,to=None)
+--
+759:python
+760-[In]id_convert('000001.XSHE', to='normal')
+--
+764:python
+765-[In]id_convert('000935.SH')
+--
+769:python
+770-[In]id_convert(['000001.SZ', '000935.SH'])
+--
+774:python
+775-[In]id_convert('AP810')
+--
+779:python
+780-[In]id_convert('ZC001.CZCE')
+--
+784:python
+785-[In]id_convert('m1901-C-2500')
+--
+789:python
+790-[In]id_convert('SR901C4400')
+--
+795:python
+796-get_price(order_book_ids, start_date=None, end_date=None, frequency='1d', fields=None, adjust_type='pre', skip_suspended=False, expect_df=True, time_slice=None, market='cn')
+--
+881:python
+882-[In] get_price('AG2209', start_date='20220512', end_date='20220513',frequency='1m',time_slice=('23:55', '09:05'))
+--
+892:python
+893-[In] get_price('000001.XSHE', start_date='20220512', end_date='20220513',frequency='1m', time_slice=(datetime.time(hour=10, minute=0), datetime.time(hour=11, minute=0)))
+--
+905:python
+906-[In] get_price('000001.XSHE',start_date='2015-04-01', end_date='2015-04-12',frequency='1w',adjust_type='none')
+--
+912:python
+913-[In]get_price('000001.XSHE', start_date='2015-04-01', end_date='2015-04-12', fields='close',frequency='1m')
+--
+921:python
+922-[In]get_price('000001.XSHE', start_date='20240105', end_date='20240105', frequency='tick')
+--
+933:python
+934-[In]get_price(['000001.XSHE', '000002.XSHE'], start_date='2019-04-01', end_date='2019-04-01',frequency='tick')
+--
+947:python
+948-[In]get_price('IF1608', '20160801', '20160801', 'tick')
+--
+959:python
+960-[In]get_price('000001.XSHE', start_date='2015-04-01', end_date='2015-04-01', frequency='15m')
+--
+971:python
+972-[In] get_price("000300.XSHG",start_date=20240105,end_date=20240108,frequency='60m')
+--
+985:python
+986-[In] get_price('10000615', start_date='20161125', end_date='20161130', frequency='1d')
+--
+995:python
+996-[In] get_price("128143.XSHE",start_date=20240105,end_date=20240105,frequency='1d')
+--
+1002:python
+1003-[In] get_price("131801.XSHE",start_date=20190522,end_date=20190522,frequency='1d')
+--
+1010:python
+1011-get_auction_info(order_book_ids, start_date=None, end_date=None, frequency='1d', fields=None, market='cn')
+--
+1038:python
+1039-[In]
+--
+1047:python
+1048-[In]
+--
+1059:python
+1060-[In]
+--
+1072:python
+1073-get_ticks(order_book_id, start_date=None, end_date=None, expect_df=True, market='cn')
+--
+1118:python
+1119-[In]
+--
+1127:python
+1128-[In]
+--
+1139:python
+1140-get_live_ticks(order_book_ids, start_dt=None, end_dt=None, fields=None, market='cn')
+--
+1187:python
+1188-[In]get_live_ticks(order_book_ids=['10002726'],start_dt='20210309094000',end_dt='20210309094002')
+--
+1199:python
+1200-[In]
+--
+1213:python
+1214-[In]
+--
+1236:python
+1237-get_open_auction_info(order_book_ids, start_date=None, end_date=None, fields =None, market='cn')
+--
+1287:python
+1288-[In]
+--
+1301:python
+1302-current_minute(order_book_ids, skip_suspended=False, fields=None, market='cn')
+--
+1331:python
+1332-[In]
+--
+1340:python
+1341-[In]
+--
+1350:python
+1351-get_price_change_rate(order_book_ids, start_date=None, end_date=None, expect_df=True, market='cn')
+--
+1371:python
+1372-[In]
+--
+1384:python
+1385-current_snapshot(order_book_ids, market='cn')
+--
+1425:python
+1426-[In] current_snapshot('90000337')
+--
+1430:python
+1431-[In] current_snapshot('000001.XSHE')
+--
+1438:python
+1439-[In] current_snapshot(['000001.XSHE','600000.XSHG'])
+--
+1445:python
+1446-get_trading_dates(start_date, end_date, market='cn')
+--
+1463:python
+1464-[In]
+--
+1470:python
+1471-get_previous_trading_date(date, n=1, market='cn')
+--
+1488:python
+1489-[In]
+--
+1495:python
+1496-get_next_trading_date(date, n=1, market='cn')
+--
+1513:python
+1514-[In]
+--
+1520:python
+1521-get_latest_trading_date(market='cn')
+--
+1536:python
+1537-[In]
+--
+1543:python
+1544-get_trading_hours(order_book_id, date=None, expected_fmt='str', frequency='1m', market='cn')
+--
+1589:python
+1590-get_trading_periods(order_book_ids, start_date =None, end_date=None, frequency='1m', market='cn')
+--
+1630:python
+1631-get_yield_curve(start_date=None, end_date=None, tenor=None, market='cn')
+--
+1651:python
+1652-[In]
+--
+1668:python
+1669-rqdatac.get_live_minute_price_change_rate(order_book_ids)
+--
+1687:python
+1688-[In]
+--
+1708:python
+1709-get_future_latest_trading_date(market='cn')
+--
+1724:python
+1725-[In]
+--
+1731:python
+1732-rqdatac.get_vwap(order_book_ids, start_date=None, end_date=None, frequency='1d')
+--
+1756:python
+1757-[In]
+--
+1788:python
+1789-[In]
+--
+1844:python
+1845-[In]
+--
+2039:python
+2040-get_pit_financials_ex(order_book_ids, fields, start_quarter, end_quarter, date=None, statements='latest', market='cn')
+--
+2413:python
+2414-[In]
+--
+2424:python
+2425-[In]
+--
+2437:python
+2438-[In]
+--
+2449:python
+2450-current_performance(order_book_ids, info_date=None, quarter=None, interval='1q', fields=None, market='cn')
+--
+2516:python
+2517-[In]
+--
+2523:python
+2524-[In]
+--
+2530:python
+2531-[In]
+--
+2539:python
+2540-performance_forecast(order_book_ids, info_date=None, end_date=None, fields=None, market='cn')
+--
+2578:python
+2579-[In]
+--
+2585:python
+2586-[In]
+--
+2594:python
+2595-[In]
+--
+2661:python
+2662-get_factor(order_book_ids, factor, start_date=None, end_date=None, universe=None,expect_df=True, market='cn')
+--
+3210:python
+3211-[In]
+--
+3222:python
+3223-[In]
+--
+3233:python
+3234-[In]
+--
+3463:python
+3464-get_all_factor_names(type=None, market='cn')
+--
+3493:python
+3494-[In]
+--
+3502:python
+3503-get_share_transformation(predecessor=None, market='cn')
+--
+3528:python
+3529-[In]get_share_transformation(predecessor="000022.XSHE")
+--
+3535:python
+3536-sector(code, market='cn')
+--
+3569:python
+3570-[In]sector('Energy')
+--
+3573:python
+3574-[In]sector(sector_code.Energy)
+--
+3579:python
+3580-industry(code, market='cn')
+--
+3692:python
+3693-[In]
+--
+3697:python
+3698-[In]
+--
+3704:python
+3705-get_concept_list(start_date=None, end_date=None, market='cn')
+--
+3724:python
+3725-[In]
+--
+3742:python
+3743-get_concept(concepts, start_date=None, end_date=None, market='cn')
+--
+3765:python
+3766-[In]
+--
+3808:python
+3809-get_stock_concept(order_book_ids, market='cn')
+--
+3829:python
+3830-[In]
+--
+3861:python
+3862-get_industry_mapping(source='citics_2019', date=None, market='cn')
+--
+3887:python
+3888-[In]
+--
+3901:python
+3902-get_industry(industry, source='citics_2019', date=None, market='cn')
+--
+3921:python
+3922-[In]
+--
+3959:python
+3960-[In]
+--
+3999:python
+4000-get_industry_change(industry, source='citics_2019', level=None, market='cn')
+--
+4022:python
+4023-[In]
+--
+4041:python
+4042-get_instrument_industry(order_book_ids, source='citics_2019', level=1, date=None, market='cn')
+--
+4070:python
+4071-[In]
+--
+4078:python
+4079-In [7]: get_instrument_industry(['000001.XSHE','000002.XSHE'],source='citics_2019',level=0)
+--
+4086:python
+4087-[In]: get_instrument_industry(['000001.XSHE','000002.XSHE'],source='citics_2019',level='citics_sector')
+--
+4095:python
+4096-get_turnover_rate(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True, market='cn')
+--
+4124:python
+4125-[In]
+--
+4138:python
+4139-get_dividend_info(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4166:python
+4167-[In]
+--
+4182:python
+4183-get_dividend(order_book_ids, start_date=None, end_date=None, expect_df=True, market='cn')
+--
+4219:python
+4220-[In]
+--
+4229:python
+4230-get_dividend_amount(order_book_ids, start_quarter = None, end_quarter = None, date = None, market = 'cn')
+--
+4258:python
+4259-[In]
+--
+4284:python
+4285-get_split(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4316:python
+4317-[In]
+--
+4326:python
+4327-get_ex_factor(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4354:python
+4355-[In]
+--
+4374:python
+4375-is_suspended(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4394:python
+4395-[In]
+--
+4428:python
+4429-is_st_stock(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4453:python
+4454-[In]
+--
+4475:python
+4476-get_shares(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True, market='cn')
+--
+4505:python
+4506-[In]
+--
+4517:python
+4518-[In]
+--
+4531:python
+4532-get_main_shareholder(order_book_ids, start_date=None, end_date=None, is_total=False, start_rank=None, end_rank=None, market='cn')
+--
+4566:python
+4567-[In]
+--
+4585:python
+4586-get_private_placement(order_book_ids, start_date=None, end_date=None, progress='complete',issue_type='private', market='cn')
+--
+4615:python
+4616-[In]
+--
+4627:python
+4628-get_allotment(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+--
+4656:python
+4657-[In]
+--
+4670:python
+4671-get_block_trade(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4696:python
+4697-[In]
+--
+4714:python
+4715-[In]
+--
+4734:python
+4735-get_symbol_change_info(order_book_ids, market='cn')
+--
+4756:python
+4757-[In]
+--
+4768:python
+4769-get_special_treatment_info(order_book_ids, market='cn')
+--
+4792:python
+4793-[In]
+--
+4806:python
+4807-rqdatac.current_freefloat_turnover(order_book_ids)
+--
+4826:python
+4827-[In]
+--
+4835:python
+4836-rqdatac.get_holder_number(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+4864:python
+4865-[In]
+--
+4877:python
+4878-rqdatac.get_abnormal_stocks(start_date=None, end_date=None,types=None,market='cn')
+--
+4911:python
+4912-[In]
+--
+4932:python
+4933-rqdatac.get_abnormal_stocks_detail(order_book_ids,start_date=None,end_date=None,sides=None,types=None,market='cn')
+--
+4968:python
+4969-[In]
+--
+4986:python
+4987-rqdatac.get_buy_back(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+--
+5029:python
+5030-[In]
+--
+5042:python
+5043-get_capital_flow(order_book_ids, start_date=None, end_date=None, frequency='1d', market='cn')
+--
+5095:python
+5096-[In]
+--
+5115:python
+5116-[In]
+--
+5129:python
+5130-current_capital_flow_minute(order_book_ids, market='cn')
+--
+5154:python
+5155-[In]
+--
+5165:python
+5166-get_securities_margin(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True, market='cn')
+--
+5196:python
+5197-[In]
+--
+5207:python
+5208-[In]
+--
+5218:python
+5219-[In]
+--
+5231:python
+5232-get_margin_stocks(date=None, exchange=None,margin_type='stock',market='cn')
+--
+5250:python
+5251-[In]
+--
+5259:python
+5260-[In]
+--
+5268:python
+5269-[In]
+--
+5277:python
+5278-[In]
+--
+5287:python
+5288-get_eligible_securities_margin(date=None, exchange=None,market='cn')
+--
+5305:python
+5306-[In]
+--
+5312:python
+5313-get_stock_connect(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=True)
+--
+5340:python
+5341-[In]
+--
+5350:python
+5351-[In]
+--
+5364:python
+5365-current_stock_connect_quota(connect=None, fields=None)
+--
+5394:python
+5395-[In]
+--
+5406:python
+5407-get_stock_connect_quota(connect=None, start_date=None, end_date=None, fields=None)
+--
+5455:python
+5456-rqdatac.get_incentive_plan(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+5483:python
+5484-[In]
+--
+5495:python
+5496-rqdatac.get_investor_ra(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+5520:python
+5521-[In]
+--
+5541:python
+5542-rqdatac.get_announcement(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+--
+5573:python
+5574-[In]
+--
+5584:python
+5585-get_audit_opinion(order_book_ids, start_quarter, end_quarter, date=None, type=None, opinion_types=None, market='cn')
+--
+5627:python
+5628-[In]
+--
+5637:python
+5638-rqdatac.get_restricted_shares(order_book_ids, start_date=None, end_date=None,market='cn')
+--
+5665:python
+5666-[In]
+--
+5678:python
+5679-rqdatac.get_staff_count(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+5703:python
+5704-[In]
+--
+5714:python
+5715-rqdatac.get_leader_shares_change(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+5744:python
+5745-[In]
+--
+5757:python
+5758-rqdatac.get_forecast_report_date(order_book_ids , start_quarter , end_quarter, market='cn')
+--
+5786:python
+5787-[In]
+--
+5906:python
+5907-rqdatac.all_instruments(type=None, market='hk', date=None)
+--
+5929:python
+5930-[In]rqdatac.all_instruments('CS',market='hk')
+--
+5948:python
+5949-rqdatac.instruments(order_book_ids, market='hk')
+--
+5997:python
+5998-get_ex_factor(order_book_ids, start_date=None, end_date=None, market='hk')
+--
+6025:python
+6026-[In]
+--
+6088:python
+6089-get_exchange_rate(start_date=None, end_date=None, fields=None)
+--
+6131:python
+6132-[In]
+--
+6150:python
+6151-[In]
+--
+6169:python
+6170-get_shares(order_book_ids, start_date=None, end_date=None, fields=None, market='hk', expect_df=True)
+--
+6199:python
+6200-[In]
+--
+6211:python
+6212-get_industry(industry, source='citics_2019', date=None, market='hk')
+--
+6231:python
+6232-[In]
+--
+6258:python
+6259-get_industry_change(industry, source='citics_2019', level=None, market='hk')
+--
+6281:python
+6282-[In]
+--
+6300:python
+6301-get_instrument_industry(order_book_ids, source='citics_2019', level=1, date=None, market='hk')
+--
+6328:python
+6329-[In]
+--
+6336:python
+6337-In [7]: get_instrument_industry(['00001.XHKG','00038.XHKG'],source='citics_2019',level=0,market='hk')
+--
+6345:python
+6346-get_industry_mapping(source='citics_2019', date=None, market='hk')
+--
+6371:python
+6372-[In]
+--
+6384:python
+6385-get_turnover_rate(order_book_ids, start_date=None, end_date=None, fields=None,expect_df=True,market='hk')
+--
+6414:python
+6415-[In]
+--
+6428:python
+6429-get_dividend(order_book_ids, start_date=None, end_date=None, expect_df=True, market='cn')
+--
+6464:python
+6465-[In]
+--
+6480:python
+6481-hk.get_southbound_eligible_secs(trading_type='sh', date=None, start_date=None, end_date=None, market='hk')
+--
+6503:python
+6504-[In]
+--
+6516:python
+6517-[In]
+--
+6536:python
+6537-get_price(order_book_ids, start_date=None, end_date=None, frequency='1d', fields=None, adjust_type='pre', skip_suspended=False, expect_df=True, time_slice=None, market='cn')
+--
+6608:python
+6609-[In] rqdatac.get_price('00013.XHKG',20250201,20250301,'1d',adjust_type='pre',market='hk')
+--
+6634:python
+6635-[In] rqdatac.get_price('00001.XHKG',20250101,20250301,'1m',adjust_type='post',market='hk')
+--
+6653:python
+6654-[In] rqdatac.get_price('00001.XHKG',20250303,20250303,'tick',market='hk')
+--
+6675:python
+6676-get_pit_financials_ex(order_book_ids, fields, start_quarter, end_quarter, date=None, statements='latest', market='cn')
+--
+7997:python
+7998-[In]
+--
+8008:python
+8009-[In]
+--
+8017:python
+8018-[In]
+--
+8029:python
+8030-rqdatac.hk.get_detailed_financial_items(order_book_ids, fields, start_quarter, end_quarter, date=None, statements='latest', market='hk')
+--
+8066:python
+8067-[In]
+--
+8085:python
+8086-get_factor(order_book_ids, factor, start_date=None, end_date=None, universe=None, expect_df=True, market='cn')
+--
+8114:python
+8115-[In]
+--
+8127:python
+8128-[In]
+--
+8140:python
+8141-get_all_factor_names(type=None, market='cn')
+--
+8159:python
+8160-[In]
+--
+8168:python
+8169-rqdatac.hk.get_announcement(order_book_ids, start_date=None, end_date=None, fields=None, market='hk')
+--
+8204:python
+8205-[In]
+--
+8357:python
+8358-futures.get_dominant(underlying_symbol, start_date=None, end_date=None, rule=0, rank=1, market='cn')
+--
+8386:python
+8387-[In]
+--
+8393:python
+8394-[In]
+--
+8411:python
+8412-futures.get_contracts(underlying_symbol, date=None, market='cn')
+--
+8429:python
+8430-[In]
+--
+8436:python
+8437-futures.get_dominant_price(underlying_symbols,start_date=None,end_date=None,frequency='1d',fields=None,adjust_type='pre', adjust_method='prev_close_spread',rule=0,rank=1)
+--
+8512:python
+8513-[In]
+--
+8521:python
+8522-[In]
+--
+8537:python
+8538-[In]
+--
+8549:python
+8550-futures.get_ex_factor(underlying_symbols, start_date=None, end_date=None, adjust_method='prev_close_spread', rule=0, rank=1, market='cn')
+--
+8587:python
+8588-[In]
+--
+8598:python
+8599-futures.get_contract_multiplier(underlying_symbols, start_date=None, end_date=None, market='cn')
+--
+8620:python
+8621-In[]:
+--
+8636:python
+8637-futures.get_exchange_daily(order_book_ids, start_date=None, end_date=None, fields=None,  market='cn')
+--
+8668:python
+8669-In[]:
+--
+8688:python
+8689-futures.get_continuous_contracts(underlying_symbol, start_date, end_date, type='front_month', market='cn')
+--
+8713:python
+8714-In[]:
+--
+8732:python
+8733-In[]:
+--
+8749:python
+8750-futures.get_member_rank(obj, trading_date=None, rank_by='volume')
+--
+8778:python
+8779-[In]
+--
+8805:python
+8806-[In]
+--
+8832:python
+8833-[In] :
+--
+8845:python
+8846-futures.get_warehouse_stocks(underlying_symbols, start_date=None, end_date=None, market='cn')
+--
+8868:python
+8869-In [4]: futures.get_warehouse_stocks('CF',start_date=20191201,end_date=20191205)
+--
+8877:python
+8878-In [4]: futures.get_warehouse_stocks(['CF','SR'],start_date=20251120,end_date=20251120)
+--
+8886:python
+8887-futures.get_basis(order_book_ids, start_date=None, end_date=None, fields=None, frequency='1d', dividend_adjusted=False, market='cn')
+--
+8926:python
+8927-[In]
+--
+8938:python
+8939-futures.get_current_basis(order_book_ids,market='cn')
+--
+8967:python
+8968-[In]
+--
+8976:python
+8977-futures.get_trading_parameters(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+--
+9026:python
+9027-[In]
+--
+9034:python
+9035-[In]
+--
+9045:python
+9046-futures.get_roll_yield(underlying_symbol, start_date=None, end_date=None, type='main_sub', rule=0, market='cn')
+--
+9084:python
+9085-[In]
+--
+9264:python
+9265-options.get_contracts(underlying, option_type=None, maturity=None, strike=None, trading_date=None)
+--
+9282:python
+9283-[In] options.get_contracts(underlying='CU', maturity='1902', strike=52000)
+--
+9287:python
+9288-[In] options.get_contracts(underlying='510050.XSHG', strike=2.006, trading_date='20161129')
+--
+9293:python
+9294-options.get_greeks(order_book_ids, start_date=None, end_date=None, fields=None, model='implied_forward', price_type='close', frequency='1d', market='cn')
+--
+9443:python
+9444-options.get_contract_property(order_book_ids, start_date=None, end_date=None, fields=None, market='cn')
+--
+9471:python
+9472-[In] options.get_contract_property(order_book_ids='10002752', start_date='20210115',end_date='20210118')
+--
+9479:python
+9480-[In] options.get_contract_property(order_book_ids=['90000493','10002752'], start_date='20210115',end_date='20210118',fields=['strike_price'])
+--
+9490:python
+9491-options.get_dominant_month(underlying_symbol, start_date=None, end_date=None, rule=0, rank=1, market='cn')
+--
+9515:python
+9516-[In] options.get_dominant_month('CU',20230701,20230726)
+--
+9540:python
+9541-options.get_indicators(underlying_symbols,maturity,start_date=None,end_date=None,fields=None, market='cn')
+--
+9632:python
+9633-[In] options.get_indicators('510050.XSHG','2502','20250101', '20250103')
+--
+9640:python
+9641-[In] options.get_indicators('CU','2502','20250101', '20250103',fields=['VL_PCR','skew'])
+--
+17225:python
+17226-index_indicator(order_book_ids,start_date,end_date,fields)
+--
+17251:python
+17252-[In]
+--
+17265:python
+17266-index_components(order_book_id, date=None, start_date, end_date, market='cn',return_create_tm=False)
+--
+17289:python
+17290-[In]
+--
+17297:python
+17298-[In]
+--
+17307:python
+17308-[In]
+--
+17321:python
+17322-[In]
+--
+17330:python
+17331-index_weights(order_book_id, date=None)
+--
+17350:python
+17351-[In]
+--
+17365:python
+17366-[In]
+--
+17385:python
+17386-rqdatac.index_weights_ex(order_book_id, date=None, start_date=None, end_date=None, market='cn')
+--
+17417:python
+17418-[In]
+--
+17604:python
+17605-fund.instruments(order_book_ids, market='cn')
+--
+17654:python
+17655-fund.all_instruments(date=None, market='cn')
+--
+17701:python
+17702-fund.get_transition_info(order_book_ids, market='cn')
+--
+17734:python
+17735-fund.get_nav(order_book_ids, start_date=None, end_date=None, fields=None, expect_df=False, market='cn')
+--
+17778:python
+17779-fund.get_transaction_status(order_book_ids, start_date=None, end_date=None, fields=None,investor='institution', market='cn')
+--
+17842:python
+17843-fund.get_credit_quality(order_book_ids, date=None, market='cn')
+--
+17879:python
+17880-fund.get_etf_components(order_book_ids, trading_date=None, market='cn')
+--
+17919:python
+17920-fund.get_etf_cash_components(order_book_ids,start_date=None,end_date=None, market='cn')
+--
+17970:python
+17971-fund.get_split(order_book_ids, market='cn')
+--
+17997:python
+17998-fund.get_dividend(order_book_ids, market='cn')
+--
+18024:python
+18025-fund.get_ratings(order_book_ids, date=None, market='cn')
+--
+18056:python
+18057-fund.get_units_change(order_book_ids, date=None, market='cn')
+--
+18097:python
+18098-fund.get_holder_structure(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+18128:python
+18129-fund.get_benchmark(order_book_ids, market='cn')
+--
+18157:python
+18158-fund.get_financials(order_book_ids,start_date=None, end_date=None, fields=None, market='cn')
+--
+18216:python
+18217-fund.get_fee(order_book_ids,fee_type=None,charge_type='front',date=None,market_type='otc',market='cn')
+--
+18288:python
+18289-fund.get_benchmark_price(order_book_ids,start_date=None,end_date=None, market='cn')
+--
+18319:python
+18320-fund.get_snapshot(order_book_ids, fields=None, rule='ricequant', indicator_type='value', market='cn')
+--
+18383:python
+18384-fund.get_indicators(order_book_ids, start_date=None, end_date=None, fields=None, rule='ricequant', indicator_type='value', market='cn')
+--
+18471:python
+18472-fund.get_related_code(order_book_ids, market='cn')
+--
+18502:python
+18503-fund.get_daily_units(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+18550:python
+18551-fund.get_holdings(order_book_ids, date=None, market='cn')
+--
+18595:python
+18596-fund.get_stock_change(order_book_ids,start_date=None,end_date=None, market='cn')
+--
+18637:python
+18638-fund.get_term_to_maturity(order_book_ids,start_date=None,end_date=None, market='cn')
+--
+18678:python
+18679-fund.get_bond_structure(order_book_ids, date=None, market='cn')
+--
+18716:python
+18717-fund.get_asset_allocation(order_book_ids, date=None, market='cn')
+--
+18748:python
+18749-fund.get_industry_allocation(order_book_ids, date=None, market='cn')
+--
+18790:python
+18791-fund.get_qdii_scope(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+18820:python
+18821-fund.get_instrument_category(order_book_ids,date=None,category_type=None,source='gildata',market='cn')
+--
+18898:python
+18899-fund.get_category(category, date=None, source='gildata', market='cn')
+--
+18927:python
+18928-fund.get_category_mapping(source='gildata',category_type=None, market='cn')
+--
+19012:python
+19013-fund.get_manager(order_book_ids,expect_df=True, market='cn')
+--
+19066:python
+19067-fund.get_manager_info(manager_id,fields=None, market='cn')
+--
+19106:python
+19107-fund.get_manager_indicators(manager_ids, start_date=None, end_date=None, fields=None, asset_type='stock', manage_type='all', rule='ricequant', market='cn')
+--
+19173:python
+19174-fund.get_manager_weight_info(managers, start_date=None, end_date=None, asset_type='stock', manage_type='all', market='cn')
+--
+19337:python
+19338-convertible.all_instruments(date=None, market='cn')
+--
+19387:python
+19388-[In]convertible.all_instruments()
+--
+19397:python
+19398-convertible.instruments(order_book_ids, market='cn')
+--
+19451:python
+19452-convertible.instruments(order_book_ids).option(option_type=None)
+--
+19482:python
+19483-[In]convertible.instruments("110074.XSHG")
+--
+19516:python
+19517-[In]convertible.instruments("110030.XSHG").coupon_rate_table()
+--
+19527:python
+19528-[In]convertible.instruments('110058.XSHG').option()
+--
+19544:python
+19545-convertible.get_conversion_price(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+19568:python
+19569-[In]convertible.get_conversion_price('110013.XSHG',end_date=20110704)
+--
+19577:python
+19578-convertible.get_conversion_info(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+19606:python
+19607-[In]convertible.get_conversion_info('110044.XSHG')
+--
+19619:python
+19620-convertible.get_call_info(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+19647:python
+19648-[In]convertible.get_call_info('110020.XSHG')
+--
+19656:python
+19657-convertible.get_put_info(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+19686:python
+19687-[In]convertible.get_put_info('132002.XSHG')
+--
+19697:python
+19698-convertible.get_cash_flow(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+19724:python
+19725-[In]convertible.get_cash_flow('110032.XSHG')
+--
+19737:python
+19738-convertible.is_suspended(order_book_ids,start_date=None,end_date=None)
+--
+19756:python
+19757-[In]convertible.is_suspended('128086.XSHE',20200501,20200530)
+--
+19780:python
+19781-convertible.get_instrument_industry(order_book_ids,source='citics',level=1,date=None, market='cn')
+--
+19806:python
+19807-[In]
+--
+19814:python
+19815-[In]
+--
+19824:python
+19825-convertible.get_industry(industry,source='citics',date=None, market='cn')
+--
+19846:python
+19847-[In]
+--
+19861:python
+19862-convertible.get_accrued_interest_eod(order_book_ids,start_date=None,end_date=None)
+--
+19880:python
+19881-[In]
+--
+19900:python
+19901-convertible.get_call_announcement(order_book_ids,start_date=None,end_date=None, market='cn')
+--
+19927:python
+19928-[In]
+--
+19937:python
+19938-convertible.get_close_price(order_book_ids,start_date=None,end_date=None,fields=None, market='cn')
+--
+19959:python
+19960-[In]
+--
+19972:python
+19973-convertible.get_indicators(order_book_ids,start_date=None, end_date=None,fields=None)
+--
+20057:python
+20058-[In]
+--
+20067:python
+20068-convertible.get_credit_rating(order_book_ids, start_date=None, end_date=None, institutions=None, market='cn')
+--
+20117:python
+20118-[In]
+--
+20133:python
+20134-convertible.get_std_discount(order_book_ids, start_date=None, end_date=None, market='cn')
+--
+20150:python
+20151-[In]
+--
+20415:python
+20416-get_factor_exposure(order_book_ids, start_date=None, end_date=None, factors=None, industry_mapping='sws_2021', model='v1', market='cn')
+--
+20464:python
+20465-get_descriptor_exposure(order_book_ids, start_date, end_date, descriptors=None, model='v1', industry_mapping='sws_2021', market='cn')
+--
+20509:python
+20510-get_stock_beta(order_book_ids, start_date, end_date, benchmark='000300.XSHG', model='v1', industry_mapping='sws_2021', market='cn')
+--
+20545:python
+20546-get_factor_return(start_date, end_date, factors=None, universe='whole_market', method='implicit', industry_mapping='sws_2021', model='v1', market='cn')
+--
+20584:python
+20585-get_specific_return(order_book_ids, start_date, end_date, model = 'v1',industry_mapping='sws_2021')
+--
+20636:python
+20637-get_factor_covariance(date, horizon= 'daily', model = 'v1',industry_mapping='sws_2021')
+--
+20727:python
+20728-get_specific_risk(order_book_ids, start_date, end_date, horizon= 'daily', model = 'v1',industry_mapping='sws_2021')
+--
+20865:python
+20866-get_price_change_rate(order_book_ids, start_date='20130104', end_date='20140104', expect_df=True)
+--
+20888:python
+20889-[In]
