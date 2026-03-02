@@ -5,7 +5,7 @@
       "repo": "anthropics/claude-plugins-official"
     },
     "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/claude-plugins-official",
-    "lastUpdated": "2026-02-13T05:44:16.853Z"
+    "lastUpdated": "2026-03-01T04:13:24.032Z"
   },
   "superpowers-marketplace": {
     "source": {
@@ -14,5 +14,13 @@
     },
     "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/superpowers-marketplace",
     "lastUpdated": "2026-01-19T05:01:48.108Z"
+  },
+  "financial-services-plugins": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/financial-services-plugins"
+    },
+    "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/financial-services-plugins",
+    "lastUpdated": "2026-02-26T14:58:45.500Z"
   }
 }

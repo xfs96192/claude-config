@@ -1,0 +1,154 @@
+"""
+计算委外专户的实际静态收益（考虑杠杆）
+
+数据来源:
+- 委外产品概览(团队视角): 静态、杠杆率、最新规模
+- 委外底仓报表: 债券底层持仓市值
+
+计算逻辑:
+1. 债券占比 = 债券持仓市值合计 / 最新规模
+2. 债券静态 = 静态 / 债券占比
+3. 组合静态 = 债券静态 × 债券占比 + (杠杆率 - 债券占比) × 杠杆成本(FR007)
+"""
+
+import pandas as pd
+import zipfile
+import io
+import os
+from lxml import etree
+
+
+# ============ 参数配置 ============
+FR007_COST = 1.56  # FR007资金成本(%), 即杠杆成本
+
+from config import Config
+
+# 数据文件路径
+# 使用 Config.WEEKLY_DATA_DIR 自动定位周度更新数据文件夹
+OVERVIEW_FILE = os.path.join(Config.WEEKLY_DATA_DIR, f'委外产品概览(团队视角){Config.ZHOUBAO_DATE}.xlsx')
+HOLDINGS_FILE = os.path.join(Config.WEEKLY_DATA_DIR, f'委外底仓报表{Config.ZHOUBAO_DATE}.xlsx')
+
+# 输出文件
+# 输出到 收益测算数据 文件夹
+OUTPUT_FILE = os.path.join(Config.YIELD_CALC_DIR, '委外专户静态收益分析.xlsx')
+
+
+def read_xlsx_with_autofilter_fix(filepath, sheet_name=0):
+    """读取含有autoFilter问题的xlsx文件"""
+    with open(filepath, 'rb') as f:
+        data = f.read()
+    buf_in = io.BytesIO(data)
+    zin = zipfile.ZipFile(buf_in, 'r')
+    bout = io.BytesIO()
+    zout = zipfile.ZipFile(bout, 'w')
+    for item in zin.infolist():
+        raw = zin.read(item.filename)
+        if item.filename.startswith('xl/worksheets/') and item.filename.endswith('.xml'):
+            tree = etree.fromstring(raw)
+            ns = {'s': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+            for af in tree.findall('.//s:autoFilter', ns):
+                af.getparent().remove(af)
+            raw = etree.tostring(tree, xml_declaration=True, encoding='UTF-8', standalone=True)
+        zout.writestr(item, raw)
+    zout.close()
+    bout.seek(0)
+    return pd.read_excel(bout, sheet_name=sheet_name)
+
+
+def main():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # 1. 读取委外产品概览
+    overview_path = os.path.join(base_dir, OVERVIEW_FILE)
+    df_overview = pd.read_excel(overview_path, sheet_name='委外产品概览(团队视角)')
+
+    # 筛选有效数据: 有资产代码、有规模、有静态
+    df_overview = df_overview.dropna(subset=['资产代码', '最新规模', '静态'])
+    df_overview = df_overview[df_overview['最新规模'] > 0]
+
+    print(f"概览表有效产品数: {len(df_overview)}")
+
+    # 2. 读取委外底仓报表(需要修复autoFilter)
+    holdings_path = os.path.join(base_dir, HOLDINGS_FILE)
+    df_holdings = read_xlsx_with_autofilter_fix(holdings_path, sheet_name='委外底仓报表')
+
+    print(f"底仓报表总持仓数: {len(df_holdings)}")
+
+    # 3. 筛选债券持仓 (资产大类 == '债券')
+    df_bonds = df_holdings[df_holdings['资产大类'] == '债券'].copy()
+    print(f"债券持仓数: {len(df_bonds)}")
+
+    # 4. 按资产代码汇总债券市值(元)
+    bond_mv = df_bonds.groupby('资产代码')['市值(本币)'].sum().reset_index()
+    bond_mv.columns = ['资产代码', '债券市值_元']
+
+    # 5. 合并概览和债券市值
+    df = df_overview[['资产代码', '委外资产', '杠杆率', '最新规模', '静态']].merge(
+        bond_mv, on='资产代码', how='inner'
+    )
+    print(f"匹配成功产品数: {len(df)}")
+
+    # 6. 计算各指标
+    # 债券占比 = 债券市值(元) / 最新规模(亿) * 1e8
+    df['债券占比'] = df['债券市值_元'] / (df['最新规模'] * 1e8)
+
+    # 杠杆率: 概览表中存储为百分比形式(100=1x), 转为小数
+    df['杠杆率_decimal'] = df['杠杆率'] / 100
+
+    # 静态: 概览表中存储为百分比值(1.65 = 1.65%)
+    # 债券静态(%) = 静态(%) / 债券占比
+    df['债券静态'] = df['静态'] / df['债券占比']
+
+    # 组合静态(%) = 债券静态(%) × 债券占比 + (杠杆率 - 债券占比) × FR007成本(%)
+    df['组合静态'] = (
+        df['债券静态'] * df['债券占比']
+        + (df['杠杆率_decimal'] - df['债券占比']) * FR007_COST
+    )
+
+    # 7. 整理输出
+    result = df[['资产代码', '委外资产', '债券占比', '杠杆率_decimal', '债券静态', '组合静态']].copy()
+    result.columns = ['资产代码', '委外资产', '债券占比', '杠杆率', '债券静态(%)', '组合静态(%)']
+    result = result.sort_values('组合静态(%)', ascending=False).reset_index(drop=True)
+
+    # 打印结果
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.width', 150)
+    pd.set_option('display.float_format', lambda x: f'{x:.4f}')
+    print("\n" + "=" * 100)
+    print("委外专户静态收益分析结果")
+    print(f"杠杆成本(FR007): {FR007_COST}%")
+    print("=" * 100)
+    print(result.to_string(index=False))
+    print(f"\n共 {len(result)} 个专户")
+
+    # 8. 输出到Excel
+    output_path = os.path.join(base_dir, OUTPUT_FILE)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+        result.to_excel(writer, index=False, sheet_name='静态收益分析')
+
+        # 格式化
+        ws = writer.sheets['静态收益分析']
+        for col in ['C', 'D']:  # 债券占比、杠杆率 → 百分比格式
+            for row in range(2, len(result) + 2):
+                ws[f'{col}{row}'].number_format = '0.00%'
+        for col in ['E', 'F']:  # 债券静态、组合静态 → 百分比格式(保留2位)
+            for row in range(2, len(result) + 2):
+                ws[f'{col}{row}'].number_format = '0.00%'
+                ws[f'{col}{row}'].value = ws[f'{col}{row}'].value / 100 if ws[f'{col}{row}'].value else None
+        for col in ['C', 'D']:  # 债券占比、杠杆率已经是小数,直接用百分比格式
+            pass  # 已经是小数格式,百分比格式会自动乘100显示
+        # 列宽
+        ws.column_dimensions['A'].width = 15
+        ws.column_dimensions['B'].width = 45
+        ws.column_dimensions['C'].width = 12
+        ws.column_dimensions['D'].width = 10
+        ws.column_dimensions['E'].width = 12
+        ws.column_dimensions['F'].width = 12
+
+    print(f"\n结果已保存至: {output_path}")
+
+
+if __name__ == '__main__':
+    main()

@@ -21,7 +21,15 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(npm cache clean:*)",
-      "WebFetch(domain:docs.molt.bot)"
+      "WebFetch(domain:docs.molt.bot)",
+      "Bash(./node_modules/.bin/vite:*)",
+      "Bash(npm install:*)",
+      "Bash(node -e:*)",
+      "Bash(npx serve:*)",
+      "Bash(claude:*)",
+      "WebSearch",
+      "Bash(ls:*)",
+      "Bash(pip3 list:*)"
     ]
   }
 }

@@ -4,11 +4,61 @@
     "superpowers@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.0",
-        "version": "4.3.0",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1",
+        "version": "4.3.1",
         "installedAt": "2026-01-19T05:02:57.248Z",
-        "lastUpdated": "2026-02-13T03:37:18.790Z",
+        "lastUpdated": "2026-02-26T04:46:43.888Z",
         "gitCommitSha": "ac471e69c2a672f50e491a45f6ff56b104d0e562"
+      }
+    ],
+    "financial-analysis@financial-services-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-02-26T14:58:45.810Z",
+        "lastUpdated": "2026-02-26T14:58:45.810Z",
+        "gitCommitSha": "c5947c8b0686da6fc9c2e4bd4dbdcb7fd4073ff6"
+      }
+    ],
+    "investment-banking@financial-services-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0",
+        "version": "0.2.0",
+        "installedAt": "2026-02-26T14:58:46.126Z",
+        "lastUpdated": "2026-02-26T14:58:46.126Z",
+        "gitCommitSha": "c5947c8b0686da6fc9c2e4bd4dbdcb7fd4073ff6"
+      }
+    ],
+    "equity-research@financial-services-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-02-26T14:58:46.443Z",
+        "lastUpdated": "2026-02-26T14:58:46.443Z",
+        "gitCommitSha": "c5947c8b0686da6fc9c2e4bd4dbdcb7fd4073ff6"
+      }
+    ],
+    "private-equity@financial-services-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-02-26T14:58:46.740Z",
+        "lastUpdated": "2026-02-26T14:58:46.740Z",
+        "gitCommitSha": "c5947c8b0686da6fc9c2e4bd4dbdcb7fd4073ff6"
+      }
+    ],
+    "wealth-management@financial-services-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-02-26T14:58:47.050Z",
+        "lastUpdated": "2026-02-26T14:58:47.050Z",
+        "gitCommitSha": "c5947c8b0686da6fc9c2e4bd4dbdcb7fd4073ff6"
       }
     ]
   }

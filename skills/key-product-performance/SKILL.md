@@ -9,9 +9,10 @@ description: Generate weekly key product performance reports by updating Excel t
 
 This skill automates the generation of weekly key product performance reports (重点产品业绩情况表) by:
 1. Copying the latest template Excel file with all formatting preserved
-2. Updating product metrics from multiple data sources based on product type
-3. Handling three types of products with different data sources
-4. Saving the updated report with the target date
+2. **Updating the title row date** (行1列2) to the target date
+3. Updating product metrics from multiple data sources based on product type
+4. Handling three types of products with different data sources
+5. Saving the updated report with the target date
 
 ## Workflow
 
@@ -84,7 +85,14 @@ python /Users/fanshengxia/.claude/skills/key-product-performance/scripts/update_
    - Performance data: `/Users/fanshengxia/Desktop/周报V2/数据/产品业绩指标数据/内部产品业绩_{date}.xlsx`
    - Overview data: `/Users/fanshengxia/Desktop/周报V2/数据/产品运作概览数据-母子产品/产品运作概览信息表增加指标变化_{date}.xlsx`
 
-3. **Update products by type:**
+3. **Update title row date (CRITICAL - must not forget):**
+   - The title is in **Row 1, Column 2 (B1)**, format: `多资产投资部重点业绩（人民币+美元） YYYYMMDD`
+   - Replace the date portion with the target date
+   ```python
+   ws.cell(1, 2).value = f'多资产投资部重点业绩（人民币+美元） {target_date}'
+   ```
+
+4. **Update products by type:**
    - **Regular products:** Match by product code, update metrics from performance data
    - **非标驱动:** Extract from latest PDF in `/Users/fanshengxia/Desktop/周报V2/数据/合享发行送审表/`
    - **汇利现金宝1号 (9MX00010):** Get 累计年化 from overview data, apply to all periods, set drawdowns to 0bp
@@ -122,7 +130,7 @@ python /Users/fanshengxia/.claude/skills/key-product-performance/scripts/update_
        sheet.cell(row_idx, 14).value = f"{bp_value}bp"
    ```
 
-4. **Save with preserved formatting:**
+5. **Save with preserved formatting:**
    - Output: `/Users/fanshengxia/Desktop/重点业绩产品/部门重点产品业绩v4_{date}.xlsx`
 
 ### Step 5: Verify and Report
@@ -273,6 +281,12 @@ If data file is missing for target date:
    ```
 
 ## Common Mistakes to Avoid
+
+### ❌ WRONG: Forgetting to update the title row date
+The title in Row 1, Column 2 contains the previous template's date. After copying the template, always update it:
+```python
+ws.cell(1, 2).value = f'多资产投资部重点业绩（人民币+美元） {target_date}'
+```
 
 ### ❌ WRONG: Using non-existent field name
 ```python
