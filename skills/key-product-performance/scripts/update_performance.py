@@ -175,17 +175,6 @@ class PerformanceReportGenerator:
         # 示例：
         # self.template_ws.cell(row_idx, col_idx).value = data['近1月年化收益率']
 
-        # CRITICAL: Format drawdowns according to template conventions
-        # Example for 近1月最大回撤:
-        # dd_value = data.get('近1月最大回撤')
-        # if pd.isna(dd_value) or dd_value == 0:
-        #     self.template_ws.cell(row_idx, 13).value = "-"
-        #     self.template_ws.cell(row_idx, 14).value = "0bp"
-        # else:
-        #     self.template_ws.cell(row_idx, 13).value = dd_value
-        #     bp_value = int(round(abs(dd_value) * 10000))
-        #     self.template_ws.cell(row_idx, 14).value = f"{bp_value}bp"
-
         print(f"  ✓ 更新产品: {product_code}")
 
     def update_feibiao_product(self, row_idx):
@@ -215,13 +204,7 @@ class PerformanceReportGenerator:
             return
 
         # TODO: 根据实际列映射，将累计年化填入所有期间的年化收益率
-        # Example:
-        # for col in [7, 8, 9, 10, 11, 12]:  # All period return columns
-        #     self.template_ws.cell(row_idx, col).value = cumulative_annual
-
-        # CRITICAL: Set drawdowns using correct format (not numeric 0)
-        # self.template_ws.cell(row_idx, 13).value = "-"
-        # self.template_ws.cell(row_idx, 14).value = "0bp"
+        # 所有最大回撤设置为 0bp
 
         print(f"  ✓ 更新现金产品: {product_code}, 累计年化: {cumulative_annual}")
 

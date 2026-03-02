@@ -9,10 +9,9 @@ description: Generate weekly key product performance reports by updating Excel t
 
 This skill automates the generation of weekly key product performance reports (重点产品业绩情况表) by:
 1. Copying the latest template Excel file with all formatting preserved
-2. **Updating the title row date** (行1列2) to the target date
-3. Updating product metrics from multiple data sources based on product type
-4. Handling three types of products with different data sources
-5. Saving the updated report with the target date
+2. Updating product metrics from multiple data sources based on product type
+3. Handling three types of products with different data sources
+4. Saving the updated report with the target date
 
 ## Workflow
 
@@ -85,52 +84,12 @@ python /Users/fanshengxia/.claude/skills/key-product-performance/scripts/update_
    - Performance data: `/Users/fanshengxia/Desktop/周报V2/数据/产品业绩指标数据/内部产品业绩_{date}.xlsx`
    - Overview data: `/Users/fanshengxia/Desktop/周报V2/数据/产品运作概览数据-母子产品/产品运作概览信息表增加指标变化_{date}.xlsx`
 
-3. **Update title row date (CRITICAL - must not forget):**
-   - The title is in **Row 1, Column 2 (B1)**, format: `多资产投资部重点业绩（人民币+美元） YYYYMMDD`
-   - Replace the date portion with the target date
-   ```python
-   ws.cell(1, 2).value = f'多资产投资部重点业绩（人民币+美元） {target_date}'
-   ```
-
-4. **Update products by type:**
+3. **Update products by type:**
    - **Regular products:** Match by product code, update metrics from performance data
    - **非标驱动:** Extract from latest PDF in `/Users/fanshengxia/Desktop/周报V2/数据/合享发行送审表/`
    - **汇利现金宝1号 (9MX00010):** Get 累计年化 from overview data, apply to all periods, set drawdowns to 0bp
 
-   **Example code for regular products:**
-   ```python
-   # Update regular products
-   perf_row = perf_df[perf_df['产品代码'] == product_code].iloc[0]
-
-   # Update return columns
-   if pd.notna(perf_row['近1月年化收益率']):
-       sheet.cell(row_idx, 7).value = perf_row['近1月年化收益率']
-   if pd.notna(perf_row['近3月年化收益率']):
-       sheet.cell(row_idx, 8).value = perf_row['近3月年化收益率']
-   if pd.notna(perf_row['近6月年化收益率']):
-       sheet.cell(row_idx, 9).value = perf_row['近6月年化收益率']
-   if pd.notna(perf_row['近1年年化收益率']):
-       sheet.cell(row_idx, 10).value = perf_row['近1年年化收益率']
-
-   # CRITICAL: Column 11 uses '2026年年化收益率', NOT '今年以来年化收益率'
-   if pd.notna(perf_row['2026年年化收益率']):
-       sheet.cell(row_idx, 11).value = perf_row['2026年年化收益率']
-
-   if pd.notna(perf_row['成立以来年化收益率']):
-       sheet.cell(row_idx, 12).value = perf_row['成立以来年化收益率']
-
-   # Update drawdowns with proper formatting
-   dd_value = perf_row['近1月最大回撤']
-   if pd.isna(dd_value) or dd_value == 0:
-       sheet.cell(row_idx, 13).value = "-"
-       sheet.cell(row_idx, 14).value = "0bp"
-   else:
-       sheet.cell(row_idx, 13).value = dd_value
-       bp_value = int(round(abs(dd_value) * 10000))
-       sheet.cell(row_idx, 14).value = f"{bp_value}bp"
-   ```
-
-5. **Save with preserved formatting:**
+4. **Save with preserved formatting:**
    - Output: `/Users/fanshengxia/Desktop/重点业绩产品/部门重点产品业绩v4_{date}.xlsx`
 
 ### Step 5: Verify and Report
@@ -153,24 +112,8 @@ After generation:
 **Matching:** By product code
 
 **Fields to update:**
-- 近1月/3月/6月/1年/今年以来/成立以来 年化收益率
-- 近1月 最大回撤
-
-**CRITICAL Field Mapping (Excel columns → Data source columns):**
-| Excel Column | Template Header | Data Source Field | Example |
-|--------------|----------------|-------------------|---------|
-| Column 7 | 近1月年化收益率 | `近1月年化收益率` | 0.0349 |
-| Column 8 | 近3月年化收益率 | `近3月年化收益率` | 0.0241 |
-| Column 9 | 近6月年化收益率 | `近6月年化收益率` | 0.0215 |
-| Column 10 | 近1年年化收益率 | `近1年年化收益率` | 0.0212 |
-| Column 11 | **今年以来年化收益率** | **`2026年年化收益率`** ⚠️ | 0.0199 |
-| Column 12 | 成立以来年化收益率 | `成立以来年化收益率` | 0.0260 |
-| Column 13 | 近1月最大回撤 (数值) | `近1月最大回撤` | - or -0.0003 |
-| Column 14 | 近1月最大回撤 (bp) | Calculated from `近1月最大回撤` | 0bp or 4bp |
-
-**⚠️ CRITICAL:** The "今年以来" column in the Excel template corresponds to the `2026年年化收益率` field in the data source, NOT `今年以来年化收益率` (which doesn't exist). Since we're in year 2026, "今年以来" means "2026年".
-
-**IMPORTANT:** Drawdowns must be formatted according to rules in "Data Formatting Rules" section. Do NOT write raw numeric values directly.
+- 近1月/3月/6月/1年/成立以来 年化收益率
+- 近1月/3月/6月/1年/成立以来 最大回撤
 
 ### Type 2: 非标驱动 Series (未成立产品)
 
@@ -191,15 +134,9 @@ After generation:
 **Data source:** `产品运作概览信息表增加指标变化_{date}.xlsx`
 
 **Special handling:**
-- Use `累计年化` field for ALL period returns (近1月/3月/6月/1年/今年以来/成立以来)
-  - Column 7 (近1月) = 累计年化
-  - Column 8 (近3月) = 累计年化
-  - Column 9 (近6月) = 累计年化
-  - Column 10 (近1年) = 累计年化
-  - Column 11 (今年以来/2026年) = 累计年化
-  - Column 12 (成立以来) = 累计年化
-- Set ALL drawdowns to `"-"` (column 13) and `"0bp"` (column 14) - see "Data Formatting Rules"
-- Ignore data from 内部产品业绩 (incorrect calculation for this product)
+- Use 累计年化 for ALL period returns (近1月/3月/6月/1年/成立以来)
+- Set ALL drawdowns to `0bp`
+- Ignore data from 内部产品业绩 (incorrect calculation)
 
 ## Critical Requirements
 
@@ -215,36 +152,6 @@ After generation:
 - Data validation rules
 
 **Only update:** Cell values/content
-
-### Data Formatting Rules
-
-**CRITICAL:** Raw data values must be formatted according to template conventions before writing to cells.
-
-#### Drawdown (最大回撤) Formatting
-
-Template has TWO drawdown columns for each period:
-- **Column 13**: Numeric representation
-- **Column 14**: Basis points (bp) representation
-
-**Formatting rules:**
-
-| Data Value | Column 13 | Column 14 | Example Products |
-|------------|-----------|-----------|------------------|
-| `0` or `NaN` | `"-"` (dash string) | `"0bp"` (string) | 9A28701A, 9A28201A, 9A28301A, 9A28601A, 9S26265A, 9W10006A |
-| Non-zero negative | Numeric value | `"{bp}bp"` where bp = abs(value) * 10000, rounded | 9K73101A: `-0.000359` → "4bp" |
-
-**Implementation:**
-```python
-if pd.isna(dd_value) or dd_value == 0:
-    ws.cell(row, 13).value = "-"
-    ws.cell(row, 14).value = "0bp"
-else:
-    ws.cell(row, 13).value = dd_value
-    bp_value = int(round(abs(dd_value) * 10000))
-    ws.cell(row, 14).value = f"{bp_value}bp"
-```
-
-**Common mistake:** Writing numeric `0` instead of string `"-"` and `"0bp"`. This breaks template formatting conventions.
 
 ### File Naming
 
@@ -280,32 +187,6 @@ If data file is missing for target date:
    - 汇利现金宝1号: 已使用累计年化数据
    ```
 
-## Common Mistakes to Avoid
-
-### ❌ WRONG: Forgetting to update the title row date
-The title in Row 1, Column 2 contains the previous template's date. After copying the template, always update it:
-```python
-ws.cell(1, 2).value = f'多资产投资部重点业绩（人民币+美元） {target_date}'
-```
-
-### ❌ WRONG: Using non-existent field name
-```python
-# This field does NOT exist in the data source!
-sheet.cell(row_idx, 11).value = perf_row['今年以来年化收益率']  # ❌ Wrong!
-```
-
-### ✅ CORRECT: Using the actual field name
-```python
-# The correct field name for year 2026 is '2026年年化收益率'
-sheet.cell(row_idx, 11).value = perf_row['2026年年化收益率']  # ✅ Correct!
-```
-
-**Why this matters:**
-- Excel template header says "今年以来" (Year-to-date)
-- But in 2026, "今年以来" means "2026年"
-- Data source uses year-specific field names: `2026年年化收益率`, `2025年年化收益率`, etc.
-- There is NO field called `今年以来年化收益率` in the data source
-
 ## Extending the Script
 
 The Python script (`scripts/update_performance.py`) is a framework that needs customization:
@@ -321,31 +202,6 @@ The Python script (`scripts/update_performance.py`) is a framework that needs cu
 2. Update the `update_*_product()` methods with actual cell references
 3. Test with a sample date to verify correctness
 4. Iterate based on results
-
-## Product List (截至20260129)
-
-完整产品行号映射见 `references/data_mapping.md`。
-
-**⚠️ 非标驱动产品（第4行）选择规则：**
-- 从 `/Users/fanshengxia/Desktop/周报V2/数据/合享发行送审表/` 目录选择**编号最大**的PDF文件
-- 例如：有168号、169号、170号时，选择170号（9K251700）
-- 使用pdfplumber提取：产品代码、产品名称、运行天数、各份额业绩基准下限
-
-**关键产品行号：**
-| 行号 | 产品系列 | 产品名称 | 产品代码 |
-|------|---------|---------|---------|
-| 4 | 非标驱动 | 丰利合享170号 | 9K251700 |
-| 28 | 适量含权（20%以内） | 兴动多策略1Y1号（沪深300指数增强） | 9S65018A |
-| 29 | 适量含权（20%以内） | 兴动多策略1Y2号（中证转债指数增强） | 9S65019A |
-| 30 | 适量含权（20%以内） | 兴动多策略1Y3号（中证800指数增强） | 9S65030A |
-| 31 | 适量含权（20%以内） | 兴动多策略1Y4号（恒生指数增强） | 9S65054A |
-| 32 | 适量含权（20%以内） | 兴动多策略红利轮动1年 | 9K71714A |
-| 33 | 适量含权（20%以内） | 兴动科技成长3M | 9K71713A |
-| 34 | 适量含权（20%以内） | 兴动资源优势3M | 9K71712A |
-| 35 | 适量含权（20%以内） | 兴动价值回报1M | 9K71731A |
-| 36 | 适量含权（20%以内） | ESG日开 | 9S23201A |
-| 37 | 美元日开 | 汇利日盈 | 9W10006A |
-| 38 | 美元日开 | 汇利现金宝1号 | 9MX00010 |
 
 ## Resources
 

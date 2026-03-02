@@ -2090,3 +2090,36 @@
 2026-03-02T01:28:43.343Z [DEBUG] Total plugin skills loaded: 56
 2026-03-02T01:28:43.344Z [DEBUG] Loaded 23 unique skills (23 unconditional, 0 conditional, managed: 0, user: 23, project: 0, additional: 0, legacy commands: 0)
 2026-03-02T01:28:43.344Z [DEBUG] getSkills returning: 23 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T01:29:10.223Z [DEBUG] Getting matching hook commands for Notification with query: idle_prompt
+2026-03-02T01:29:10.223Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T01:29:10.223Z [DEBUG] Matched 0 unique hooks for query "idle_prompt" (0 before deduplication)
+2026-03-02T01:48:42.883Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T01:48:44.569Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T01:48:44.569Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T02:18:42.918Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T02:18:44.679Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T02:18:44.703Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T02:48:42.818Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T02:48:44.504Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T02:48:44.505Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T03:18:42.894Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T03:18:44.628Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T03:18:44.633Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T03:48:42.906Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T03:48:44.610Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T03:48:44.612Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T04:18:42.834Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T04:18:44.532Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T04:18:44.533Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T04:48:42.900Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T04:48:44.454Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T04:48:44.458Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T05:18:42.904Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T05:18:44.688Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T05:18:44.692Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T05:48:42.846Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T05:48:44.769Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T05:48:44.769Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T06:18:42.938Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T06:18:44.711Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T06:18:44.712Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install

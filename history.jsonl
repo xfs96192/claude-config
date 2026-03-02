@@ -435,3 +435,19 @@
 {"display":"/remote-control ","pastedContents":{},"timestamp":1772339756183,"project":"/Users/fanshengxia/Desktop/周报V2","sessionId":"51e69c56-90b3-4445-99db-ce0049c21c72"}
 {"display":"/remote-control ","pastedContents":{},"timestamp":1772339801203,"project":"/Users/fanshengxia/Desktop/周报V2","sessionId":"51e69c56-90b3-4445-99db-ce0049c21c72"}
 {"display":"看一下特朗普和马斯克的最新推文","pastedContents":{},"timestamp":1772414850740,"project":"/Users/fanshengxia/Desktop/周报V2","sessionId":"51e69c56-90b3-4445-99db-ce0049c21c72"}
+{"display":"/install-skill https://github.com/Day1Global/Day1Global-Skills/raw/main/tech-earnings-deepdive.skill","pastedContents":{},"timestamp":1772432453640,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"安装skills  /install-skill https://github.com/Day1Global/Day1Global-Skills/raw/main/tech-earnings-deepdive.skill","pastedContents":{},"timestamp":1772432467308,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"安装这个仓库的skills https://github.com/star23/Day1Global-Skills","pastedContents":{},"timestamp":1772432686354,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"用 tech-earnings-deepdive 分析一下英伟达最新财报，用us-value-investing  分析一下他的投资价值","pastedContents":{},"timestamp":1772432817529,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"用 tech-earnings-deepdive 分析一下英伟达最新财报，用us-value-investing  分析一下他的投资价值  ","pastedContents":{},"timestamp":1772432921339,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"3715fbc2-be52-4df6-a942-726bd9b3fd57"}
+{"display":"这几个skills在skills下的路径好像不符合要求，他们是skills文件直接在Claude  skill文件夹下，正确的路径应该是先是文件夹，然后是skills文件在文件夹下对吗","pastedContents":{},"timestamp":1772433096778,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"3715fbc2-be52-4df6-a942-726bd9b3fd57"}
+{"display":"好的","pastedContents":{},"timestamp":1772433149761,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"3715fbc2-be52-4df6-a942-726bd9b3fd57"}
+{"display":"请把结果输出为一个markdown 文档并转换成pdf","pastedContents":{},"timestamp":1772436049743,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"3715fbc2-be52-4df6-a942-726bd9b3fd57"}
+{"display":"帮我安装以下skillsSkills，https://gts-obs-static-test.obs.cn-south-1.myhuaweicloud.com:443/gangtise-kb/gangtise-kb.zip 配置的Access Key和Secret Key  access_key:1o3bjxxs66ti\nsercet_key:b5f9eeb1-7808-4157-b743-c0df53260fbd  ","pastedContents":{},"timestamp":1772444105408,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"请输出一下完整的调用提示和报错","pastedContents":{},"timestamp":1772444224006,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"请再尝试一下","pastedContents":{},"timestamp":1772444817533,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"用Gangtise知识库查下美国和伊朗战争对全球市场的影响","pastedContents":{},"timestamp":1772444940047,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":" /gangtise-kb  这个skills 可以做哪些事情","pastedContents":{},"timestamp":1772445074744,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"可以下载研报嘛","pastedContents":{},"timestamp":1772445181197,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"使用ganttise skills 复盘一近1月（）2月份债券和股票市场的复盘情况","pastedContents":{},"timestamp":1772445340824,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
+{"display":"(Gangtise查询华西证券刘郁和华泰证券张继强团队最新的债券市场研报和观点","pastedContents":{},"timestamp":1772445603886,"project":"/Users/fanshengxia/Desktop/AI","sessionId":"77f5a47b-7fb2-4569-804e-2d3757952030"}
