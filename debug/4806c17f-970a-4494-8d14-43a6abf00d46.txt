@@ -7121,3 +7121,1419 @@
 2026-03-02T12:53:32.692Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
 2026-03-02T12:53:34.336Z [DEBUG] Checking for native installer update to version 2.1.63
 2026-03-02T12:53:34.338Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T13:23:32.697Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T13:23:34.090Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T13:23:34.093Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T13:53:32.691Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T13:53:34.274Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T13:53:34.279Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T14:23:32.690Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T14:23:34.309Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T14:23:34.327Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T14:53:32.689Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T14:53:34.591Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T14:53:34.608Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T15:20:05.564Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/requirements.txt
+2026-03-02T15:20:05.573Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/main.py
+2026-03-02T15:20:05.573Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/SKILL.md
+2026-03-02T15:20:05.573Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/.gitignore
+2026-03-02T15:20:05.573Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/README.md
+2026-03-02T15:20:05.898Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:05.898Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:05.899Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:05.900Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:05.900Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:05.900Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:05.901Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:05.901Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:05.901Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:05.901Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:05.901Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:05.901Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:05.901Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:05.901Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:05.901Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:05.903Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:20:05.903Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:20:05.903Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:20:05.903Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:05.903Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:20:05.903Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:20:05.908Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:20:05.911Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:20:05.911Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:05.911Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:20:05.912Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:20:05.914Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:20:05.914Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:20:05.914Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:05.914Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:20:05.916Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:20:05.919Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:20:05.919Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:05.919Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:20:05.919Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:20:05.920Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:20:05.920Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:20:05.921Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:20:05.921Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:05.921Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:20:05.922Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:20:05.922Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:05.922Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:20:05.927Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:20:05.927Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:20:05.934Z [DEBUG] Loaded 30 unique skills (30 unconditional, 0 conditional, managed: 0, user: 30, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:20:05.934Z [DEBUG] getSkills returning: 30 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:20:05.974Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:20:11.009Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/.DS_Store
+2026-03-02T15:20:11.311Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:11.311Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:11.311Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:11.311Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:20:11.312Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:20:11.312Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:20:11.312Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:11.312Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:20:11.312Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:20:11.318Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:20:11.324Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:20:11.324Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:11.324Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:20:11.324Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:20:11.328Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:20:11.329Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:20:11.329Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:11.329Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:20:11.329Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:20:11.330Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:20:11.332Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:20:11.332Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:11.332Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:20:11.332Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:20:11.332Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:20:11.336Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:20:11.336Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:11.336Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:20:11.337Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:20:11.337Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:11.337Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:20:11.337Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:20:11.337Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:20:11.340Z [DEBUG] Loaded 30 unique skills (30 unconditional, 0 conditional, managed: 0, user: 30, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:20:11.340Z [DEBUG] getSkills returning: 30 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:20:11.353Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:20:24.626Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/.DS_Store
+2026-03-02T15:20:24.950Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:20:24.950Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:20:24.950Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:20:24.951Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:20:24.952Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:20:24.952Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:20:24.952Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:24.952Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:20:24.952Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:20:24.958Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:20:24.961Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:20:24.961Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:20:24.961Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:24.961Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:20:24.963Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:20:24.965Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:20:24.966Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:20:24.966Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:24.966Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:20:24.966Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:20:24.968Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:20:24.968Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:24.968Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:20:24.968Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:20:24.968Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:20:24.970Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:20:24.970Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:24.970Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:20:24.973Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:20:24.973Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:20:24.973Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:20:24.974Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:20:24.974Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:20:24.975Z [DEBUG] Loaded 30 unique skills (30 unconditional, 0 conditional, managed: 0, user: 30, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:20:24.975Z [DEBUG] getSkills returning: 30 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:20:24.990Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:23:32.704Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T15:23:34.241Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T15:23:34.244Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T15:28:34.172Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/.DS_Store
+2026-03-02T15:28:34.483Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:28:34.483Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:28:34.483Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:28:34.483Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:28:34.484Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:28:34.484Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:28:34.484Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:34.484Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:28:34.484Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:28:34.498Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:28:34.501Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:28:34.501Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:34.501Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:28:34.508Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:28:34.509Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:28:34.509Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:34.509Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:28:34.509Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:28:34.511Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:28:34.511Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:28:34.511Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:34.511Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:28:34.514Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:28:34.515Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:28:34.515Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:28:34.516Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:28:34.516Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:34.516Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:28:34.517Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:28:34.517Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:34.517Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:28:34.518Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:28:34.518Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:28:34.526Z [DEBUG] Loaded 30 unique skills (30 unconditional, 0 conditional, managed: 0, user: 30, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:28:34.526Z [DEBUG] getSkills returning: 30 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:28:34.552Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:28:40.915Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/output/.DS_Store
+2026-03-02T15:28:41.225Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:28:41.225Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:28:41.225Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:28:41.226Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:28:41.227Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:28:41.227Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:28:41.228Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:41.228Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:28:41.228Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:28:41.231Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:28:41.232Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:28:41.233Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:28:41.233Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:28:41.233Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:41.233Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:28:41.234Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:28:41.235Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:28:41.236Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:28:41.236Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:41.236Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:28:41.236Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:28:41.236Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:28:41.237Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:28:41.237Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:41.237Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:28:41.238Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:28:41.238Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:41.238Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:28:41.239Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:28:41.239Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:28:41.239Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:28:41.240Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:28:41.240Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:28:41.244Z [DEBUG] Loaded 30 unique skills (30 unconditional, 0 conditional, managed: 0, user: 30, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:28:41.244Z [DEBUG] getSkills returning: 30 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:28:41.260Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:48:14.150Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/LICENSE
+2026-03-02T15:48:14.151Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/SKILL.md
+2026-03-02T15:48:14.152Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/README.md
+2026-03-02T15:48:14.152Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/1.json
+2026-03-02T15:48:14.152Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/20260302-141029.jpg
+2026-03-02T15:48:14.153Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/todo.md
+2026-03-02T15:48:14.153Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/.gitignore
+2026-03-02T15:48:14.153Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/requirements.txt
+2026-03-02T15:48:14.153Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/plan.md
+2026-03-02T15:48:14.153Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/AGENTS.md
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/config/accounts.json.example
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/run_lock.py
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/account_manager.py
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/image_downloader.py
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/docs/claude-code-integration.md
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/cdp_publish.py
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/public/whitedew.jpg
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/chrome_launcher.py
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/feed_explorer.py
+2026-03-02T15:48:14.156Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/publish_pipeline.py
+2026-03-02T15:48:14.464Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.464Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.465Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.465Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.465Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.465Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.466Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.466Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.466Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.466Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.466Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.466Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.467Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.467Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.467Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.467Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.467Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.467Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.471Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.471Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.471Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.471Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.471Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.471Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.472Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.472Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.472Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.474Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.474Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.474Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.475Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.475Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.475Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.475Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.475Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.475Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.478Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.478Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.478Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.478Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.478Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.478Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.479Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.479Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.479Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.483Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.483Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.483Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.483Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.483Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.483Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.486Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.486Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.486Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.487Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.487Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.487Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.487Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:48:14.487Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:48:14.487Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:48:14.488Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:48:14.489Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:48:14.489Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:48:14.489Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:48:14.489Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:48:14.489Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:48:14.492Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:48:14.493Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:48:14.494Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:48:14.494Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:48:14.495Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:48:14.495Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:48:14.495Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:48:14.495Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:48:14.497Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:48:14.497Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:48:14.498Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:48:14.498Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:48:14.498Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:48:14.500Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:48:14.500Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:48:14.500Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:48:14.503Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:48:14.503Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:48:14.503Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:48:14.503Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:48:14.503Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:48:14.503Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:48:14.504Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:48:14.504Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:48:14.510Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:48:14.510Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:48:14.537Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:53:32.682Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T15:53:34.244Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T15:53:34.247Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T15:55:44.852Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/output/.DS_Store
+2026-03-02T15:55:45.159Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:55:45.159Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:55:45.160Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:55:45.161Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:55:45.161Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:55:45.161Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:55:45.161Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:45.161Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:55:45.162Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:55:45.169Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:55:45.173Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:55:45.174Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:55:45.174Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:45.174Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:55:45.175Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:55:45.178Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:55:45.178Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:45.178Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:55:45.179Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:55:45.187Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:55:45.187Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:55:45.187Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:45.187Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:55:45.188Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:55:45.188Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:55:45.191Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:55:45.191Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:45.191Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:55:45.191Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:55:45.191Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:45.191Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:55:45.192Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:55:45.192Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:55:45.197Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:55:45.197Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:55:45.218Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:55:50.673Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/wechat-article-to-markdown/output/.DS_Store
+2026-03-02T15:55:50.980Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:55:50.980Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:55:50.983Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:55:50.984Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:55:50.989Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:55:50.989Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:55:50.989Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:50.989Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:55:50.990Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:55:50.998Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:55:51.000Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:55:51.001Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:55:51.001Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:51.001Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:55:51.001Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:55:51.005Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:55:51.007Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:55:51.007Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:51.007Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:55:51.007Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:55:51.008Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:55:51.008Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:55:51.009Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:55:51.009Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:51.009Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:55:51.010Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:55:51.010Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:51.010Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:55:51.011Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:55:51.011Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:55:51.011Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:55:51.012Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:55:51.012Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:55:51.015Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:55:51.015Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:55:51.029Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:57:46.147Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/title.txt
+2026-03-02T15:57:46.451Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:57:46.451Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:57:46.451Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:57:46.452Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:57:46.452Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:57:46.452Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:57:46.452Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:46.452Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:57:46.452Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:57:46.454Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:57:46.456Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:57:46.456Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:57:46.456Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:46.456Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:57:46.457Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:57:46.458Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:57:46.458Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:46.458Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:57:46.460Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:57:46.461Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:57:46.463Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:57:46.463Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:57:46.463Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:57:46.463Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:46.463Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:57:46.466Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:57:46.466Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:46.466Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:57:46.467Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:57:46.467Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:46.467Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:57:46.467Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:57:46.467Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:57:46.478Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:57:46.478Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:57:46.515Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:57:59.585Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/content.txt
+2026-03-02T15:57:59.888Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:57:59.888Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:57:59.888Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:57:59.888Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:57:59.888Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:57:59.888Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:57:59.888Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:59.888Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:57:59.888Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:57:59.890Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:57:59.892Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:57:59.892Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:57:59.892Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:59.892Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:57:59.894Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:57:59.894Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:57:59.894Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:59.894Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:57:59.898Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:57:59.899Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:57:59.899Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:57:59.899Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:59.899Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:57:59.900Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:57:59.900Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:57:59.901Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:57:59.901Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:59.901Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:57:59.903Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:57:59.903Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:57:59.903Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:57:59.905Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:57:59.905Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:57:59.908Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:57:59.908Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:57:59.922Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T15:59:45.626Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/tmp/login_status_cache.json
+2026-03-02T15:59:45.933Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T15:59:45.933Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T15:59:45.933Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T15:59:45.934Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T15:59:45.934Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:59:45.934Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T15:59:45.934Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:59:45.934Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T15:59:45.934Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T15:59:45.935Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T15:59:45.940Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T15:59:45.942Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T15:59:45.942Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T15:59:45.942Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:59:45.942Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T15:59:45.944Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T15:59:45.947Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T15:59:45.947Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:59:45.947Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T15:59:45.947Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T15:59:45.948Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T15:59:45.949Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T15:59:45.949Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T15:59:45.949Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:59:45.949Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T15:59:45.953Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T15:59:45.954Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:59:45.954Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T15:59:45.957Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T15:59:45.957Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T15:59:45.957Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T15:59:45.958Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T15:59:45.958Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T15:59:45.961Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T15:59:45.961Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T15:59:45.986Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T16:01:27.582Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/post-to-xhs/scripts/cdp_publish.py
+2026-03-02T16:01:27.888Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-02T16:01:27.888Z [DEBUG] Found 0 hook matchers in settings
+2026-03-02T16:01:27.889Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-02T16:01:27.890Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-02T16:01:27.890Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T16:01:27.890Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-02T16:01:27.890Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T16:01:27.890Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-02T16:01:27.890Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-02T16:01:27.892Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-02T16:01:27.894Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-02T16:01:27.894Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-02T16:01:27.894Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T16:01:27.894Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-02T16:01:27.896Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-02T16:01:27.899Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-02T16:01:27.902Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-02T16:01:27.902Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T16:01:27.902Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-02T16:01:27.903Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-02T16:01:27.904Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-02T16:01:27.904Z [DEBUG] Total plugin commands loaded: 42
+2026-03-02T16:01:27.906Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-02T16:01:27.906Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T16:01:27.906Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-02T16:01:27.908Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-02T16:01:27.908Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T16:01:27.908Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-02T16:01:27.909Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-02T16:01:27.910Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-02T16:01:27.910Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-02T16:01:27.914Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-02T16:01:27.914Z [DEBUG] Total plugin skills loaded: 56
+2026-03-02T16:01:27.919Z [DEBUG] Loaded 31 unique skills (31 unconditional, 0 conditional, managed: 0, user: 31, project: 0, additional: 0, legacy commands: 0)
+2026-03-02T16:01:27.919Z [DEBUG] getSkills returning: 31 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-02T16:01:27.959Z [DEBUG] High write ratio: blit=1599, write=7023 (81.5% writes), screen=118x123
+2026-03-02T17:39:18.256Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T17:39:20.023Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T17:39:20.024Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T17:39:32.993Z [ERROR] Error: Error: 1P event logging: 6 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T17:39:32.995Z [ERROR] Error: Error: {"message":"Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T17:39:32.995Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-02T19:05:03.118Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T19:05:18.113Z [ERROR] Error: Error: 1P event logging: 1 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T19:05:18.114Z [ERROR] Error: Error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T19:05:18.114Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-02T19:05:33.089Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T19:05:33.089Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T20:06:02.718Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T20:06:04.761Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T20:06:04.762Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T20:06:12.478Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T20:06:12.479Z [ERROR] Error: Error: {"message":"Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T20:06:12.479Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-02T20:44:28.733Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T21:07:02.333Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T21:07:02.334Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T21:07:02.336Z [ERROR] Error: Error: {"message":"Operation timed out.","originalLine":"119","originalColumn":"163330","line":"119","column":"163330","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:119:163330)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:16930)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T21:07:02.336Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Operation timed out.","originalLine":"119","originalColumn":"163330","line":"119","column":"163330","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:119:163330)","name":"Error"}
+2026-03-02T21:07:02.435Z [ERROR] Error: Error: 1P event logging: 1 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T21:07:02.436Z [ERROR] Error: Error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T21:07:02.436Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-02T22:08:03.129Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T22:08:04.829Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-02T22:08:04.830Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-02T22:08:17.843Z [ERROR] Error: Error: 1P event logging: 8 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T22:08:17.845Z [ERROR] Error: Error: {"message":"Failed to export 8 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 8 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T22:08:17.845Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 8 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 8 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-02T23:03:34.432Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-02T23:09:03.255Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T23:09:03.255Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T23:09:18.289Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T23:09:18.290Z [ERROR] Error: Error: {"message":"Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-02T23:09:18.290Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-02T23:50:30.617Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-03T00:10:03.222Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:10:03.222Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:10:03.223Z [ERROR] Error: Error: {"message":"Operation timed out.","originalLine":"119","originalColumn":"163330","line":"119","column":"163330","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:119:163330)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:16930)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:10:03.223Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Operation timed out.","originalLine":"119","originalColumn":"163330","line":"119","column":"163330","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:119:163330)","name":"Error"}
+2026-03-03T00:10:03.360Z [ERROR] Error: Error: 1P event logging: 1 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:10:03.360Z [ERROR] Error: Error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:10:03.360Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-03T00:28:19.613Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-03T00:43:32.258Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:43:32.258Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: timeout of 30000ms exceeded
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:43:32.259Z [ERROR] Error: Error: {"message":"Operation timed out.","originalLine":"119","originalColumn":"163330","line":"119","column":"163330","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:119:163330)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:16930)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:43:32.259Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Operation timed out.","originalLine":"119","originalColumn":"163330","line":"119","column":"163330","sourceURL":"/$bunfs/root/claude","stack":"Error: Operation timed out.\n    at <anonymous> (/$bunfs/root/claude:119:163330)","name":"Error"}
+2026-03-03T00:43:32.324Z [ERROR] Error: Error: 1P event logging: 1 events failed to export (code=ECONNABORTED, timeout of 10000ms exceeded)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:43:32.324Z [ERROR] Error: Error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:43:32.324Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 1 events (code=ECONNABORTED, timeout of 10000ms exceeded)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-03T00:59:03.627Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-03T00:59:03.921Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:59:03.921Z [ERROR] Error: Error: Failed to fetch version from https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest: unknown certificate verification error
+    at l58 (/$bunfs/root/claude:2434:2073)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:59:08.929Z [ERROR] Error: Error: 1P event logging: 5 events failed to export (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2403)
+    at async doExport (/$bunfs/root/claude:6264:1310)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:59:08.929Z [ERROR] Error: Error: {"message":"Failed to export 5 events (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 5 events (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-03T00:59:08.929Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 5 events (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)","originalLine":"6264","originalColumn":"1462","line":"6264","column":"1462","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 5 events (code=UNKNOWN_CERTIFICATE_VERIFICATION_ERROR, unknown certificate verification error)\n    at doExport (/$bunfs/root/claude:6264:1462)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-03T01:16:43.377Z [DEBUG] High write ratio: blit=147, write=6829 (97.9% writes), screen=119x115
+2026-03-03T01:29:03.658Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-03T01:29:05.851Z [DEBUG] Checking for native installer update to version 2.1.63
+2026-03-03T01:29:05.857Z [DEBUG] Found 2.1.63 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-03T01:33:08.819Z [DEBUG] MCP server "pencil": Sending SIGINT to MCP server process
+2026-03-03T01:33:08.824Z [DEBUG] MCP server "claude.ai Gmail": SSE transport closed/disconnected, attempting automatic reconnection
+2026-03-03T01:33:08.828Z [DEBUG] MCP server "playwright": Sending SIGINT to MCP server process
+2026-03-03T01:33:08.830Z [DEBUG] LSP server manager shut down successfully
+2026-03-03T01:33:08.833Z [DEBUG] MCP server "claude.ai Gmail": Initializing claude.ai proxy transport for server mcpsrv_01MdnXpi5Wo3LTkprBkKrxsV
+2026-03-03T01:33:08.833Z [DEBUG] MCP server "claude.ai Gmail": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01MdnXpi5Wo3LTkprBkKrxsV
+2026-03-03T01:33:08.834Z [DEBUG] MCP server "claude.ai Gmail": claude.ai proxy transport created successfully
+2026-03-03T01:33:08.839Z [DEBUG] MCP server "claude.ai Gmail": Starting connection with timeout of 30000ms
+2026-03-03T01:33:08.851Z [DEBUG] Cleaned up session snapshot: /Users/fanshengxia/.claude/shell-snapshots/snapshot-zsh-1772270517518-oljnvl.sh
+2026-03-03T01:33:08.910Z [DEBUG] High write ratio: blit=1495, write=6583 (81.5% writes), screen=119x115
+2026-03-03T01:33:08.921Z [DEBUG] MCP server "pencil": MCP server process exited cleanly
+2026-03-03T01:33:08.921Z [DEBUG] MCP server "playwright": MCP server process exited cleanly
+2026-03-03T01:33:08.923Z [DEBUG] Getting matching hook commands for SessionEnd with query: other
+2026-03-03T01:33:08.923Z [DEBUG] Found 0 hook matchers in settings
+2026-03-03T01:33:08.923Z [DEBUG] Matched 0 unique hooks for query "other" (0 before deduplication)

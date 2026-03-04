@@ -1,0 +1,368 @@
+import sys, os, subprocess
+import pandas as pd
+import numpy as np
+
+def setup_emquant():
+    try:
+        import EmQuantAPI; return True
+    except ImportError:
+        pass
+    home = os.path.expanduser("~")
+    desktop = os.path.join(home, "Desktop")
+    candidates = [
+        f"{home}/Desktop/ichoice_data/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/Desktop/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/ichoice/EMQuantAPI_Python/python3",
+    ]
+    if os.path.isdir(desktop):
+        for d in os.listdir(desktop):
+            p = os.path.join(desktop, d, "ichoice", "EMQuantAPI_Python", "python3")
+            if os.path.isdir(p): candidates.insert(0, p)
+    sdk_dir = next((p for p in candidates if os.path.isfile(os.path.join(p, "EmQuantAPI.py"))), None)
+    if not sdk_dir:
+        print("ERROR: EmQuantAPI SDK not found."); return False
+    sys.path.insert(0, sdk_dir)
+    try:
+        if not any(os.path.isfile(os.path.join(p, "EmQuantAPI.pth")) for p in sys.path if "site-packages" in p):
+            subprocess.run([sys.executable, "installEmQuantAPI.py"], cwd=sdk_dir, capture_output=True)
+    except Exception: pass
+    return True
+
+if not setup_emquant():
+    exit(1)
+
+from EmQuantAPI import c
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import matplotlib.cm as cm
+from matplotlib.colors import TwoSlopeNorm
+
+# 中文字体
+plt.rcParams['font.sans-serif'] = ['PingFang SC', 'Heiti TC', 'STHeiti', 'SimHei', 'Arial Unicode MS']
+plt.rcParams['axes.unicode_minus'] = False
+
+result = c.start("UserName=xylczh0181,Password=ef465509,ForceLogin=1")
+if result.ErrorCode != 0:
+    print(f"Login failed: {result.ErrorMsg}"); exit()
+print("Login OK")
+
+# 两会日期（CPPCC开幕, NPC闭幕）
+two_sessions = {
+    2008: ('2008-03-03', '2008-03-18'),
+    2009: ('2009-03-03', '2009-03-13'),
+    2010: ('2010-03-03', '2010-03-14'),
+    2011: ('2011-03-03', '2011-03-14'),
+    2012: ('2012-03-03', '2012-03-14'),
+    2013: ('2013-03-03', '2013-03-17'),
+    2014: ('2014-03-03', '2014-03-13'),
+    2015: ('2015-03-03', '2015-03-15'),
+    2016: ('2016-03-03', '2016-03-16'),
+    2017: ('2017-03-03', '2017-03-15'),
+    2018: ('2018-03-03', '2018-03-20'),
+    2019: ('2019-03-03', '2019-03-15'),
+    2020: ('2020-05-21', '2020-05-28'),
+    2021: ('2021-03-04', '2021-03-11'),
+    2022: ('2022-03-04', '2022-03-11'),
+    2023: ('2023-03-04', '2023-03-13'),
+    2024: ('2024-03-04', '2024-03-12'),
+    2025: ('2025-03-04', '2025-03-11'),
+}
+
+fetch_start = '2007-11-01'
+fetch_end   = '2025-04-30'
+years = sorted(two_sessions.keys())
+
+try:
+    print("Fetching equity/commodity data...")
+    raw_hs300 = c.csd("000300.SH", "CLOSE", fetch_start, fetch_end, "Ispandas=1")
+    raw_zz500 = c.csd("000905.SH", "CLOSE", fetch_start, fetch_end, "Ispandas=1")
+    raw_kzz   = c.csd("000832.SH", "CLOSE", fetch_start, fetch_end, "Ispandas=1")
+    raw_gold  = c.csd("AU0.SHF",   "CLOSE", fetch_start, fetch_end, "Ispandas=1")
+    raw_nh    = c.csd("000040.SH", "CLOSE", fetch_start, fetch_end, "Ispandas=1")
+
+    print("Fetching 10Y treasury yield...")
+    raw_bond = c.edb("E1000180", f"StartDate={fetch_start},EndDate={fetch_end},Ispandas=1")
+
+    # ── 解析函数 ──────────────────────────────────────────────────
+    def parse_csd(df):
+        df = df.reset_index()
+        df.columns = ['code', 'date', 'value']
+        df['date'] = pd.to_datetime(df['date'], format='%Y/%m/%d')
+        return df.set_index('date')[['value']].dropna().sort_index()
+
+    def parse_edb(df):
+        df2 = df[['DATES', 'RESULT']].copy()
+        df2['DATES'] = pd.to_datetime(df2['DATES'], format='%Y/%m/%d')
+        df2['RESULT'] = pd.to_numeric(df2['RESULT'], errors='coerce')
+        return df2.rename(columns={'DATES':'date','RESULT':'value'}).set_index('date')[['value']].dropna().sort_index()
+
+    ts = {
+        '沪深300':     parse_csd(raw_hs300),
+        '中证500':     parse_csd(raw_zz500),
+        '可转债':      parse_csd(raw_kzz),
+        '黄金':        parse_csd(raw_gold),
+        '南华商品':    parse_csd(raw_nh),
+        '10Y国债(bp)': parse_edb(raw_bond),
+    }
+    asset_names = list(ts.keys())
+    print("Data loaded. Rows:", {k: len(v) for k, v in ts.items()})
+
+    # ── 辅助取价函数 ──────────────────────────────────────────────
+    def price_n_before(series, date_str, n):
+        """第n个交易日前的收盘价（不含当日）"""
+        d = pd.Timestamp(date_str)
+        sub = series[series.index < d]
+        if len(sub) < n: return None
+        return float(sub.iloc[-n]['value'])
+
+    def price_1_before(series, date_str):
+        d = pd.Timestamp(date_str)
+        sub = series[series.index < d]
+        return float(sub.iloc[-1]['value']) if not sub.empty else None
+
+    def price_first_in(series, date_str):
+        """会期第一个交易日"""
+        d = pd.Timestamp(date_str)
+        sub = series[series.index >= d]
+        return float(sub.iloc[0]['value']) if not sub.empty else None
+
+    def price_last_in(series, date_str):
+        """会期最后一个交易日"""
+        d = pd.Timestamp(date_str)
+        sub = series[series.index <= d]
+        return float(sub.iloc[-1]['value']) if not sub.empty else None
+
+    def price_n_after(series, date_str, n):
+        """会后第n个交易日收盘价"""
+        d = pd.Timestamp(date_str)
+        sub = series[series.index > d]
+        if len(sub) < n: return None
+        return float(sub.iloc[n-1]['value'])
+
+    def pct(end, base):
+        if end is None or base is None or base == 0: return None
+        return (end/base - 1) * 100
+
+    def bp(end, base):
+        if end is None or base is None: return None
+        return (end - base) * 100
+
+    # ── 计算四个时期收益 ──────────────────────────────────────────
+    periods = ['前一月', '前一周', '两会期间', '后一周']
+    results = {p: {a: {} for a in asset_names} for p in periods}
+
+    for year, (s_date, e_date) in two_sessions.items():
+        for aname, series in ts.items():
+            is_bond = (aname == '10Y国债(bp)')
+            calc = bp if is_bond else pct
+
+            # 前一月: [−20TD, −1TD) before session start
+            p20 = price_n_before(series, s_date, 20)
+            p1  = price_1_before(series, s_date)
+            results['前一月'][aname][year] = calc(p1, p20)
+
+            # 前一周: [−5TD, −1TD) before session start
+            p5 = price_n_before(series, s_date, 5)
+            results['前一周'][aname][year] = calc(p1, p5)
+
+            # 两会期间: first TD of session → last TD of session
+            p_start = price_first_in(series, s_date)
+            p_end   = price_last_in(series, e_date)
+            results['两会期间'][aname][year] = calc(p_end, p_start)
+
+            # 后一周: last TD of session → +5TD after session end
+            p_base = price_last_in(series, e_date)
+            p_a5   = price_n_after(series, e_date, 5)
+            results['后一周'][aname][year] = calc(p_a5, p_base)
+
+    # ── 打印完整数据表（所有年份）─────────────────────────────────
+    for period in periods:
+        print(f"\n{'='*100}")
+        print(f"  {period}  (正值=上涨/收益率上行, 负值=下跌/收益率下行)")
+        print(f"{'='*100}")
+        header = f"{'资产':<14}" + "".join(f"{y:>7}" for y in years)
+        print(header)
+        print("-" * len(header))
+        for aname in asset_names:
+            row = f"{aname:<14}"
+            for y in years:
+                val = results[period][aname].get(y)
+                if val is None:
+                    row += f"{'N/A':>7}"
+                elif aname == '10Y国债(bp)':
+                    row += f"{val:>6.0f}b"
+                else:
+                    row += f"{val:>6.1f}%"
+            print(row)
+
+    # ── 统计（排除2020）─────────────────────────────────────────
+    years_ex2020 = [y for y in years if y != 2020]
+    print(f"\n{'='*100}")
+    print("  统计摘要（排除2020年COVID年份）")
+    print(f"{'='*100}")
+    for period in periods:
+        print(f"\n  [{period}]")
+        for aname in asset_names:
+            vals = [results[period][aname][y] for y in years_ex2020 if results[period][aname].get(y) is not None]
+            if vals:
+                unit = 'bp' if aname == '10Y国债(bp)' else '%'
+                pos_rate = sum(1 for v in vals if v > 0) / len(vals) * 100
+                print(f"    {aname:<14} 均值={np.mean(vals):+.1f}{unit}  中位数={np.median(vals):+.1f}{unit}  胜率={pos_rate:.0f}%  ({len(vals)}年)")
+
+    # ══════════════════════════════════════════════════════════════
+    # 图表生成
+    # ══════════════════════════════════════════════════════════════
+    output_dir = os.path.expanduser("~/Desktop")
+
+    asset_colors = {
+        '沪深300':     '#E63946',
+        '中证500':     '#FF7F11',
+        '可转债':      '#8338EC',
+        '黄金':        '#D4A017',
+        '南华商品':    '#2EC4B6',
+        '10Y国债(bp)': '#1D7DA1',
+    }
+
+    # ── 图1: 热力图 (2×2, 四个时期) ─────────────────────────────
+    fig, axes = plt.subplots(2, 2, figsize=(26, 14))
+    fig.suptitle('中国两会前后各资产表现热力图 (2008–2025)', fontsize=17, fontweight='bold', y=0.99)
+
+    for idx, period in enumerate(periods):
+        ax = axes[idx//2][idx%2]
+        matrix = np.array([
+            [results[period][a].get(y, np.nan) for y in years]
+            for a in asset_names
+        ], dtype=float)
+
+        # 对债券行进行缩放以便颜色可比（可转债和股票都是%，债券是bp）
+        # 独立归一化每行使颜色更直观
+        max_abs = np.nanmax(np.abs(matrix))
+        if max_abs == 0: max_abs = 1
+        norm = TwoSlopeNorm(vmin=-max_abs, vcenter=0, vmax=max_abs)
+
+        im = ax.imshow(matrix, cmap='RdYlGn', norm=norm, aspect='auto')
+
+        ax.set_xticks(range(len(years)))
+        ax.set_xticklabels([str(y) for y in years], rotation=45, ha='right', fontsize=9)
+        ax.set_yticks(range(len(asset_names)))
+        ax.set_yticklabels(asset_names, fontsize=11)
+        ax.set_title(period, fontsize=14, fontweight='bold', pad=8)
+
+        # 标注数值
+        for i, aname in enumerate(asset_names):
+            for j, y in enumerate(years):
+                val = matrix[i, j]
+                if np.isnan(val): continue
+                unit = 'b' if aname == '10Y国债(bp)' else '%'
+                txt = f"{val:+.0f}{unit}" if aname == '10Y国债(bp)' else f"{val:+.1f}{unit}"
+                bg_intensity = abs(val) / max_abs
+                color = 'white' if bg_intensity > 0.65 else 'black'
+                ax.text(j, i, txt, ha='center', va='center', fontsize=7.5,
+                        color=color, fontweight='bold')
+
+        # 2020列标记
+        idx_2020 = years.index(2020)
+        ax.axvline(x=idx_2020 - 0.5, color='navy', lw=1.5, ls='--', alpha=0.6)
+        ax.axvline(x=idx_2020 + 0.5, color='navy', lw=1.5, ls='--', alpha=0.6)
+
+        plt.colorbar(im, ax=ax, shrink=0.85, pad=0.02)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    p1 = os.path.join(output_dir, '两会资产热力图.png')
+    plt.savefig(p1, dpi=160, bbox_inches='tight')
+    print(f"\n[图1已保存] {p1}")
+    plt.close()
+
+    # ── 图2–5: 每个时期的分组柱状图 ─────────────────────────────
+    for period in periods:
+        fig, ax = plt.subplots(figsize=(24, 8))
+
+        n_a = len(asset_names)
+        bar_w = 0.12
+        x = np.arange(len(years))
+
+        for i, aname in enumerate(asset_names):
+            vals = [results[period][aname].get(y, 0) or 0 for y in years]
+            vals = [v if not np.isnan(v) else 0 for v in vals]
+            offset = (i - n_a/2 + 0.5) * bar_w
+            ax.bar(x + offset, vals, bar_w,
+                   label=aname, color=asset_colors[aname],
+                   alpha=0.88, edgecolor='white', linewidth=0.4)
+
+        ax.axhline(0, color='black', lw=0.9)
+        ax.set_xticks(x)
+        ax.set_xticklabels([str(y) for y in years], rotation=45, ha='right', fontsize=10)
+        ax.set_xlabel('年份', fontsize=12)
+        ax.set_ylabel('涨跌幅 (% 或 bp)', fontsize=12)
+        ax.set_title(f'两会【{period}】各资产表现 (2008–2025)', fontsize=15, fontweight='bold')
+        ax.legend(loc='upper left', fontsize=10, ncol=3, framealpha=0.85)
+        ax.grid(axis='y', alpha=0.3, linestyle='--')
+
+        # 2020标记
+        idx_2020 = years.index(2020)
+        ax.axvspan(idx_2020 - 0.5, idx_2020 + 0.5, color='lightgray', alpha=0.35, zorder=0)
+        ax.text(idx_2020, ax.get_ylim()[1] * 0.97, '2020\nCOVID',
+                ha='center', va='top', fontsize=8, color='gray', style='italic')
+
+        plt.tight_layout()
+        p_path = os.path.join(output_dir, f'两会_{period}_柱状图.png')
+        plt.savefig(p_path, dpi=160, bbox_inches='tight')
+        print(f"[图已保存] {p_path}")
+        plt.close()
+
+    # ── 图6: 每个资产的折线图（4条线=4个时期）────────────────────
+    fig, axes = plt.subplots(2, 3, figsize=(26, 14))
+    fig.suptitle('各资产在两会前后的表现走势 (2008–2025)', fontsize=16, fontweight='bold', y=0.99)
+
+    period_styles = {
+        '前一月':  {'color': '#1565C0', 'marker': 'o',  'ls': '-'},
+        '前一周':  {'color': '#F57F17', 'marker': 's',  'ls': '--'},
+        '两会期间':{'color': '#2E7D32', 'marker': '^',  'ls': '-'},
+        '后一周':  {'color': '#C62828', 'marker': 'D',  'ls': '--'},
+    }
+
+    for idx, aname in enumerate(asset_names):
+        ax = axes[idx//3][idx%3]
+        unit = 'bp' if aname == '10Y国债(bp)' else '%'
+
+        for period, style in period_styles.items():
+            vals = [results[period][aname].get(y) for y in years]
+            vals_plot = [v if v is not None and not np.isnan(v) else np.nan for v in vals]
+            ax.plot(years, vals_plot,
+                    color=style['color'], marker=style['marker'],
+                    linestyle=style['ls'], linewidth=1.8, markersize=5,
+                    label=period, alpha=0.9)
+
+        ax.axhline(0, color='black', lw=0.7)
+        ax.set_title(aname, fontsize=13, fontweight='bold',
+                     color=asset_colors[aname])
+        ax.set_ylabel(unit, fontsize=10)
+        ax.set_xticks(years[::2])
+        ax.set_xticklabels([str(y) for y in years[::2]], rotation=45, fontsize=8)
+        ax.legend(fontsize=8, ncol=2)
+        ax.grid(alpha=0.25, linestyle='--')
+
+        # 2020标记
+        ax.axvspan(2019.5, 2020.5, color='lightgray', alpha=0.4, zorder=0)
+        ax.text(2020, ax.get_ylim()[1] * 0.95, 'COVID', ha='center',
+                fontsize=7.5, color='gray', style='italic')
+
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    p6 = os.path.join(output_dir, '两会_各资产四时期走势.png')
+    plt.savefig(p6, dpi=160, bbox_inches='tight')
+    print(f"[图6已保存] {p6}")
+    plt.close()
+
+    print("\n✓ 全部图表已保存至桌面！")
+    print("  • 两会资产热力图.png         (总览热力图)")
+    print("  • 两会_前一月_柱状图.png")
+    print("  • 两会_前一周_柱状图.png")
+    print("  • 两会_两会期间_柱状图.png")
+    print("  • 两会_后一周_柱状图.png")
+    print("  • 两会_各资产四时期走势.png  (折线走势图)")
+
+finally:
+    c.stop()
+    print("Logout done")

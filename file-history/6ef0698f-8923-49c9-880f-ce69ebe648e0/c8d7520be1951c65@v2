@@ -1,0 +1,509 @@
+#!/usr/bin/env python3
+"""历届两会期间各资产表现分析 2008-2025"""
+
+import sys, os, subprocess
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.gridspec import GridSpec
+import warnings
+warnings.filterwarnings('ignore')
+
+# ─── Setup EmQuantAPI ──────────────────────────────────────────────────────────
+def setup_emquant():
+    try:
+        import EmQuantAPI; return True
+    except ImportError:
+        pass
+    home = os.path.expanduser("~")
+    desktop = os.path.join(home, "Desktop")
+    candidates = [
+        f"{home}/Desktop/ichoice_data/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/Desktop/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/ichoice/EMQuantAPI_Python/python3",
+    ]
+    if os.path.isdir(desktop):
+        for d in os.listdir(desktop):
+            p = os.path.join(desktop, d, "ichoice", "EMQuantAPI_Python", "python3")
+            if os.path.isdir(p): candidates.insert(0, p)
+    sdk_dir = next((p for p in candidates if os.path.isfile(os.path.join(p, "EmQuantAPI.py"))), None)
+    if not sdk_dir:
+        print("ERROR: EmQuantAPI SDK not found."); return False
+    sys.path.insert(0, sdk_dir)
+    try:
+        if not any(os.path.isfile(os.path.join(p, "EmQuantAPI.pth")) for p in sys.path if "site-packages" in p):
+            subprocess.run([sys.executable, "installEmQuantAPI.py"], cwd=sdk_dir, capture_output=True)
+    except Exception: pass
+    return True
+
+if not setup_emquant():
+    sys.exit(1)
+
+from EmQuantAPI import c
+
+result = c.start("UserName=xylczh0181,Password=ef465509,ForceLogin=1")
+if result.ErrorCode != 0:
+    print(f"Login failed: {result.ErrorMsg}"); sys.exit(1)
+print("Login OK")
+
+try:
+    # ─── Two Sessions Dates (CPPCC start → NPC close) ───────────────────────
+    lianghui_dates = {
+        2008: ("2008-03-03", "2008-03-18"),
+        2009: ("2009-03-03", "2009-03-13"),
+        2010: ("2010-03-03", "2010-03-14"),
+        2011: ("2011-03-03", "2011-03-14"),
+        2012: ("2012-03-03", "2012-03-14"),
+        2013: ("2013-03-03", "2013-03-17"),
+        2014: ("2014-03-03", "2014-03-13"),
+        2015: ("2015-03-03", "2015-03-15"),
+        2016: ("2016-03-03", "2016-03-16"),
+        2017: ("2017-03-03", "2017-03-15"),
+        2018: ("2018-03-03", "2018-03-20"),
+        2019: ("2019-03-03", "2019-03-15"),
+        2020: ("2020-05-21", "2020-06-11"),   # Delayed due to COVID-19
+        2021: ("2021-03-04", "2021-03-11"),
+        2022: ("2022-03-04", "2022-03-11"),
+        2023: ("2023-03-04", "2023-03-13"),
+        2024: ("2024-03-04", "2024-03-11"),
+        2025: ("2025-03-04", "2025-03-11"),
+    }
+
+    START_DATE = "2007-11-01"
+    END_DATE   = "2025-04-30"
+
+    # ─── Fetch Helpers ──────────────────────────────────────────────────────
+    def fetch_csd(code, field="CLOSE"):
+        print(f"  [{code}] fetching...")
+        d = c.csd(code, field, START_DATE, END_DATE, "Ispandas=1")
+        if isinstance(d, pd.DataFrame):
+            df = d[['DATES', field]].copy()
+            df['DATES'] = pd.to_datetime(df['DATES'], format='%Y/%m/%d')
+            df[field]   = pd.to_numeric(df[field], errors='coerce')
+            df = df.set_index('DATES').rename(columns={field: 'value'}).dropna().sort_index()
+            print(f"    -> OK  {len(df)} rows  [{df.index[0].date()}~{df.index[-1].date()}]")
+            return df
+        print(f"    -> ERR {d.ErrorCode}: {d.ErrorMsg}")
+        return None
+
+    def fetch_edb(code):
+        print(f"  [EDB {code}] fetching...")
+        d = c.edb(code, f"StartDate={START_DATE},EndDate={END_DATE},Ispandas=1")
+        if isinstance(d, pd.DataFrame):
+            df = d[['DATES','RESULT']].copy()
+            df['DATES']  = pd.to_datetime(df['DATES'], format='%Y/%m/%d')
+            df['RESULT'] = pd.to_numeric(df['RESULT'], errors='coerce')
+            df = df.set_index('DATES').rename(columns={'RESULT': 'value'}).dropna().sort_index()
+            print(f"    -> OK  {len(df)} rows  [{df.index[0].date()}~{df.index[-1].date()}]")
+            return df
+        print(f"    -> ERR {d.ErrorCode}: {d.ErrorMsg}")
+        return None
+
+    # ─── Fetch All Assets ──────────────────────────────────────────────────
+    print("\n=== Fetching price data ===")
+    asset_dfs = {}
+
+    asset_dfs['沪深300']  = fetch_csd("000300.SH")
+    asset_dfs['中证500']  = fetch_csd("000905.SH")
+
+    # 黄金 — try SHFE spot gold T+D, then futures main contract
+    gold = fetch_csd("AU9999.SHF")
+    if gold is None or len(gold) < 50:
+        gold = fetch_csd("AU0.SHF")
+    if gold is None or len(gold) < 50:
+        gold = fetch_edb("EMI01618427")   # fallback: crude oil proxy (won't happen)
+    asset_dfs['黄金'] = gold
+
+    # 中证转债
+    cb = fetch_csd("000832.SH")
+    if cb is None or len(cb) < 50:
+        cb = fetch_csd("399986.SZ")
+    asset_dfs['中证转债'] = cb
+
+    # 南华商品指数 — try multiple possible codes
+    nhci = None
+    for code in ["NHCI.NH", "0NHCI.NH", "NH0100.NH"]:
+        nhci = fetch_csd(code)
+        if nhci is not None and len(nhci) > 50: break
+    if nhci is None or len(nhci) < 50:
+        # Try EDB codes for 南华商品指数
+        for edb_code in ["EMM00700259", "EMM00700260"]:
+            nhci = fetch_edb(edb_code)
+            if nhci is not None and len(nhci) > 50: break
+    asset_dfs['南华商品'] = nhci
+
+    # 十年国债收益率
+    asset_dfs['十年国债'] = fetch_edb("E1000180")
+
+    # ─── Calculation Helpers ───────────────────────────────────────────────
+    def last_before(df, ts):
+        """Last available (date, value) on or before ts."""
+        if df is None: return None, np.nan
+        avail = df.index[df.index <= ts]
+        if len(avail) == 0: return None, np.nan
+        d = avail[-1]
+        return d, df.loc[d, 'value']
+
+    def first_after(df, ts):
+        """First available (date, value) on or after ts."""
+        if df is None: return None, np.nan
+        avail = df.index[df.index >= ts]
+        if len(avail) == 0: return None, np.nan
+        d = avail[0]
+        return d, df.loc[d, 'value']
+
+    def nth_trading_day(df, base_ts, n):
+        """Date n trading days from base_ts (negative = before)."""
+        if df is None: return None
+        dates = df.index.sort_values()
+        avail = dates[dates <= base_ts]
+        if len(avail) == 0: return None
+        base = avail[-1]
+        pos = np.searchsorted(dates, base)
+        new_pos = pos + n
+        if 0 <= new_pos < len(dates):
+            return dates[new_pos]
+        return None
+
+    def pct_change(v_start, v_end, is_yield=False):
+        if np.isnan(v_start) or np.isnan(v_end): return np.nan
+        if is_yield:  return (v_end - v_start) * 100   # bp
+        if v_start == 0: return np.nan
+        return (v_end / v_start - 1) * 100              # %
+
+    # ─── Calculate Returns for Each Year ──────────────────────────────────
+    print("\n=== Calculating returns ===")
+    ASSETS  = ['沪深300','中证500','黄金','中证转债','南华商品','十年国债']
+    PERIODS = ['前一月','前一周','期间','后一周','后一月']
+    YEARS   = sorted(lianghui_dates.keys())
+
+    records = []
+    for year, (lh_s, lh_e) in lianghui_dates.items():
+        ts_s = pd.Timestamp(lh_s)
+        ts_e = pd.Timestamp(lh_e)
+        row = {'年份': year}
+
+        for asset in ASSETS:
+            df = asset_dfs.get(asset)
+            is_y = (asset == '十年国债')
+
+            if df is None:
+                for p in PERIODS: row[f"{asset}_{p}"] = np.nan
+                continue
+
+            # T0 = last trading day BEFORE sessions open  (pre-session close)
+            t0_d, v_t0 = last_before(df, ts_s - pd.Timedelta(days=1))
+            # T_end = last trading day ON or BEFORE sessions close
+            te_d, v_te = last_before(df, ts_e)
+
+            if t0_d is None or te_d is None or t0_d >= te_d:
+                for p in PERIODS: row[f"{asset}_{p}"] = np.nan
+                continue
+
+            # Offset anchors
+            t_pre1w  = nth_trading_day(df, t0_d, -5)
+            t_pre1m  = nth_trading_day(df, t0_d, -21)
+            t_post1w = nth_trading_day(df, te_d, +5)
+            t_post1m = nth_trading_day(df, te_d, +21)
+
+            _, v_pre1w  = last_before(df, t_pre1w)  if t_pre1w  else (None, np.nan)
+            _, v_pre1m  = last_before(df, t_pre1m)  if t_pre1m  else (None, np.nan)
+            _, v_post1w = last_before(df, t_post1w) if t_post1w else (None, np.nan)
+            _, v_post1m = last_before(df, t_post1m) if t_post1m else (None, np.nan)
+
+            row[f"{asset}_前一月"] = pct_change(v_pre1m,  v_t0, is_y)
+            row[f"{asset}_前一周"] = pct_change(v_pre1w,  v_t0, is_y)
+            row[f"{asset}_期间"]   = pct_change(v_t0,     v_te, is_y)
+            row[f"{asset}_后一周"] = pct_change(v_te,  v_post1w, is_y)
+            row[f"{asset}_后一月"] = pct_change(v_te,  v_post1m, is_y)
+
+        records.append(row)
+        print(f"  {year} done")
+
+    df_res = pd.DataFrame(records).set_index('年份')
+    print("\n=== Results preview ===")
+    print(df_res.to_string())
+
+    # ─── Save Excel ────────────────────────────────────────────────────────
+    xl_path = os.path.join(os.path.expanduser("~"), "Desktop", "lianghui_analysis.xlsx")
+    with pd.ExcelWriter(xl_path, engine='openpyxl') as writer:
+        df_res.to_excel(writer, sheet_name='原始数据')
+
+        # Summary sheet
+        summary_rows = []
+        for asset in ASSETS:
+            is_y = (asset == '十年国债')
+            unit  = 'bp' if is_y else '%'
+            win_label = '收益率下行' if is_y else '上涨'
+            for period in PERIODS:
+                col = f"{asset}_{period}"
+                if col not in df_res.columns: continue
+                vals = pd.to_numeric(df_res[col], errors='coerce').dropna()
+                if len(vals) == 0: continue
+                win_n = int((vals < 0).sum() if is_y else (vals > 0).sum())
+                summary_rows.append({
+                    '资产': asset, '阶段': period, '单位': unit,
+                    '均值': round(vals.mean(), 2),
+                    '中位数': round(vals.median(), 2),
+                    '标准差': round(vals.std(), 2),
+                    '最大': round(vals.max(), 2),
+                    '最小': round(vals.min(), 2),
+                    '胜率': f"{win_n}/{len(vals)} ({win_n/len(vals)*100:.0f}%)",
+                })
+        pd.DataFrame(summary_rows).to_excel(writer, sheet_name='统计摘要', index=False)
+    print(f"\nExcel saved: {xl_path}")
+
+    # ─── Visualization ─────────────────────────────────────────────────────
+    plt.rcParams['font.sans-serif'] = ['PingFang SC','Heiti TC','STHeiti','Arial Unicode MS']
+    plt.rcParams['axes.unicode_minus'] = False
+
+    BG   = '#0d1117'
+    PANEL= '#161b22'
+    TICK = '#c9d1d9'
+    TITLE= '#e6edf3'
+    SUB  = '#8b949e'
+
+    # ── CHART 1: Heatmaps (year × period, one per asset) ──────────────────
+    fig1 = plt.figure(figsize=(24, 32))
+    fig1.patch.set_facecolor(BG)
+    gs1 = GridSpec(3, 2, fig1, hspace=0.5, wspace=0.32,
+                   left=0.07, right=0.96, top=0.93, bottom=0.03)
+
+    for idx, asset in enumerate(ASSETS):
+        ax = fig1.add_subplot(gs1[idx // 2, idx % 2])
+        ax.set_facecolor(PANEL)
+        is_y = (asset == '十年国债')
+        unit = 'bp' if is_y else '%'
+
+        mat = np.full((len(YEARS), len(PERIODS)), np.nan)
+        for yi, yr in enumerate(YEARS):
+            for pi, pr in enumerate(PERIODS):
+                col = f"{asset}_{pr}"
+                if col in df_res.columns:
+                    v = df_res.loc[yr, col]
+                    if not pd.isna(v): mat[yi, pi] = float(v)
+
+        valid = mat[~np.isnan(mat)]
+        vmax = np.percentile(np.abs(valid), 90) if len(valid) > 0 else 10
+        vmax = max(vmax, 1.0)
+
+        cmap = 'RdYlGn_r' if is_y else 'RdYlGn'
+        masked = np.ma.masked_invalid(mat)
+        im = ax.imshow(masked, cmap=cmap, aspect='auto',
+                       vmin=-vmax, vmax=vmax, interpolation='nearest')
+
+        for yi in range(len(YEARS)):
+            for pi in range(len(PERIODS)):
+                v = mat[yi, pi]
+                if not np.isnan(v):
+                    norm = abs(v / vmax)
+                    tc = 'white' if norm > 0.55 else 'black'
+                    txt = f"{v:+.0f}" if is_y else f"{v:+.1f}"
+                    ax.text(pi, yi, txt, ha='center', va='center',
+                            fontsize=6.8, color=tc, fontweight='bold')
+                else:
+                    ax.text(pi, yi, '─', ha='center', va='center',
+                            fontsize=7, color='#444c56')
+
+        ax.set_xticks(range(len(PERIODS)))
+        ax.set_xticklabels(PERIODS, fontsize=9.5, color=TICK, fontweight='bold')
+        ax.set_yticks(range(len(YEARS)))
+        ax.set_yticklabels([f"'{str(y)[2:]}" for y in YEARS], fontsize=8.5, color=TICK)
+        ax.set_title(f"{asset}  ({'bp变动' if is_y else '涨跌幅%'})",
+                     fontsize=13, color=TITLE, pad=9, fontweight='bold')
+        ax.tick_params(axis='both', colors=TICK, length=0)
+        for sp in ax.spines.values(): sp.set_color('#30363d')
+
+        cb = plt.colorbar(im, ax=ax, shrink=0.85, pad=0.02)
+        cb.ax.tick_params(labelcolor=TICK, color=TICK, labelsize=7.5)
+        cb.set_label(unit, color=TICK, fontsize=8)
+
+    fig1.text(0.5, 0.955, '历届两会各资产表现热力图  2008–2025',
+              ha='center', fontsize=19, color=TITLE, fontweight='bold')
+    fig1.text(0.5, 0.936,
+              '注：2020年两会因新冠疫情推迟至5月21日–6月11日 | 十年国债为收益率bp变动（正值=上行=债亏，负值=下行=债赚）',
+              ha='center', fontsize=9.5, color=SUB)
+
+    p1 = os.path.join(os.path.expanduser("~"), "Desktop", "lianghui_heatmap.png")
+    fig1.savefig(p1, dpi=150, bbox_inches='tight', facecolor=BG)
+    plt.close(fig1)
+    print(f"Heatmap saved: {p1}")
+
+    # ── CHART 2: Summary – Average & Win Rate ─────────────────────────────
+    fig2 = plt.figure(figsize=(22, 18))
+    fig2.patch.set_facecolor(BG)
+    gs2 = GridSpec(2, 1, fig2, hspace=0.5,
+                   left=0.07, right=0.97, top=0.91, bottom=0.06)
+
+    # 2a. Average returns heatmap
+    ax_a = fig2.add_subplot(gs2[0])
+    ax_a.set_facecolor(PANEL)
+    avg_mat = np.full((len(ASSETS), len(PERIODS)), np.nan)
+    for ai, asset in enumerate(ASSETS):
+        for pi, pr in enumerate(PERIODS):
+            col = f"{asset}_{pr}"
+            if col in df_res.columns:
+                vals = pd.to_numeric(df_res[col], errors='coerce').dropna()
+                if len(vals): avg_mat[ai, pi] = vals.mean()
+
+    vmax_a = max(np.nanmax(np.abs(avg_mat)), 1.0) if not np.all(np.isnan(avg_mat)) else 5
+    im_a = ax_a.imshow(avg_mat, cmap='RdYlGn', aspect='auto',
+                        vmin=-vmax_a, vmax=vmax_a, interpolation='nearest')
+    for ai, asset in enumerate(ASSETS):
+        is_y = (asset == '十年国债')
+        unit = 'bp' if is_y else '%'
+        for pi in range(len(PERIODS)):
+            v = avg_mat[ai, pi]
+            if not np.isnan(v):
+                norm = abs(v / vmax_a)
+                tc = 'white' if norm > 0.5 else 'black'
+                ax_a.text(pi, ai, f"{v:+.1f}{unit}", ha='center', va='center',
+                          fontsize=10.5, color=tc, fontweight='bold')
+
+    ax_a.set_xticks(range(len(PERIODS)))
+    ax_a.set_xticklabels(PERIODS, fontsize=12, color=TICK, fontweight='bold')
+    ax_a.set_yticks(range(len(ASSETS)))
+    ax_a.set_yticklabels(ASSETS, fontsize=12, color=TICK, fontweight='bold')
+    ax_a.set_title('各资产各阶段平均涨跌幅（2008–2025年均值）',
+                   fontsize=14, color=TITLE, pad=9, fontweight='bold')
+    ax_a.tick_params(axis='both', colors=TICK, length=0)
+    for sp in ax_a.spines.values(): sp.set_color('#30363d')
+    cb2 = plt.colorbar(im_a, ax=ax_a, shrink=0.8)
+    cb2.ax.tick_params(labelcolor=TICK)
+
+    # 2b. Win rate heatmap
+    ax_b = fig2.add_subplot(gs2[1])
+    ax_b.set_facecolor(PANEL)
+    wr_mat  = np.full((len(ASSETS), len(PERIODS)), np.nan)
+    cnt_mat = np.zeros((len(ASSETS), len(PERIODS)), dtype=int)
+    for ai, asset in enumerate(ASSETS):
+        is_y = (asset == '十年国债')
+        for pi, pr in enumerate(PERIODS):
+            col = f"{asset}_{pr}"
+            if col in df_res.columns:
+                vals = pd.to_numeric(df_res[col], errors='coerce').dropna()
+                if len(vals):
+                    cnt_mat[ai, pi] = len(vals)
+                    win_n = int((vals < 0).sum() if is_y else (vals > 0).sum())
+                    wr_mat[ai, pi] = win_n / len(vals) * 100
+
+    im_b = ax_b.imshow(wr_mat, cmap='RdYlGn', aspect='auto',
+                        vmin=0, vmax=100, interpolation='nearest')
+    for ai in range(len(ASSETS)):
+        for pi in range(len(PERIODS)):
+            v = wr_mat[ai, pi]
+            n = cnt_mat[ai, pi]
+            if not np.isnan(v):
+                tc = 'white' if (v < 35 or v > 65) else 'black'
+                ax_b.text(pi, ai, f"{v:.0f}%\n({n}年)",
+                          ha='center', va='center', fontsize=9.5, color=tc, fontweight='bold')
+
+    ax_b.set_xticks(range(len(PERIODS)))
+    ax_b.set_xticklabels(PERIODS, fontsize=12, color=TICK, fontweight='bold')
+    ax_b.set_yticks(range(len(ASSETS)))
+    ax_b.set_yticklabels(ASSETS, fontsize=12, color=TICK, fontweight='bold')
+    ax_b.set_title('各资产各阶段胜率（上涨概率%）——债券以收益率下行为胜',
+                   fontsize=14, color=TITLE, pad=9, fontweight='bold')
+    ax_b.tick_params(axis='both', colors=TICK, length=0)
+    for sp in ax_b.spines.values(): sp.set_color('#30363d')
+    cb3 = plt.colorbar(im_b, ax=ax_b, shrink=0.8)
+    cb3.ax.tick_params(labelcolor=TICK)
+
+    fig2.text(0.5, 0.94, '历届两会资产统计摘要  2008–2025',
+              ha='center', fontsize=18, color=TITLE, fontweight='bold')
+
+    p2 = os.path.join(os.path.expanduser("~"), "Desktop", "lianghui_summary.png")
+    fig2.savefig(p2, dpi=150, bbox_inches='tight', facecolor=BG)
+    plt.close(fig2)
+    print(f"Summary chart saved: {p2}")
+
+    # ── CHART 3: 期间表现逐年条形图 ──────────────────────────────────────
+    fig3, axes3 = plt.subplots(len(ASSETS), 1, figsize=(20, 26))
+    fig3.patch.set_facecolor(BG)
+    fig3.subplots_adjust(hspace=0.55, top=0.94, bottom=0.04, left=0.07, right=0.97)
+
+    for ai, asset in enumerate(ASSETS):
+        ax = axes3[ai]
+        ax.set_facecolor(PANEL)
+        is_y = (asset == '十年国债')
+        unit = 'bp' if is_y else '%'
+
+        col = f"{asset}_期间"
+        if col in df_res.columns:
+            vals = pd.to_numeric(df_res[col], errors='coerce')
+        else:
+            vals = pd.Series([np.nan]*len(YEARS), index=YEARS)
+
+        colors = []
+        for v in vals:
+            if np.isnan(v): colors.append('#444c56')
+            elif (is_y and v < 0) or (not is_y and v > 0): colors.append('#3fb950')
+            else: colors.append('#f85149')
+
+        bars = ax.bar(YEARS, vals.fillna(0), color=colors, alpha=0.88, width=0.65)
+        ax.axhline(0, color='#8b949e', lw=0.8, ls='--')
+        ax.set_xlim(min(YEARS)-0.8, max(YEARS)+0.8)
+
+        for yr, v in zip(YEARS, vals):
+            if not np.isnan(v) and abs(v) > 0:
+                yoff = v + (0.3 if v >= 0 else -0.3) * (1 if not is_y else 3)
+                ax.text(yr, yoff, f"{v:+.1f}", ha='center', va='bottom' if v >= 0 else 'top',
+                        fontsize=7, color='#c9d1d9', fontweight='bold')
+
+        ax.set_xticks(YEARS)
+        ax.set_xticklabels([f"'{str(y)[2:]}" for y in YEARS], fontsize=8, color=TICK)
+        ax.tick_params(axis='y', colors=TICK, labelsize=8)
+        ax.set_ylabel(unit, color=TICK, fontsize=8)
+        ax.set_title(f"{asset} — 两会期间表现 ({unit})", fontsize=11, color=TITLE, fontweight='bold')
+        ax.grid(axis='y', alpha=0.15, color='white')
+        for sp in ax.spines.values(): sp.set_color('#30363d')
+
+        avg_v = vals.dropna().mean()
+        if not np.isnan(avg_v):
+            ax.axhline(avg_v, color='#f0e68c', lw=1.2, ls=':', alpha=0.8)
+            ax.text(max(YEARS)+0.3, avg_v, f"均值{avg_v:+.1f}", color='#f0e68c',
+                    fontsize=7.5, va='center')
+
+    fig3.text(0.5, 0.96, '历届两会期间各资产涨跌幅逐年对比  2008–2025',
+              ha='center', fontsize=17, color=TITLE, fontweight='bold')
+    fig3.text(0.5, 0.946,
+              '虚线 = 历年均值 | 十年国债为收益率bp变动（负值=收益率下行=债券上涨）',
+              ha='center', fontsize=9.5, color=SUB)
+
+    p3 = os.path.join(os.path.expanduser("~"), "Desktop", "lianghui_yearly.png")
+    fig3.savefig(p3, dpi=150, bbox_inches='tight', facecolor=BG)
+    plt.close(fig3)
+    print(f"Yearly chart saved: {p3}")
+
+    # ─── Print Full Stats ──────────────────────────────────────────────────
+    print("\n" + "="*80)
+    print("📊 历届两会各资产完整统计摘要")
+    print("="*80)
+    for asset in ASSETS:
+        is_y = (asset == '十年国债')
+        unit = 'bp' if is_y else '%'
+        win_label = '收益率下行年数' if is_y else '上涨年数'
+        print(f"\n【{asset}】")
+        for pr in PERIODS:
+            col = f"{asset}_{pr}"
+            if col not in df_res.columns: continue
+            vals = pd.to_numeric(df_res[col], errors='coerce').dropna()
+            if len(vals) == 0: continue
+            win_n = int((vals < 0).sum() if is_y else (vals > 0).sum())
+            print(f"  {pr}:  均值={vals.mean():+6.2f}{unit}  "
+                  f"中位={vals.median():+6.2f}  "
+                  f"胜率={win_n}/{len(vals)}({win_n/len(vals)*100:.0f}%)  "
+                  f"范围[{vals.min():.1f}, {vals.max():.1f}]")
+
+    print(f"\n✅ 所有文件已保存到桌面:")
+    print(f"   📈 lianghui_heatmap.png  (热力图)")
+    print(f"   📊 lianghui_summary.png  (统计摘要: 均值 + 胜率)")
+    print(f"   📉 lianghui_yearly.png   (逐年两会期间表现)")
+    print(f"   📋 lianghui_analysis.xlsx (原始数据 + 统计表)")
+
+finally:
+    c.stop()
+    print("\nLogout done")

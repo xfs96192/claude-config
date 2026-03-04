@@ -1,0 +1,4 @@
+interface:
+  display_name: "徐莹固收+月报更新"
+  short_description: "从产品运作概览与周度回顾生成并回填三只产品（月度运作解析）段落"
+  default_prompt: "更新徐莹三只重点固收+产品（月报）：读取当月产品运作概览xlsx与weekly_review md，生成三只产品的【产品配置策略/产品运作回顾/后市展望】并回填到指定docx模板。"

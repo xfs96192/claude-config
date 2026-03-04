@@ -1,0 +1,1392 @@
+2026-03-04T03:46:39.652Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-04T03:46:39.652Z [DEBUG] MDM settings load completed in 15ms
+2026-03-04T03:46:39.714Z [DEBUG] [init] configureGlobalMTLS starting
+2026-03-04T03:46:39.714Z [DEBUG] [init] configureGlobalMTLS complete
+2026-03-04T03:46:39.714Z [DEBUG] [init] configureGlobalAgents starting
+2026-03-04T03:46:39.714Z [DEBUG] [init] configureGlobalAgents complete
+2026-03-04T03:46:39.719Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["mcp__pencil"]
+2026-03-04T03:46:39.719Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-03-04T03:46:39.721Z [DEBUG] [ToolSearch:optimistic] mode=tst-auto, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-03-04T03:46:39.721Z [DEBUG] [STARTUP] Running setup()...
+2026-03-04T03:46:39.722Z [DEBUG] Git remote URL: null
+2026-03-04T03:46:39.722Z [DEBUG] No git remote URL found
+2026-03-04T03:46:39.723Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-04T03:46:39.723Z [DEBUG] Error log sink initialized
+2026-03-04T03:46:39.726Z [DEBUG] [Claude in Chrome] Found chrome profiles: Default
+2026-03-04T03:46:39.728Z [DEBUG] Loaded 6 installed plugins from /Users/fanshengxia/.claude/plugins/installed_plugins.json
+2026-03-04T03:46:39.728Z [DEBUG] Acquired PID lock for 2.1.66 (PID 91242)
+2026-03-04T03:46:39.729Z [DEBUG] Acquired PID lock on running version: /Users/fanshengxia/.local/share/claude/versions/2.1.66
+2026-03-04T03:46:39.733Z [DEBUG] [STARTUP] setup() completed in 12ms
+2026-03-04T03:46:39.733Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-03-04T03:46:39.734Z [DEBUG] [Claude in Chrome] Extension fcoeoabgfenejglbffodgkkbkcdhcgfn found in chrome Default
+2026-03-04T03:46:39.741Z [DEBUG] Loading plugin investment-banking from source: "./investment-banking"
+2026-03-04T03:46:39.747Z [DEBUG] Loading plugin superpowers from source: {"source":"url","url":"https://github.com/obra/superpowers.git"}
+2026-03-04T03:46:39.747Z [DEBUG] Using provided version for superpowers@claude-plugins-official: 4.3.1
+2026-03-04T03:46:39.747Z [DEBUG] Loading plugin financial-analysis from source: "./financial-analysis"
+2026-03-04T03:46:39.747Z [DEBUG] Loading plugin wealth-management from source: "./wealth-management"
+2026-03-04T03:46:39.748Z [DEBUG] Loading plugin private-equity from source: "./private-equity"
+2026-03-04T03:46:39.748Z [DEBUG] Loading plugin equity-research from source: "./equity-research"
+2026-03-04T03:46:39.748Z [DEBUG] Using versioned cached plugin superpowers from /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1
+2026-03-04T03:46:39.750Z [DEBUG] Using manifest version for investment-banking@financial-services-plugins: 0.2.0
+2026-03-04T03:46:39.750Z [DEBUG] Using manifest version for equity-research@financial-services-plugins: 0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Using manifest version for wealth-management@financial-services-plugins: 0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Using manifest version for private-equity@financial-services-plugins: 0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Using manifest version for financial-analysis@financial-services-plugins: 0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Plugin investment-banking@financial-services-plugins version 0.2.0 already cached at /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0
+2026-03-04T03:46:39.750Z [DEBUG] Resolved local plugin investment-banking to versioned cache: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0
+2026-03-04T03:46:39.750Z [DEBUG] Plugin private-equity@financial-services-plugins version 0.1.0 already cached at /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Resolved local plugin private-equity to versioned cache: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Plugin equity-research@financial-services-plugins version 0.1.0 already cached at /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Resolved local plugin equity-research to versioned cache: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Plugin financial-analysis@financial-services-plugins version 0.1.0 already cached at /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0
+2026-03-04T03:46:39.750Z [DEBUG] Resolved local plugin financial-analysis to versioned cache: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0
+2026-03-04T03:46:39.751Z [DEBUG] Plugin wealth-management@financial-services-plugins version 0.1.0 already cached at /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0
+2026-03-04T03:46:39.751Z [DEBUG] Resolved local plugin wealth-management to versioned cache: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0
+2026-03-04T03:46:39.751Z [DEBUG] Loaded hooks from standard location for plugin superpowers: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/hooks/hooks.json
+2026-03-04T03:46:39.753Z [ERROR] Failed to load hooks for private-equity: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.753Z [ERROR] ZodError: ZodError
+    at M0B (/$bunfs/root/claude:1932:271)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:46:39.753Z [DEBUG] Loaded hooks from standard location for plugin investment-banking: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/hooks/hooks.json
+2026-03-04T03:46:39.753Z [ERROR] Failed to load hooks for financial-analysis: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.753Z [ERROR] ZodError: ZodError
+    at M0B (/$bunfs/root/claude:1932:271)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:46:39.753Z [ERROR] Failed to load hooks for equity-research: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.753Z [ERROR] ZodError: ZodError
+    at M0B (/$bunfs/root/claude:1932:271)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:46:39.753Z [ERROR] Failed to load hooks for wealth-management: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.753Z [ERROR] ZodError: ZodError
+    at M0B (/$bunfs/root/claude:1932:271)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:46:39.753Z [DEBUG] Found 6 plugins (6 enabled, 0 disabled)
+2026-03-04T03:46:39.753Z [DEBUG] Plugin not available for MCP: private-equity@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:39.753Z [DEBUG] Plugin not available for MCP: financial-analysis@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:39.753Z [DEBUG] Plugin not available for MCP: equity-research@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:39.753Z [DEBUG] Plugin not available for MCP: wealth-management@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:39.753Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.753Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-04T03:46:39.753Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T03:46:39.753Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-04T03:46:39.753Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.754Z [DEBUG] Loading hooks from plugin: superpowers
+2026-03-04T03:46:39.754Z [DEBUG] Loading hooks from plugin: investment-banking
+2026-03-04T03:46:39.754Z [DEBUG] Registered 1 hooks from 6 plugins
+2026-03-04T03:46:39.754Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:39.755Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-04T03:46:39.756Z [DEBUG] Loaded 1 agents from plugin superpowers default directory
+2026-03-04T03:46:39.756Z [DEBUG] Total plugin agents loaded: 1
+2026-03-04T03:46:39.759Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-04T03:46:39.759Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T03:46:39.759Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-04T03:46:39.759Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-04T03:46:39.761Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-04T03:46:39.761Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T03:46:39.761Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-04T03:46:39.761Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-04T03:46:39.763Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-04T03:46:39.764Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-04T03:46:39.764Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T03:46:39.764Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-04T03:46:39.766Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-04T03:46:39.773Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-04T03:46:39.773Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T03:46:39.773Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-04T03:46:39.773Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-04T03:46:39.773Z [DEBUG] Total plugin commands loaded: 42
+2026-03-04T03:46:39.774Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-04T03:46:39.774Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T03:46:39.774Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-04T03:46:39.775Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-04T03:46:39.775Z [DEBUG] Total plugin skills loaded: 56
+2026-03-04T03:46:39.780Z [DEBUG] Loaded 32 unique skills (32 unconditional, 0 conditional, managed: 0, user: 32, project: 0, additional: 0, legacy commands: 0)
+2026-03-04T03:46:39.780Z [DEBUG] getSkills returning: 32 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-04T03:46:39.781Z [DEBUG] [STARTUP] Commands and agents loaded in 48ms
+2026-03-04T03:46:39.783Z [DEBUG] [STARTUP] Running showSetupScreens()...
+2026-03-04T03:46:39.785Z [DEBUG] Grove: Using fresh cached config
+2026-03-04T03:46:39.792Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2026-03-04T03:46:39.794Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-03-04T03:46:39.794Z [DEBUG] [3P telemetry] isTelemetryEnabled=false (CLAUDE_CODE_ENABLE_TELEMETRY=undefined)
+2026-03-04T03:46:39.796Z [DEBUG] [keybindings] KeybindingSetup initialized with 104 bindings, 0 warnings
+2026-03-04T03:46:39.801Z [DEBUG] [keybindings] Watching for changes to /Users/fanshengxia/.claude/keybindings.json
+2026-03-04T03:46:41.081Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596001081
+2026-03-04T03:46:41.082Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:46:41.082Z [DEBUG] Temp file written successfully, size: 67029 bytes
+2026-03-04T03:46:41.082Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:46:41.082Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596001081 to /Users/fanshengxia/.claude.json
+2026-03-04T03:46:41.082Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:46:41.084Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596001084
+2026-03-04T03:46:41.084Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:46:41.084Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:46:41.084Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:46:41.084Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596001084 to /Users/fanshengxia/.claude.json
+2026-03-04T03:46:41.085Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:46:41.216Z [DEBUG] [STARTUP] showSetupScreens() completed in 1433ms
+2026-03-04T03:46:41.216Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-03-04T03:46:41.216Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-03-04T03:46:41.216Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-03-04T03:46:41.216Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:46:41.216Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:46:41.217Z [DEBUG] [STARTUP] MCP configs loaded in 1498ms
+2026-03-04T03:46:41.218Z [DEBUG] CLAUDE_CODE_WEBSOCKET_AUTH_FILE_DESCRIPTOR not set, no file descriptor token available
+2026-03-04T03:46:41.219Z [DEBUG] MCP server "zen": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.221Z [DEBUG] MCP server "pencil": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.224Z [DEBUG] All plugins already exist, skipping migration
+2026-03-04T03:46:41.224Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:46:41.225Z [DEBUG] Getting matching hook commands for SessionStart with query: startup
+2026-03-04T03:46:41.225Z [DEBUG] Found 1 hook matchers in settings
+2026-03-04T03:46:41.225Z [DEBUG] Matched 1 unique hooks for query "startup" (1 before deduplication)
+2026-03-04T03:46:41.225Z [DEBUG] Initialized versioned plugins system with 6 plugins
+2026-03-04T03:46:41.226Z [DEBUG] [Reconnection] computeInitialTeamContext: No teammate context set (not a teammate)
+2026-03-04T03:46:41.228Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596001228
+2026-03-04T03:46:41.228Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:46:41.228Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:46:41.228Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:46:41.228Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596001228 to /Users/fanshengxia/.claude.json
+2026-03-04T03:46:41.229Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:46:41.240Z [DEBUG] [keybindings] KeybindingSetup initialized with 104 bindings, 0 warnings
+2026-03-04T03:46:41.268Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596001268
+2026-03-04T03:46:41.268Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:46:41.269Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:46:41.269Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:46:41.269Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596001268 to /Users/fanshengxia/.claude.json
+2026-03-04T03:46:41.269Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:46:41.271Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596001271
+2026-03-04T03:46:41.271Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:46:41.271Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:46:41.271Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:46:41.271Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596001271 to /Users/fanshengxia/.claude.json
+2026-03-04T03:46:41.271Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:46:41.274Z [DEBUG] [REPL:mount] REPL mounted, disabled=false
+2026-03-04T03:46:41.274Z [DEBUG] Official marketplace auto-install skipped: already_attempted
+2026-03-04T03:46:41.274Z [DEBUG] performStartupChecks called
+2026-03-04T03:46:41.275Z [DEBUG] Starting background plugin installations
+2026-03-04T03:46:41.276Z [DEBUG] No CLAUDE.md/rules files found
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: private-equity@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: financial-analysis@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: equity-research@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: wealth-management@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: private-equity@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: financial-analysis@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: equity-research@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] Plugin not available for MCP: wealth-management@financial-services-plugins - error type: hook-load-failed
+2026-03-04T03:46:41.279Z [DEBUG] performBackgroundPluginInstallations called
+2026-03-04T03:46:41.671Z [DEBUG] AutoUpdaterWrapper: Installation type: native
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "zen": Connection failed after 456ms: ENOENT: no such file or directory, posix_spawn '/Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python'
+2026-03-04T03:46:41.674Z [ERROR] MCP server "zen" Connection failed: ENOENT: no such file or directory, posix_spawn '/Users/fanshengxia/Desktop/mcp_server/zen-mcp-server/.zen_venv/bin/python'
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Initializing HTTP transport to https://premium.mcp.pitchbook.com/mcp
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Proxy options: default
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": HTTP transport options: {"url":"https://premium.mcp.pitchbook.com/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.674Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": HTTP transport created successfully
+2026-03-04T03:46:41.675Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Client created, setting up request handler
+2026-03-04T03:46:41.675Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.675Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Testing basic HTTP connectivity to https://premium.mcp.pitchbook.com/mcp
+2026-03-04T03:46:41.675Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Parsed URL: host=premium.mcp.pitchbook.com, port=default, protocol=https:
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Token expired without refresh token
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Initializing HTTP transport to https://ai.chronograph.pe/mcp
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Proxy options: default
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": HTTP transport options: {"url":"https://ai.chronograph.pe/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": HTTP transport created successfully
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Client created, setting up request handler
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Testing basic HTTP connectivity to https://ai.chronograph.pe/mcp
+2026-03-04T03:46:41.698Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Parsed URL: host=ai.chronograph.pe, port=default, protocol=https:
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Token expired without refresh token
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Initializing HTTP transport to https://mcp-server.egnyte.com/mcp
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Proxy options: default
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": HTTP transport options: {"url":"https://mcp-server.egnyte.com/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": HTTP transport created successfully
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Client created, setting up request handler
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Testing basic HTTP connectivity to https://mcp-server.egnyte.com/mcp
+2026-03-04T03:46:41.723Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Parsed URL: host=mcp-server.egnyte.com, port=default, protocol=https:
+2026-03-04T03:46:41.745Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Token expired without refresh token
+2026-03-04T03:46:41.745Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Initializing HTTP transport to https://mcp.morningstar.com/mcp
+2026-03-04T03:46:41.745Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Proxy options: default
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": HTTP transport options: {"url":"https://mcp.morningstar.com/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": HTTP transport created successfully
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Client created, setting up request handler
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Testing basic HTTP connectivity to https://mcp.morningstar.com/mcp
+2026-03-04T03:46:41.746Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Parsed URL: host=mcp.morningstar.com, port=default, protocol=https:
+2026-03-04T03:46:41.768Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Token expired without refresh token
+2026-03-04T03:46:41.768Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Initializing HTTP transport to https://mcp.daloopa.com/server/mcp
+2026-03-04T03:46:41.768Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.768Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.768Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Proxy options: default
+2026-03-04T03:46:41.769Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": HTTP transport options: {"url":"https://mcp.daloopa.com/server/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.769Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": HTTP transport created successfully
+2026-03-04T03:46:41.769Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Client created, setting up request handler
+2026-03-04T03:46:41.769Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.769Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Testing basic HTTP connectivity to https://mcp.daloopa.com/server/mcp
+2026-03-04T03:46:41.769Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Parsed URL: host=mcp.daloopa.com, port=default, protocol=https:
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Token expired without refresh token
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:factset": Initializing HTTP transport to https://mcp.factset.com/mcp
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:factset": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:factset": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:factset": Proxy options: default
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:factset": HTTP transport options: {"url":"https://mcp.factset.com/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.791Z [DEBUG] MCP server "plugin:financial-analysis:factset": HTTP transport created successfully
+2026-03-04T03:46:41.792Z [DEBUG] MCP server "plugin:financial-analysis:factset": Client created, setting up request handler
+2026-03-04T03:46:41.792Z [DEBUG] MCP server "plugin:financial-analysis:factset": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.792Z [DEBUG] MCP server "plugin:financial-analysis:factset": Testing basic HTTP connectivity to https://mcp.factset.com/mcp
+2026-03-04T03:46:41.792Z [DEBUG] MCP server "plugin:financial-analysis:factset": Parsed URL: host=mcp.factset.com, port=default, protocol=https:
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:factset": Token expired without refresh token
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Initializing HTTP transport to https://vast-mcp.blueskyapi.com/mtnewswires
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Proxy options: default
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": HTTP transport options: {"url":"https://vast-mcp.blueskyapi.com/mtnewswires","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": HTTP transport created successfully
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Client created, setting up request handler
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Testing basic HTTP connectivity to https://vast-mcp.blueskyapi.com/mtnewswires
+2026-03-04T03:46:41.816Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Parsed URL: host=vast-mcp.blueskyapi.com, port=default, protocol=https:
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": No token data found
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Initializing HTTP transport to https://api.moodys.com/genai-ready-data/m1/mcp
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Proxy options: default
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:moodys": HTTP transport options: {"url":"https://api.moodys.com/genai-ready-data/m1/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.839Z [DEBUG] MCP server "plugin:financial-analysis:moodys": HTTP transport created successfully
+2026-03-04T03:46:41.840Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Client created, setting up request handler
+2026-03-04T03:46:41.840Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.840Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Testing basic HTTP connectivity to https://api.moodys.com/genai-ready-data/m1/mcp
+2026-03-04T03:46:41.840Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Parsed URL: host=api.moodys.com, port=default, protocol=https:
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Token expired without refresh token
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Initializing HTTP transport to https://api.analytics.lseg.com/lfa/mcp
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Proxy options: default
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": HTTP transport options: {"url":"https://api.analytics.lseg.com/lfa/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": HTTP transport created successfully
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Client created, setting up request handler
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Testing basic HTTP connectivity to https://api.analytics.lseg.com/lfa/mcp
+2026-03-04T03:46:41.875Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Parsed URL: host=api.analytics.lseg.com, port=default, protocol=https:
+2026-03-04T03:46:41.900Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Token expired without refresh token
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Initializing HTTP transport to https://mcp-pub.aiera.com
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Proxy options: default
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": HTTP transport options: {"url":"https://mcp-pub.aiera.com","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": HTTP transport created successfully
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Client created, setting up request handler
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Testing basic HTTP connectivity to https://mcp-pub.aiera.com
+2026-03-04T03:46:41.901Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Parsed URL: host=mcp-pub.aiera.com, port=default, protocol=https:
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Token expired without refresh token
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Initializing HTTP transport to https://kfinance.kensho.com/integrations/mcp
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Node version: v24.3.0, Platform: darwin
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Proxy options: default
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": HTTP transport options: {"url":"https://kfinance.kensho.com/integrations/mcp","headers":{"User-Agent":"claude-code/2.1.66 (cli)"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": HTTP transport created successfully
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Client created, setting up request handler
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Starting connection with timeout of 30000ms
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Testing basic HTTP connectivity to https://kfinance.kensho.com/integrations/mcp
+2026-03-04T03:46:41.928Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Parsed URL: host=kfinance.kensho.com, port=default, protocol=https:
+2026-03-04T03:46:41.954Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Token expired without refresh token
+2026-03-04T03:46:41.956Z [DEBUG] Found 6 enabled plugins
+2026-03-04T03:46:41.956Z [DEBUG] All plugins already exist, skipping migration
+2026-03-04T03:46:41.956Z [DEBUG] Found 6 installed plugins
+2026-03-04T03:46:41.956Z [DEBUG] Found 0 missing plugins (not installed):
+2026-03-04T03:46:41.956Z [DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+2026-03-04T03:46:41.958Z [DEBUG] Security messages are fresh (<1h old), skipping fetch
+2026-03-04T03:46:41.958Z [DEBUG] Org fast mode: enabled
+2026-03-04T03:46:41.958Z [DEBUG] Watching for changes in setting files /Users/fanshengxia/.claude/settings.json...
+2026-03-04T03:46:41.959Z [DEBUG] Watching for changes in skill/command directories: /Users/fanshengxia/.claude/skills...
+2026-03-04T03:46:41.973Z [ERROR] MCP server "pencil" Server stderr: 2026/03/04 11:46:41 [MCP] Starting server in stdio mode
+2026-03-04T03:46:41.973Z [DEBUG] MCP server "pencil": Successfully connected to stdio server in 753ms
+2026-03-04T03:46:41.973Z [DEBUG] MCP server "pencil": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"hasResourceSubscribe":false,"serverVersion":{"name":"pencil","version":"1.0.0"}}
+2026-03-04T03:46:41.973Z [DEBUG] [MCP] Server "pencil" connected with subscribe=false
+2026-03-04T03:46:41.980Z [DEBUG] [claudeai-mcp] Checking gate (cached)...
+2026-03-04T03:46:41.980Z [DEBUG] [claudeai-mcp] Gate returned: true
+2026-03-04T03:46:41.980Z [DEBUG] [claudeai-mcp] Fetching from https://api.anthropic.com/v1/mcp_servers?limit=1000
+2026-03-04T03:46:41.981Z [DEBUG] Total LSP servers loaded: 0
+2026-03-04T03:46:41.981Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-03-04T03:46:41.981Z [DEBUG] LSP manager initialized with 0 servers
+2026-03-04T03:46:41.981Z [DEBUG] LSP server manager initialized successfully
+2026-03-04T03:46:41.981Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-03-04T03:46:41.988Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596001988
+2026-03-04T03:46:41.988Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:46:41.988Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:46:41.988Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:46:41.988Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596001988 to /Users/fanshengxia/.claude.json
+2026-03-04T03:46:41.988Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:46:41.989Z [DEBUG] Loaded plugins - Enabled: 6, Disabled: 0, Commands: 42, Agents: 1, Errors: 4
+2026-03-04T03:46:42.091Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/Users/fanshengxia/.local/share/claude/versions/2.1.66)
+2026-03-04T03:46:42.238Z [DEBUG] Hooks: Checking initial response for async: {
+  "additional_context": "<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"About to EnterPlanMode?\" [shape=doublecircle];\n    \"Already brainstormed?\" [shape=diamond];\n    \"Invoke brainstorming skill\" [shape=box];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"About to EnterPlanMode?\" -> \"Already brainstormed?\";\n    \"Already brainstormed?\" -> \"Invoke brainstorming skill\" [label=\"no\"];\n    \"Already brainstormed?\" -> \"Might any skill apply?\" [label=\"yes\"];\n    \"Invoke brainstorming skill\" -> \"Might any skill apply?\";\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>",
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"About to EnterPlanMode?\" [shape=doublecircle];\n    \"Already brainstormed?\" [shape=diamond];\n    \"Invoke brainstorming skill\" [shape=box];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"About to EnterPlanMode?\" -> \"Already brainstormed?\";\n    \"Already brainstormed?\" -> \"Invoke brainstorming skill\" [label=\"no\"];\n    \"Already brainstormed?\" -> \"Might any skill apply?\" [label=\"yes\"];\n    \"Invoke brainstorming skill\" -> \"Might any skill apply?\";\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>"
+  }
+}
+2026-03-04T03:46:42.238Z [DEBUG] Hooks: Parsed initial response: {"additional_context":"<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"About to EnterPlanMode?\" [shape=doublecircle];\n    \"Already brainstormed?\" [shape=diamond];\n    \"Invoke brainstorming skill\" [shape=box];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"About to EnterPlanMode?\" -> \"Already brainstormed?\";\n    \"Already brainstormed?\" -> \"Invoke brainstorming skill\" [label=\"no\"];\n    \"Already brainstormed?\" -> \"Might any skill apply?\" [label=\"yes\"];\n    \"Invoke brainstorming skill\" -> \"Might any skill apply?\";\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>","hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"About to EnterPlanMode?\" [shape=doublecircle];\n    \"Already brainstormed?\" [shape=diamond];\n    \"Invoke brainstorming skill\" [shape=box];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"About to EnterPlanMode?\" -> \"Already brainstormed?\";\n    \"Already brainstormed?\" -> \"Invoke brainstorming skill\" [label=\"no\"];\n    \"Already brainstormed?\" -> \"Might any skill apply?\" [label=\"yes\"];\n    \"Invoke brainstorming skill\" -> \"Might any skill apply?\";\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>"}}
+2026-03-04T03:46:42.238Z [DEBUG] Hooks: Initial response is not async, continuing normal processing
+2026-03-04T03:46:42.240Z [DEBUG] Successfully parsed and validated hook JSON output
+2026-03-04T03:46:42.241Z [DEBUG] Hook SessionStart:startup (SessionStart) success:
+{
+  "additional_context": "<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"About to EnterPlanMode?\" [shape=doublecircle];\n    \"Already brainstormed?\" [shape=diamond];\n    \"Invoke brainstorming skill\" [shape=box];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"About to EnterPlanMode?\" -> \"Already brainstormed?\";\n    \"Already brainstormed?\" -> \"Invoke brainstorming skill\" [label=\"no\"];\n    \"Already brainstormed?\" -> \"Might any skill apply?\" [label=\"yes\"];\n    \"Invoke brainstorming skill\" -> \"Might any skill apply?\";\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>",
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n---\nname: using-superpowers\ndescription: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions\n---\n\n<EXTREMELY-IMPORTANT>\nIf you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.\n\nIF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.\n\nThis is not negotiable. This is not optional. You cannot rationalize your way out of this.\n</EXTREMELY-IMPORTANT>\n\n## How to Access Skills\n\n**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.\n\n**In other environments:** Check your platform's documentation for how skills are loaded.\n\n# Using Skills\n\n## The Rule\n\n**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.\n\n```dot\ndigraph skill_flow {\n    \"User message received\" [shape=doublecircle];\n    \"About to EnterPlanMode?\" [shape=doublecircle];\n    \"Already brainstormed?\" [shape=diamond];\n    \"Invoke brainstorming skill\" [shape=box];\n    \"Might any skill apply?\" [shape=diamond];\n    \"Invoke Skill tool\" [shape=box];\n    \"Announce: 'Using [skill] to [purpose]'\" [shape=box];\n    \"Has checklist?\" [shape=diamond];\n    \"Create TodoWrite todo per item\" [shape=box];\n    \"Follow skill exactly\" [shape=box];\n    \"Respond (including clarifications)\" [shape=doublecircle];\n\n    \"About to EnterPlanMode?\" -> \"Already brainstormed?\";\n    \"Already brainstormed?\" -> \"Invoke brainstorming skill\" [label=\"no\"];\n    \"Already brainstormed?\" -> \"Might any skill apply?\" [label=\"yes\"];\n    \"Invoke brainstorming skill\" -> \"Might any skill apply?\";\n\n    \"User message received\" -> \"Might any skill apply?\";\n    \"Might any skill apply?\" -> \"Invoke Skill tool\" [label=\"yes, even 1%\"];\n    \"Might any skill apply?\" -> \"Respond (including clarifications)\" [label=\"definitely not\"];\n    \"Invoke Skill tool\" -> \"Announce: 'Using [skill] to [purpose]'\";\n    \"Announce: 'Using [skill] to [purpose]'\" -> \"Has checklist?\";\n    \"Has checklist?\" -> \"Create TodoWrite todo per item\" [label=\"yes\"];\n    \"Has checklist?\" -> \"Follow skill exactly\" [label=\"no\"];\n    \"Create TodoWrite todo per item\" -> \"Follow skill exactly\";\n}\n```\n\n## Red Flags\n\nThese thoughts mean STOP—you're rationalizing:\n\n| Thought | Reality |\n|---------|---------|\n| \"This is just a simple question\" | Questions are tasks. Check for skills. |\n| \"I need more context first\" | Skill check comes BEFORE clarifying questions. |\n| \"Let me explore the codebase first\" | Skills tell you HOW to explore. Check first. |\n| \"I can check git/files quickly\" | Files lack conversation context. Check for skills. |\n| \"Let me gather information first\" | Skills tell you HOW to gather information. |\n| \"This doesn't need a formal skill\" | If a skill exists, use it. |\n| \"I remember this skill\" | Skills evolve. Read current version. |\n| \"This doesn't count as a task\" | Action = task. Check for skills. |\n| \"The skill is overkill\" | Simple things become complex. Use it. |\n| \"I'll just do this one thing first\" | Check BEFORE doing anything. |\n| \"This feels productive\" | Undisciplined action wastes time. Skills prevent this. |\n| \"I know what that means\" | Knowing the concept ≠ using the skill. Invoke it. |\n\n## Skill Priority\n\nWhen multiple skills could apply, use this order:\n\n1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task\n2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution\n\n\"Let's build X\" → brainstorming first, then implementation skills.\n\"Fix this bug\" → debugging first, then domain-specific skills.\n\n## Skill Types\n\n**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.\n\n**Flexible** (patterns): Adapt principles to context.\n\nThe skill itself tells you which.\n\n## User Instructions\n\nInstructions say WHAT, not HOW. \"Add X\" or \"Fix Y\" doesn't mean skip workflows.\n\n\n</EXTREMELY_IMPORTANT>"
+  }
+}
+2026-03-04T03:46:42.241Z [DEBUG] Hook SessionStart ('${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd' session-start) provided additionalContext (4424 chars)
+2026-03-04T03:46:42.241Z [DEBUG] [useDeferredValue] Messages deferred by 3 (0→3)
+2026-03-04T03:46:42.335Z [DEBUG] [claudeai-mcp] Fetched 3 servers
+2026-03-04T03:46:42.335Z [DEBUG] MCP server "claude.ai Box": Initializing claude.ai proxy transport for server mcpsrv_01Sqzxqdqj3Tga8bg27tYrUp
+2026-03-04T03:46:42.335Z [DEBUG] MCP server "claude.ai Box": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01Sqzxqdqj3Tga8bg27tYrUp
+2026-03-04T03:46:42.335Z [DEBUG] MCP server "claude.ai Box": claude.ai proxy transport created successfully
+2026-03-04T03:46:42.335Z [DEBUG] MCP server "claude.ai Box": Starting connection with timeout of 30000ms
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Gmail": Initializing claude.ai proxy transport for server mcpsrv_01MdnXpi5Wo3LTkprBkKrxsV
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Gmail": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01MdnXpi5Wo3LTkprBkKrxsV
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Gmail": claude.ai proxy transport created successfully
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Gmail": Starting connection with timeout of 30000ms
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Google Calendar": Initializing claude.ai proxy transport for server mcpsrv_01Q1VGLq2Lk1QeEJeND4VFG9
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Google Calendar": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01Q1VGLq2Lk1QeEJeND4VFG9
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Google Calendar": claude.ai proxy transport created successfully
+2026-03-04T03:46:42.336Z [DEBUG] MCP server "claude.ai Google Calendar": Starting connection with timeout of 30000ms
+2026-03-04T03:46:43.028Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Returning cached discovery state (authServer: https://premium.mcp.pitchbook.com/)
+2026-03-04T03:46:43.028Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": No client info found
+2026-03-04T03:46:43.069Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Returning cached discovery state (authServer: https://mcp-oauth.egnyte.com)
+2026-03-04T03:46:43.069Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Found client info
+2026-03-04T03:46:43.097Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Token expired without refresh token
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Generated new OAuth state
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Saving code verifier
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Authorization URL: https://mcp-oauth.egnyte.com/domain-picker?response_type=code&client_id=6812c9db-0d94-4179-ba42-cc6be6d6d373&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D&resource=https%3A%2F%2Fmcp-server.egnyte.com%2F
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Scopes in URL: NOT FOUND
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": No scopes available from URL or metadata
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:43.098Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": HTTP Connection failed after 1375ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:43.098Z [ERROR] MCP server "plugin:financial-analysis:egnyte" Error: Unauthorized
+2026-03-04T03:46:43.099Z [DEBUG] MCP server "plugin:financial-analysis:egnyte": Authentication required for HTTP server
+2026-03-04T03:46:43.135Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": HTTP Connection failed after 1319ms: Streamable HTTP error: Error POSTing to endpoint: Not Found (code: 404, errno: none)
+2026-03-04T03:46:43.135Z [ERROR] MCP server "plugin:financial-analysis:mtnewswire" Error: Streamable HTTP error: Error POSTing to endpoint: Not Found
+2026-03-04T03:46:43.135Z [DEBUG] MCP server "plugin:financial-analysis:mtnewswire": Connection failed after 1319ms: Streamable HTTP error: Error POSTing to endpoint: Not Found
+2026-03-04T03:46:43.135Z [ERROR] MCP server "plugin:financial-analysis:mtnewswire" Connection failed: Streamable HTTP error: Error POSTing to endpoint: Not Found
+2026-03-04T03:46:43.168Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Returning cached discovery state (authServer: https://ai.chronograph.pe/)
+2026-03-04T03:46:43.323Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": HTTP Connection failed after 1649ms: None of the provided redirect URIs are allowed by the server's whitelist (code: none, errno: none)
+2026-03-04T03:46:43.323Z [ERROR] MCP server "plugin:financial-analysis:pitchbook" nx: None of the provided redirect URIs are allowed by the server's whitelist
+2026-03-04T03:46:43.323Z [DEBUG] MCP server "plugin:financial-analysis:pitchbook": Connection failed after 1649ms: None of the provided redirect URIs are allowed by the server's whitelist
+2026-03-04T03:46:43.323Z [ERROR] MCP server "plugin:financial-analysis:pitchbook" Connection failed: None of the provided redirect URIs are allowed by the server's whitelist
+2026-03-04T03:46:43.328Z [DEBUG] MCP server "plugin:financial-analysis:factset": Returning cached discovery state (authServer: https://mcp.factset.com/)
+2026-03-04T03:46:43.386Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Returning cached discovery state (authServer: https://api.moodys.com/genai-ready-data)
+2026-03-04T03:46:43.386Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Found client info
+2026-03-04T03:46:43.413Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Token expired without refresh token
+2026-03-04T03:46:43.413Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Generated new OAuth state
+2026-03-04T03:46:43.413Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Saving code verifier
+2026-03-04T03:46:43.413Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Authorization URL: https://api.moodys.com/genai-ready-data/oauth/authorize?response_type=code&client_id=1ff972ba-e580-4093-9a8b-53ac7b508c64&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D&scope=mcp+claudeai+openid+profile+email&resource=https%3A%2F%2Fapi.moodys.com%2Fgenai-ready-data%2Fm1%2Fmcp
+2026-03-04T03:46:43.413Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Scopes in URL: mcp claudeai openid profile email
+2026-03-04T03:46:43.413Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Captured scopes from authorization URL: mcp claudeai openid profile email
+2026-03-04T03:46:43.446Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Persisted step-up scope: mcp claudeai openid profile email
+2026-03-04T03:46:43.446Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:43.446Z [DEBUG] MCP server "plugin:financial-analysis:moodys": HTTP Connection failed after 1607ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:43.446Z [ERROR] MCP server "plugin:financial-analysis:moodys" Error: Unauthorized
+2026-03-04T03:46:43.446Z [DEBUG] MCP server "plugin:financial-analysis:moodys": Authentication required for HTTP server
+2026-03-04T03:46:43.479Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Returning cached discovery state (authServer: https://api.analytics.lseg.com/)
+2026-03-04T03:46:43.479Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Returning cached discovery state (authServer: https://mcp.morningstar.com/)
+2026-03-04T03:46:43.479Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Found client info
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Token expired without refresh token
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Generated new OAuth state
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Returning cached discovery state (authServer: https://mcp.daloopa.com/)
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Saving code verifier
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Authorization URL: https://mcp.morningstar.com/authorize?response_type=code&client_id=34295faf-979b-4bb1-9c41-07f03f3658ab&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D&scope=openid+profile+email+offline_access&prompt=consent&resource=https%3A%2F%2Fmcp.morningstar.com%2Fmcp
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Scopes in URL: openid profile email offline_access
+2026-03-04T03:46:43.511Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Captured scopes from authorization URL: openid profile email offline_access
+2026-03-04T03:46:43.545Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Persisted step-up scope: openid profile email offline_access
+2026-03-04T03:46:43.545Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:43.545Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": HTTP Connection failed after 1800ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:43.545Z [ERROR] MCP server "plugin:financial-analysis:morningstar" Error: Unauthorized
+2026-03-04T03:46:43.545Z [DEBUG] MCP server "plugin:financial-analysis:morningstar": Authentication required for HTTP server
+2026-03-04T03:46:43.596Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Returning cached discovery state (authServer: https://kfinance.kensho.com/integrations)
+2026-03-04T03:46:43.596Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Found client info
+2026-03-04T03:46:43.625Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Token expired without refresh token
+2026-03-04T03:46:43.625Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Generated new OAuth state
+2026-03-04T03:46:43.626Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Saving code verifier
+2026-03-04T03:46:43.626Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Authorization URL: https://kfinance.kensho.com/integrations/authorize?response_type=code&client_id=cd808f11-5773-49d4-a6e5-64c0a074b171&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D&scope=kensho%3Aapp%3Akfinance+offline_access&prompt=consent&resource=https%3A%2F%2Fkfinance.kensho.com%2Fintegrations%2Fmcp
+2026-03-04T03:46:43.626Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Scopes in URL: kensho:app:kfinance offline_access
+2026-03-04T03:46:43.626Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Captured scopes from authorization URL: kensho:app:kfinance offline_access
+2026-03-04T03:46:43.664Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Persisted step-up scope: kensho:app:kfinance offline_access
+2026-03-04T03:46:43.664Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:43.665Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": HTTP Connection failed after 1737ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:43.665Z [ERROR] MCP server "plugin:financial-analysis:sp-global" Error: Unauthorized
+2026-03-04T03:46:43.665Z [DEBUG] MCP server "plugin:financial-analysis:sp-global": Authentication required for HTTP server
+2026-03-04T03:46:43.699Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Returning cached discovery state (authServer: https://mcp-pub.aiera.com/)
+2026-03-04T03:46:43.700Z [DEBUG] Checking for native installer update to version 2.1.66
+2026-03-04T03:46:43.710Z [DEBUG] Found 2.1.66 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-04T03:46:43.737Z [DEBUG] Protecting locked version from cleanup: 2.1.63
+2026-03-04T03:46:43.815Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Found client info
+2026-03-04T03:46:43.845Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Token expired without refresh token
+2026-03-04T03:46:43.845Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Generated new OAuth state
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Saving code verifier
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Authorization URL: https://ai.chronograph.pe/proxy/authorize?response_type=code&client_id=1d08fc5c25fb8a9b8cf7b1a7fdee9081f1d6dc7a35b32532d30fdb4876caf2fd&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Scopes in URL: NOT FOUND
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": No scopes available from URL or metadata
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": HTTP Connection failed after 2148ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:43.846Z [ERROR] MCP server "plugin:financial-analysis:chronograph" Error: Unauthorized
+2026-03-04T03:46:43.846Z [DEBUG] MCP server "plugin:financial-analysis:chronograph": Authentication required for HTTP server
+2026-03-04T03:46:43.875Z [DEBUG] MCP server "claude.ai Google Calendar": claude.ai proxy connection failed after 1539ms: Streamable HTTP error: Error POSTing to endpoint: {"type":"error","error":{"type":"authentication_error","message":"MCP server requires authentication but no OAuth token is configured."},"request_id":"req_011CYhMVhcMWQDbRZhVGkHjV"}
+2026-03-04T03:46:43.876Z [ERROR] MCP server "claude.ai Google Calendar" Error: Streamable HTTP error: Error POSTing to endpoint: {"type":"error","error":{"type":"authentication_error","message":"MCP server requires authentication but no OAuth token is configured."},"request_id":"req_011CYhMVhcMWQDbRZhVGkHjV"}
+2026-03-04T03:46:43.876Z [DEBUG] MCP server "claude.ai Google Calendar": Authentication required for claude.ai proxy server
+2026-03-04T03:46:43.909Z [DEBUG] MCP server "claude.ai Box": claude.ai proxy connection failed after 1574ms: Streamable HTTP error: Error POSTing to endpoint: {"type":"error","error":{"type":"authentication_error","message":"MCP server requires authentication but no OAuth token is configured."},"request_id":"req_011CYhMVhbcbPojwuokWe9BW"}
+2026-03-04T03:46:43.909Z [ERROR] MCP server "claude.ai Box" Error: Streamable HTTP error: Error POSTing to endpoint: {"type":"error","error":{"type":"authentication_error","message":"MCP server requires authentication but no OAuth token is configured."},"request_id":"req_011CYhMVhbcbPojwuokWe9BW"}
+2026-03-04T03:46:43.910Z [DEBUG] MCP server "claude.ai Box": Authentication required for claude.ai proxy server
+2026-03-04T03:46:44.015Z [DEBUG] MCP server "plugin:financial-analysis:factset": Found client info
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": Token expired without refresh token
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": Generated new OAuth state
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": Saving code verifier
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": Authorization URL: https://auth.factset.com/as/authorization.oauth2?response_type=code&client_id=dc-azm6uhxl2pitvx9ifek9p2ir6&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": Scopes in URL: NOT FOUND
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": No scopes available from URL or metadata
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:44.040Z [DEBUG] MCP server "plugin:financial-analysis:factset": HTTP Connection failed after 2249ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:44.040Z [ERROR] MCP server "plugin:financial-analysis:factset" Error: Unauthorized
+2026-03-04T03:46:44.041Z [DEBUG] MCP server "plugin:financial-analysis:factset": Authentication required for HTTP server
+2026-03-04T03:46:44.139Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Found client info
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Token expired without refresh token
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Generated new OAuth state
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Saving code verifier
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Authorization URL: https://mcp.daloopa.com/authorize?response_type=code&client_id=TNN4ylS9cSSDF5VSAIOh1w&code_challenge=%5BREDACTED%5D&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A3118%2Fcallback&state=%5BREDACTED%5D
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Scopes in URL: NOT FOUND
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": No scopes available from URL or metadata
+2026-03-04T03:46:44.163Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Redirection handling is disabled, skipping redirect
+2026-03-04T03:46:44.164Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": HTTP Connection failed after 2396ms: Unauthorized (code: none, errno: none)
+2026-03-04T03:46:44.164Z [ERROR] MCP server "plugin:financial-analysis:daloopa" Error: Unauthorized
+2026-03-04T03:46:44.164Z [DEBUG] MCP server "plugin:financial-analysis:daloopa": Authentication required for HTTP server
+2026-03-04T03:46:44.190Z [DEBUG] MCP server "plugin:financial-analysis:aiera": No client info found
+2026-03-04T03:46:44.190Z [DEBUG] MCP server "plugin:financial-analysis:aiera": HTTP Connection failed after 2289ms: Incompatible auth server: does not support dynamic client registration (code: none, errno: none)
+2026-03-04T03:46:44.190Z [ERROR] MCP server "plugin:financial-analysis:aiera" Error: Incompatible auth server: does not support dynamic client registration
+2026-03-04T03:46:44.190Z [DEBUG] MCP server "plugin:financial-analysis:aiera": Connection failed after 2289ms: Incompatible auth server: does not support dynamic client registration
+2026-03-04T03:46:44.190Z [ERROR] MCP server "plugin:financial-analysis:aiera" Connection failed: Incompatible auth server: does not support dynamic client registration
+2026-03-04T03:46:44.280Z [DEBUG] rg error (signal=undefined, code=ABORT_ERR, stderr: ), 7865 results
+2026-03-04T03:46:44.280Z [ERROR] AbortError: AbortError: The operation was aborted.
+    at unknown
+    at abortChildProcess (node:child_process:935:42)
+    at onAbortListener2 (node:child_process:35:24)
+2026-03-04T03:46:44.325Z [DEBUG] MCP server "claude.ai Gmail": Successfully connected to claudeai-proxy server in 1989ms
+2026-03-04T03:46:44.325Z [DEBUG] MCP server "claude.ai Gmail": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":false,"hasResourceSubscribe":false,"serverVersion":{"name":"mcp-server-gmail","version":"0.1.0"}}
+2026-03-04T03:46:44.325Z [DEBUG] [MCP] Server "claude.ai Gmail" connected with subscribe=false
+2026-03-04T03:46:44.696Z [DEBUG] MCP server "plugin:financial-analysis:lseg": No client info found
+2026-03-04T03:46:44.869Z [DEBUG] High write ratio: blit=0, write=1084 (100.0% writes), screen=18x184
+2026-03-04T03:46:45.002Z [DEBUG] MCP server "plugin:financial-analysis:lseg": HTTP Connection failed after 3127ms: HTTP 403: Invalid OAuth error response: SyntaxError: JSON Parse error: Unrecognized token '<'. Raw body: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>Microsoft-Azure-Application-Gateway/v2</center>
+</body>
+</html>
+ (code: none, errno: none)
+2026-03-04T03:46:45.002Z [ERROR] MCP server "plugin:financial-analysis:lseg" nx: HTTP 403: Invalid OAuth error response: SyntaxError: JSON Parse error: Unrecognized token '<'. Raw body: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>Microsoft-Azure-Application-Gateway/v2</center>
+</body>
+</html>
+2026-03-04T03:46:45.002Z [DEBUG] MCP server "plugin:financial-analysis:lseg": Connection failed after 3127ms: HTTP 403: Invalid OAuth error response: SyntaxError: JSON Parse error: Unrecognized token '<'. Raw body: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>Microsoft-Azure-Application-Gateway/v2</center>
+</body>
+</html>
+2026-03-04T03:46:45.002Z [ERROR] MCP server "plugin:financial-analysis:lseg" Connection failed: HTTP 403: Invalid OAuth error response: SyntaxError: JSON Parse error: Unrecognized token '<'. Raw body: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>Microsoft-Azure-Application-Gateway/v2</center>
+</body>
+</html>
+2026-03-04T03:46:49.780Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:46:49.780Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:46:49.781Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:46:49.781Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:46:49.781Z [DEBUG] Sending 101 skills via attachment (initial, 98 total sent)
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:using-git-worktrees" (userFacingName="using-git-worktrees")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:test-driven-development" (userFacingName="test-driven-development")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:requesting-code-review" (userFacingName="requesting-code-review")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:executing-plans" (userFacingName="executing-plans")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:brainstorming" (userFacingName="brainstorming")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:finishing-a-development-branch" (userFacingName="finishing-a-development-branch")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:writing-skills" (userFacingName="writing-skills")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:writing-plans" (userFacingName="writing-plans")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:receiving-code-review" (userFacingName="receiving-code-review")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:using-superpowers" (userFacingName="using-superpowers")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:dispatching-parallel-agents" (userFacingName="dispatching-parallel-agents")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:verification-before-completion" (userFacingName="verification-before-completion")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:systematic-debugging" (userFacingName="systematic-debugging")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "superpowers:subagent-driven-development" (userFacingName="subagent-driven-development")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:comps-analysis" (userFacingName="fsi-comps-analysis")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:skill-creator" (userFacingName="skill-creator")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:3-statements" (userFacingName="3-statements")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:dcf-model" (userFacingName="dcf-model")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:lbo-model" (userFacingName="lbo-model")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:ppt-template-creator" (userFacingName="ppt-template-creator")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:check-deck" (userFacingName="check-deck")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "financial-analysis:competitive-analysis" (userFacingName="competitive-analysis")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "investment-banking:pitch-deck" (userFacingName="pitch-deck")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "investment-banking:datapack-builder" (userFacingName="datapack-builder")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "investment-banking:strip-profile" (userFacingName="fsi-strip-profile")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "equity-research:earnings-analysis" (userFacingName="earnings-analysis")
+2026-03-04T03:46:49.781Z [DEBUG] Skill prompt: showing "equity-research:initiating-coverage" (userFacingName="initiating-coverage")
+2026-03-04T03:46:49.781Z [WARN] [3P telemetry] Event dropped (no event logger initialized): user_prompt
+2026-03-04T03:46:49.782Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2026-03-04T03:46:49.782Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:46:49.782Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-03-04T03:46:49.782Z [DEBUG] FileHistory: Added snapshot for c2a09d8c-e357-4953-a891-6e2b86fa8ec1, tracking 0 files
+2026-03-04T03:46:49.783Z [DEBUG] [useDeferredValue] Messages deferred by 2 (3→5)
+2026-03-04T03:46:49.790Z [DEBUG] High write ratio: blit=0, write=1093 (100.0% writes), screen=20x184
+2026-03-04T03:46:49.792Z [DEBUG] Started caffeinate to prevent sleep
+2026-03-04T03:46:49.793Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T03:46:49.793Z [DEBUG] Total plugin output styles loaded: 0
+2026-03-04T03:46:49.804Z [DEBUG] autocompact: tokens=4239 threshold=167000 effectiveWindow=180000
+2026-03-04T03:46:49.805Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:46:49.805Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:46:49.805Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:46:49.806Z [DEBUG] [useDeferredValue] Messages deferred by 2 (3→5)
+2026-03-04T03:46:49.827Z [DEBUG] High write ratio: blit=0, write=1106 (100.0% writes), screen=22x184
+2026-03-04T03:46:50.390Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:46:50.392Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:46:50.393Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:46:50.393Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:46:50.393Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:46:50.621Z [ERROR] Error: Error: 1P event logging: 148 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:46:50.621Z [ERROR] Error: Error: {"message":"Failed to export 148 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 148 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:46:50.621Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 148 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 148 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:46:52.181Z [DEBUG] SSH config check: code=255 configured=false
+2026-03-04T03:46:52.203Z [DEBUG] git pull: cwd=/Users/fanshengxia/.claude/plugins/marketplaces/claude-plugins-official ref=default
+2026-03-04T03:46:53.323Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:46:54.112Z [DEBUG] Successfully refreshed marketplace: claude-plugins-official
+2026-03-04T03:46:54.112Z [DEBUG] Plugin autoupdate: checking installed plugins
+2026-03-04T03:46:54.114Z [DEBUG] Caching plugin from source: {"source":"url","url":"https://github.com/obra/superpowers.git"} to temporary path /Users/fanshengxia/.claude/plugins/cache/temp_git_1772596014114_3bh48a
+2026-03-04T03:46:54.549Z [DEBUG] [useDeferredValue] Messages deferred by 1 (5→6)
+2026-03-04T03:46:54.563Z [DEBUG] High write ratio: blit=0, write=1120 (100.0% writes), screen=22x184
+2026-03-04T03:46:54.909Z [DEBUG] executePreToolHooks called for tool: WebSearch
+2026-03-04T03:46:54.910Z [DEBUG] Getting matching hook commands for PreToolUse with query: WebSearch
+2026-03-04T03:46:54.910Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:46:54.910Z [DEBUG] Matched 0 unique hooks for query "WebSearch" (0 before deduplication)
+2026-03-04T03:46:54.910Z [DEBUG] Tool search disabled for model 'claude-haiku-4-5-20251001': model does not support tool_reference blocks. This feature is only available on Claude Sonnet 4+, Opus 4+, and newer models.
+2026-03-04T03:46:54.910Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.10d; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:46:54.910Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:46:54.910Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:46:54.911Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:46:54.911Z [DEBUG] [useDeferredValue] Messages deferred by 1 (6→7)
+2026-03-04T03:46:54.917Z [DEBUG] High write ratio: blit=0, write=1120 (100.0% writes), screen=22x184
+2026-03-04T03:46:54.925Z [DEBUG] [useDeferredValue] Messages deferred by 1 (6→7)
+2026-03-04T03:46:54.934Z [DEBUG] High write ratio: blit=0, write=1155 (100.0% writes), screen=24x184
+2026-03-04T03:46:56.146Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:46:56.148Z [ERROR] Error streaming, falling back to non-streaming mode: Content block input is not a string
+2026-03-04T03:46:56.148Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:46:56.148Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:46:56.148Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:46:56.999Z [DEBUG] Cloned repository from https://github.com/obra/superpowers.git to /Users/fanshengxia/.claude/plugins/cache/temp_git_1772596014114_3bh48a
+2026-03-04T03:46:57.000Z [DEBUG] Successfully cached plugin superpowers to /Users/fanshengxia/.claude/plugins/cache/superpowers
+2026-03-04T03:46:57.000Z [DEBUG] Using manifest version for superpowers@claude-plugins-official: 4.3.1
+2026-03-04T03:47:00.894Z [ERROR] Error: Error: 1P event logging: 31 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:47:00.894Z [ERROR] Error: Error: {"message":"Failed to export 31 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 31 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:47:00.894Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 31 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 31 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:47:05.760Z [DEBUG] Getting matching hook commands for PostToolUse with query: WebSearch
+2026-03-04T03:47:05.760Z [DEBUG] Found 5 hook matchers in settings
+2026-03-04T03:47:05.760Z [DEBUG] Matched 0 unique hooks for query "WebSearch" (0 before deduplication)
+2026-03-04T03:47:05.760Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:47:05.760Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:47:05.760Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:47:05.760Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:47:05.761Z [DEBUG] autocompact: tokens=38488 threshold=167000 effectiveWindow=180000
+2026-03-04T03:47:05.761Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:47:05.763Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:47:05.763Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:47:05.763Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:47:05.763Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:47:05.764Z [DEBUG] [useDeferredValue] Messages deferred by 1 (7→8)
+2026-03-04T03:47:05.770Z [DEBUG] High write ratio: blit=0, write=1125 (100.0% writes), screen=24x184
+2026-03-04T03:47:05.774Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596025774
+2026-03-04T03:47:05.774Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:05.774Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:47:05.774Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:05.774Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596025774 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:05.774Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:05.776Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596025776
+2026-03-04T03:47:05.776Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:05.776Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:47:05.776Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:05.776Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596025776 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:05.777Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:05.788Z [DEBUG] High write ratio: blit=0, write=1149 (100.0% writes), screen=25x184
+2026-03-04T03:47:07.969Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:47:15.277Z [DEBUG] [useDeferredValue] Messages deferred by 1 (8→9)
+2026-03-04T03:47:15.300Z [DEBUG] High write ratio: blit=0, write=2343 (100.0% writes), screen=70x184
+2026-03-04T03:47:15.305Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596035305
+2026-03-04T03:47:15.305Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:15.305Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:47:15.305Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:15.305Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596035305 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:15.305Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:15.307Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596035307
+2026-03-04T03:47:15.307Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:15.308Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:47:15.308Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:15.308Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596035307 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:15.308Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:15.317Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2026-03-04T03:47:15.317Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:47:15.317Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-03-04T03:47:15.322Z [DEBUG] Stopped caffeinate, allowing sleep
+2026-03-04T03:47:15.325Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596035325
+2026-03-04T03:47:15.325Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:15.325Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:47:15.325Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:15.325Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596035325 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:15.325Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:15.328Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596035327
+2026-03-04T03:47:15.328Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:15.328Z [DEBUG] Temp file written successfully, size: 67077 bytes
+2026-03-04T03:47:15.328Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:15.328Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596035327 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:15.328Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:16.079Z [ERROR] Error: Error: 1P event logging: 22 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:47:16.079Z [ERROR] Error: Error: {"message":"Failed to export 22 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 22 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:47:16.079Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 22 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 22 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:47:32.282Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:47:32.282Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:47:32.282Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:47:32.282Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:47:32.283Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2026-03-04T03:47:32.283Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:47:32.283Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-03-04T03:47:32.283Z [DEBUG] FileHistory: Making snapshot for message 6ab09d1b-265a-45b2-8a7a-84b7460a91dd
+2026-03-04T03:47:32.283Z [DEBUG] FileHistory: Added snapshot for 6ab09d1b-265a-45b2-8a7a-84b7460a91dd, tracking 0 files
+2026-03-04T03:47:32.284Z [DEBUG] [useDeferredValue] Messages deferred by 1 (9→10)
+2026-03-04T03:47:32.292Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596052292
+2026-03-04T03:47:32.292Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:32.293Z [DEBUG] Temp file written successfully, size: 68495 bytes
+2026-03-04T03:47:32.293Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:32.293Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596052292 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:32.293Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:32.295Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596052295
+2026-03-04T03:47:32.295Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:32.295Z [DEBUG] Temp file written successfully, size: 68495 bytes
+2026-03-04T03:47:32.295Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:32.295Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596052295 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:32.295Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:32.297Z [DEBUG] Started caffeinate to prevent sleep
+2026-03-04T03:47:32.298Z [DEBUG] autocompact: tokens=40020 threshold=167000 effectiveWindow=180000
+2026-03-04T03:47:32.299Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:47:32.302Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:47:32.302Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:47:32.302Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:47:32.302Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:47:32.304Z [DEBUG] [useDeferredValue] Messages deferred by 1 (9→10)
+2026-03-04T03:47:34.043Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:47:35.341Z [DEBUG] [useDeferredValue] Messages deferred by 1 (10→11)
+2026-03-04T03:47:35.541Z [DEBUG] executePreToolHooks called for tool: Skill
+2026-03-04T03:47:35.541Z [DEBUG] Getting matching hook commands for PreToolUse with query: Skill
+2026-03-04T03:47:35.541Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:47:35.541Z [DEBUG] Matched 0 unique hooks for query "Skill" (0 before deduplication)
+2026-03-04T03:47:35.544Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596055544
+2026-03-04T03:47:35.544Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:47:35.544Z [DEBUG] Temp file written successfully, size: 68495 bytes
+2026-03-04T03:47:35.544Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:47:35.544Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596055544 to /Users/fanshengxia/.claude.json
+2026-03-04T03:47:35.544Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:47:35.546Z [DEBUG] Metadata string for ichoice-data:
+2026-03-04T03:47:35.546Z [DEBUG] <command-message>ichoice-data</command-message>
+<command-name>/ichoice-data</command-name>
+2026-03-04T03:47:35.546Z [DEBUG] command-message tags in metadata: 1
+2026-03-04T03:47:35.546Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:47:35.546Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:47:35.546Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:47:35.546Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:47:35.546Z [DEBUG] processPromptSlashCommand creating 3 messages for ichoice-data
+2026-03-04T03:47:35.546Z [DEBUG] Message 1: <command-message>ichoice-data</command-message>
+<command-name>/ichoice-data</command-name>
+2026-03-04T03:47:35.546Z [DEBUG] Message 2 [META]: [{"type":"text","text":"Base directory for this skill: /Users/fanshengxia/.claude/skills/ichoice-data\n\n# iChoice Data Query\n\n通过 EMQuantAPI (Choice量化接口) 获取金融市场数据。\n\n## Environment\n\n- 账号: `xylczh
+2026-03-04T03:47:35.546Z [DEBUG] Message 3: [ATTACHMENT]
+2026-03-04T03:47:35.546Z [DEBUG] SkillTool returning 2 newMessages for skill ichoice-data
+2026-03-04T03:47:35.546Z [DEBUG] newMessage 1: [{"type":"text","text":"Base directory for this skill: /Users/fanshengxia/.claude/skills/ichoice-data\n\n# iChoice Data Query\n\n通过 EMQuantAPI (Choice...
+2026-03-04T03:47:35.547Z [DEBUG] Getting matching hook commands for PostToolUse with query: Skill
+2026-03-04T03:47:35.547Z [DEBUG] Found 5 hook matchers in settings
+2026-03-04T03:47:35.547Z [DEBUG] Matched 0 unique hooks for query "Skill" (0 before deduplication)
+2026-03-04T03:47:35.548Z [DEBUG] [useDeferredValue] Messages deferred by 1 (11→12)
+2026-03-04T03:47:35.554Z [DEBUG] High write ratio: blit=0, write=2528 (100.0% writes), screen=73x184
+2026-03-04T03:47:35.588Z [DEBUG] [useDeferredValue] Messages deferred by 3 (12→15)
+2026-03-04T03:47:35.596Z [DEBUG] [useDeferredValue] Messages deferred by 3 (12→15)
+2026-03-04T03:47:35.605Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:47:35.605Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:47:35.605Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:47:35.605Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:47:35.605Z [DEBUG] autocompact: tokens=43140 threshold=167000 effectiveWindow=180000
+2026-03-04T03:47:35.605Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:47:35.611Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:47:35.611Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:47:35.611Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:47:35.611Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:47:35.613Z [DEBUG] [useDeferredValue] Messages deferred by 3 (12→15)
+2026-03-04T03:47:37.974Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:47:39.728Z [ERROR] Error: Error: {"message":"Dropped 32 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 32 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:47:39.728Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Dropped 32 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 32 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+2026-03-04T03:48:05.677Z [DEBUG] Detected change to /Users/fanshengxia/.claude/settings.json
+2026-03-04T03:48:05.679Z [DEBUG] Getting matching hook commands for ConfigChange with query: user_settings
+2026-03-04T03:48:05.679Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:48:05.679Z [DEBUG] Matched 0 unique hooks for query "user_settings" (0 before deduplication)
+2026-03-04T03:48:05.692Z [DEBUG] Settings changed from userSettings, updating app state
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all allow rules for destination 'userSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all deny rules for destination 'userSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all ask rules for destination 'userSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all allow rules for destination 'projectSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all deny rules for destination 'projectSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all ask rules for destination 'projectSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all allow rules for destination 'localSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all deny rules for destination 'localSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all ask rules for destination 'localSettings' with 0 rule(s): []
+2026-03-04T03:48:05.697Z [DEBUG] Replacing all allow rules for destination 'userSettings' with 1 rule(s): ["mcp__pencil"]
+2026-03-04T03:51:32.315Z [DEBUG] Restarting caffeinate to maintain sleep prevention
+2026-03-04T03:51:32.316Z [DEBUG] Stopped caffeinate, allowing sleep
+2026-03-04T03:51:32.323Z [DEBUG] Started caffeinate to prevent sleep
+2026-03-04T03:52:33.507Z [DEBUG] [useDeferredValue] Messages deferred by 1 (15→16)
+2026-03-04T03:52:34.714Z [DEBUG] executePreToolHooks called for tool: TaskCreate
+2026-03-04T03:52:34.715Z [DEBUG] Getting matching hook commands for PreToolUse with query: TaskCreate
+2026-03-04T03:52:34.715Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:52:34.715Z [DEBUG] Matched 0 unique hooks for query "TaskCreate" (0 before deduplication)
+2026-03-04T03:52:34.718Z [DEBUG] [useDeferredValue] Messages deferred by 1 (16→17)
+2026-03-04T03:52:34.725Z [DEBUG] High write ratio: blit=0, write=2609 (100.0% writes), screen=76x184
+2026-03-04T03:52:34.739Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596354739
+2026-03-04T03:52:34.739Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:52:34.740Z [DEBUG] Temp file written successfully, size: 68524 bytes
+2026-03-04T03:52:34.740Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:52:34.740Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596354739 to /Users/fanshengxia/.claude.json
+2026-03-04T03:52:34.740Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:52:34.741Z [DEBUG] Getting matching hook commands for PostToolUse with query: TaskCreate
+2026-03-04T03:52:34.741Z [DEBUG] Found 5 hook matchers in settings
+2026-03-04T03:52:34.742Z [DEBUG] Matched 0 unique hooks for query "TaskCreate" (0 before deduplication)
+2026-03-04T03:52:34.742Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:52:34.742Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:52:34.742Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:52:34.742Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:52:34.743Z [DEBUG] autocompact: tokens=70238 threshold=167000 effectiveWindow=180000
+2026-03-04T03:52:34.744Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:52:34.746Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:52:34.746Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:52:34.746Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:52:34.747Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:52:34.750Z [DEBUG] [useDeferredValue] Messages deferred by 1 (17→18)
+2026-03-04T03:52:37.256Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:52:37.612Z [DEBUG] executePreToolHooks called for tool: TaskUpdate
+2026-03-04T03:52:37.613Z [DEBUG] Getting matching hook commands for PreToolUse with query: TaskUpdate
+2026-03-04T03:52:37.613Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:52:37.613Z [DEBUG] Matched 0 unique hooks for query "TaskUpdate" (0 before deduplication)
+2026-03-04T03:52:37.614Z [DEBUG] [useDeferredValue] Messages deferred by 1 (18→19)
+2026-03-04T03:52:37.628Z [DEBUG] High write ratio: blit=0, write=2561 (100.0% writes), screen=76x184
+2026-03-04T03:52:37.629Z [DEBUG] Getting matching hook commands for PostToolUse with query: TaskUpdate
+2026-03-04T03:52:37.629Z [DEBUG] Found 5 hook matchers in settings
+2026-03-04T03:52:37.629Z [DEBUG] Matched 0 unique hooks for query "TaskUpdate" (0 before deduplication)
+2026-03-04T03:52:37.633Z [DEBUG] [useDeferredValue] Messages deferred by 1 (19→20)
+2026-03-04T03:52:37.636Z [DEBUG] [useDeferredValue] Messages deferred by 1 (19→20)
+2026-03-04T03:52:37.640Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:52:37.640Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:52:37.640Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:52:37.640Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:52:37.640Z [DEBUG] autocompact: tokens=69907 threshold=167000 effectiveWindow=180000
+2026-03-04T03:52:37.640Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:52:37.641Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:52:37.642Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:52:37.642Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:52:37.642Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:52:37.643Z [DEBUG] [useDeferredValue] Messages deferred by 1 (19→20)
+2026-03-04T03:52:39.449Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:52:45.034Z [ERROR] Error: Error: 1P event logging: 32 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:52:45.034Z [ERROR] Error: Error: {"message":"Failed to export 32 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 32 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:52:45.034Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 32 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 32 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:53:18.496Z [WARN] Streaming stall detected: 39.0s gap between events (stall #1)
+2026-03-04T03:53:21.710Z [DEBUG] executePreToolHooks called for tool: Bash
+2026-03-04T03:53:21.711Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2026-03-04T03:53:21.711Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:53:21.711Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-03-04T03:53:21.724Z [DEBUG] [useDeferredValue] Messages deferred by 1 (20→21)
+2026-03-04T03:53:21.732Z [DEBUG] High write ratio: blit=0, write=2566 (100.0% writes), screen=76x184
+2026-03-04T03:53:21.746Z [DEBUG] tree-sitter: loaded from embedded
+2026-03-04T03:53:21.833Z [DEBUG] Creating shell snapshot for zsh (/bin/zsh)
+2026-03-04T03:53:21.833Z [DEBUG] Looking for shell config file: /Users/fanshengxia/.zshrc
+2026-03-04T03:53:21.833Z [DEBUG] Snapshots directory: /Users/fanshengxia/.claude/shell-snapshots
+2026-03-04T03:53:21.834Z [DEBUG] [useDeferredValue] Messages deferred by 1 (20→21)
+2026-03-04T03:53:21.841Z [DEBUG] Creating snapshot at: /Users/fanshengxia/.claude/shell-snapshots/snapshot-zsh-1772596401833-4ppf2j.sh
+2026-03-04T03:53:21.841Z [DEBUG] Execution timeout: 10000ms
+2026-03-04T03:53:21.844Z [DEBUG] [useDeferredValue] Messages deferred by 1 (20→21)
+2026-03-04T03:53:21.854Z [WARN] Streaming completed with 1 stall(s), total stall time: 39.0s
+2026-03-04T03:53:23.050Z [DEBUG] Shell snapshot created successfully (7096 bytes)
+2026-03-04T03:53:23.050Z [DEBUG] No session environment scripts found
+2026-03-04T03:53:23.050Z [DEBUG] Spawning shell without login (-l flag skipped)
+2026-03-04T03:53:26.064Z [DEBUG] [useDeferredValue] Messages deferred by 1 (21→22)
+2026-03-04T03:53:27.057Z [DEBUG] [useDeferredValue] Messages deferred by 1 (22→23)
+2026-03-04T03:53:28.060Z [DEBUG] [useDeferredValue] Messages deferred by 1 (23→24)
+2026-03-04T03:53:28.749Z [ERROR] Error: Error: 1P event logging: 10 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:53:28.749Z [ERROR] Error: Error: {"message":"Failed to export 10 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 10 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:53:28.749Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 10 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 10 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:53:29.063Z [DEBUG] [useDeferredValue] Messages deferred by 1 (24→25)
+2026-03-04T03:53:30.067Z [DEBUG] [useDeferredValue] Messages deferred by 1 (25→26)
+2026-03-04T03:53:31.062Z [DEBUG] [useDeferredValue] Messages deferred by 1 (26→27)
+2026-03-04T03:53:32.073Z [DEBUG] [useDeferredValue] Messages deferred by 1 (27→28)
+2026-03-04T03:53:33.099Z [DEBUG] [useDeferredValue] Messages deferred by 1 (28→29)
+2026-03-04T03:53:34.078Z [DEBUG] [useDeferredValue] Messages deferred by 1 (29→30)
+2026-03-04T03:53:35.073Z [DEBUG] [useDeferredValue] Messages deferred by 1 (30→31)
+2026-03-04T03:53:36.085Z [DEBUG] [useDeferredValue] Messages deferred by 1 (31→32)
+2026-03-04T03:53:37.083Z [DEBUG] [useDeferredValue] Messages deferred by 1 (32→33)
+2026-03-04T03:53:38.093Z [DEBUG] [useDeferredValue] Messages deferred by 1 (33→34)
+2026-03-04T03:53:39.062Z [ERROR] Error: Error: {"message":"Dropped 10 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 10 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:53:39.063Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Dropped 10 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 10 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+2026-03-04T03:53:39.090Z [DEBUG] [useDeferredValue] Messages deferred by 1 (34→35)
+2026-03-04T03:53:40.090Z [DEBUG] [useDeferredValue] Messages deferred by 1 (35→36)
+2026-03-04T03:53:41.090Z [DEBUG] [useDeferredValue] Messages deferred by 1 (36→37)
+2026-03-04T03:53:42.089Z [DEBUG] [useDeferredValue] Messages deferred by 1 (37→38)
+2026-03-04T03:53:43.106Z [DEBUG] [useDeferredValue] Messages deferred by 1 (38→39)
+2026-03-04T03:53:44.103Z [DEBUG] [useDeferredValue] Messages deferred by 1 (39→40)
+2026-03-04T03:53:45.103Z [DEBUG] [useDeferredValue] Messages deferred by 1 (40→41)
+2026-03-04T03:53:45.116Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2026-03-04T03:53:45.116Z [DEBUG] Found 5 hook matchers in settings
+2026-03-04T03:53:45.116Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2026-03-04T03:53:45.117Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:53:45.117Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:53:45.117Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:53:45.117Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:53:45.117Z [DEBUG] autocompact: tokens=75931 threshold=167000 effectiveWindow=180000
+2026-03-04T03:53:45.118Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:53:45.120Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:53:45.120Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:53:45.120Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:53:45.120Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:53:45.122Z [DEBUG] [useDeferredValue] Messages deferred by 1 (41→42)
+2026-03-04T03:53:45.129Z [DEBUG] High write ratio: blit=0, write=2619 (100.0% writes), screen=80x184
+2026-03-04T03:53:46.925Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:53:49.089Z [ERROR] Error: Error: {"message":"Dropped 22 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 22 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:53:49.089Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Dropped 22 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 22 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+2026-03-04T03:54:12.854Z [DEBUG] [useDeferredValue] Messages deferred by 1 (42→43)
+2026-03-04T03:54:12.878Z [DEBUG] [useDeferredValue] Messages deferred by 1 (42→43)
+2026-03-04T03:54:12.881Z [DEBUG] executePreToolHooks called for tool: TaskUpdate
+2026-03-04T03:54:12.882Z [DEBUG] Getting matching hook commands for PreToolUse with query: TaskUpdate
+2026-03-04T03:54:12.882Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:54:12.882Z [DEBUG] Matched 0 unique hooks for query "TaskUpdate" (0 before deduplication)
+2026-03-04T03:54:12.883Z [DEBUG] [useDeferredValue] Messages deferred by 2 (42→44)
+2026-03-04T03:54:12.891Z [DEBUG] High write ratio: blit=0, write=2820 (100.0% writes), screen=84x184
+2026-03-04T03:54:12.892Z [DEBUG] Getting matching hook commands for TaskCompleted with query: undefined
+2026-03-04T03:54:12.892Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:54:12.892Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-03-04T03:54:12.893Z [DEBUG] [useDeferredValue] Messages deferred by 2 (42→44)
+2026-03-04T03:54:12.902Z [DEBUG] Getting matching hook commands for PostToolUse with query: TaskUpdate
+2026-03-04T03:54:12.903Z [DEBUG] Found 5 hook matchers in settings
+2026-03-04T03:54:12.903Z [DEBUG] Matched 0 unique hooks for query "TaskUpdate" (0 before deduplication)
+2026-03-04T03:54:12.903Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-03-04T03:54:12.903Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-03-04T03:54:12.903Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-03-04T03:54:12.903Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-03-04T03:54:12.904Z [DEBUG] autocompact: tokens=81246 threshold=167000 effectiveWindow=180000
+2026-03-04T03:54:12.904Z [DEBUG] Tool search disabled via experiment (tengu_tst_kx7): below threshold, deferred tools present [source: query]
+2026-03-04T03:54:12.907Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.66.490; cc_entrypoint=cli; cch=00000;
+2026-03-04T03:54:12.907Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-04T03:54:12.907Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-04T03:54:12.907Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-04T03:54:12.909Z [DEBUG] [useDeferredValue] Messages deferred by 3 (42→45)
+2026-03-04T03:54:14.564Z [DEBUG] Stream started - received first chunk
+2026-03-04T03:54:17.982Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596457982
+2026-03-04T03:54:17.982Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:54:17.982Z [DEBUG] Temp file written successfully, size: 68495 bytes
+2026-03-04T03:54:17.982Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:54:17.982Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596457982 to /Users/fanshengxia/.claude.json
+2026-03-04T03:54:17.982Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:54:23.205Z [ERROR] Error: Error: 1P event logging: 17 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:54:23.205Z [ERROR] Error: Error: {"message":"Failed to export 17 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 17 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:54:23.205Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 17 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 17 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:54:28.215Z [DEBUG] [useDeferredValue] Messages deferred by 1 (45→46)
+2026-03-04T03:54:28.253Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2026-03-04T03:54:28.253Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:54:28.253Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2026-03-04T03:54:28.254Z [DEBUG] [useDeferredValue] Messages deferred by 1 (46→47)
+2026-03-04T03:54:28.264Z [DEBUG] Writing to temp file: /Users/fanshengxia/.claude.json.tmp.91242.1772596468264
+2026-03-04T03:54:28.264Z [DEBUG] Preserving file permissions: 100644
+2026-03-04T03:54:28.264Z [DEBUG] Temp file written successfully, size: 68495 bytes
+2026-03-04T03:54:28.264Z [DEBUG] Applied original permissions to temp file
+2026-03-04T03:54:28.264Z [DEBUG] Renaming /Users/fanshengxia/.claude.json.tmp.91242.1772596468264 to /Users/fanshengxia/.claude.json
+2026-03-04T03:54:28.264Z [DEBUG] File /Users/fanshengxia/.claude.json written atomically
+2026-03-04T03:54:38.593Z [ERROR] Error: Error: 1P event logging: 3 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:54:38.594Z [ERROR] Error: Error: {"message":"Failed to export 3 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 3 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:54:38.594Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 3 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 3 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T03:55:28.271Z [DEBUG] Getting matching hook commands for Notification with query: idle_prompt
+2026-03-04T03:55:28.271Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T03:55:28.272Z [DEBUG] Matched 0 unique hooks for query "idle_prompt" (0 before deduplication)
+2026-03-04T03:55:38.283Z [ERROR] Error: Error: {"message":"Dropped 1 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 1 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:55:38.283Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Dropped 1 events: max attempts (8) reached","originalLine":"6264","originalColumn":"1378","line":"6264","column":"1378","sourceURL":"/$bunfs/root/claude","stack":"Error: Dropped 1 events: max attempts (8) reached\n    at doExport (/$bunfs/root/claude:6264:1378)\n    at export (/$bunfs/root/claude:6264:887)\n    at <anonymous> (/$bunfs/root/claude:119:165449)\n    at <anonymous> (/$bunfs/root/claude:119:165389)\n    at new Promise (native:1:11)\n    at EqD (/$bunfs/root/claude:119:165366)\n    at R (/$bunfs/root/claude:120:17275)\n    at <anonymous> (/$bunfs/root/claude:120:16548)\n    at new Promise (native:1:11)\n    at _flushOneBatch (/$bunfs/root/claude:120:16508)","name":"Error"}
+2026-03-04T03:56:49.882Z [DEBUG] Acquired PID lock for 2.1.59 (PID 91242)
+2026-03-04T03:56:49.954Z [DEBUG] Released PID lock for 2.1.59
+2026-03-04T03:57:00.209Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:57:00.209Z [ERROR] Error: Error: {"message":"Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T03:57:00.209Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T04:16:41.362Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-04T04:16:43.673Z [DEBUG] Checking for native installer update to version 2.1.66
+2026-03-04T04:16:43.677Z [DEBUG] Found 2.1.66 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-04T04:16:53.413Z [ERROR] Error: Error: 1P event logging: 6 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:16:53.413Z [ERROR] Error: Error: {"message":"Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:16:53.413Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T04:46:41.380Z [DEBUG] detectFileEncoding failed for expected reason: ENOENT
+2026-03-04T04:46:43.663Z [DEBUG] Checking for native installer update to version 2.1.66
+2026-03-04T04:46:43.666Z [DEBUG] Found 2.1.66 at /Users/fanshengxia/.local/bin/claude, skipping install
+2026-03-04T04:46:53.896Z [ERROR] Error: Error: 1P event logging: 6 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:46:53.898Z [ERROR] Error: Error: {"message":"Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:46:53.898Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 6 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T04:54:06.852Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/.DS_Store
+2026-03-04T04:54:07.162Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-04T04:54:07.162Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T04:54:07.162Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-04T04:54:07.170Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-04T04:54:07.171Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T04:54:07.171Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-04T04:54:07.171Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:07.171Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-04T04:54:07.172Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T04:54:07.182Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-04T04:54:07.183Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-04T04:54:07.183Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:07.183Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-04T04:54:07.185Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-04T04:54:07.186Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-04T04:54:07.186Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:07.186Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-04T04:54:07.187Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-04T04:54:07.188Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-04T04:54:07.188Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:07.188Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-04T04:54:07.188Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-04T04:54:07.190Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-04T04:54:07.194Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-04T04:54:07.194Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:07.194Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-04T04:54:07.194Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-04T04:54:07.194Z [DEBUG] Total plugin commands loaded: 42
+2026-03-04T04:54:07.196Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-04T04:54:07.196Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:07.196Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-04T04:54:07.196Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-04T04:54:07.196Z [DEBUG] Total plugin skills loaded: 56
+2026-03-04T04:54:07.204Z [DEBUG] Loaded 32 unique skills (32 unconditional, 0 conditional, managed: 0, user: 32, project: 0, additional: 0, legacy commands: 0)
+2026-03-04T04:54:07.204Z [DEBUG] getSkills returning: 32 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-04T04:54:18.125Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:54:18.125Z [ERROR] Error: Error: {"message":"Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:54:18.125Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+2026-03-04T04:54:37.986Z [DEBUG] Detected skill change: /Users/fanshengxia/.claude/skills/.DS_Store
+2026-03-04T04:54:38.289Z [DEBUG] Getting matching hook commands for ConfigChange with query: skills
+2026-03-04T04:54:38.289Z [DEBUG] Found 0 hook matchers in settings
+2026-03-04T04:54:38.289Z [DEBUG] Matched 0 unique hooks for query "skills" (0 before deduplication)
+2026-03-04T04:54:38.290Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/fanshengxia/.claude/skills, project=[]
+2026-03-04T04:54:38.291Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T04:54:38.291Z [DEBUG] getPluginSkills: Processing 6 enabled plugins
+2026-03-04T04:54:38.291Z [DEBUG] Checking plugin superpowers: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:38.291Z [DEBUG] Attempting to load skills from plugin superpowers default skillsPath: /Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.1/skills
+2026-03-04T04:54:38.291Z [DEBUG] Plugin loading errors: Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+], Hook load failed: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]
+2026-03-04T04:54:38.293Z [DEBUG] Loaded 3 commands from plugin superpowers default directory
+2026-03-04T04:54:38.295Z [DEBUG] Loaded 14 skills from plugin superpowers default directory
+2026-03-04T04:54:38.295Z [DEBUG] Checking plugin financial-analysis: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:38.295Z [DEBUG] Attempting to load skills from plugin financial-analysis default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/financial-analysis/0.1.0/skills
+2026-03-04T04:54:38.298Z [DEBUG] Loaded 8 commands from plugin financial-analysis default directory
+2026-03-04T04:54:38.299Z [DEBUG] Loaded 9 skills from plugin financial-analysis default directory
+2026-03-04T04:54:38.299Z [DEBUG] Checking plugin investment-banking: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:38.299Z [DEBUG] Attempting to load skills from plugin investment-banking default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/investment-banking/0.2.0/skills
+2026-03-04T04:54:38.300Z [DEBUG] Loaded 7 commands from plugin investment-banking default directory
+2026-03-04T04:54:38.301Z [DEBUG] Loaded 9 skills from plugin investment-banking default directory
+2026-03-04T04:54:38.301Z [DEBUG] Checking plugin equity-research: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:38.301Z [DEBUG] Attempting to load skills from plugin equity-research default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/equity-research/0.1.0/skills
+2026-03-04T04:54:38.302Z [DEBUG] Loaded 9 commands from plugin equity-research default directory
+2026-03-04T04:54:38.304Z [DEBUG] Loaded 9 skills from plugin equity-research default directory
+2026-03-04T04:54:38.304Z [DEBUG] Checking plugin private-equity: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:38.304Z [DEBUG] Attempting to load skills from plugin private-equity default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/private-equity/0.1.0/skills
+2026-03-04T04:54:38.305Z [DEBUG] Loaded 9 commands from plugin private-equity default directory
+2026-03-04T04:54:38.306Z [DEBUG] Loaded 9 skills from plugin private-equity default directory
+2026-03-04T04:54:38.306Z [DEBUG] Checking plugin wealth-management: skillsPath=exists, skillsPaths=0 paths
+2026-03-04T04:54:38.306Z [DEBUG] Attempting to load skills from plugin wealth-management default skillsPath: /Users/fanshengxia/.claude/plugins/cache/financial-services-plugins/wealth-management/0.1.0/skills
+2026-03-04T04:54:38.308Z [DEBUG] Loaded 6 commands from plugin wealth-management default directory
+2026-03-04T04:54:38.308Z [DEBUG] Total plugin commands loaded: 42
+2026-03-04T04:54:38.308Z [DEBUG] Loaded 6 skills from plugin wealth-management default directory
+2026-03-04T04:54:38.308Z [DEBUG] Total plugin skills loaded: 56
+2026-03-04T04:54:38.317Z [DEBUG] Loaded 32 unique skills (32 unconditional, 0 conditional, managed: 0, user: 32, project: 0, additional: 0, legacy commands: 0)
+2026-03-04T04:54:38.317Z [DEBUG] getSkills returning: 32 skill dir commands, 56 plugin skills, 5 bundled skills
+2026-03-04T04:54:48.802Z [ERROR] Error: Error: 1P event logging: 2 events failed to export (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)
+    at queueFailedEvents (/$bunfs/root/claude:6264:2654)
+    at async doExport (/$bunfs/root/claude:6264:1561)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:54:48.802Z [ERROR] Error: Error: {"message":"Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
+    at error (/$bunfs/root/claude:2402:25029)
+    at <anonymous> (/$bunfs/root/claude:119:92465)
+    at A4D (/$bunfs/root/claude:119:93009)
+    at <anonymous> (/$bunfs/root/claude:120:17366)
+    at processTicksAndRejections (native:7:39)
+2026-03-04T04:54:48.802Z [ERROR] [3P telemetry] OTEL diag error: {"message":"Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)","originalLine":"6264","originalColumn":"1713","line":"6264","column":"1713","sourceURL":"/$bunfs/root/claude","stack":"Error: Failed to export 2 events (status=429, code=ERR_BAD_REQUEST, Request failed with status code 429)\n    at doExport (/$bunfs/root/claude:6264:1713)\n    at processTicksAndRejections (native:7:39)","name":"Error"}
