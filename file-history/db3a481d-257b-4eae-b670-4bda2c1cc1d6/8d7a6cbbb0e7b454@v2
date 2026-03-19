@@ -1,0 +1,353 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+iChoice 数据获取测试脚本
+测试所有市场数据生成器所需指标是否可以通过iChoice正常获取
+
+测试指标:
+  - 债券: 国债收益率 (1Y/3Y/5Y/10Y/30Y) + 城投债AA+ (6M/1Y/2Y/3Y) [EDB接口]
+  - 权益: 主要指数 (沪深300/上证50/创业板/中证1000/中证500/上证) [CSD接口]
+  - 行业: 申万31个一级行业 [CSD接口]
+  - 转债: 可转债指数 + 中证转债 [CSD接口]
+"""
+
+import sys
+import os
+import subprocess
+import pandas as pd
+from datetime import datetime, timedelta
+
+# ── SDK 初始化 ──
+def setup_emquant():
+    try:
+        import EmQuantAPI
+        return True
+    except ImportError:
+        pass
+    home = os.path.expanduser("~")
+    candidates = [
+        f"{home}/Desktop/ichoice_data/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/Desktop/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/ichoice/EMQuantAPI_Python/python3",
+    ]
+    desktop = os.path.join(home, "Desktop")
+    if os.path.isdir(desktop):
+        for d in os.listdir(desktop):
+            p = os.path.join(desktop, d, "ichoice", "EMQuantAPI_Python", "python3")
+            if os.path.isdir(p):
+                candidates.insert(0, p)
+    sdk_dir = next((p for p in candidates if os.path.isfile(os.path.join(p, "EmQuantAPI.py"))), None)
+    if not sdk_dir:
+        print("ERROR: EmQuantAPI SDK not found.")
+        return False
+    sys.path.insert(0, sdk_dir)
+    try:
+        if not any(os.path.isfile(os.path.join(p, "EmQuantAPI.pth")) for p in sys.path if "site-packages" in p):
+            subprocess.run([sys.executable, "installEmQuantAPI.py"], cwd=sdk_dir, capture_output=True)
+    except Exception:
+        pass
+    return True
+
+if not setup_emquant():
+    exit(1)
+
+from EmQuantAPI import c
+
+# ── 指标映射（Wind代码 → Choice代码） ──
+# 债券收益率指标 (EDB接口)
+BOND_EDB_CODES = {
+    "E1000172":    "中债国债到期收益率:1年",
+    "EMM00166460": "中债国债到期收益率:3年",
+    "EMM00166462": "中债国债到期收益率:5年",
+    "E1000180":    "中债国债到期收益率:10年",
+    "E1000183":    "中债国债到期收益率:30年",
+    "E1702593":    "中债城投债到期收益率(AA+):6个月",
+    "E1702595":    "中债城投债到期收益率(AA+):1年",
+    "E1702596":    "中债城投债到期收益率(AA+):2年",
+    "E1702597":    "中债城投债到期收益率(AA+):3年",
+}
+
+# 权益指数行情指标 (CSD接口)
+EQUITY_CSD_CODES = {
+    "000300.SH": "沪深300",
+    "000016.SH": "上证50",
+    "399006.SZ": "创业板指",
+    "000852.SH": "中证1000",
+    "000905.SH": "中证500",
+    "000001.SH": "上证指数",
+}
+
+# 申万行业指数 (CSD接口, .SWI后缀)
+INDUSTRY_CSD_CODES = {
+    "801950.SWI": "煤炭(申万)",
+    "801960.SWI": "石油石化(申万)",
+    "801970.SWI": "环保(申万)",
+    "801980.SWI": "美容护理(申万)",
+    "801010.SWI": "农林牧渔(申万)",
+    "801030.SWI": "基础化工(申万)",
+    "801040.SWI": "钢铁(申万)",
+    "801050.SWI": "有色金属(申万)",
+    "801080.SWI": "电子(申万)",
+    "801110.SWI": "家用电器(申万)",
+    "801120.SWI": "食品饮料(申万)",
+    "801130.SWI": "纺织服饰(申万)",
+    "801140.SWI": "轻工制造(申万)",
+    "801150.SWI": "医药生物(申万)",
+    "801160.SWI": "公用事业(申万)",
+    "801170.SWI": "交通运输(申万)",
+    "801180.SWI": "房地产(申万)",
+    "801200.SWI": "商贸零售(申万)",
+    "801210.SWI": "社会服务(申万)",
+    "801230.SWI": "综合(申万)",
+    "801710.SWI": "建筑材料(申万)",
+    "801720.SWI": "建筑装饰(申万)",
+    "801730.SWI": "电力设备(申万)",
+    "801740.SWI": "国防军工(申万)",
+    "801750.SWI": "计算机(申万)",
+    "801760.SWI": "传媒(申万)",
+    "801770.SWI": "通信(申万)",
+    "801780.SWI": "银行(申万)",
+    "801790.SWI": "非银金融(申万)",
+    "801880.SWI": "汽车(申万)",
+    "801890.SWI": "机械设备(申万)",
+}
+
+# 转债指数 (CSD接口)
+CONVERTIBLE_CSD_CODES = {
+    "880004.EI": "可转债指数",
+    "000832.SH": "中证转债",
+}
+
+
+def parse_edb_df(raw_df, code):
+    """解析EDB返回的DataFrame → 标准化为 {date: value} 格式"""
+    if raw_df is None or not isinstance(raw_df, pd.DataFrame) or raw_df.empty:
+        return None
+    try:
+        df = raw_df[['DATES', 'RESULT']].copy()
+        df['DATES'] = pd.to_datetime(df['DATES'], format='%Y/%m/%d')
+        df['RESULT'] = pd.to_numeric(df['RESULT'], errors='coerce')
+        df = df.set_index('DATES').rename(columns={'RESULT': 'value'})
+        df = df.dropna().sort_index()
+        return df
+    except Exception as e:
+        print(f"  [解析EDB] {code} 解析失败: {e}")
+        return None
+
+
+def parse_csd_df(raw_df, code):
+    """解析CSD返回的DataFrame → 标准化为 {date: value} 格式"""
+    if raw_df is None or not isinstance(raw_df, pd.DataFrame) or raw_df.empty:
+        return None
+    try:
+        df = raw_df.reset_index()
+        # 列名可能是 DATES/CLOSE 或 index/CLOSE
+        date_col = 'DATES' if 'DATES' in df.columns else df.columns[0]
+        val_col = 'CLOSE' if 'CLOSE' in df.columns else df.columns[-1]
+        df['date'] = pd.to_datetime(df[date_col], format='%Y/%m/%d', errors='coerce')
+        df['value'] = pd.to_numeric(df[val_col], errors='coerce')
+        df = df[['date', 'value']].set_index('date').dropna().sort_index()
+        return df
+    except Exception as e:
+        print(f"  [解析CSD] {code} 解析失败: {e}")
+        return None
+
+
+def calc_weekly_change(df, calc_type):
+    """
+    计算一周变动
+    calc_type: 'bp_change'(债券bp) 或 'pct_change'(百分比)
+    """
+    if df is None or len(df) < 2:
+        return None, None, None
+    latest_val = df.iloc[-1]['value']
+    latest_date = df.index[-1].strftime('%Y-%m-%d')
+    # 取倒数第6个（5个交易日前）或最早
+    idx = max(0, len(df) - 6)
+    prev_val = df.iloc[idx]['value']
+    if calc_type == 'bp_change':
+        change = round((latest_val - prev_val) * 100, 2)
+        unit = 'bp'
+    else:
+        change = round((latest_val - prev_val) / prev_val * 100, 2) if prev_val != 0 else 0.0
+        unit = '%'
+    return latest_val, change, unit
+
+
+def test_bond_data(start_date, end_date):
+    """测试债券EDB数据获取"""
+    print("\n" + "=" * 60)
+    print("【1】债券收益率数据 (EDB接口)")
+    print("=" * 60)
+    results = {}
+    failed = []
+
+    # 逐个获取，避免多指标混合时解析困难
+    for code, name in BOND_EDB_CODES.items():
+        try:
+            raw = c.edb(code, f"StartDate={start_date},EndDate={end_date},Ispandas=1")
+            df = parse_edb_df(raw, code)
+            if df is not None and not df.empty:
+                latest_val, change, unit = calc_weekly_change(df, 'bp_change')
+                sign = '+' if change >= 0 else ''
+                print(f"  ✅ {name} ({code}): 最新={latest_val:.4f}%, 周变动={sign}{change}{unit}")
+                results[code] = {'name': name, 'df': df, 'change': change, 'unit': unit}
+            else:
+                print(f"  ❌ {name} ({code}): 无数据返回")
+                failed.append(code)
+        except Exception as e:
+            print(f"  ❌ {name} ({code}): 异常 - {e}")
+            failed.append(code)
+
+    print(f"\n债券: 成功 {len(results)}/{len(BOND_EDB_CODES)}, 失败 {len(failed)}")
+    if failed:
+        print(f"  失败代码: {failed}")
+    return results
+
+
+def test_equity_data(start_date, end_date):
+    """测试权益指数CSD数据获取"""
+    print("\n" + "=" * 60)
+    print("【2】权益指数数据 (CSD接口)")
+    print("=" * 60)
+    results = {}
+    failed = []
+
+    for code, name in EQUITY_CSD_CODES.items():
+        try:
+            raw = c.csd(code, "CLOSE", start_date, end_date, "Ispandas=1")
+            df = parse_csd_df(raw, code)
+            if df is not None and not df.empty:
+                latest_val, change, unit = calc_weekly_change(df, 'pct_change')
+                sign = '+' if change >= 0 else ''
+                print(f"  ✅ {name} ({code}): 最新={latest_val:.2f}, 周涨跌={sign}{change}{unit}")
+                results[code] = {'name': name, 'df': df, 'change': change, 'unit': unit}
+            else:
+                print(f"  ❌ {name} ({code}): 无数据返回")
+                failed.append(code)
+        except Exception as e:
+            print(f"  ❌ {name} ({code}): 异常 - {e}")
+            failed.append(code)
+
+    print(f"\n权益指数: 成功 {len(results)}/{len(EQUITY_CSD_CODES)}, 失败 {len(failed)}")
+    if failed:
+        print(f"  失败代码: {failed}")
+    return results
+
+
+def test_industry_data(start_date, end_date):
+    """测试申万行业CSD数据获取"""
+    print("\n" + "=" * 60)
+    print("【3】申万行业数据 (CSD接口, .SWI)")
+    print("=" * 60)
+    results = {}
+    failed = []
+
+    for code, name in INDUSTRY_CSD_CODES.items():
+        try:
+            raw = c.csd(code, "CLOSE", start_date, end_date, "Ispandas=1")
+            df = parse_csd_df(raw, code)
+            if df is not None and not df.empty:
+                latest_val, change, unit = calc_weekly_change(df, 'pct_change')
+                sign = '+' if change >= 0 else ''
+                print(f"  ✅ {name} ({code}): 最新={latest_val:.2f}, 周涨跌={sign}{change}{unit}")
+                results[code] = {'name': name, 'df': df, 'change': change, 'unit': unit}
+            else:
+                print(f"  ❌ {name} ({code}): 无数据返回")
+                failed.append(code)
+        except Exception as e:
+            print(f"  ❌ {name} ({code}): 异常 - {e}")
+            failed.append(code)
+
+    print(f"\n申万行业: 成功 {len(results)}/{len(INDUSTRY_CSD_CODES)}, 失败 {len(failed)}")
+    if failed:
+        print(f"  失败代码: {failed}")
+    return results
+
+
+def test_convertible_data(start_date, end_date):
+    """测试转债指数CSD数据获取"""
+    print("\n" + "=" * 60)
+    print("【4】转债指数数据 (CSD接口)")
+    print("=" * 60)
+    results = {}
+    failed = []
+
+    for code, name in CONVERTIBLE_CSD_CODES.items():
+        try:
+            raw = c.csd(code, "CLOSE", start_date, end_date, "Ispandas=1")
+            df = parse_csd_df(raw, code)
+            if df is not None and not df.empty:
+                latest_val, change, unit = calc_weekly_change(df, 'pct_change')
+                sign = '+' if change >= 0 else ''
+                print(f"  ✅ {name} ({code}): 最新={latest_val:.2f}, 周涨跌={sign}{change}{unit}")
+                results[code] = {'name': name, 'df': df, 'change': change, 'unit': unit}
+            else:
+                print(f"  ❌ {name} ({code}): 无数据返回")
+                failed.append(code)
+        except Exception as e:
+            print(f"  ❌ {name} ({code}): 异常 - {e}")
+            failed.append(code)
+
+    print(f"\n转债: 成功 {len(results)}/{len(CONVERTIBLE_CSD_CODES)}, 失败 {len(failed)}")
+    if failed:
+        print(f"  失败代码: {failed}")
+    return results
+
+
+def print_summary(bond_r, equity_r, industry_r, convertible_r):
+    """打印汇总报告"""
+    total_ok = len(bond_r) + len(equity_r) + len(industry_r) + len(convertible_r)
+    total_all = (len(BOND_EDB_CODES) + len(EQUITY_CSD_CODES) +
+                 len(INDUSTRY_CSD_CODES) + len(CONVERTIBLE_CSD_CODES))
+    print("\n" + "=" * 60)
+    print("【汇总】")
+    print("=" * 60)
+    print(f"  债券:     {len(bond_r)}/{len(BOND_EDB_CODES)}")
+    print(f"  权益指数: {len(equity_r)}/{len(EQUITY_CSD_CODES)}")
+    print(f"  申万行业: {len(industry_r)}/{len(INDUSTRY_CSD_CODES)}")
+    print(f"  转债:     {len(convertible_r)}/{len(CONVERTIBLE_CSD_CODES)}")
+    print(f"  总计:     {total_ok}/{total_all}  ({'✅ 全部成功' if total_ok == total_all else '❌ 部分失败'})")
+
+    # 如果有行业数据，打印涨跌幅排名
+    if industry_r:
+        print("\n【申万行业周涨幅排名】")
+        sorted_ind = sorted(industry_r.items(), key=lambda x: x[1]['change'], reverse=True)
+        print("  涨幅前5:")
+        for code, v in sorted_ind[:5]:
+            print(f"    {v['name']}: +{v['change']}%")
+        print("  跌幅前5:")
+        for code, v in sorted_ind[-5:]:
+            print(f"    {v['name']}: {v['change']}%")
+
+
+def main():
+    end_date = datetime.now().strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
+
+    print("=" * 60)
+    print("iChoice 数据获取测试")
+    print(f"日期范围: {start_date} ~ {end_date}")
+    print("=" * 60)
+
+    # 登录
+    print("\n正在登录iChoice...")
+    result = c.start("UserName=xylczh0181,Password=ef465509,ForceLogin=1")
+    if result.ErrorCode != 0:
+        print(f"❌ 登录失败: {result.ErrorMsg}")
+        exit(1)
+    print("✅ 登录成功")
+
+    try:
+        bond_r = test_bond_data(start_date, end_date)
+        equity_r = test_equity_data(start_date, end_date)
+        industry_r = test_industry_data(start_date, end_date)
+        convertible_r = test_convertible_data(start_date, end_date)
+        print_summary(bond_r, equity_r, industry_r, convertible_r)
+    finally:
+        c.stop()
+        print("\n✅ 已退出iChoice")
+
+
+if __name__ == "__main__":
+    main()

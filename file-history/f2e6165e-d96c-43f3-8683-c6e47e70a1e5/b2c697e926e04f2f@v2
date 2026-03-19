@@ -1,0 +1,324 @@
+#!/usr/bin/env python3
+"""Patch the weekly report dashboard HTML with fixes and new chapter."""
+
+import re
+
+SRC = '/Users/fanshengxia/Desktop/周报V2/输出结果/周报仪表板-20260205.html'
+DST = '/Users/fanshengxia/Desktop/周报V2/输出结果/周报仪表板-20260305.html'
+
+with open(SRC, 'r', encoding='utf-8') as f:
+    html = f.read()
+
+# ── 1. Update title & date ────────────────────────────────────────────────────
+html = html.replace('2026-02-05', '2026-03-05', 3)   # title + header-date + footer
+
+# ── 2. Extend PCT_DECIMAL_SHEETS ─────────────────────────────────────────────
+OLD_PCT = (
+    "const PCT_DECIMAL_SHEETS = new Set([\n"
+    "  '系列产品业绩-费后加权', '系列产品业绩-费后平均',\n"
+    "  '系列产品业绩-费前加权', '系列产品业绩-费前平均',\n"
+    "  '5.2 最短持有期产品业绩表现1', '5.2 最短持有期产品业绩表现2'\n"
+    "]);"
+)
+NEW_PCT = (
+    "const PCT_DECIMAL_SHEETS = new Set([\n"
+    "  '系列产品业绩-费后加权', '系列产品业绩-费后平均',\n"
+    "  '系列产品业绩-费前加权', '系列产品业绩-费前平均',\n"
+    "  '5.2 最短持有期产品业绩表现1', '5.2 最短持有期产品业绩表现2',\n"
+    "  '10.下周到期产品清单', '招商在售产品不达基准',\n"
+    "  '封闭及定开产品100日内不大业绩产品清单',\n"
+    "  '合享及悦动稳享临近到期预测不达标产品清单',\n"
+    "  '12.周净值高波动产品清单'\n"
+    "]);"
+)
+if OLD_PCT in html:
+    html = html.replace(OLD_PCT, NEW_PCT)
+    print('✓ PCT_DECIMAL_SHEETS patched')
+else:
+    print('✗ PCT_DECIMAL_SHEETS not found – manual check needed')
+
+# ── 3. Fix subheader-row detection in generateTableHTML ──────────────────────
+# Old: treats rows 1-2 as subheader if they have more text than numbers
+# New: only if first cell is empty/null AND row has no product-code-like value
+OLD_SUBHEADER = """\
+    let isSubheader = false;
+    if (ri === 1 || ri === 2) {
+      const vals = row.filter(v => v != null);
+      const numC = vals.filter(v => isNumeric(v)).length;
+      if (vals.length > 0 && (vals.length - numC) > numC && (vals.length - numC) >= 2) isSubheader = true;
+    }"""
+NEW_SUBHEADER = """\
+    let isSubheader = false;
+    if (ri === 1 || ri === 2) {
+      const vals = row.filter(v => v != null);
+      const numC = vals.filter(v => isNumeric(v)).length;
+      // Check if first cell looks like a product code (starts with digit) -> data row, not header
+      const firstVal = row[0] != null ? String(row[0]).trim() : '';
+      const looksLikeProductCode = /^\\d[A-Za-z0-9]{5,}/.test(firstVal) || /^\\d{8}$/.test(firstVal);
+      if (!looksLikeProductCode && vals.length > 0 && (vals.length - numC) > numC && (vals.length - numC) >= 2) isSubheader = true;
+    }"""
+if OLD_SUBHEADER in html:
+    html = html.replace(OLD_SUBHEADER, NEW_SUBHEADER)
+    print('✓ subheader detection patched')
+else:
+    print('✗ subheader detection not found – manual check needed')
+
+# ── 4. Add second upload button in toolbar ────────────────────────────────────
+OLD_TOOLBAR = (
+    '    <button class="toolbar-btn" onclick="document.getElementById(\'file-upload\').click()" title="导入Excel数据文件">\n'
+    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n'
+    '      导入数据\n'
+    '    </button>'
+)
+NEW_TOOLBAR = (
+    '    <button class="toolbar-btn" onclick="document.getElementById(\'file-upload\').click()" title="导入Excel数据文件">\n'
+    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n'
+    '      导入数据\n'
+    '    </button>\n'
+    '    <input type="file" id="overview-upload" accept=".xlsx,.xls" style="display:none">\n'
+    '    <button class="toolbar-btn" onclick="document.getElementById(\'overview-upload\').click()" title="导入产品运作概览文件（各系列产品运作情况）" style="background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4);">\n'
+    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n'
+    '      导入运作概览\n'
+    '    </button>'
+)
+if OLD_TOOLBAR in html:
+    html = html.replace(OLD_TOOLBAR, NEW_TOOLBAR)
+    print('✓ second upload button added')
+else:
+    print('✗ toolbar button not found – manual check needed')
+
+# ── 5. Add sidebar section for new chapter ────────────────────────────────────
+OLD_SIDEBAR_END = '</nav>'
+NEW_SIDEBAR_SECTION = (
+    '<div class="sidebar-section"><div class="sidebar-group-label">四、各系列产品运作情况</div>'
+    '<a class="nav-item" href="#series-ops"><span class="nav-icon">&#9670;</span>20. 各系列产品运作情况</a>'
+    '</div>\n</nav>'
+)
+if OLD_SIDEBAR_END in html:
+    html = html.replace(OLD_SIDEBAR_END, NEW_SIDEBAR_SECTION, 1)
+    print('✓ sidebar section added')
+else:
+    print('✗ </nav> not found')
+
+# ── 6. Add new section div to main content ────────────────────────────────────
+OLD_FOOTER = '</main>\n\n<script>'
+NEW_SECTION = (
+    '</main>\n'
+    '\n'
+    '<!-- ===== 四、各系列产品运作情况 ===== -->\n'
+    '<div class="section" id="series-ops">\n'
+    '<h2 class="section-header">四、各系列产品运作情况</h2>\n'
+    '<div id="series-ops-content" class="empty-state" style="padding:40px;text-align:center;color:var(--text-muted);">'
+    '请点击顶部「导入运作概览」上传<br><code>产品运作概览信息表增加指标变化_YYYYMMDD.xlsx</code><br>以查看各系列产品运作情况</div>\n'
+    '</div>\n'
+    '\n'
+    '<script>'
+)
+if OLD_FOOTER in html:
+    html = html.replace(OLD_FOOTER, NEW_SECTION, 1)
+    print('✓ series-ops section added')
+else:
+    print('✗ </main> footer marker not found')
+
+# ── 7. Add new JS functions after the existing rebuildDashboard function ──────
+NEW_JS = r"""
+/* ====== Series Operations Section ====== */
+const SERIES_FIXED_COLS  = ['产品代码','产品简称','净资产(亿)','形态','业绩基准','本期年化','累计年化','杠杆','组合久期','组合静态','运作天','剩余天','产品经理'];
+const SERIES_EQUITY_COLS = ['产品代码','产品简称','净资产(亿)','形态','业绩基准','本期年化','累计年化','杠杆','权益仓位','组合久期','运作天','剩余天','产品经理'];
+const SERIES_FX_COLS     = ['产品代码','产品简称','净资产(亿)','形态','业绩基准','本期年化','累计年化','杠杆','运作天','剩余天','产品经理'];
+const EQUITY_MU = new Set(['逸动短持','灵动短持','兴动短持','含权定开/封闭','优先股短持','ESG联名','和瑞BOF','外币市值']);
+const FX_MU     = new Set(['外币低波','外币市值']);
+const PCT_COLS_SERIES = new Set(['本期年化','累计年化','业绩基准','权益仓位']);
+const MU_ORDER = ['悦动稳享短持','悦动稳/纯享','优先股短持','丰利/增盈','行外非标驱动型固收+','和瑞BOF','悦动短持/定开','逸动短持','灵动短持','兴动短持','含权定开/封闭','ESG联名','外币低波','外币市值'];
+
+function getSeriesCols(mu) {
+  if (FX_MU.has(mu) && !EQUITY_MU.has(mu)) return SERIES_FX_COLS;
+  if (EQUITY_MU.has(mu)) return SERIES_EQUITY_COLS;
+  return SERIES_FIXED_COLS;
+}
+
+function formatSeriesVal(val, colName) {
+  if (val == null || val === '' || String(val).toLowerCase() === 'nan') return '';
+  if (PCT_COLS_SERIES.has(colName)) {
+    const n = typeof val === 'number' ? val : parseFloat(val);
+    if (!isFinite(n)) return String(val);
+    // If already percentage (>1 typically means already %)
+    return n < 2 && n > -1 ? (n * 100).toFixed(2) + '%' : n.toFixed(2) + '%';
+  }
+  if (colName === '净资产(亿)') {
+    const n = typeof val === 'number' ? val : parseFloat(val);
+    return isFinite(n) ? n.toFixed(2) : String(val);
+  }
+  if (colName === '杠杆' || colName === '组合久期' || colName === '组合静态') {
+    const n = typeof val === 'number' ? val : parseFloat(val);
+    return isFinite(n) ? n.toFixed(2) : String(val);
+  }
+  if (colName === '运作天' || colName === '剩余天') {
+    const n = typeof val === 'number' ? val : parseFloat(val);
+    return isFinite(n) ? Math.round(n).toString() : String(val);
+  }
+  if (colName === '起息日' || colName === '到期日') {
+    if (val instanceof Date) return val.toISOString().slice(0,10);
+    const s = String(val);
+    // Excel serial dates come through as numbers sometimes
+    if (/^\d{5}$/.test(s)) {
+      const d = new Date(Date.UTC(1899,11,30) + parseInt(s)*86400000);
+      return d.toISOString().slice(0,10);
+    }
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+    return s;
+  }
+  return String(val);
+}
+
+function generateSeriesTable(rows, cols) {
+  if (!rows || rows.length === 0) return '<div class="empty-state">无数据</div>';
+  let html = '<div class="table-wrapper"><table>';
+  // Header
+  html += '<tr class="header-row">';
+  for (const c of cols) html += '<th>' + escHtml(c) + '</th>';
+  html += '</tr>';
+  // Rows
+  for (const row of rows) {
+    html += '<tr>';
+    for (const c of cols) {
+      let val = row[c];
+      const display = formatSeriesVal(val, c);
+      let cls = '';
+      if (['净资产(亿)','运作天','剩余天','杠杆','组合久期','组合静态'].includes(c)) cls = 'num-cell';
+      if (PCT_COLS_SERIES.has(c) && val != null) {
+        const n = typeof val === 'number' ? val : parseFloat(val);
+        if (isFinite(n) && n < 0) cls += ' val-negative';
+      }
+      html += '<td' + (cls ? ' class="' + cls.trim() + '"' : '') + '>' + escHtml(display) + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</table></div>';
+  return html;
+}
+
+function rebuildSeriesSection(rawData) {
+  const content = document.getElementById('series-ops-content');
+  if (!content) return;
+  if (!rawData || rawData.length === 0) {
+    content.innerHTML = '<div class="empty-state">数据为空</div>';
+    return;
+  }
+
+  // Only show 主要展示=是
+  const data = rawData.filter(r => String(r['主要展示'] || '').trim() === '是');
+
+  // Group by 母分类
+  const groups = {};
+  for (const row of data) {
+    const mu = String(row['母分类'] || '').trim();
+    if (!mu) continue;
+    if (!groups[mu]) groups[mu] = [];
+    groups[mu].push(row);
+  }
+
+  let html = '';
+  const order = MU_ORDER.filter(m => groups[m]);
+  // Also add any 母分类 not in order
+  for (const mu of Object.keys(groups)) {
+    if (!order.includes(mu)) order.push(mu);
+  }
+
+  for (const mu of order) {
+    const rows = groups[mu];
+    if (!rows) continue;
+    // Sort by 净资产(亿) desc
+    rows.sort((a, b) => {
+      const av = parseFloat(a['净资产(亿)']) || 0;
+      const bv = parseFloat(b['净资产(亿)']) || 0;
+      return bv - av;
+    });
+    const cols = getSeriesCols(mu);
+    const totalAum = rows.reduce((s, r) => s + (parseFloat(r['净资产(亿)']) || 0), 0);
+    html += '<h3 class="sheet-title">' + escHtml(mu) +
+      ' <span style="font-size:11px;color:var(--text-muted);font-weight:normal;">共 ' + rows.length +
+      ' 只 | 规模 ' + totalAum.toFixed(2) + ' 亿</span></h3>';
+    html += generateSeriesTable(rows, cols);
+  }
+
+  content.innerHTML = html;
+  initTableSort();
+}
+
+/* ====== Overview File Upload Handler ====== */
+async function handleOverviewUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+    showToast('请上传 .xlsx 格式的Excel文件', 'error');
+    return;
+  }
+  showToast('正在解析运作概览文件 ' + escHtml(file.name) + ' ...', '');
+  try {
+    const arrayBuf = await file.arrayBuffer();
+    const wb = XLSX.read(arrayBuf, { type: 'array', cellDates: true });
+    // Find the main sheet (first sheet or 母子产品)
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    // Use header:1 to get arrays, then convert to objects using row 0 as keys
+    const rawArr = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: false });
+    if (rawArr.length < 2) { showToast('文件数据为空', 'error'); return; }
+    const headers = rawArr[0].map(h => h != null ? String(h).trim() : '');
+    const rows = [];
+    for (let i = 1; i < rawArr.length; i++) {
+      const obj = {};
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = rawArr[i][j];
+      }
+      rows.push(obj);
+    }
+    rebuildSeriesSection(rows);
+    // Update date if found in filename
+    const dateMatch = file.name.match(/(\d{8})/);
+    if (dateMatch) {
+      const d = dateMatch[1];
+      const dateStr = d.slice(0,4) + '-' + d.slice(4,6) + '-' + d.slice(6,8);
+      document.querySelectorAll('.header-date').forEach(el => el.textContent = '数据截止 ' + dateStr);
+    }
+    showToast('运作概览导入成功！共 ' + rows.length + ' 行数据', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('解析失败: ' + escHtml(err.message), 'error');
+  }
+  e.target.value = '';
+}
+
+"""
+
+# Insert the new JS before the existing PDF export function
+INSERT_BEFORE = '/* ====== PDF Export ====== */'
+if INSERT_BEFORE in html:
+    html = html.replace(INSERT_BEFORE, NEW_JS + INSERT_BEFORE)
+    print('✓ series JS functions added')
+else:
+    print('✗ PDF Export marker not found')
+
+# ── 8. Bind second upload in DOMContentLoaded ─────────────────────────────────
+OLD_DOMCONTENT = (
+    "  const uploadInput = document.getElementById('file-upload');\n"
+    "  if (uploadInput) uploadInput.addEventListener('change', handleFileUpload);"
+)
+NEW_DOMCONTENT = (
+    "  const uploadInput = document.getElementById('file-upload');\n"
+    "  if (uploadInput) uploadInput.addEventListener('change', handleFileUpload);\n"
+    "  const overviewInput = document.getElementById('overview-upload');\n"
+    "  if (overviewInput) overviewInput.addEventListener('change', handleOverviewUpload);"
+)
+if OLD_DOMCONTENT in html:
+    html = html.replace(OLD_DOMCONTENT, NEW_DOMCONTENT)
+    print('✓ DOMContentLoaded binding added')
+else:
+    print('✗ DOMContentLoaded binding not found')
+
+# ── 9. Write output ───────────────────────────────────────────────────────────
+with open(DST, 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f'\n✓ Done → {DST}')
+print(f'  File size: {len(html):,} bytes')

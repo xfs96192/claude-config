@@ -1,0 +1,984 @@
+#!/usr/bin/env python3
+"""Full redesign of the weekly report dashboard."""
+
+SRC = '/Users/fanshengxia/Desktop/周报V2/输出结果/周报仪表板-20260305.html'
+DST = '/Users/fanshengxia/Desktop/周报V2/输出结果/周报仪表板-20260305.html'
+
+with open(SRC, 'r', encoding='utf-8') as f:
+    html = f.read()
+
+# ─────────────────────────────────────────────────────────
+# 1. NEW CSS (replace entire <style>...</style> block)
+# ─────────────────────────────────────────────────────────
+NEW_CSS = """
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:           #F2EFE9;
+  --bg-card:      #FFFFFF;
+  --bg-sidebar:   #FAFAF8;
+  --bg-header:    #0C1F3D;
+  --bg-th:        #0C1F3D;
+  --bg-th2:       #1B3460;
+  --bg-row-alt:   #F8F6F1;
+  --bg-row-hover: #EEF3FB;
+  --bg-total:     #E5E0D8;
+  --bg-subtotal:  #EDE9E1;
+
+  --text:         #1A1714;
+  --text-sub:     #4A4540;
+  --text-muted:   #7E7970;
+  --text-th:      rgba(255,255,255,0.94);
+  --text-th2:     rgba(255,255,255,0.78);
+
+  --gold:         #A07820;
+  --gold-light:   rgba(160,120,32,0.10);
+  --navy:         #0C1F3D;
+  --positive:     #145A2E;
+  --negative:     #8B1A1A;
+
+  --border:       #D5CFBF;
+  --border-lt:    #E6E1D6;
+  --border-th:    rgba(255,255,255,0.10);
+
+  --sidebar-w:    210px;
+  --hdr-h:        52px;
+
+  --heat-pos-1: rgba(20,90,46,0.06); --heat-pos-2: rgba(20,90,46,0.12);
+  --heat-pos-3: rgba(20,90,46,0.18); --heat-pos-4: rgba(20,90,46,0.26);
+  --heat-pos-5: rgba(20,90,46,0.36);
+  --heat-neg-1: rgba(139,26,26,0.06); --heat-neg-2: rgba(139,26,26,0.12);
+  --heat-neg-3: rgba(139,26,26,0.18); --heat-neg-4: rgba(139,26,26,0.26);
+  --heat-neg-5: rgba(139,26,26,0.36);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:13px;scroll-behavior:smooth;}
+body{font-family:'Noto Sans SC',-apple-system,'Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;}
+
+/* ── Header ── */
+.top-header{position:fixed;top:0;left:0;right:0;height:var(--hdr-h);background:var(--bg-header);border-bottom:2px solid var(--gold);display:flex;align-items:center;padding:0 18px;z-index:200;}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.header-logo{width:28px;height:28px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;border-radius:2px;flex-shrink:0;}
+.header-title{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:600;color:rgba(255,255,255,0.95);letter-spacing:1.5px;white-space:nowrap;}
+.header-date{font-size:11px;color:rgba(255,255,255,0.42);white-space:nowrap;}
+
+.search-bar{margin-left:20px;}
+.search-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:3px;color:rgba(255,255,255,0.82);font-size:12px;padding:5px 10px;width:170px;outline:none;font-family:inherit;}
+.search-input::placeholder{color:rgba(255,255,255,0.30);}
+.search-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.11);}
+
+.toolbar-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.16);border-radius:3px;color:rgba(255,255,255,0.75);font-size:11.5px;padding:5px 11px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:all 0.13s;font-family:inherit;}
+.toolbar-btn:hover{background:rgba(255,255,255,0.14);color:#fff;}
+.toolbar-btn svg{width:13px;height:13px;flex-shrink:0;}
+.overview-upload-btn{border-color:rgba(160,120,32,0.45);color:rgba(210,170,80,0.90);}
+.overview-upload-btn:hover{background:rgba(160,120,32,0.15);color:#E5BB50;}
+.export-btn{border-color:rgba(255,255,255,0.22);}
+
+/* ── Sidebar ── */
+.sidebar{position:fixed;top:var(--hdr-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;padding:10px 0;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+.sidebar-section{margin-bottom:2px;}
+.sidebar-group-label{font-family:'Noto Serif SC',serif;font-size:9.5px;font-weight:600;color:var(--gold);letter-spacing:1.2px;padding:10px 12px 3px;border-top:1px solid var(--border-lt);text-transform:uppercase;}
+.sidebar-section:first-child .sidebar-group-label{border-top:none;}
+.nav-item{display:flex;align-items:center;gap:6px;padding:5px 12px;font-size:12px;color:var(--text-sub);text-decoration:none;border-left:2px solid transparent;transition:all 0.12s;}
+.nav-item:hover,.nav-item.active{color:var(--navy);background:var(--gold-light);border-left-color:var(--gold);}
+.nav-item.active{font-weight:500;}
+.nav-icon{font-size:7px;color:var(--text-muted);}
+
+/* ── Main ── */
+.main-content{margin-left:var(--sidebar-w);margin-top:var(--hdr-h);padding:24px 26px 60px;}
+.section{margin-bottom:36px;}
+.section-header{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:var(--navy);border-bottom:2px solid var(--navy);padding-bottom:7px;margin-bottom:18px;letter-spacing:0.3px;}
+.sheet-title{font-family:'Noto Serif SC',serif;font-size:13px;font-weight:600;color:var(--gold);margin:18px 0 7px;padding-left:8px;border-left:3px solid var(--gold);}
+
+/* ── Tables ── */
+.table-wrapper{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:3px;margin-bottom:14px;background:var(--bg-card);}
+.table-wrapper::-webkit-scrollbar{height:5px;}
+.table-wrapper::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+table{width:100%;border-collapse:collapse;font-size:12px;}
+
+th{background:var(--bg-th);color:var(--text-th);font-size:11px;font-weight:500;padding:7px 9px;text-align:center;white-space:nowrap;border-right:1px solid var(--border-th);border-bottom:1px solid var(--border-th);cursor:pointer;user-select:none;font-family:'Noto Sans SC',sans-serif;}
+th:hover{background:#1B3460;}
+th:last-child{border-right:none;}
+.subheader-row th{background:var(--bg-th2);color:var(--text-th2);font-size:10.5px;}
+
+td{padding:5px 9px;border-bottom:1px solid var(--border-lt);border-right:1px solid var(--border-lt);color:var(--text);vertical-align:middle;white-space:nowrap;max-width:200px;}
+td:last-child{border-right:none;}
+tr:nth-child(even):not(.header-row):not(.subheader-row):not(.total-row):not(.subtotal-row) td{background:var(--bg-row-alt);}
+tr:hover:not(.header-row):not(.subheader-row) td{background:var(--bg-row-hover)!important;}
+
+/* sticky first col for wide tables */
+.tbl-sticky th:first-child,.tbl-sticky td:first-child{position:sticky;left:0;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,0.06);}
+.tbl-sticky th:first-child{background:var(--bg-th);z-index:3;}
+.tbl-sticky .subheader-row th:first-child{background:var(--bg-th2);z-index:3;}
+.tbl-sticky tr:nth-child(even) td:first-child{background:var(--bg-row-alt);}
+.tbl-sticky tr:hover td:first-child{background:var(--bg-row-hover)!important;}
+
+/* number cells */
+td.num-cell{text-align:right;font-variant-numeric:tabular-nums;}
+/* code cells */
+td.code-cell{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-sub);white-space:nowrap;letter-spacing:0;}
+/* product name cells - truncate */
+td.name-cell{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+td.wide-name-cell{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* row types */
+tr.total-row td{background:var(--bg-total)!important;font-weight:600;border-top:1.5px solid var(--border);}
+tr.subtotal-row td{background:var(--bg-subtotal)!important;font-weight:500;font-style:italic;}
+tr.summary-row td{background:#DDE5F5!important;font-weight:600;border-top:1.5px solid var(--border);color:var(--navy);}
+
+/* value colors */
+.val-positive{color:var(--positive);}
+.val-negative{color:var(--negative);}
+
+/* heat map cells */
+.heat-pos-1 td,.heat-pos-1{background:var(--heat-pos-1)!important;}
+.heat-pos-2 td,.heat-pos-2{background:var(--heat-pos-2)!important;}
+.heat-pos-3 td,.heat-pos-3{background:var(--heat-pos-3)!important;}
+.heat-pos-4 td,.heat-pos-4{background:var(--heat-pos-4)!important;}
+.heat-pos-5 td,.heat-pos-5{background:var(--heat-pos-5)!important;color:var(--positive);}
+.heat-neg-1 td,.heat-neg-1{background:var(--heat-neg-1)!important;}
+.heat-neg-2 td,.heat-neg-2{background:var(--heat-neg-2)!important;}
+.heat-neg-3 td,.heat-neg-3{background:var(--heat-neg-3)!important;}
+.heat-neg-4 td,.heat-neg-4{background:var(--heat-neg-4)!important;}
+.heat-neg-5 td,.heat-neg-5{background:var(--heat-neg-5)!important;color:var(--negative);}
+
+/* ── Tabs ── */
+.tabs-container{}
+.tab-buttons{display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid var(--border);}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;padding:7px 18px;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:color 0.12s;}
+.tab-btn:hover{color:var(--navy);}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* ── Overview ── */
+.overview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:14px 15px;border-top:3px solid var(--border);}
+.stat-card.stat-primary{border-top-color:var(--gold);}
+.stat-card.stat-ok{border-top-color:var(--positive);}
+.stat-card.stat-alert{border-top-color:var(--negative);}
+.stat-label{font-size:10px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.stat-value{font-family:'Noto Serif SC',serif;font-size:21px;font-weight:700;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.stat-positive{color:var(--positive);}
+.stat-negative{color:var(--negative);}
+.bar-chart{display:flex;flex-direction:column;gap:4px;margin-top:4px;}
+.bar-row{display:flex;align-items:center;gap:7px;}
+.bar-label{width:74px;font-size:10px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;flex-shrink:0;}
+.bar-track{flex:1;height:5px;background:var(--border-lt);border-radius:2px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;}
+.bar-value{width:36px;font-size:10px;color:var(--text-sub);text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
+.text-card{margin-bottom:8px;padding:9px 11px;background:var(--bg);border-radius:2px;border:1px solid var(--border-lt);}
+.text-card-label{font-size:9.5px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.text-card-content{font-size:11.5px;color:var(--text-sub);line-height:1.65;}
+.text-cards-inline{display:flex;flex-direction:column;gap:5px;max-height:310px;overflow-y:auto;}
+.text-cards-inline::-webkit-scrollbar{width:3px;}
+.text-cards-inline::-webkit-scrollbar-thumb{background:var(--border);}
+
+/* ── Series ops ── */
+.series-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.series-nav-btn{padding:4px 10px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;cursor:pointer;color:var(--text-sub);transition:all 0.12s;font-family:inherit;}
+.series-nav-btn:hover,.series-nav-btn.active{background:var(--gold-light);border-color:var(--gold);color:var(--navy);font-weight:500;}
+.series-block{margin-bottom:28px;}
+.series-block-header{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border-lt);}
+.series-block-title{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;color:var(--navy);}
+.series-block-stats{font-size:10.5px;color:var(--text-muted);}
+
+/* ── Toast ── */
+.upload-toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;border-radius:3px;border-left:4px solid var(--gold);padding:10px 14px;font-size:12px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:9999;max-width:340px;animation:toastIn 0.18s ease;}
+.upload-toast.success{border-left-color:var(--positive);}
+.upload-toast.error{border-left-color:var(--negative);}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── Footer ── */
+footer{text-align:center;font-size:10.5px;color:var(--text-muted);padding:16px;border-top:1px solid var(--border);margin-top:30px;}
+
+/* ── Empty ── */
+.empty-state{color:var(--text-muted);text-align:center;padding:36px 20px;font-size:12px;border:1px dashed var(--border);border-radius:3px;background:var(--bg-card);}
+
+/* ── Print ── */
+@media print{
+  .top-header,.sidebar{display:none;}
+  .main-content{margin:0;padding:8px;}
+  .tab-content{display:block!important;}
+  .tab-content::before{content:attr(data-tab-label);font-weight:bold;display:block;margin:8px 0 3px;}
+  .section{break-inside:avoid-page;margin-bottom:20px;}
+  .table-wrapper{overflow:visible;border:1px solid #999;}
+  th{background:#1A1A1A!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .total-row td{background:#DDDDD0!important;-webkit-print-color-adjust:exact;}
+}
+"""
+
+# Find and replace CSS block
+css_start = html.index('<style>')
+css_end = html.index('</style>') + len('</style>')
+html = html[:css_start] + '<style>' + NEW_CSS + '</style>' + html[css_end:]
+print('✓ CSS replaced')
+
+# ─────────────────────────────────────────────────────────
+# 2. Update toolbar: change input[type=file] visibility
+# ─────────────────────────────────────────────────────────
+html = html.replace(
+    '<input type="file" id="file-upload" accept=".xlsx,.xls">',
+    '<input type="file" id="file-upload" accept=".xlsx,.xls" style="display:none">'
+)
+html = html.replace(
+    '<input type="file" id="overview-upload" accept=".xlsx,.xls" style="display:none">\n'
+    '    <button class="toolbar-btn" onclick="document.getElementById(\'overview-upload\').click()" title="导入产品运作概览文件（各系列产品运作情况）" style="background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4);">',
+    '<input type="file" id="overview-upload" accept=".xlsx,.xls" style="display:none">\n'
+    '    <button class="toolbar-btn overview-upload-btn" onclick="document.getElementById(\'overview-upload\').click()" title="导入产品运作概览文件（各系列产品运作情况）">'
+)
+print('✓ Toolbar updated')
+
+# ─────────────────────────────────────────────────────────
+# 3. NEW JS (replace entire <script>...</script> block)
+# ─────────────────────────────────────────────────────────
+NEW_JS = r"""
+/* ====== Section Config ====== */
+const SECTION_CONFIG = [{"id":"overview","title":"报告概览","icon":"&#9670;","sheets":["总结文字"],"type":"overview"},{"id":"channel-aum","title":"1. 渠道代销规模","icon":"&#9632;","sheets":["1、分渠道余额","渠道明细"],"type":"tables"},{"id":"product-scale","title":"2. 产品规模","icon":"&#9632;","sheets":["2、产品规模","不同形态产品规模和数量","13.不同周期产品规模","14.狭义客户周期和最短持有期的产品规模跟踪"],"type":"tables"},{"id":"scale-changes","title":"3. 在售产品销售情况","icon":"&#9632;","sheets":["3、本⽉定开或客户周期产品规模变化","本周新发产品","待售产品"],"type":"tables"},{"id":"pm-metrics","title":"4. 投资经理维度","icon":"&#9632;","sheets":["投资经理维度产品规模和数量"],"type":"tables"},{"id":"maturity","title":"5. 产品到期情况","icon":"&#9670;","sheets":["10.未来全年产品到期情况","10.未来全年产品到期情况-定开","10.下周到期产品清单"],"type":"tables"},{"id":"break-even","title":"6. 破净情况","icon":"&#9670;","sheets":["破净结果"],"type":"tables"},{"id":"market-index","title":"7. 市场指数收益","icon":"&#9670;","sheets":["15.市场指数收益"],"type":"tables"},{"id":"series-perf","title":"8. 系列产品业绩","icon":"&#9670;","sheets":["系列产品业绩-费前加权","系列产品业绩-费后加权","系列产品业绩-费前平均","系列产品业绩-费后平均"],"type":"tabs"},{"id":"min-hold-perf","title":"9. 最短持有期业绩","icon":"&#9670;","sheets":["5.2 最短持有期产品业绩表现1","5.2 最短持有期产品业绩表现2"],"type":"tables"},{"id":"underperform","title":"10. 不达基准清单","icon":"&#9888;","sheets":["招商在售产品不达基准","封闭及定开产品100日内不大业绩产品清单","合享及悦动稳享临近到期预测不达标产品清单"],"type":"tables"},{"id":"high-vol","title":"11. 高波动产品","icon":"&#9888;","sheets":["12.周净值高波动产品清单"],"type":"tables"},{"id":"asset-alloc","title":"12. 资产维度数据统计","icon":"&#9679;","sheets":["8.资产大表"],"type":"tables"},{"id":"fee-income","title":"13. 中收监控","icon":"&#9679;","sheets":["9.中收监控"],"type":"tables"},{"id":"public-strategy","title":"14. 公共策略专户","icon":"&#9679;","sheets":["公共策略持仓概况"],"type":"tables"},{"id":"xinghe","title":"15. 兴合产品持仓","icon":"&#9679;","sheets":["11.兴合产品持仓明细"],"type":"tables"},{"id":"bond-holdings","title":"16. 可转债/量化持仓","icon":"&#9679;","sheets":["11.1 可转债专户持仓明细","11.2量化和可转债持仓明细"],"type":"tables"},{"id":"outsource","title":"17. 委外专户配置","icon":"&#9679;","sheets":["11.2.1其他委外专户金额配置情况","11.2.2其他委外专户配置占比情况","11.2.3其他委外专户配置占比情况-除以系列规模"],"type":"tables"},{"id":"derivatives","title":"18. 衍生品/非标持仓","icon":"&#9679;","sheets":["11.4其他衍生品专户持仓明细","11.5全部衍生品专户持仓占比","11.6非标持仓占比"],"type":"tables"},{"id":"gold-equity","title":"19. 黄金/权益持仓","icon":"&#9679;","sheets":["黄金持仓","权益专户持仓"],"type":"tables"}];
+
+/* ====== Format Sets ====== */
+const SCALE_INT_SHEETS = new Set(['2、产品规模','1、分渠道余额','投资经理维度产品规模和数量','不同形态产品规模和数量','13.不同周期产品规模','14.狭义客户周期和最短持有期的产品规模跟踪','10.未来全年产品到期情况','10.未来全年产品到期情况-定开']);
+const PCT_RAW_SHEETS   = new Set(['15.市场指数收益']);
+const PCT_DECIMAL_SHEETS = new Set(['系列产品业绩-费后加权','系列产品业绩-费后平均','系列产品业绩-费前加权','系列产品业绩-费前平均','5.2 最短持有期产品业绩表现1','5.2 最短持有期产品业绩表现2','10.下周到期产品清单','招商在售产品不达基准','封闭及定开产品100日内不大业绩产品清单','合享及悦动稳享临近到期预测不达标产品清单','12.周净值高波动产品清单','破净结果']);
+
+/* ====== Column Display Config ====== */
+// Columns that must always render as text (never parsed as number)
+const TEXT_COL_NAMES = new Set(['产品代码','母产品代码']);
+// Columns that get name-cell truncation class
+const NAME_COL_NAMES = new Set(['产品简称','母产品简称']);
+
+// Per-sheet ordered whitelist. Only these columns shown in this order.
+const COLUMN_DISPLAY = {
+  '10.下周到期产品清单':       ['产品代码','产品简称','净资产(亿)','形态','母分类','单位净值','本期年化','业绩基准','运作天','剩余天','产品经理','起息日','到期日'],
+  '招商在售产品不达基准':      ['产品代码','产品简称','净资产(亿)','形态','母分类','单位净值','本期年化','业绩基准','预计年化','差值','剩余天','到期日','产品经理'],
+  '封闭及定开产品100日内不大业绩产品清单': ['产品代码','产品简称','净资产(亿)','形态','母分类','本期年化','业绩基准','预计年化','差值','剩余天','到期日','产品经理'],
+  '合享及悦动稳享临近到期预测不达标产品清单': ['产品代码','产品简称','净资产(亿)','形态','本期年化','业绩基准','预计年化','差值','剩余天','到期日'],
+  '12.周净值高波动产品清单':   ['产品代码','产品简称','净资产(亿)','形态','母分类','本期年化','业绩基准','运作天','剩余天','产品经理'],
+  '破净结果':                  ['产品代码','产品简称','净资产(亿)','形态','母分类','单位净值','本期年化','运作天','剩余天','产品经理'],
+  '本周新发产品':              ['母产品代码','母产品简称','销量(亿)','行内(亿)','行外(亿)','母品类','起息日','到期日','形态','产品经理'],
+  '待售产品':                  ['产品代码','产品简称','募集期(起)','募集期(止)','成立日','到期日','规模上限(亿)','销售币种'],
+  '3、本月定开或客户周期产品规模变化': ['母产品代码','母产品简称','多资产品类','母品类','起息日','规模/变化（亿）','产品经理'],
+};
+// Also handle Kangxi variant of 月
+COLUMN_DISPLAY['3\u3001\u672c\u2F48\u5B9A\u5F00\u6216\u5BA2\u6237\u5468\u671F\u4EA7\u54C1\u89C4\u6A21\u53D8\u5316'] =
+  COLUMN_DISPLAY['3、本月定开或客户周期产品规模变化'];
+
+// Columns to always hide when no whitelist applies
+const ALWAYS_HIDE_COLS = new Set(['vlookup标签','母子产品标识','产品开放形式','5%流动性实际指标','销售费','管理费','托管费','周期天数','产品模板中文名称','渠道明细','是否招商','产品部品类','备注']);
+
+/* ====== Kangxi Normalization ====== */
+const KANGXI_MAP = {'\u2F00':'\u4E00','\u2F01':'\u4E28','\u2F02':'\u4E36','\u2F03':'\u4E3F','\u2F04':'\u4E59','\u2F05':'\u4E85','\u2F06':'\u4E8C','\u2F07':'\u4EA0','\u2F08':'\u4EBA','\u2F09':'\u513F','\u2F0A':'\u5165','\u2F0B':'\u516B','\u2F0C':'\u5182','\u2F0D':'\u5196','\u2F0E':'\u51AB','\u2F0F':'\u51E0','\u2F10':'\u51F5','\u2F11':'\u5200','\u2F12':'\u529B','\u2F13':'\u52F9','\u2F14':'\u5315','\u2F15':'\u531A','\u2F16':'\u5338','\u2F17':'\u5341','\u2F18':'\u535C','\u2F19':'\u5369','\u2F1A':'\u5382','\u2F1B':'\u53B6','\u2F1C':'\u53C8','\u2F1D':'\u53E3','\u2F1E':'\u56D7','\u2F1F':'\u571F','\u2F20':'\u58EB','\u2F21':'\u5902','\u2F22':'\u590A','\u2F23':'\u5915','\u2F24':'\u5927','\u2F25':'\u5973','\u2F26':'\u5B50','\u2F27':'\u5B80','\u2F28':'\u5BF8','\u2F29':'\u5C0F','\u2F2A':'\u5C22','\u2F2B':'\u5C38','\u2F2C':'\u5C6E','\u2F2D':'\u5C71','\u2F2E':'\u5DDB','\u2F2F':'\u5DE5','\u2F30':'\u5DF1','\u2F31':'\u5DFE','\u2F32':'\u5E72','\u2F33':'\u5E7A','\u2F34':'\u5E7F','\u2F35':'\u5EF4','\u2F36':'\u5EFE','\u2F37':'\u5F13','\u2F38':'\u5F50','\u2F39':'\u5F61','\u2F3A':'\u5F73','\u2F3B':'\u5FC3','\u2F3C':'\u6208','\u2F3D':'\u6236','\u2F3E':'\u624B','\u2F3F':'\u652F','\u2F40':'\u6534','\u2F41':'\u6587','\u2F42':'\u6597','\u2F43':'\u65A4','\u2F44':'\u65B9','\u2F45':'\u65E0','\u2F46':'\u65E5','\u2F47':'\u66F0','\u2F48':'\u6708','\u2F49':'\u6708','\u2F4A':'\u6728','\u2F4B':'\u6B20','\u2F4C':'\u6B62','\u2F4D':'\u6B79','\u2F4E':'\u6BB3','\u2F4F':'\u6BCB','\u2F50':'\u6BD4','\u2F51':'\u6BDB','\u2F52':'\u6C0F','\u2F53':'\u6C14','\u2F54':'\u6C34','\u2F55':'\u706B','\u2F56':'\u722A','\u2F57':'\u7236','\u2F58':'\u723B','\u2F59':'\u723F','\u2F5A':'\u7247','\u2F5B':'\u7259','\u2F5C':'\u725B','\u2F5D':'\u72AC'};
+function normalizeSheetName(name){let r='';for(let i=0;i<name.length;i++){const c=name[i];r+=KANGXI_MAP[c]||c;}return r;}
+function findSheet(sheets,name){if(sheets[name])return sheets[name];const n=normalizeSheetName(name);for(const k of Object.keys(sheets)){if(normalizeSheetName(k)===n)return sheets[k];}return null;}
+function findSheetKey(sheets,name){if(sheets[name]!==undefined)return name;const n=normalizeSheetName(name);for(const k of Object.keys(sheets)){if(normalizeSheetName(k)===n)return k;}return null;}
+function setHasNorm(s,name){if(s.has(name))return true;const n=normalizeSheetName(name);for(const item of s){if(normalizeSheetName(item)===n)return true;}return false;}
+
+/* ====== Utility ====== */
+function isNumeric(v){if(v==null)return false;if(typeof v==='number')return isFinite(v);if(typeof v==='string'){const n=parseFloat(v);return !isNaN(n)&&isFinite(n);}return false;}
+function toFloat(v){if(v==null)return null;if(typeof v==='number')return isFinite(v)?v:null;if(typeof v==='string'){if(v===''||v==='nan'||v==='inf'||v==='-inf')return null;const n=parseFloat(v);return isFinite(n)?n:null;}return null;}
+function escHtml(s){if(s==null)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ====== Column Filter / Reorder ====== */
+function filterColumnsForDisplay(data, sheetName) {
+  if (!data || data.length === 0) return data;
+  const headers = data[0];
+  const normSheet = normalizeSheetName(sheetName);
+
+  // Check COLUMN_DISPLAY whitelist
+  let wantCols = null;
+  for (const [sheet, cols] of Object.entries(COLUMN_DISPLAY)) {
+    if (normalizeSheetName(sheet) === normSheet) { wantCols = cols; break; }
+  }
+
+  if (wantCols) {
+    // Build header→index map (trim whitespace)
+    const hMap = {};
+    headers.forEach((h, i) => { if (h != null) hMap[String(h).trim()] = i; });
+    // Map to indices, skipping any column not found
+    const indices = wantCols.map(c => hMap[c]).filter(i => i !== undefined);
+    if (indices.length === 0) return data;
+    return data.map(row => indices.map(i => (i < row.length ? row[i] : null)));
+  }
+
+  // No whitelist: filter out ALWAYS_HIDE columns
+  const keepIdx = [];
+  headers.forEach((h, i) => {
+    const ht = h != null ? String(h).trim() : '';
+    if (!ALWAYS_HIDE_COLS.has(ht)) keepIdx.push(i);
+  });
+  if (keepIdx.length === headers.length) return data;
+  return data.map(row => keepIdx.map(i => (i < row.length ? row[i] : null)));
+}
+
+/* ====== Column Type Detection ====== */
+function detectColumnTypes(data, sheetName) {
+  if (!data || !data[0]) return {};
+  const headers = data[0];
+  const colTypes = {};
+  for (let ci = 0; ci < headers.length; ci++) {
+    const h = String(headers[ci] || '');
+    // Text cols
+    if (TEXT_COL_NAMES.has(h.trim())) { colTypes[ci] = 'text'; continue; }
+    // PCT_RAW
+    if (setHasNorm(PCT_RAW_SHEETS, sheetName)) {
+      if (/年化|收益率|波动率|占比/.test(h)) { colTypes[ci] = 'percent_raw'; continue; }
+    }
+    // PCT_DECIMAL
+    if (setHasNorm(PCT_DECIMAL_SHEETS, sheetName)) {
+      if (/年化|收益率|波动率|占比/.test(h)) { colTypes[ci] = 'percent'; continue; }
+    }
+    if (/bp/i.test(h)) { colTypes[ci] = 'bps'; continue; }
+    // Auto-detect
+    const isPctHdr = /年化|收益率|波动率|占比|比例/.test(h);
+    const numVals = [];
+    for (let ri = 1; ri < Math.min(data.length, 20); ri++) {
+      if (ci < data[ri].length) {
+        const v = toFloat(data[ri][ci]);
+        if (v != null && v !== 0) numVals.push(Math.abs(v));
+      }
+    }
+    if (isPctHdr && numVals.length > 0) {
+      const avg = numVals.reduce((a,b)=>a+b,0)/numVals.length;
+      colTypes[ci] = avg > 0.5 ? 'percent_raw' : 'percent';
+    } else if (numVals.length >= 2) {
+      const avg = numVals.reduce((a,b)=>a+b,0)/numVals.length;
+      const mx = Math.max(...numVals);
+      if (avg > 0 && avg < 0.5 && mx < 1.5) colTypes[ci] = 'percent';
+    }
+  }
+  return colTypes;
+}
+
+/* ====== Cell Value Formatting ====== */
+function formatCellValue(val, colType, useParens) {
+  if (val == null) return '';
+  // Text column: always return as string
+  if (colType === 'text') {
+    const s = String(val).trim();
+    return s === 'nan' || s === '' ? '' : escHtml(s);
+  }
+  if (typeof val === 'string') {
+    if (val === 'nan' || val === 'inf' || val === '-inf') return '';
+    const n = parseFloat(val);
+    if (isFinite(n)) val = n; else return escHtml(val);
+  }
+  if (typeof val !== 'number' || !isFinite(val)) return '';
+  if (colType === 'percent') return (val * 100).toFixed(2) + '%';
+  if (colType === 'percent_raw') return val.toFixed(2) + '%';
+  if (colType === 'bps') return val.toFixed(2);
+  if (useParens) {
+    if (Math.abs(val) < 0.05) return '-';
+    if (Math.abs(val) < 1 && Math.abs(val) >= 0.05)
+      return val < 0 ? '(' + Math.abs(val).toFixed(1) + ')' : val.toFixed(1);
+    const r = Math.round(val);
+    if (r === 0) return '-';
+    if (r < 0) return '(' + Math.abs(r).toLocaleString() + ')';
+    return r.toLocaleString();
+  }
+  if (Number.isInteger(val) || (val === Math.floor(val) && Math.abs(val) < 10000)) return String(Math.floor(val));
+  if (Math.abs(val) < 0.0001 && val !== 0) return val.toFixed(6);
+  if (Math.abs(val) < 0.01 && val !== 0) return val.toFixed(4);
+  if (Math.abs(val) < 100) return val.toFixed(2);
+  if (Math.abs(val) < 100000) return val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  return Math.round(val).toLocaleString();
+}
+
+/* ====== Cell CSS Classes ====== */
+function getCellClass(val, colType, header) {
+  const fval = toFloat(val);
+  if (fval == null || colType === 'text') return '';
+  const h = String(header).toLowerCase();
+  const cls = [];
+  const isChange = /变化|较上周|较上月|较上年|bp/.test(h);
+  const isReturn = /年化|收益率/.test(h);
+  if (isChange) { if (fval > 0) cls.push('val-positive'); else if (fval < 0) cls.push('val-negative'); }
+  if (isReturn && colType === 'percent' && fval < 0) cls.push('val-negative');
+  if (isChange && fval !== 0) {
+    let intensity;
+    if (colType === 'percent') intensity = Math.min(Math.abs(fval) * 20, 1);
+    else if (colType === 'percent_raw') intensity = Math.min(Math.abs(fval) / 5, 1);
+    else if (/bp/.test(h)) intensity = Math.min(Math.abs(fval) / 50, 1);
+    else intensity = Math.min(Math.abs(fval) / 20, 1);
+    const level = Math.min(Math.floor(intensity * 5) + 1, 5);
+    cls.push(fval > 0 ? 'heat-pos-' + level : 'heat-neg-' + level);
+  }
+  return cls.join(' ');
+}
+
+/* ====== Table HTML Generation ====== */
+function generateTableHTML(sheetName, sheetData) {
+  if (!sheetData || !sheetData.data || sheetData.data.length === 0) return '<div class="empty-state">暂无数据</div>';
+
+  // Apply column filter/reorder
+  const data = filterColumnsForDisplay(sheetData.data, sheetName);
+  const colTypes = detectColumnTypes(data, sheetName);
+  const useParens = setHasNorm(SCALE_INT_SHEETS, sheetName);
+  const numCols = data[0] ? data[0].length : 0;
+  const isWide = numCols > 8;
+
+  let html = '';
+  for (let ri = 0; ri < data.length; ri++) {
+    const row = data[ri];
+    const isHeader = ri === 0;
+    let isSubheader = false;
+    if (ri === 1 || ri === 2) {
+      const vals = row.filter(v => v != null);
+      const numC = vals.filter(v => isNumeric(v)).length;
+      const firstVal = row[0] != null ? String(row[0]).trim() : '';
+      // Don't treat rows starting with product codes as subheaders
+      const looksLikeCode = /^\d[A-Za-z0-9]{5,}/.test(firstVal) || /^\d{8}$/.test(firstVal);
+      if (!looksLikeCode && vals.length > 0 && (vals.length - numC) > numC && (vals.length - numC) >= 2) isSubheader = true;
+    }
+
+    let cells = '';
+    for (let ci = 0; ci < Math.min(row.length, numCols); ci++) {
+      const val = row[ci];
+      const tag = (isHeader || isSubheader) ? 'th' : 'td';
+      const colH = data[0][ci] != null ? String(data[0][ci]).trim() : '';
+      const colType = colTypes[ci] || null;
+      let display;
+      if (isHeader || isSubheader) {
+        display = val != null ? escHtml(String(val)) : '';
+      } else {
+        display = formatCellValue(val, colType, useParens);
+      }
+      let cls = [];
+      if (!isHeader && !isSubheader) {
+        const cc = getCellClass(val, colType, colH); if (cc) cls.push(cc);
+        if (colType === 'text') cls.push('code-cell');
+        else if (toFloat(val) != null) cls.push('num-cell');
+        if (NAME_COL_NAMES.has(colH)) cls.push('name-cell');
+      }
+      const clsStr = cls.length ? ' class="' + cls.join(' ') + '"' : '';
+      // Add title tooltip for truncated name cells
+      const titleAttr = (!isHeader && !isSubheader && NAME_COL_NAMES.has(colH) && val != null)
+        ? ' title="' + escHtml(String(val)) + '"' : '';
+      cells += '<' + tag + clsStr + titleAttr + '>' + display + '</' + tag + '>';
+    }
+
+    let rowCls = '';
+    if (isHeader) rowCls = 'header-row';
+    else if (isSubheader) rowCls = 'subheader-row';
+    else {
+      const f = String(row[0] || '').trim();
+      const s = row.length > 1 ? String(row[1] || '').trim() : '';
+      if (['合计','总计','总合计','汇总','总规模'].includes(f) || ['合计','总计','汇总'].includes(s))
+        rowCls = 'total-row';
+      else if (s.includes('合计') || f.includes('合计')) rowCls = 'subtotal-row';
+      else if (row.slice(0,3).some(v => String(v||'').includes('合计'))) rowCls = 'total-row';
+    }
+    const rcAttr = rowCls ? ' class="' + rowCls + '"' : '';
+    html += '<tr' + rcAttr + '>' + cells + '</tr>';
+  }
+  const tblCls = isWide ? ' class="tbl-sticky"' : '';
+  return '<div class="table-wrapper"><table' + tblCls + '>' + html + '</table></div>';
+}
+
+/* ====== Preprocessing ====== */
+function preprocessSheets(sheets) {
+  // 1. 分渠道余额 subtotals
+  const ch = findSheet(sheets, '1、分渠道余额');
+  if (ch && ch.data && ch.data.length > 3) {
+    const d = ch.data;
+    const newData = d.slice(0, 3);
+    const groups = {};
+    let curGroup = null;
+    for (let ri = 3; ri < d.length; ri++) {
+      const row = d[ri];
+      if (row[0] != null) curGroup = String(row[0]);
+      if (curGroup) { if (!groups[curGroup]) groups[curGroup] = []; groups[curGroup].push(row); }
+    }
+    const grandTotal = [0, 0];
+    for (const gn of ['中低波稳健产品','中高波市值产品','外币产品']) {
+      const rows = groups[gn] || [];
+      const sub = [0, 0];
+      for (const row of rows) {
+        const v1 = toFloat(row[2]); const v2 = toFloat(row[3]);
+        if (v1) sub[0] += v1; if (v2) sub[1] += v2;
+        newData.push(row);
+      }
+      newData.push([null, gn + '合计', Math.round(sub[0]), Math.round(sub[1])]);
+      grandTotal[0] += sub[0]; grandTotal[1] += sub[1];
+    }
+    if (newData[0].length === 4) {
+      newData[0] = [null, null, '保有规模', null, null];
+      newData[1] = [null, '渠道-行内外', '行内', '行外', '合计'];
+      newData[2] = ['总分类', '母分类', null, null, null];
+    }
+    for (let ri = 3; ri < newData.length; ri++) {
+      const row = newData[ri];
+      if (row.length === 4) row.push(Math.round((toFloat(row[2])||0) + (toFloat(row[3])||0)));
+    }
+    newData.push([null, '总计', Math.round(grandTotal[0]), Math.round(grandTotal[1]), Math.round(grandTotal[0]+grandTotal[1])]);
+    ch.data = newData; ch.col_count = 5;
+  }
+  // 2. 产品规模 合计
+  const ps = findSheet(sheets, '2、产品规模');
+  if (ps && ps.data && ps.data.length > 1) {
+    const d = ps.data;
+    const hasTotal = d.slice(1).some(r => { const a=String(r[0]||'').trim(),b=String(r[1]||'').trim(); return a==='合计'||a==='总计'||b==='合计'||b==='总计'; });
+    if (!hasTotal) {
+      const totals = new Array(d[0].length).fill(0);
+      for (const row of d.slice(1)) { for (let ci=2;ci<row.length;ci++){const v=toFloat(row[ci]);if(v)totals[ci]+=v;} }
+      const totalRow = ['','合计']; for (let ci=2;ci<d[0].length;ci++) totalRow.push(Math.round(totals[ci]));
+      while (totalRow.length < d[0].length) totalRow.push(null);
+      d.push(totalRow);
+    }
+  }
+  // 3. 投资经理维度 合计
+  const pm = findSheet(sheets, '投资经理维度产品规模和数量');
+  if (pm && pm.data && pm.data.length > 1) {
+    const d = pm.data;
+    const hasTotal = d.slice(1).some(r => String(r[0]||'').trim()==='合计');
+    if (!hasTotal) {
+      const totals = new Array(d[0].length).fill(0);
+      for (const row of d.slice(1)) { for (let ci=1;ci<row.length;ci++){const v=toFloat(row[ci]);if(v)totals[ci]+=v;} }
+      const totalRow = ['合计']; for (let ci=1;ci<d[0].length;ci++) totalRow.push(Math.round(totals[ci]*10)/10);
+      while (totalRow.length < d[0].length) totalRow.push(null);
+      d.push(totalRow);
+    }
+  }
+}
+
+/* ====== Overview Stats ====== */
+function computeOverviewStats(sheets) {
+  const stats = {};
+  const ps = findSheet(sheets, '2、产品规模');
+  if (ps && ps.data) {
+    let totalAum=0,totalCount=0,aumM=0,aumY=0;
+    for (const row of ps.data.slice(1)) {
+      const f=String(row[0]||'').trim(),s=String(row[1]||'').trim();
+      if (['合计','总计'].includes(f)||['合计','总计'].includes(s)) continue;
+      let v=toFloat(row[2]); if(v)totalAum+=v;
+      v=toFloat(row[5]); if(v)totalCount+=v;
+      v=toFloat(row[3]); if(v)aumM+=v;
+      v=toFloat(row[4]); if(v)aumY+=v;
+    }
+    stats.totalAum=totalAum; stats.totalCount=totalCount; stats.aumM=aumM; stats.aumY=aumY;
+  }
+  const ts = findSheet(sheets, '总结文字');
+  if (ts && ts.data) {
+    for (const row of ts.data.slice(1)) {
+      if (row.length>=2&&row[0]&&row[1]) {
+        const k=String(row[0]),v=String(row[1]);
+        if (k.includes('规模')) stats.guimoText=v;
+        else if (k.includes('中收')) stats.zhongshouText=v;
+        else if (k.includes('到期')) stats.daoqiText=v;
+      }
+    }
+  }
+  const bp=findSheet(sheets,'破净结果'); if(bp&&bp.data)stats.brokenCount=bp.data.slice(1).filter(r=>r.some(v=>v!=null)).length;
+  const up=findSheet(sheets,'招商在售产品不达基准'); if(up&&up.data)stats.underperformCount=up.data.length-1;
+  const hv=findSheet(sheets,'12.周净值高波动产品清单'); if(hv&&hv.data)stats.highVolCount=hv.data.length-1;
+  return stats;
+}
+
+function generateOverviewHTML(stats, sheets) {
+  const aum=stats.totalAum;
+  const aumStr=aum>100?Math.round(aum).toLocaleString()+'亿':(aum?aum.toFixed(2)+'亿':'N/A');
+  const countStr=stats.totalCount?Math.round(stats.totalCount)+'只':'N/A';
+  const aumMStr=stats.aumM!=null?(stats.aumM>=0?'+':'')+Math.round(stats.aumM)+'亿':'N/A';
+  const aumMCls=stats.aumM>0?'stat-positive':(stats.aumM<0?'stat-negative':'');
+  const aumYStr=stats.aumY!=null?(stats.aumY>=0?'+':'')+Math.round(stats.aumY)+'亿':'N/A';
+  const aumYCls=stats.aumY>0?'stat-positive':(stats.aumY<0?'stat-negative':'');
+  const broken=stats.brokenCount||0;
+  const brokenStr=broken>0?broken+'只':'无';
+  const underperf=stats.underperformCount||0;
+  const highVol=stats.highVolCount||0;
+  let textCards='';
+  for (const [key,label] of [['guimoText','规模概况'],['zhongshouText','中收概况'],['daoqiText','到期概况']]) {
+    const text=stats[key]||'';
+    if(text)textCards+='<div class="text-card"><div class="text-card-label">'+label+'</div><div class="text-card-content">'+escHtml(text).replace(/\n/g,'<br>')+'</div></div>';
+  }
+  let barItems='';
+  const ps=findSheet(sheets,'2、产品规模');
+  if(ps&&ps.data){
+    let maxAum=0;
+    for(const row of ps.data.slice(1)){const s=String(row[1]||'').trim();if(['合计','总计'].includes(s))continue;const v=toFloat(row[2]);if(v&&v>maxAum)maxAum=v;}
+    for(const row of ps.data.slice(1)){
+      const name=String(row[1]||'');if(['合计','总计'].includes(name.trim()))continue;
+      const v=toFloat(row[2])||0,chg=toFloat(row[3])||0;
+      if(v&&name){
+        const pct=maxAum>0?(v/maxAum*100):0;
+        const color=chg>0?'var(--positive)':(chg<0?'var(--negative)':'var(--gold)');
+        barItems+='<div class="bar-row"><div class="bar-label" title="'+escHtml(name)+'">'+escHtml(name.slice(0,8))+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct.toFixed(1)+'%;background:'+color+'"></div></div><div class="bar-value">'+Math.round(v)+'</div></div>';
+      }
+    }
+  }
+  return '<div class="overview-grid">'+
+    '<div class="stat-card stat-primary"><div class="stat-label">管理规模</div><div class="stat-value">'+aumStr+'</div>'+
+    '<div class="stat-sub"><span class="'+aumMCls+'">较上月 '+aumMStr+'</span> <span class="'+aumYCls+'">较年初 '+aumYStr+'</span></div></div>'+
+    '<div class="stat-card"><div class="stat-label">产品数量</div><div class="stat-value">'+countStr+'</div></div>'+
+    '<div class="stat-card '+(broken>0?'stat-alert':'stat-ok')+'"><div class="stat-label">破净产品</div><div class="stat-value">'+brokenStr+'</div></div>'+
+    '<div class="stat-card '+(underperf>3?'stat-alert':'')+'"><div class="stat-label">不达基准</div><div class="stat-value">'+underperf+'只</div></div>'+
+    '<div class="stat-card '+(highVol>20?'stat-alert':'')+'"><div class="stat-label">高波动产品</div><div class="stat-value">'+highVol+'只</div></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'+
+    '<div class="stat-card" style="padding:14px 16px"><div class="stat-label" style="margin-bottom:8px">各系列规模分布 (亿)</div><div class="bar-chart">'+barItems+'</div></div>'+
+    '<div class="stat-card" style="padding:14px 16px"><div class="stat-label" style="margin-bottom:5px">AI 摘要</div><div class="text-cards-inline">'+textCards+'</div></div>'+
+    '</div>';
+}
+
+/* ====== Rebuild Dashboard ====== */
+function rebuildDashboard(sheets) {
+  for (const section of SECTION_CONFIG) {
+    const el = document.getElementById(section.id);
+    if (!el) continue;
+    const header = el.querySelector('.section-header');
+    const headerHTML = header ? header.outerHTML : '<h2 class="section-header">'+escHtml(section.title)+'</h2>';
+    let contentHTML = '';
+    if (section.type === 'overview') {
+      const stats = computeOverviewStats(sheets);
+      contentHTML = generateOverviewHTML(stats, sheets);
+    } else if (section.type === 'tabs') {
+      let tabBtns='', tabContents='', tabIdx=0;
+      for (const sn of section.sheets) {
+        const sd = findSheet(sheets, sn); if (!sd) continue;
+        const short = sn.replace('系列产品业绩-','');
+        const active = tabIdx===0?' active':'';
+        const actualKey = findSheetKey(sheets, sn) || sn;
+        tabBtns += '<button class="tab-btn'+active+'" onclick="switchTab(\''+section.id+'\','+tabIdx+')" data-tabgroup="'+section.id+'" data-tabidx="'+tabIdx+'">'+escHtml(short)+'</button>';
+        tabContents += '<div class="tab-content'+active+'" data-tab="'+section.id+'-tab-'+tabIdx+'" data-tab-label="'+escHtml(short)+'">'+generateTableHTML(actualKey, sd)+'</div>';
+        tabIdx++;
+      }
+      contentHTML = '<div class="tabs-container"><div class="tab-buttons">'+tabBtns+'</div>'+tabContents+'</div>';
+    } else {
+      for (const sn of section.sheets) {
+        const sd = findSheet(sheets, sn); if (!sd) continue;
+        const actualKey = findSheetKey(sheets, sn) || sn;
+        contentHTML += '<h3 class="sheet-title">'+escHtml(actualKey)+'</h3>' + generateTableHTML(actualKey, sd);
+      }
+    }
+    el.innerHTML = headerHTML + contentHTML;
+  }
+  initTableSort();
+}
+
+/* ====== Series Operations Section ====== */
+const SERIES_FIXED_COLS  = ['产品代码','产品简称','净资产(亿)','形态','业绩基准','本期年化','累计年化','杠杆','组合久期','组合静态','运作天','剩余天','产品经理'];
+const SERIES_EQUITY_COLS = ['产品代码','产品简称','净资产(亿)','形态','业绩基准','本期年化','累计年化','杠杆','权益仓位','组合久期','运作天','剩余天','产品经理'];
+const SERIES_FX_COLS     = ['产品代码','产品简称','净资产(亿)','形态','业绩基准','本期年化','累计年化','杠杆','运作天','剩余天','产品经理'];
+const EQUITY_MU = new Set(['逸动短持','灵动短持','兴动短持','含权定开/封闭','优先股短持','ESG联名','和瑞BOF','外币市值']);
+const FX_ONLY_MU = new Set(['外币低波']);
+const MU_ORDER  = ['悦动稳享短持','悦动稳/纯享','优先股短持','丰利/增盈','行外非标驱动型固收+','和瑞BOF','悦动短持/定开','逸动短持','灵动短持','兴动短持','含权定开/封闭','ESG联名','外币低波','外币市值'];
+const SERIES_PCT_COLS = new Set(['本期年化','累计年化','业绩基准','权益仓位']);
+
+function getSeriesCols(mu) {
+  if (FX_ONLY_MU.has(mu)) return SERIES_FX_COLS;
+  if (EQUITY_MU.has(mu)) return SERIES_EQUITY_COLS;
+  return SERIES_FIXED_COLS;
+}
+
+function formatSeriesVal(val, colName) {
+  if (val == null || val === '') return '';
+  const s = String(val);
+  if (s.toLowerCase() === 'nan' || s === '') return '';
+  if (TEXT_COL_NAMES.has(colName)) return s; // product code as text
+  if (SERIES_PCT_COLS.has(colName)) {
+    const n = parseFloat(val);
+    if (!isFinite(n)) return s;
+    // Values stored as decimals (e.g. 0.025 → 2.50%)
+    return n < 2 && n > -2 ? (n * 100).toFixed(2) + '%' : n.toFixed(2) + '%';
+  }
+  if (['净资产(亿)','杠杆','组合久期','组合静态'].includes(colName)) {
+    const n = parseFloat(val); return isFinite(n) ? n.toFixed(2) : s;
+  }
+  if (['运作天','剩余天'].includes(colName)) {
+    const n = parseFloat(val); return isFinite(n) ? Math.round(n).toString() : s;
+  }
+  // Date columns
+  if (['起息日','到期日'].includes(colName)) {
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    const n = parseInt(val);
+    if (!isNaN(n) && n > 40000) { // Excel serial date
+      const d = new Date(Date.UTC(1899,11,30) + n*86400000);
+      return d.toISOString().slice(0,10);
+    }
+    return s;
+  }
+  return s;
+}
+
+function generateSeriesTableHTML(rows, cols) {
+  if (!rows || rows.length === 0) return '<div class="empty-state">无数据</div>';
+  let html = '<div class="table-wrapper"><table class="tbl-sticky"><tr class="header-row">';
+  for (const c of cols) html += '<th>' + escHtml(c) + '</th>';
+  html += '</tr>';
+  // Data rows
+  let totalAum = 0;
+  const aumIdx = cols.indexOf('净资产(亿)');
+  for (const row of rows) {
+    html += '<tr>';
+    for (const c of cols) {
+      let val = row[c];
+      const display = formatSeriesVal(val, c);
+      let cls = '';
+      if (TEXT_COL_NAMES.has(c)) cls = 'code-cell';
+      else if (NAME_COL_NAMES.has(c)) cls = 'name-cell';
+      else if (['净资产(亿)','运作天','剩余天'].includes(c)) cls = 'num-cell';
+      else if (SERIES_PCT_COLS.has(c)) {
+        const n = typeof val === 'number' ? val : parseFloat(val);
+        cls = 'num-cell' + (isFinite(n) && n < 0 ? ' val-negative' : '');
+      }
+      const titleAttr = NAME_COL_NAMES.has(c) && val != null ? ' title="'+escHtml(String(val))+'"' : '';
+      html += '<td' + (cls ? ' class="'+cls.trim()+'"' : '') + titleAttr + '>' + escHtml(display) + '</td>';
+    }
+    html += '</tr>';
+    if (aumIdx >= 0) {
+      const v = parseFloat(row['净资产(亿)']);
+      if (isFinite(v)) totalAum += v;
+    }
+  }
+  // Summary row
+  html += '<tr class="total-row">';
+  for (let ci = 0; ci < cols.length; ci++) {
+    const c = cols[ci];
+    if (ci === 0) { html += '<td class="code-cell">—</td>'; continue; }
+    if (ci === 1) { html += '<td style="font-weight:600">合计</td>'; continue; }
+    if (c === '净资产(亿)') { html += '<td class="num-cell" style="font-weight:600">' + totalAum.toFixed(2) + '</td>'; continue; }
+    // Weighted avg for performance cols
+    if (SERIES_PCT_COLS.has(c)) {
+      // compute AUM-weighted average
+      let wSum = 0, wTotal = 0;
+      for (const row of rows) {
+        const w = parseFloat(row['净资产(亿)']);
+        const v = parseFloat(row[c]);
+        if (isFinite(w) && isFinite(v)) { wSum += w * v; wTotal += w; }
+      }
+      const avg = wTotal > 0 ? wSum / wTotal : null;
+      html += '<td class="num-cell">' + (avg != null ? (avg < 2 && avg > -2 ? (avg*100).toFixed(2)+'%' : avg.toFixed(2)+'%') : '') + '</td>';
+      continue;
+    }
+    html += '<td></td>';
+  }
+  html += '</tr>';
+  html += '</table></div>';
+  return html;
+}
+
+function rebuildSeriesSection(rawData) {
+  const content = document.getElementById('series-ops-content');
+  if (!content) return;
+  if (!rawData || rawData.length === 0) { content.innerHTML = '<div class="empty-state">数据为空</div>'; return; }
+
+  const data = rawData.filter(r => String(r['主要展示'] || '').trim() === '是');
+  const groups = {};
+  for (const row of data) {
+    const mu = String(row['母分类'] || '').trim();
+    if (!mu) continue;
+    if (!groups[mu]) groups[mu] = [];
+    groups[mu].push(row);
+  }
+
+  const order = MU_ORDER.filter(m => groups[m]);
+  for (const mu of Object.keys(groups)) { if (!order.includes(mu)) order.push(mu); }
+
+  // Nav buttons
+  let navHTML = '<div class="series-nav">';
+  for (const mu of order) navHTML += '<button class="series-nav-btn" onclick="scrollToSeries(\''+escHtml(mu)+'\')">'+escHtml(mu)+'</button>';
+  navHTML += '</div>';
+
+  let tablesHTML = '';
+  for (const mu of order) {
+    const rows = groups[mu];
+    rows.sort((a, b) => (parseFloat(b['净资产(亿)']) || 0) - (parseFloat(a['净资产(亿)']) || 0));
+    const cols = getSeriesCols(mu);
+    const totalAum = rows.reduce((s, r) => s + (parseFloat(r['净资产(亿)']) || 0), 0);
+    const avgRet = (() => {
+      let wSum=0, wT=0;
+      for (const r of rows) { const w=parseFloat(r['净资产(亿)']), v=parseFloat(r['本期年化']); if(isFinite(w)&&isFinite(v)){wSum+=w*v;wT+=w;} }
+      return wT > 0 ? (wSum/wT*100).toFixed(2)+'%' : '—';
+    })();
+    tablesHTML += '<div class="series-block" id="series-mu-'+encodeURIComponent(mu)+'">';
+    tablesHTML += '<div class="series-block-header">';
+    tablesHTML += '<span class="series-block-title">'+escHtml(mu)+'</span>';
+    tablesHTML += '<span class="series-block-stats">'+rows.length+'只 · 规模 '+totalAum.toFixed(2)+'亿 · 本期加权年化 '+avgRet+'</span>';
+    tablesHTML += '</div>';
+    tablesHTML += generateSeriesTableHTML(rows, cols);
+    tablesHTML += '</div>';
+  }
+
+  content.innerHTML = navHTML + tablesHTML;
+  initTableSort();
+}
+
+function scrollToSeries(mu) {
+  const el = document.getElementById('series-mu-' + encodeURIComponent(mu));
+  if (el) { const hh = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 52; const y = el.getBoundingClientRect().top + window.pageYOffset - hh - 10; window.scrollTo({ top: y, behavior: 'smooth' }); }
+}
+
+/* ====== File Upload Handlers ====== */
+function showToast(msg, type) {
+  document.querySelectorAll('.upload-toast').forEach(e => e.remove());
+  const t = document.createElement('div');
+  t.className = 'upload-toast ' + (type || '');
+  t.innerHTML = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 5000);
+}
+
+async function handleFileUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (!file.name.match(/\.(xlsx|xls)$/i)) { showToast('请上传 .xlsx 格式的Excel文件','error'); return; }
+  showToast('正在解析 '+escHtml(file.name)+' ...','');
+  try {
+    const wb = XLSX.read(await file.arrayBuffer(), {type:'array'});
+    const sheets = {};
+    for (const name of wb.SheetNames) {
+      const ws = wb.Sheets[name];
+      const jsonData = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+      sheets[name] = {data:jsonData, col_count:jsonData[0]?jsonData[0].length:0, merged_cells:(ws['!merges']||[]).map(m=>XLSX.utils.encode_range(m))};
+    }
+    preprocessSheets(sheets);
+    rebuildDashboard(sheets);
+    const dm = file.name.match(/(\d{8})/);
+    if (dm) {
+      const d=dm[1], ds=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);
+      document.querySelectorAll('.header-date').forEach(el=>el.textContent='数据截止 '+ds);
+      document.querySelectorAll('footer').forEach(el=>el.innerHTML='兴银理财多资产投资部 | 数据截止 '+ds+' | 仪表板更新于 '+new Date().toLocaleString('zh-CN'));
+    }
+    showToast('数据导入成功！已加载 '+wb.SheetNames.length+' 张工作表','success');
+  } catch(err) { console.error(err); showToast('解析失败: '+escHtml(err.message),'error'); }
+  e.target.value = '';
+}
+
+async function handleOverviewUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (!file.name.match(/\.(xlsx|xls)$/i)) { showToast('请上传 .xlsx 格式的Excel文件','error'); return; }
+  showToast('正在解析运作概览文件 '+escHtml(file.name)+' ...','');
+  try {
+    const wb = XLSX.read(await file.arrayBuffer(), {type:'array', cellDates:false});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rawArr = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+    if (rawArr.length < 2) { showToast('文件数据为空','error'); return; }
+    const headers = rawArr[0].map(h => h != null ? String(h).trim() : '');
+    const rows = rawArr.slice(1).map(arr => {
+      const obj = {};
+      headers.forEach((h, j) => { obj[h] = arr[j]; });
+      return obj;
+    });
+    rebuildSeriesSection(rows);
+    const dm = file.name.match(/(\d{8})/);
+    if (dm) { const d=dm[1], ds=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8); document.querySelectorAll('.header-date').forEach(el=>el.textContent='数据截止 '+ds); }
+    showToast('运作概览导入成功！共 '+rows.length+' 行数据','success');
+  } catch(err) { console.error(err); showToast('解析失败: '+escHtml(err.message),'error'); }
+  e.target.value = '';
+}
+
+/* ====== PDF Export ====== */
+function exportPDF() {
+  document.querySelectorAll('.tab-content').forEach(tc => {
+    if (!tc.getAttribute('data-tab-label')) {
+      const tabGroup = tc.getAttribute('data-tab');
+      if (tabGroup) {
+        const idx = tabGroup.split('-tab-')[1];
+        const btn = document.querySelector('[data-tabgroup="'+tabGroup.split('-tab-')[0]+'"][data-tabidx="'+idx+'"]');
+        if (btn) tc.setAttribute('data-tab-label', btn.textContent);
+      }
+    }
+  });
+  window.print();
+}
+
+/* ====== UI Interactions ====== */
+function switchTab(groupId, tabIdx) {
+  document.querySelectorAll('[data-tabgroup="'+groupId+'"]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-tab^="'+groupId+'-tab-"]').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-tabgroup="'+groupId+'"][data-tabidx="'+tabIdx+'"]').classList.add('active');
+  document.querySelector('[data-tab="'+groupId+'-tab-'+tabIdx+'"]').classList.add('active');
+}
+
+function initNavHighlight() {
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => item.classList.toggle('active', item.getAttribute('href')==='#'+id));
+      }
+    });
+  }, {threshold:0.1, rootMargin:'-80px 0px -50% 0px'});
+  sections.forEach(s => obs.observe(s));
+  navItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      const targetId = item.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        const hh = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 52;
+        window.scrollTo({top: target.getBoundingClientRect().top + window.pageYOffset - hh - 16, behavior:'smooth'});
+        history.pushState(null, null, '#'+targetId);
+      }
+    });
+  });
+}
+
+function initSearch() {
+  const input = document.getElementById('global-search'); if (!input) return;
+  input.addEventListener('input', e => {
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('table').forEach(table => {
+      table.querySelectorAll('tr:not(.header-row):not(.subheader-row)').forEach(row => {
+        row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+      });
+    });
+  });
+}
+
+function initTableSort() {
+  document.querySelectorAll('th').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      const table = th.closest('table');
+      const idx = Array.from(th.parentNode.children).indexOf(th);
+      const tbody = table.querySelector('tbody') || table;
+      const rows = Array.from(tbody.querySelectorAll('tr')).filter(r =>
+        !r.classList.contains('header-row') && !r.classList.contains('subheader-row') &&
+        !r.classList.contains('total-row') && !r.classList.contains('subtotal-row') &&
+        !r.classList.contains('summary-row'));
+      const isAsc = th.getAttribute('data-sort') !== 'asc';
+      th.setAttribute('data-sort', isAsc ? 'asc' : 'desc');
+      rows.sort((a, b) => {
+        const aV = a.children[idx]?.textContent?.trim()?.replace(/[()]/g,'') || '';
+        const bV = b.children[idx]?.textContent?.trim()?.replace(/[()]/g,'') || '';
+        const aN = parseFloat(aV.replace(/[,%亿万只]/g,''));
+        const bN = parseFloat(bV.replace(/[,%亿万只]/g,''));
+        if (!isNaN(aN) && !isNaN(bN)) return isAsc ? aN-bN : bN-aN;
+        return isAsc ? aV.localeCompare(bV,'zh') : bV.localeCompare(aV,'zh');
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initNavHighlight();
+  initSearch();
+  initTableSort();
+  const u1 = document.getElementById('file-upload');
+  if (u1) u1.addEventListener('change', handleFileUpload);
+  const u2 = document.getElementById('overview-upload');
+  if (u2) u2.addEventListener('change', handleOverviewUpload);
+});
+"""
+
+# Find and replace the script block (last <script>...</script>)
+js_start = html.rindex('<script>')
+js_end = html.rindex('</script>') + len('</script>')
+html = html[:js_start] + '<script>' + NEW_JS + '\n</script>' + html[js_end:]
+print('✓ JS replaced')
+
+# ─────────────────────────────────────────────────────────
+# 4. Write output
+# ─────────────────────────────────────────────────────────
+with open(DST, 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f'\n✓ Done → {DST}')
+print(f'  File size: {len(html):,} bytes')

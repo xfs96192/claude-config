@@ -1,0 +1,28 @@
+---
+title: AI Agent 基础环境搭建
+type: conceptual
+palette: cool
+rendering: flat-vector
+text: title-only
+mood: balanced
+font: clean
+aspect: 16:9
+language: zh
+watermark: false
+---
+
+A conceptual flat-vector cover image for a technical article about deploying an AI Agent environment on an intranet server.
+
+Visual concept: A clean network architecture diagram showing three connected layers — at the bottom a server/GPU node labeled as the LLM model layer, in the middle a terminal/CLI interface representing the Agent client, and at the top floating skill cards/markdown icons representing the skills extension layer. Arrows flow upward connecting the three layers, suggesting data flow and orchestration.
+
+Color palette: Cool engineering blue tones — deep navy (#0A1628) background, bright cyan (#00D4FF) and electric blue (#0080FF) for glowing node highlights and connecting lines, white (#FFFFFF) for labels and icons. Subtle grid pattern in the background suggesting a technical/server environment.
+
+Style: Flat vector illustration with clean geometric shapes. Nodes represented as rounded rectangles with subtle glow. Connecting arrows as smooth curves with directional flow indicators. No realistic humans — use abstract circuit/node shapes only.
+
+Title text "AI Agent 基础环境搭建" MUST appear prominently in the lower-left or center-bottom area in clean sans-serif Chinese font, white color, large and bold.
+
+Subtitle hint: Small text "内网部署技术方案" below the main title in lighter gray.
+
+Composition: Main architecture diagram occupies 60% of the image centered, with generous whitespace on sides. Dark navy gradient background from bottom-left to top-right.
+
+Mood: Professional, technical, modern — conveys cutting-edge AI infrastructure.

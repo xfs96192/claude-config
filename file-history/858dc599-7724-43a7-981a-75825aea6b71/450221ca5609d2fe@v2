@@ -1,0 +1,229 @@
+"""
+iChoice 数据获取测试模块
+测试所有 generate_tables_from_ichoice.py 需要的指标代码
+"""
+
+import sys, os, subprocess
+import pandas as pd
+from datetime import datetime, timedelta
+
+# ── 环境初始化 ──
+def setup_emquant():
+    try:
+        import EmQuantAPI; return True
+    except ImportError:
+        pass
+    home = os.path.expanduser("~")
+    candidates = [
+        f"{home}/Desktop/ichoice_data/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/Desktop/ichoice/EMQuantAPI_Python/python3",
+    ]
+    sdk_dir = next((p for p in candidates if os.path.isfile(os.path.join(p, "EmQuantAPI.py"))), None)
+    if not sdk_dir:
+        print("ERROR: EmQuantAPI SDK not found."); return False
+    sys.path.insert(0, sdk_dir)
+    try:
+        subprocess.run([sys.executable, "installEmQuantAPI.py"], cwd=sdk_dir, capture_output=True)
+    except Exception: pass
+    return True
+
+if not setup_emquant():
+    exit(1)
+
+from EmQuantAPI import c
+
+END_DATE = "2026-03-13"
+START_DATE_DAILY = "2026-02-10"
+START_DATE_WEEKLY = "2021-03-01"  # 5年历史
+
+print("=" * 80)
+print("iChoice 数据获取测试 - 市场观点美化")
+print(f"测试日期: {END_DATE}")
+print("=" * 80)
+
+result = c.start("UserName=xylczh0181,Password=ef465509,ForceLogin=1")
+if result.ErrorCode != 0:
+    print(f"❌ 登录失败: {result.ErrorMsg}"); exit()
+print("✅ 登录成功\n")
+
+passed = []
+failed = []
+
+def test_csd(label, code, field="CLOSE", start=START_DATE_DAILY, end=END_DATE):
+    """测试 CSD 行情数据"""
+    try:
+        data = c.csd(code, field, start, end, "Ispandas=1")
+        if isinstance(data, pd.DataFrame) and not data.empty and 'CLOSE' in data.columns:
+            last_val = pd.to_numeric(data['CLOSE'], errors='coerce').dropna()
+            if len(last_val) > 0:
+                print(f"  ✅ {label} ({code}): 最新值={last_val.iloc[-1]:.4f}, 数据点={len(last_val)}")
+                passed.append(f"{label} ({code})")
+                return data
+        print(f"  ❌ {label} ({code}): 数据为空或格式错误. ErrorCode={getattr(data,'ErrorCode','N/A')}")
+        failed.append(f"{label} ({code})")
+    except Exception as e:
+        print(f"  ❌ {label} ({code}): 异常 {e}")
+        failed.append(f"{label} ({code})")
+    return None
+
+def test_csd_field(label, code, field, start=START_DATE_WEEKLY, end=END_DATE):
+    """测试 CSD 特定字段"""
+    try:
+        data = c.csd(code, field, start, end, "Ispandas=1")
+        if isinstance(data, pd.DataFrame) and not data.empty and field in data.columns:
+            vals = pd.to_numeric(data[field], errors='coerce').dropna()
+            if len(vals) > 0:
+                print(f"  ✅ {label} ({code},{field}): 最新值={vals.iloc[-1]:.4f}, 数据点={len(vals)}")
+                passed.append(f"{label} ({code},{field})")
+                return data
+        print(f"  ❌ {label} ({code},{field}): 数据为空. ErrorCode={getattr(data,'ErrorCode','N/A')}")
+        failed.append(f"{label} ({code},{field})")
+    except Exception as e:
+        print(f"  ❌ {label} ({code},{field}): 异常 {e}")
+        failed.append(f"{label} ({code},{field})")
+    return None
+
+def test_edb(label, code, start=START_DATE_WEEKLY, end=END_DATE):
+    """测试 EDB 宏观/债券数据"""
+    try:
+        data = c.edb(code, f"StartDate={start},EndDate={end},Ispandas=1")
+        if isinstance(data, pd.DataFrame) and not data.empty and 'RESULT' in data.columns:
+            vals = pd.to_numeric(data['RESULT'], errors='coerce').dropna()
+            if len(vals) > 0:
+                print(f"  ✅ {label} ({code}): 最新值={vals.iloc[-1]:.4f}, 数据点={len(vals)}")
+                passed.append(f"{label} ({code})")
+                return data
+        print(f"  ❌ {label} ({code}): 数据为空. ErrorCode={getattr(data,'ErrorCode','N/A')}")
+        failed.append(f"{label} ({code})")
+    except Exception as e:
+        print(f"  ❌ {label} ({code}): 异常 {e}")
+        failed.append(f"{label} ({code})")
+    return None
+
+try:
+    # ==========================================
+    # 1. 近1月净值走势 - 日度数据
+    # ==========================================
+    print("\n【1】近1月净值走势 - 日度行情数据")
+    print("-" * 60)
+    test_csd("万得全A", "800000.EI")
+    test_csd("中证转债", "000832.CSI")
+    test_csd("标普500", "SPX.GI")
+    test_csd("7-10年国开债指数", "931472.CSI")
+    test_csd("1-3年高信用等级债券财富", "CBA01921.CS")
+    test_csd("美国10年国债收益率", "US10Y.GBM")
+    test_csd("USDCNY中间价", "USDCNY.IB")
+    test_csd("沪金", "AU0.SHF")
+    test_csd("螺纹钢", "RB0.SHF")
+    test_csd("SC原油", "scm.INE")
+    test_csd("豆粕", "M0.DCE")
+    test_csd("1年掉期点", "USDCNY1YS.IB")
+    test_csd("离岸人民币CNH", "USDCNH.FX")
+
+    # ==========================================
+    # 2. 债券收益率 - EDB数据（周度，5年历史）
+    # ==========================================
+    print("\n【2】债券收益率 - EDB数据")
+    print("-" * 60)
+    test_edb("中债国债10年", "E1000180")
+    test_edb("中债国开债10年", "E1701714")
+    test_edb("中债中短期票据AAA 2年", "E1000589")
+    test_edb("中债国开债1年", "E1701706")
+    test_edb("中债中短期票据AAA 1年", "E1000588")
+    test_edb("中债国债2年", "E1000173")
+    test_edb("美国10年国债", "EMG00001310")
+    # 美国1年国债 - 尝试几个候选
+    print("  测试美国1年国债候选代码...")
+    us1y_found = None
+    for candidate in ["EMG00001305", "EMG00001306", "EMG00001307", "EMG00001308", "EMG00001309"]:
+        d = c.edb(candidate, f"StartDate=2025-01-01,EndDate={END_DATE},Ispandas=1")
+        if isinstance(d, pd.DataFrame) and not d.empty and 'RESULT' in d.columns:
+            vals = pd.to_numeric(d['RESULT'], errors='coerce').dropna()
+            if len(vals) > 0:
+                print(f"    ✅ 美国1年国债候选 {candidate}: 最新值={vals.iloc[-1]:.4f}")
+                us1y_found = candidate
+                passed.append(f"美国1年国债 ({candidate})")
+                break
+    if not us1y_found:
+        print(f"    ⚠️  美国1年国债: 未找到合适代码，将使用美联储利率替代")
+        # 尝试 EFFR
+        test_edb("美国EFFR(替代1年国债)", "EMG00001299")
+
+    # 美国实际收益率(TIPS)
+    print("  测试美国实际收益率候选代码...")
+    tips_found = None
+    for candidate in ["EMG00001320", "EMG00001325", "EMG00001330", "EMG01418320", "EMG00001315"]:
+        d = c.edb(candidate, f"StartDate=2025-01-01,EndDate={END_DATE},Ispandas=1")
+        if isinstance(d, pd.DataFrame) and not d.empty and 'RESULT' in d.columns:
+            vals = pd.to_numeric(d['RESULT'], errors='coerce').dropna()
+            if len(vals) > 0:
+                print(f"    ✅ 美国实际收益率候选 {candidate}: 最新值={vals.iloc[-1]:.4f}")
+                tips_found = candidate
+                passed.append(f"美国实际收益率 ({candidate})")
+                break
+    if not tips_found:
+        print(f"    ⚠️  美国实际收益率: 未找到合适代码，将跳过该指标")
+
+    # ==========================================
+    # 3. 周度行情数据（估值+价格）
+    # ==========================================
+    print("\n【3】周度行情数据")
+    print("-" * 60)
+    test_csd("万得全A(周度)", "800000.EI", start=START_DATE_WEEKLY)
+    test_csd("标普500(周度)", "SPX.GI", start=START_DATE_WEEKLY)
+    test_csd("VIX", "VIX.GI", start=START_DATE_WEEKLY)
+    test_csd("USDCNY(周度)", "USDCNY.IB", start=START_DATE_WEEKLY)
+    test_csd("美元指数", "USDX.FX", start=START_DATE_WEEKLY)
+    test_csd("沪金(周度)", "AU0.SHF", start=START_DATE_WEEKLY)
+    test_csd("COMEX黄金", "GC.CMX", start=START_DATE_WEEKLY)
+    test_csd("WTI原油", "CL.NYM", start=START_DATE_WEEKLY)
+    test_csd("布伦特原油", "B.IPE", start=START_DATE_WEEKLY)
+    test_csd("豆粕期货(周度)", "M0.DCE", start=START_DATE_WEEKLY)
+    test_csd("螺纹钢(周度)", "RB0.SHF", start=START_DATE_WEEKLY)
+    test_csd("热卷", "HC0.SHF", start=START_DATE_WEEKLY)
+    test_csd("铁矿石", "I0.DCE", start=START_DATE_WEEKLY)
+    test_csd("1年掉期点(周度)", "USDCNY1YS.IB", start=START_DATE_WEEKLY)
+    test_csd("离岸人民币(周度)", "USDCNH.FX", start=START_DATE_WEEKLY)
+
+    # 豆粕现货 - 尝试候选
+    print("  测试豆粕现货候选...")
+    soy_spot_found = None
+    for candidate in ["W00003SPT.NM", "NPKFS.NM", "MJBSP.NM"]:
+        d = c.csd(candidate, "CLOSE", START_DATE_WEEKLY, END_DATE, "Ispandas=1")
+        if isinstance(d, pd.DataFrame) and not d.empty and 'CLOSE' in d.columns:
+            vals = pd.to_numeric(d['CLOSE'], errors='coerce').dropna()
+            if len(vals) > 0:
+                print(f"    ✅ 豆粕现货候选 {candidate}: 最新值={vals.iloc[-1]:.2f}")
+                soy_spot_found = candidate
+                passed.append(f"豆粕现货 ({candidate})")
+                break
+    if not soy_spot_found:
+        print("    ⚠️  豆粕现货: 未找到，将跳过期货现货价差指标")
+
+    # ==========================================
+    # 4. 估值数据 PE/PB（PETTM字段）
+    # ==========================================
+    print("\n【4】估值数据（PE/PB）")
+    print("-" * 60)
+    test_csd_field("万得全A PE(TTM)", "800000.EI", "PETTM")
+    test_csd_field("标普500 PE(TTM)", "SPX.GI", "PETTM")
+    # 备用：用PE代替PETTM
+    test_csd_field("万得全A PB", "800000.EI", "PB")
+    test_csd_field("标普500 PB", "SPX.GI", "PB")
+
+    # ==========================================
+    # 5. 中证转债指标
+    # ==========================================
+    print("\n【5】中证转债指标")
+    print("-" * 60)
+    test_csd_field("中证转债转股溢价率", "000832.CSI", "CONVPREMRATIO", start=START_DATE_WEEKLY)
+
+finally:
+    c.stop()
+    print("\n" + "=" * 80)
+    print(f"测试完成: ✅ 通过={len(passed)}, ❌ 失败={len(failed)}")
+    if failed:
+        print("\n失败项目:")
+        for f in failed:
+            print(f"  - {f}")
+    print("=" * 80)

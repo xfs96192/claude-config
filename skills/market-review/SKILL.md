@@ -9,9 +9,12 @@ description: 生成市场指数复盘报告。自动执行Wind数据获取、Exc
 
 ## 前置条件
 
-1. **Wind终端已登录** - 必须确保 Wind 金融终端已安装并登录
-2. **Python环境就绪** - 需要 pandas, numpy, openpyxl, WindPy
+1. **iChoice 账号** - xylczh0181 / ef465509（已内置于脚本，无需手动配置）
+2. **Python环境就绪** - 需要 pandas, numpy, openpyxl, EmQuantAPI
 3. **前端依赖已安装** - dashboard 目录需要已运行过 `npm install` 或 `pnpm install`
+
+**数据源说明**: Wind 数据库不再更新，已切换至 iChoice (EMQuantAPI)。
+USDCNY 使用离岸人民币(CNH)替代，掉期点无权限跳过，PE/PB 使用 EDB 替代指标。
 
 ## 执行流程
 
@@ -23,15 +26,17 @@ description: 生成市场指数复盘报告。自动执行Wind数据获取、Exc
 
 **日期范围说明**: 近一月走势包含完整31天。例如截止日期为2026-01-24，则起始日期为2025-12-24。
 
-### 步骤 2: 生成 Wind 数据
+### 步骤 2: 生成 iChoice 数据
 
 ```bash
 cd /Users/fanshengxia/Desktop/市场观点美化/data
-python generate_tables_from_wind.py --date YYYY-MM-DD
+python generate_tables_from_ichoice.py --date YYYY-MM-DD
 ```
 
+**注意**: iChoice 登录需要约 30-60 秒初始化时间，设置 timeout=300000。
+
 生成文件:
-- `指标值.xlsx` - 37个指标的当前值、历史统计和分位数
+- `指标值.xlsx` - 28个指标的当前值、历史统计和分位数
 - `近1月净值走势.xlsx` - 完整31天的日度行情数据
 
 ### 步骤 3: 转换 Excel 为 JSON
@@ -51,10 +56,12 @@ python excel_to_json_converter.py
 
 ```bash
 cd /Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard
-./node_modules/.bin/vite
+./node_modules/.bin/vite --port 5173 --host 0.0.0.0
 ```
 
 后台运行时使用 `run_in_background: true` 参数。
+
+**注意**: 必须加 `--host 0.0.0.0`，否则 vite 只监听 IPv6，puppeteer 用 IPv4 (`127.0.0.1`) 连接会超时。
 
 前端服务启动后访问: http://localhost:5173
 
@@ -70,16 +77,22 @@ cd /tmp && npm install puppeteer --no-save 2>/dev/null
 // /tmp/screenshot.js
 const puppeteer = require('puppeteer');
 (async () => {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+    });
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto('http://localhost:5173/', { waitUntil: 'networkidle0', timeout: 30000 });
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+        await page.goto('http://127.0.0.1:5173/', { waitUntil: 'load', timeout: 15000 });
+    } catch(e) { console.log('goto:', e.message); }
+    await new Promise(resolve => setTimeout(resolve, 5000));
     await page.screenshot({
         path: '/Users/fanshengxia/Desktop/市场观点美化/市场复盘_YYYY-MM-DD.png',
         fullPage: true
     });
     await browser.close();
+    console.log('Screenshot saved!');
 })();
 ```
 
@@ -95,7 +108,8 @@ const puppeteer = require('puppeteer');
 |------|------|
 | `/Users/fanshengxia/Desktop/市场观点美化` | 项目根目录 |
 | `data/` | 数据脚本和生成的文件 |
-| `data/generate_tables_from_wind.py` | Wind 数据生成脚本 (v2.2) |
+| `data/generate_tables_from_ichoice.py` | iChoice 数据生成脚本 (v1.0, 当前) |
+| `data/generate_tables_from_wind.py` | Wind 数据生成脚本 (v2.2, 已停用) |
 | `data/excel_to_json_converter.py` | Excel 转 JSON 脚本 |
 | `asset-analysis-real-data/asset-analysis-dashboard/` | React 前端项目 |
 
@@ -105,8 +119,9 @@ const puppeteer = require('puppeteer');
 
 响应流程:
 1. 提取日期: 2026-01-24
-2. 运行 Wind 数据生成: `python generate_tables_from_wind.py --date 2026-01-24`
+2. 运行 iChoice 数据生成: `python generate_tables_from_ichoice.py --date 2026-01-24`
    - 数据范围: 2025-12-24 至 2026-01-24（完整31天）
+   - timeout=300000（iChoice 登录初始化需要约60秒）
 3. 运行 JSON 转换: `python excel_to_json_converter.py`
 4. 启动前端: `./node_modules/.bin/vite`（后台运行）
 5. 等待5秒后使用 puppeteer 截图
@@ -117,12 +132,13 @@ const puppeteer = require('puppeteer');
 
 | 错误 | 解决方案 |
 |------|----------|
-| Wind未连接 | 确保 Wind 终端已登录，重新启动 Wind |
-| EDB代码错误 | 检查 Wind 代码是否有效 |
+| iChoice 登录失败 | 检查网络连接，账号 xylczh0181 / ef465509 |
+| EDB代码错误 | 检查 iChoice 代码是否有效 |
 | pnpm 未找到 | 使用 `./node_modules/.bin/vite` 替代 |
 | 前端启动失败 | 运行 `npm install` 安装依赖 |
 | puppeteer 未安装 | 运行 `cd /tmp && npm install puppeteer --no-save` |
 | 截图失败 | 手动在浏览器中截图保存 |
+| timeout | 增大 Bash timeout 至 300000ms |
 
 ## 辅助脚本
 

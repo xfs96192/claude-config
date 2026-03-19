@@ -1,0 +1,630 @@
+"""
+市场观点美化 - iChoice (EMQuantAPI) 数据生成程序 v1.0
+
+替代 Wind 版本，使用 Choice 量化接口获取数据
+生成：
+1. 近1月净值走势.xlsx - 日度行情
+2. 近3年净值走势.xlsx - 3年日度行情（用于波动率分位数）
+3. 指标值.xlsx - 37个指标的当前值、历史统计和分位数
+
+数据权限说明（与 Wind 版差异）：
+- USDCNY中间价: 使用 USDCNH.FX 离岸人民币替代（差异通常<0.02）
+- 锁汇成本/掉期点1Y: iChoice 无对应权限，跳过
+- PE/PB: 使用 EDB 代码（E1702090=PE替代指标, E1702097=PB替代指标）
+- 标普500 PE/PB: 无权限，跳过
+- 布伦特原油: 使用 EMI01618427 原油替代
+- 中证转债: 使用 000832.SZ
+"""
+
+import sys, os, subprocess
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+import argparse
+
+# ==================== 环境初始化 ====================
+
+def setup_emquant():
+    try:
+        import EmQuantAPI; return True
+    except ImportError:
+        pass
+    home = os.path.expanduser("~")
+    candidates = [
+        f"{home}/Desktop/ichoice_data/ichoice/EMQuantAPI_Python/python3",
+        f"{home}/Desktop/ichoice/EMQuantAPI_Python/python3",
+    ]
+    sdk_dir = next((p for p in candidates if os.path.isfile(os.path.join(p, "EmQuantAPI.py"))), None)
+    if not sdk_dir:
+        print("❌ 错误: EmQuantAPI SDK 未找到"); return False
+    sys.path.insert(0, sdk_dir)
+    try:
+        subprocess.run([sys.executable, "installEmQuantAPI.py"], cwd=sdk_dir, capture_output=True)
+    except Exception: pass
+    return True
+
+if not setup_emquant():
+    sys.exit(1)
+
+from EmQuantAPI import c
+
+# ==================== 命令行参数 ====================
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='市场观点美化 - iChoice数据生成程序')
+    parser.add_argument('--date', '-d', type=str,
+                        help='截止日期，格式：YYYY-MM-DD（默认为今天）', default=None)
+    return parser.parse_args()
+
+args = parse_args()
+
+print("=" * 80)
+print("市场观点美化 - iChoice 数据生成程序 v1.0")
+print("=" * 80)
+
+# ==================== iChoice 登录 ====================
+
+print("\n[1/6] 登录 iChoice...")
+login_result = c.start("UserName=xylczh0181,Password=ef465509,ForceLogin=1")
+if login_result.ErrorCode != 0:
+    print(f"❌ 登录失败: {login_result.ErrorMsg}")
+    sys.exit(1)
+print("✅ 登录成功")
+
+# ==================== 配置区 ====================
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = SCRIPT_DIR
+
+if args.date:
+    try:
+        END_DATE = datetime.strptime(args.date, "%Y-%m-%d")
+        print(f"✅ 使用指定日期: {END_DATE.strftime('%Y-%m-%d')}")
+    except ValueError:
+        print(f"❌ 日期格式错误: {args.date}")
+        c.stop(); sys.exit(1)
+else:
+    END_DATE = datetime.now()
+    print(f"✅ 使用当前日期: {END_DATE.strftime('%Y-%m-%d')}")
+
+START_DATE_DAILY = END_DATE - timedelta(days=31)
+START_DATE_3Y = END_DATE - timedelta(days=365 * 3 + 40)
+START_DATE_WEEKLY = END_DATE - timedelta(days=365 * 5)
+
+END_STR = END_DATE.strftime("%Y-%m-%d")
+START_DAILY_STR = START_DATE_DAILY.strftime("%Y-%m-%d")
+START_3Y_STR = START_DATE_3Y.strftime("%Y-%m-%d")
+START_WEEKLY_STR = START_DATE_WEEKLY.strftime("%Y-%m-%d")
+
+# ==================== iChoice 代码配置 ====================
+
+# 日度行情代码（CSD CLOSE）
+DAILY_CSD_CODES = {
+    "800000.EI":   "万得全A",
+    "000832.SZ":   "中证转债",
+    "SPX.GI":      "标普500",
+    "931472.CSI":  "7-10年国开",
+    "CBA01921.CS": "1-3年高信用等级债券财富",
+    "USDCNH.FX":   "USDCNY",          # 离岸人民币替代中间价
+    "AU0.SHF":     "沪金",
+    "RB0.SHF":     "螺纹钢",
+    "scm.INE":     "原油",
+    "M0.DCE":      "豆粕",
+}
+
+# 美国10年期国债收益率用 EDB 获取日度数据
+US10Y_EDB_CODE = "EMG00001310"
+
+# EDB 债券收益率代码（5年历史用于分位数）
+EDB_BOND_CODES = {
+    "E1000180":    "中债国债10年",
+    "E1701714":    "中债国开债10年",
+    "E1000589":    "中债AAA 2年",
+    "E1701706":    "中债国开债1年",
+    "E1000588":    "中债AAA 1年",
+    "E1000173":    "中债国债2年",
+    "EMG00001310": "美国10年国债",
+    "EMG00001305": "美国1年国债",
+    "EMG00001320": "美国实际收益率",
+}
+
+# PE/PB EDB 代码（日度，需重采样为周度）
+PE_EDB_CODE = "E1702090"   # A股PE替代指标（范围8-12，与全A PE同向）
+PB_EDB_CODE = "E1702097"   # A股PB替代指标（范围1.1-3.5）
+
+# 周度行情代码（CSD CLOSE）
+WEEKLY_CSD_CODES = {
+    "800000.EI":   "万得全A",
+    "SPX.GI":      "标普500",
+    "VIX.GI":      "VIX",
+    "USDCNH.FX":   "USDCNY",          # 离岸人民币替代
+    "USDX.FX":     "美元指数",
+    "AU0.SHF":     "沪金",
+    "XAUUSD.FX":   "COMEX黄金",
+    "RB0.SHF":     "螺纹钢",
+    "HC0.SHF":     "热卷",
+    "I0.DCE":      "铁矿石",
+    "M0.DCE":      "豆粕期货",
+}
+
+# 原油 EDB 代码（单独获取，无 CSD 权限）
+OIL_EDB_CODE = "EMI01618427"   # 原油（WTI/Brent替代）
+
+# ==================== 数据获取函数 ====================
+
+def parse_edb_to_series(data, name):
+    """解析 EDB 返回的 DataFrame 为 Series"""
+    if not isinstance(data, pd.DataFrame) or data.empty:
+        return pd.Series(name=name)
+    df = data[['DATES', 'RESULT']].copy()
+    df['DATES'] = pd.to_datetime(df['DATES'], format='%Y/%m/%d', errors='coerce')
+    df['RESULT'] = pd.to_numeric(df['RESULT'], errors='coerce')
+    df = df.dropna().set_index('DATES')
+    return df['RESULT'].rename(name)
+
+
+def parse_csd_to_series(data, code, col='CLOSE'):
+    """解析 CSD 返回的 DataFrame 为 Series"""
+    if not isinstance(data, pd.DataFrame) or data.empty:
+        return pd.Series()
+    if col not in data.columns:
+        return pd.Series()
+    df = data[['DATES', col]].copy()
+    df['DATES'] = pd.to_datetime(df['DATES'], format='%Y/%m/%d', errors='coerce')
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+    df = df.dropna().set_index('DATES')
+    return df[col]
+
+
+def fetch_csd_daily(codes, start, end):
+    """获取日度 CSD 收盘价，返回 DataFrame"""
+    print(f"  获取 {len(codes)} 个资产的日度数据...")
+    result = {}
+    for code, name in codes.items():
+        d = c.csd(code, "CLOSE", start, end, "Ispandas=1")
+        s = parse_csd_to_series(d, code)
+        if len(s) > 0:
+            result[name] = s
+        else:
+            print(f"    ⚠️  {name} ({code}): 无数据")
+    if not result:
+        return None
+    df = pd.DataFrame(result)
+    df.index.name = "日期"
+    print(f"  ✅ 获取成功: {len(df)} 个交易日, {len(df.columns)} 个资产")
+    return df
+
+
+def fetch_edb_daily(code, name, start, end):
+    """获取单个 EDB 指标的日度数据"""
+    d = c.edb(code, f"StartDate={start},EndDate={end},Ispandas=1")
+    s = parse_edb_to_series(d, name)
+    return s
+
+
+def _fetch_edb_batch(codes_dict, start, end):
+    """获取一批同类型 EDB 代码（不能混合 E- 和 EMG-/EMM- 前缀）"""
+    result = {}
+    codes_list = list(codes_dict.keys())
+    # 每次最多 40 个
+    for i in range(0, len(codes_list), 40):
+        batch = codes_list[i:i+40]
+        batch_str = ",".join(batch)
+        d = c.edb(batch_str, f"StartDate={start},EndDate={end},Ispandas=1")
+        if not isinstance(d, pd.DataFrame) or d.empty:
+            # 降级为逐个获取
+            for code in batch:
+                name = codes_dict[code]
+                d2 = c.edb(code, f"StartDate={start},EndDate={end},Ispandas=1")
+                s = parse_edb_to_series(d2, name)
+                if len(s) > 0:
+                    result[name] = s
+                else:
+                    print(f"    ⚠️  {name} ({code}): 无数据")
+            continue
+        for code in batch:
+            name = codes_dict[code]
+            mask = d.index == code
+            if not mask.any():
+                print(f"    ⚠️  {name} ({code}): 无数据")
+                continue
+            sub = d[mask][['DATES', 'RESULT']].copy()
+            sub['DATES'] = pd.to_datetime(sub['DATES'], format='%Y/%m/%d', errors='coerce')
+            sub['RESULT'] = pd.to_numeric(sub['RESULT'], errors='coerce')
+            sub = sub.dropna().set_index('DATES')
+            if len(sub) > 0:
+                result[name] = sub['RESULT']
+            else:
+                print(f"    ⚠️  {name} ({code}): 数据为空")
+    return result
+
+
+def fetch_edb_weekly_all(edb_codes, start, end):
+    """批量获取 EDB 周度数据（从日度重采样）
+    注意: iChoice 不能在同一批次混合 E- 和 EMG-/EMM- 前缀的代码
+    """
+    print(f"  获取 {len(edb_codes)} 个EDB债券指标...")
+
+    # 按前缀分组
+    e_codes = {k: v for k, v in edb_codes.items() if k.startswith('E')}
+    emg_codes = {k: v for k, v in edb_codes.items() if k.startswith('EMG') or k.startswith('EMM')}
+
+    result = {}
+    if e_codes:
+        result.update(_fetch_edb_batch(e_codes, start, end))
+    if emg_codes:
+        result.update(_fetch_edb_batch(emg_codes, start, end))
+
+    if not result:
+        return None
+    df = pd.DataFrame(result)
+    df_weekly = df.resample('W').last()
+    print(f"  ✅ 获取成功: {len(df_weekly)} 周, {len(df_weekly.columns)} 个指标")
+    return df_weekly
+
+
+def fetch_csd_weekly(codes, start, end):
+    """获取周度 CSD 收盘价（日度重采样）"""
+    print(f"  获取 {len(codes)} 个资产的周度数据...")
+    result = {}
+    for code, name in codes.items():
+        d = c.csd(code, "CLOSE", start, end, "Ispandas=1")
+        s = parse_csd_to_series(d, code)
+        if len(s) > 0:
+            result[name] = s
+        else:
+            print(f"    ⚠️  {name} ({code}): 无数据")
+    if not result:
+        return None
+    df = pd.DataFrame(result)
+    df_weekly = df.resample('W').last()
+    print(f"  ✅ 获取成功: {len(df_weekly)} 周")
+    return df_weekly
+
+
+def fetch_pe_pb_weekly(start, end):
+    """获取 PE/PB 周度数据（从 EDB 日度重采样）"""
+    print("  获取 PE/PB 数据（EDB）...")
+    result = {}
+    for code, label in [(PE_EDB_CODE, "PE"), (PB_EDB_CODE, "PB")]:
+        d = c.edb(code, f"StartDate={start},EndDate={end},Ispandas=1")
+        s = parse_edb_to_series(d, label)
+        if len(s) > 0:
+            result[label] = s
+    if not result:
+        print("  ⚠️  PE/PB 数据获取失败")
+        return None
+    df = pd.DataFrame(result).resample('W').last()
+    print(f"  ✅ PE/PB 获取成功: {len(df)} 周")
+    return df
+
+
+def fetch_oil_weekly(start, end):
+    """获取原油 EDB 周度数据"""
+    print("  获取原油数据（EDB）...")
+    d = c.edb(OIL_EDB_CODE, f"StartDate={start},EndDate={end},Ispandas=1")
+    s = parse_edb_to_series(d, "原油")
+    if len(s) == 0:
+        print("  ⚠️  原油数据获取失败")
+        return pd.Series()
+    return s.resample('W').last()
+
+
+# ==================== 计算函数 ====================
+
+def calc_equity_bond_ratio(pe, bond_yield_pct):
+    if pd.isna(pe) or pe <= 0 or pd.isna(bond_yield_pct):
+        return np.nan
+    return (1 / pe) - (bond_yield_pct / 100)
+
+
+def calc_credit_spread(credit_yield, treasury_yield):
+    if pd.isna(credit_yield) or pd.isna(treasury_yield):
+        return np.nan
+    return (credit_yield - treasury_yield) * 100
+
+
+def calc_term_spread(long_yield, short_yield):
+    if pd.isna(long_yield) or pd.isna(short_yield):
+        return np.nan
+    return (long_yield - short_yield) * 100
+
+
+def calc_china_us_spread(cn_yield, us_yield):
+    return calc_credit_spread(cn_yield, us_yield)
+
+
+def calc_gold_price_diff(shfe_gold, comex_gold_usd, usdcny):
+    """沪金内外盘价差: 沪金(元/克) - COMEX(USD/oz)*USDCNY/31.1035"""
+    if pd.isna(shfe_gold) or pd.isna(comex_gold_usd) or pd.isna(usdcny) or usdcny == 0:
+        return np.nan
+    return shfe_gold - comex_gold_usd * usdcny / 31.1035
+
+
+def calc_rebar_coil_spread(coil, rebar):
+    if pd.isna(coil) or pd.isna(rebar):
+        return np.nan
+    return coil - rebar
+
+
+def calc_percentile(series, value, reverse=False):
+    if pd.isna(value):
+        return np.nan
+    valid = series.dropna()
+    if len(valid) == 0:
+        return np.nan
+    pct = (valid < value).sum() / len(valid)
+    return 1 - pct if reverse else pct
+
+
+# ==================== 生成近1月净值走势 ====================
+
+def generate_recent_prices(period="1M"):
+    label = "近1月" if period == "1M" else "近3年"
+    filename = "近1月净值走势.xlsx" if period == "1M" else "近3年净值走势.xlsx"
+    start_str = START_DAILY_STR if period == "1M" else START_3Y_STR
+
+    print(f"\n{'[2/6]' if period=='1M' else '      '} 生成{label}净值走势...")
+
+    # 获取 CSD 日度数据
+    df = fetch_csd_daily(DAILY_CSD_CODES, start_str, END_STR)
+    if df is None:
+        print(f"❌ {label}数据获取失败")
+        return False
+
+    # 追加美国10年期国债（EDB日度）
+    print("  获取美国10年国债收益率（EDB日度）...")
+    us10y = fetch_edb_daily(US10Y_EDB_CODE, "10年期美国国债收益率", start_str, END_STR)
+    if len(us10y) > 0:
+        df = df.join(us10y, how='left')
+        df["10年期美国国债收益率"] = df["10年期美国国债收益率"].ffill()
+        print(f"  ✅ 美国10年国债: {len(us10y)} 个数据点")
+    else:
+        print("  ⚠️  美国10年国债 EDB 数据获取失败")
+
+    # 保存
+    output_path = os.path.join(OUTPUT_DIR, filename)
+    df.to_excel(output_path)
+    format_excel(output_path, is_indicators=False)
+
+    print(f"✅ 已生成: {output_path}")
+    print(f"   - 交易日数: {len(df)}, 资产数: {len(df.columns)}")
+    return True
+
+
+# ==================== 生成指标值 ====================
+
+def generate_indicators():
+    print("\n[3/6] 获取周度数据...")
+
+    # 1. PE/PB（EDB 日度 → 周度）
+    pe_pb = fetch_pe_pb_weekly(START_WEEKLY_STR, END_STR)
+
+    # 2. EDB 债券收益率
+    bond_yields = fetch_edb_weekly_all(EDB_BOND_CODES, START_WEEKLY_STR, END_STR)
+
+    # 3. 周度行情（CSD）
+    weekly_data = fetch_csd_weekly(WEEKLY_CSD_CODES, START_WEEKLY_STR, END_STR)
+
+    # 4. 原油（EDB）
+    oil_series = fetch_oil_weekly(START_WEEKLY_STR, END_STR)
+
+    # 5. 中证转债转股溢价率（CSD 日度 → 周度，CONVPREMRATIO 字段）
+    print("  获取中证转债估值指标...")
+    cb_premium = pd.Series()
+    try:
+        d = c.csd("000832.SZ", "CONVPREMRATIO", START_WEEKLY_STR, END_STR, "Ispandas=1")
+        if isinstance(d, pd.DataFrame) and 'CONVPREMRATIO' in d.columns:
+            s = parse_csd_to_series(d, "000832.SZ", col='CONVPREMRATIO')
+            cb_premium = s.resample('W').last()
+            if len(cb_premium) > 0:
+                print(f"  ✅ 转股溢价率: {len(cb_premium)} 周")
+        else:
+            print("  ⚠️  转股溢价率 字段不可用")
+    except Exception as e:
+        print(f"  ⚠️  转股溢价率获取异常: {e}")
+
+    if bond_yields is None or weekly_data is None:
+        print("❌ 关键数据获取失败")
+        return False
+
+    print("\n[4/6] 计算衍生指标...")
+
+    # ── 股债性价比 ──
+    equity_bond_ratio = pd.Series(dtype=float)
+    if pe_pb is not None and '美国10年国债' in bond_yields.columns and 'PE' in pe_pb.columns:
+        df_temp = pd.DataFrame({'pe': pe_pb['PE'], 'yield': bond_yields['中债国债10年']})
+        equity_bond_ratio = df_temp.apply(
+            lambda r: calc_equity_bond_ratio(r['pe'], r['yield']), axis=1)
+
+    # ── 债券利差 ──
+    credit_spread_10y = bond_yields.apply(
+        lambda r: calc_credit_spread(r.get('中债国开债10年', np.nan), r.get('中债国债10年', np.nan)), axis=1)
+    term_spread_10y = bond_yields.apply(
+        lambda r: calc_term_spread(r.get('中债国开债10年', np.nan), r.get('中债国开债1年', np.nan)), axis=1)
+    credit_spread_2y = bond_yields.apply(
+        lambda r: calc_credit_spread(r.get('中债AAA 2年', np.nan), r.get('中债国债2年', np.nan)), axis=1)
+    term_spread_2y = bond_yields.apply(
+        lambda r: calc_term_spread(r.get('中债AAA 2年', np.nan), r.get('中债AAA 1年', np.nan)), axis=1)
+    us_term_spread = bond_yields.apply(
+        lambda r: calc_term_spread(r.get('美国10年国债', np.nan), r.get('美国1年国债', np.nan)), axis=1)
+    china_us_spread = bond_yields.apply(
+        lambda r: calc_china_us_spread(r.get('中债国债10年', np.nan), r.get('美国10年国债', np.nan)), axis=1)
+
+    # ── 商品利差 ──
+    gold_diff = weekly_data.apply(
+        lambda r: calc_gold_price_diff(
+            r.get('沪金', np.nan), r.get('COMEX黄金', np.nan), r.get('USDCNY', np.nan)),
+        axis=1)
+    rebar_coil_spread = weekly_data.apply(
+        lambda r: calc_rebar_coil_spread(r.get('热卷', np.nan), r.get('螺纹钢', np.nan)), axis=1)
+
+    # ── WTI-布油差（用单一原油系列，差值为0 → 跳过，只用原油价格） ──
+
+    print("\n[5/6] 计算指标统计值和分位数...")
+
+    # 构建指标列表（与 Wind 版对齐）
+    pe_data = pe_pb['PE'] if pe_pb is not None and 'PE' in pe_pb.columns else pd.Series()
+    pb_data = pe_pb['PB'] if pe_pb is not None and 'PB' in pe_pb.columns else pd.Series()
+
+    indicators = [
+        # ── 权益 ──
+        {"大类": "权益", "子类": "万得全A", "指标": "PE", "数据": pe_data, "反转": False},
+        {"大类": "权益", "子类": "万得全A", "指标": "PB", "数据": pb_data, "反转": False},
+        {"大类": "权益", "子类": "万得全A", "指标": "股债性价比", "数据": equity_bond_ratio, "反转": True},
+        {"大类": "权益", "子类": "标普500",  "指标": "VIX",  "数据": weekly_data.get('VIX', pd.Series()), "反转": False},
+        {"大类": "权益", "子类": "中证转债",  "指标": "转股溢价率", "数据": cb_premium, "反转": False},
+
+        # ── 债券 ──
+        {"大类": "债券", "子类": "7-10年国开",           "指标": "收益率",    "数据": bond_yields.get('中债国开债10年', pd.Series()), "反转": False},
+        {"大类": "债券", "子类": "7-10年国开",           "指标": "信用利差",  "数据": credit_spread_10y, "反转": False},
+        {"大类": "债券", "子类": "7-10年国开",           "指标": "期限利差",  "数据": term_spread_10y, "反转": False},
+        {"大类": "债券", "子类": "1-3年高信用等级债券财富", "指标": "收益率",    "数据": bond_yields.get('中债AAA 2年', pd.Series()), "反转": False},
+        {"大类": "债券", "子类": "1-3年高信用等级债券财富", "指标": "信用利差",  "数据": credit_spread_2y, "反转": False},
+        {"大类": "债券", "子类": "1-3年高信用等级债券财富", "指标": "期限利差",  "数据": term_spread_2y, "反转": False},
+        {"大类": "债券", "子类": "10年期美国国债收益率",   "指标": "收益率",    "数据": bond_yields.get('美国10年国债', pd.Series()), "反转": False},
+        {"大类": "债券", "子类": "10年期美国国债收益率",   "指标": "期限利差(10减1)", "数据": us_term_spread, "反转": False},
+        {"大类": "债券", "子类": "10年期美国国债收益率",   "指标": "美国实际收益率", "数据": bond_yields.get('美国实际收益率', pd.Series()), "反转": False},
+
+        # ── 汇率 ──
+        {"大类": "汇率", "子类": "USDCNY",  "指标": "中间价(CNH)",  "数据": weekly_data.get('USDCNY', pd.Series()), "反转": False},
+        {"大类": "汇率", "子类": "USDCNY",  "指标": "中美利差",    "数据": china_us_spread, "反转": False},
+        {"大类": "汇率", "子类": "USDCNY",  "指标": "美元指数",    "数据": weekly_data.get('美元指数', pd.Series()), "反转": False},
+
+        # ── 商品 ──
+        {"大类": "商品", "子类": "沪金",    "指标": "内外盘价差",     "数据": gold_diff, "反转": False},
+        {"大类": "商品", "子类": "沪金",    "指标": "美国实际利率",   "数据": bond_yields.get('美国实际收益率', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "沪金",    "指标": "USDCNY中间价",  "数据": weekly_data.get('USDCNY', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "螺纹钢",  "指标": "螺卷差（热卷减螺纹）", "数据": rebar_coil_spread, "反转": False},
+        {"大类": "商品", "子类": "螺纹钢",  "指标": "铁矿价格",      "数据": weekly_data.get('铁矿石', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "螺纹钢",  "指标": "USDCNY中间价",  "数据": weekly_data.get('USDCNY', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "原油",    "指标": "原油价格",       "数据": oil_series, "反转": False},
+        {"大类": "商品", "子类": "原油",    "指标": "美元指数",       "数据": weekly_data.get('美元指数', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "原油",    "指标": "USDCNY中间价",  "数据": weekly_data.get('USDCNY', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "豆粕",    "指标": "豆粕价格",       "数据": weekly_data.get('豆粕期货', pd.Series()), "反转": False},
+        {"大类": "商品", "子类": "豆粕",    "指标": "USDCNY中间价",  "数据": weekly_data.get('USDCNY', pd.Series()), "反转": False},
+    ]
+
+    # 计算统计值
+    results = []
+    for ind in indicators:
+        series = ind["数据"]
+        if isinstance(series, pd.DataFrame):
+            series = series.iloc[:, 0]
+        series = series.dropna() if hasattr(series, 'dropna') else pd.Series()
+
+        if len(series) == 0:
+            print(f"  ⚠️  {ind['子类']} - {ind['指标']}: 无数据，跳过")
+            continue
+
+        current = series.iloc[-1]
+        max_val = series.max()
+        min_val = series.min()
+        median = series.median()
+        percentile = calc_percentile(series, current, ind["反转"])
+
+        results.append({
+            "大类资产": ind["大类"],
+            "子类资产": ind["子类"],
+            "观察指标（近五年）": ind["指标"],
+            "当前值": round(float(current), 4),
+            "最大值": round(float(max_val), 4),
+            "最小值": round(float(min_val), 4),
+            "历史中位数": round(float(median), 4),
+            "当前分位点": round(float(percentile), 3)
+        })
+
+    df_indicators = pd.DataFrame(results)
+    output_path = os.path.join(OUTPUT_DIR, "指标值.xlsx")
+    df_indicators.to_excel(output_path, index=False)
+    format_excel(output_path, is_indicators=True)
+
+    print(f"✅ 已生成: {output_path}")
+    print(f"   - 指标数: {len(df_indicators)}")
+    return True
+
+
+# ==================== Excel 格式美化 ====================
+
+def format_excel(file_path, is_indicators=False):
+    wb = openpyxl.load_workbook(file_path)
+    ws = wb.active
+
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    thin_border = Border(
+        left=Side(style='thin', color='D3D3D3'),
+        right=Side(style='thin', color='D3D3D3'),
+        top=Side(style='thin', color='D3D3D3'),
+        bottom=Side(style='thin', color='D3D3D3')
+    )
+
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.border = thin_border
+
+    for column in ws.columns:
+        max_length = max(
+            (len(str(cell.value)) for cell in column if cell.value), default=10)
+        ws.column_dimensions[column[0].column_letter].width = min(max_length + 3, 35)
+
+    for row in ws.iter_rows(min_row=2):
+        for cell in row:
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    if is_indicators:
+        for col in ['D', 'E', 'F', 'G']:
+            for cell in ws[col][1:]:
+                if cell.value and isinstance(cell.value, (int, float)):
+                    cell.number_format = '0.0000'
+        for cell in ws['H'][1:]:
+            if cell.value and isinstance(cell.value, (int, float)):
+                cell.number_format = '0.0%'
+
+    ws.freeze_panes = "A2"
+    ws.row_dimensions[1].height = 25
+    wb.save(file_path)
+
+
+# ==================== 主程序 ====================
+
+def main():
+    try:
+        # 近1月净值走势
+        if not generate_recent_prices("1M"):
+            print("❌ 近1月净值走势生成失败")
+            return
+
+        # 近3年净值走势（非关键，失败不中断）
+        generate_recent_prices("3Y")
+
+        # 指标值
+        if not generate_indicators():
+            print("❌ 指标值生成失败")
+            return
+
+        print("\n" + "=" * 80)
+        print("✅ 所有文件生成完成!")
+        print("=" * 80)
+        print(f"\n输出目录: {OUTPUT_DIR}")
+        print("  1. 近1月净值走势.xlsx")
+        print("  2. 近3年净值走势.xlsx")
+        print("  3. 指标值.xlsx")
+
+    except Exception as e:
+        print(f"\n❌ 错误: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        print("\n[6/6] 退出 iChoice 连接...")
+        c.stop()
+        print("✅ 已断开")
+
+
+if __name__ == "__main__":
+    main()

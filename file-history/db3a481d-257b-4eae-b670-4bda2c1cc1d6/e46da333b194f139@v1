@@ -1,0 +1,419 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+自动生成每周市场回顾
+1. 更新数据库
+2. 生成 market_data.json
+3. 读取市场总结文字
+4. 调用 GPT 生成三大市场回顾（债券、权益、转债）
+5. 输出 markdown 文件
+"""
+
+import os
+import json
+import datetime
+import subprocess
+import tempfile
+import logging
+from openai import OpenAI
+from contextlib import contextmanager
+from typing import Optional, Tuple
+
+def _find_latest_operation_excel(base_dir: str) -> Optional[str]:
+    try:
+        files = [f for f in os.listdir(base_dir) if f.startswith("输出结果") and f.endswith(".xlsx")]
+        if not files:
+            return None
+        def _parse_date(name: str) -> datetime.date:
+            try:
+                s = name.replace("输出结果", "").replace(".xlsx", "")
+                return datetime.datetime.strptime(s, "%Y%m%d").date()
+            except Exception:
+                return datetime.date.min
+        files.sort(key=lambda x: _parse_date(x), reverse=True)
+        return os.path.join(base_dir, files[0])
+    except Exception:
+        return None
+
+def _extract_net_subscription_from_excel(file_path: str) -> Optional[Tuple[float, str]]:
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(file_path, data_only=True)
+        ws = wb["投资经理维度产品规模和数量"]
+        headers = {}
+        for idx, cell in enumerate(ws[1], start=1):
+            headers[cell.value] = idx
+        pm_col = headers.get("产品经理")
+        val_col = headers.get("双挂调整后规模-较上周")
+        if not pm_col or not val_col:
+            return None
+        values = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            pm = row[pm_col-1]
+            v = row[val_col-1]
+            if pm == "徐莹" and isinstance(v, (int, float)):
+                values.append(float(v))
+        if not values:
+            return None
+        total = sum(values)
+        abs_vals = [abs(v) for v in values]
+        scale = "亿" if max(abs_vals) <= 1000 else "元"
+        return total, scale
+    except Exception:
+        return None
+
+def _format_net_sub_text(total_scale: Optional[Tuple[float, str]]) -> Optional[str]:
+    if not total_scale:
+        return None
+    total, scale = total_scale
+    if scale == "元":
+        amt = round(total / 1e8, 2)
+    else:
+        amt = round(total, 2)
+    if amt >= 1:
+        return f"本周开放式产品合计净申购约{amt}亿"
+    else:
+        return f"本周开放式产品合计净申购约{round(amt*100, 1)}百万元"
+
+def load_deepseek_env():
+    """只加载deepseek相关的环境变量，避免与其他项目冲突"""
+    # 获取当前脚本所在目录的.env文件
+    deepseek_vars = {}
+    env_file = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    # 只设置deepseek相关的环境变量
+                    if key.startswith('DEEPSEEK_') or key.startswith('OPENAI_'):
+                        deepseek_vars[key] = value.strip().strip('"\'')
+    return deepseek_vars
+
+def is_debug_mode():
+    """检查是否启用调试模式"""
+    return os.getenv('WEEKLY_REVIEW_DEBUG', '').lower() in ('1', 'true', 'yes')
+
+def log_debug(message):
+    """仅在调试模式下输出日志"""
+    if is_debug_mode():
+        print(f"[DEBUG] {message}")
+
+@contextmanager
+def deepseek_env_manager():
+    """上下文管理器：安全管理deepseek环境变量"""
+    # 保存原始环境变量
+    original_env = {}
+    deepseek_keys = [key for key in os.environ.keys() if key.startswith('DEEPSEEK_')]
+    for key in deepseek_keys:
+        original_env[key] = os.environ.pop(key)
+
+    # 加载新的deepseek环境变量
+    deepseek_vars = load_deepseek_env()
+    os.environ.update(deepseek_vars)
+    log_debug(f"已加载deepseek环境变量: {list(deepseek_vars.keys())}")
+
+    try:
+        yield deepseek_vars
+    finally:
+        # 恢复原始状态
+        for key in deepseek_vars:
+            os.environ.pop(key, None)
+        os.environ.update(original_env)
+        log_debug("已恢复原始环境变量状态")
+
+def create_isolated_env(cleanup_deepseek=True):
+    """创建隔离的环境变量字典"""
+    # 复制当前环境变量
+    isolated_env = os.environ.copy()
+
+    # 如果需要清理deepseek变量（用于调用外部脚本时）
+    if cleanup_deepseek:
+        deepseek_keys = [key for key in isolated_env.keys() if key.startswith('DEEPSEEK_')]
+        for key in deepseek_keys:
+            isolated_env.pop(key, None)
+
+    return isolated_env
+
+def run_command_silently(cmd, env=None, timeout=60, cwd=None):
+    """静默运行命令，完全抑制输出"""
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            env=env or os.environ,
+            timeout=timeout,
+            check=False,
+            cwd=cwd,
+        )
+        success = result.returncode == 0
+        if not success:
+            log_debug(f"命令执行失败: {cmd} (返回码: {result.returncode})")
+        return success
+    except subprocess.TimeoutExpired:
+        log_debug(f"命令执行超时: {cmd}")
+        return False
+    except Exception as e:
+        log_debug(f"命令执行异常: {cmd} - {str(e)}")
+        return False
+
+# =============== 路径配置 ===============
+DATA_API_PATH = "/Users/fanshengxia/Desktop/data_api/main.py"
+MARKET_DATA_GEN_PATH = "/Users/fanshengxia/Desktop/市场复盘/周报市场复盘/market_data_generator.py"
+MARKET_DATA_PATH = "/Users/fanshengxia/Desktop/市场复盘/周报市场复盘/market_data.json"
+SUMMARY_TEXT_PATH = "/Users/fanshengxia/Desktop/市场复盘/周报市场复盘/market_summary.txt"
+OUTPUT_PATH = "/Users/fanshengxia/Desktop/市场复盘/周报市场复盘/output/"
+
+def update_database():
+    """更新数据库，完全静默处理"""
+    log_debug("开始更新数据库...")
+
+    # 创建不含deepseek变量的隔离环境
+    clean_env = create_isolated_env(cleanup_deepseek=True)
+
+    # 静默运行数据库更新，完全不显示任何输出
+    data_api_dir = os.path.dirname(DATA_API_PATH)
+    update_success = run_command_silently(
+        f"python {DATA_API_PATH} update",
+        env=clean_env,
+        cwd=data_api_dir,
+    )
+
+    # 静默处理，只在调试模式下输出
+    if not update_success:
+        log_debug("数据库更新失败，将使用现有数据继续生成...")
+
+    return update_success
+
+def generate_market_data():
+    """生成市场数据"""
+    print("📊 正在生成市场数据 JSON ...")
+
+    # 静默运行市场数据生成
+    data_gen_success = run_command_silently(f"python {MARKET_DATA_GEN_PATH}")
+
+    if not data_gen_success:
+        print("❌ 市场数据生成失败，请检查数据生成器")
+        log_debug("市场数据生成命令失败")
+        exit(1)
+
+    return True
+
+def load_market_data():
+    """加载市场数据"""
+    print("📁 读取最新市场数据与文字总结 ...")
+
+    try:
+        with open(MARKET_DATA_PATH, "r", encoding="utf-8") as f:
+            market_data = json.load(f)
+        print(f"✅ 市场数据读取成功，包含 {len(market_data.get('categories', {}))} 个类别")
+        return market_data
+    except FileNotFoundError:
+        print(f"❌ 找不到市场数据文件: {MARKET_DATA_PATH}")
+        print("请检查市场数据生成器是否正常运行")
+        log_debug(f"市场数据文件不存在: {MARKET_DATA_PATH}")
+        exit(1)
+    except json.JSONDecodeError as e:
+        print(f"❌ 市场数据文件格式错误: {e}")
+        log_debug(f"JSON解析错误: {e}")
+        exit(1)
+
+def load_market_summary():
+    """加载市场摘要"""
+    # 读取市场摘要，如无则使用默认内容
+    try:
+        with open(SUMMARY_TEXT_PATH, "r", encoding="utf-8") as f:
+            summary_text = f.read()
+        print("✅ 市场摘要读取成功")
+        return summary_text
+    except FileNotFoundError:
+        log_debug(f"市场摘要文件不存在，使用默认摘要: {SUMMARY_TEXT_PATH}")
+        print(f"⚠️  找不到市场摘要文件，使用默认摘要...")
+        return """
+本周市场整体表现平稳，各类资产波动相对有限。
+债券市场受资金面影响小幅波动，利率债收益率整体小幅上行。
+权益市场板块轮动明显，结构性机会依然存在。
+转债市场表现中规中矩，估值水平维持稳定。"""
+
+def initialize_deepseek_client(deepseek_env):
+    """初始化DeepSeek客户端"""
+    api_key = deepseek_env.get('DEEPSEEK_API_KEY') or os.getenv('DEEPSEEK_API_KEY')
+
+    if not api_key:
+        print("❌ 缺少DEEPSEEK_API_KEY环境变量，请检查.env文件")
+        log_debug("DeepSeek API密钥缺失")
+        exit(1)
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url=deepseek_env.get('DEEPSEEK_BASE_URL', "https://api.deepseek.com/v1")
+    )
+
+    return client
+
+def generate_ai_review(market_data, summary_text, deepseek_env):
+    """生成AI市场回顾"""
+    print("🧠 调用 Deepseek 生成市场回顾 ...")
+
+    # 初始化客户端
+    client = initialize_deepseek_client(deepseek_env)
+
+    # 使用deepseek模型
+    model = deepseek_env.get('DEEPSEEK_MODEL', "deepseek-chat")
+
+    prompt = f"""
+你是一家资管机构多资产投资部负责人，你需要每周对债券市场，权益市场和转债市场进行回顾。
+具体来说你需要关注债券市场1Y 3Y 5Y 10Y 30Y国债活跃券的bp变动，和6M 1 Y 2 Y 3Y AA+城投信用债的bp变动，以及本周驱动债券市场涨跌的主要因素，如资金面，政策，央行行为，机构行为等，
+权益市场需要你关注主要的大盘指数上证指数，沪深300等和主要的涨幅和跌幅靠前的行业，及驱动权益市场涨跌的主要因素。
+转债市场方面，中证转债的涨跌幅和主要的驱动因素。
+我会给你一些本周市场总结的文字，我需要你从中提取总结，并保持和我的模版的语言风格和结构一致，
+我对数据的要求比较高，我会给你另外一个单独的所有需要数据的json文件，请你对于所有数据的表述需要依据从json数据。
+
+【数据JSON】
+{json.dumps(market_data, ensure_ascii=False, indent=2)}
+
+【市场总结文字】
+{summary_text}
+
+任务要求：
+1. 严格按照以下模板格式撰写：
+"本周债券市场主要受中美贸易政策、存单到期和央行买断式逆回购和买卖国债等消息面波动，受资金面宽松预 期和中美贸易政策不确定影响，整体上利率债呈现短强长弱。利率债方面，3 年、5 年、10 年和30 年国债活跃券分 别较上周变动-4BP、-2BP、-2BP、-2BP。信用债方面，在经过前期降准降息收益率的下行后，信用债进入窄幅震荡 区间。6M、1 年、2 年、3 年AA+评级的城投债分别较上周变动+0bp、+1bp、+0bp、+1bp。
+本周权益市场偏强，上证指数全周上涨1.13%，行业方面，通信、有色、农业、银行、电子等行业表现靠前，汽 车、家电、食品饮料、煤炭等板块表现靠后，本周中美领导对话市场风险偏好有所提升，部分地区消费补贴开始停 发，内需板块回落。
+转债方面，本周转债市场表现较好，全周中证转债上涨1.07%，主要受小盘股表现较好和银行表 现偏强拉动，估值层面本周平稳，转债指数虽然接近前高，但并非普涨，仍有很多券在低位，建议寻找结构性机会"
+
+2. 语言风格要求：
+- 简洁专业，符合资管机构口径
+- 数据表述必须准确反映JSON中的具体数值
+- 不要使用"根据数据"、"JSON显示"等提示性表述
+- 自然连贯，避免机械化语言
+
+3. 结构要求：
+1️⃣ 债券市场：
+- 描述利率债活跃券（1Y, 3Y, 5Y, 10Y, 30Y）的具体bp变动数值；
+- 说明信用债AA+各期限（6M, 1Y, 2Y, 3Y）的具体变动数值；
+- 概述驱动因素（资金面、政策、央行行为、机构操作），结合市场总结文字。
+
+2️⃣ 权益市场：
+- 描述上证指数、沪深300等主要指数具体涨跌幅度；
+- 列出涨幅和跌幅靠前的行业,请不要提及具体的分行业的涨跌幅；
+- 分析本周主要驱动因素（政策、资金、事件等），结合市场总结文字。
+
+3️⃣ 转债市场：
+- 描述中证转债指数具体涨跌幅度；
+- 指出市场结构特征与估值水平；
+- 概述驱动因素与投资建议方向，结合市场总结文字。
+
+4. 数据准确性要求：
+- 所有数据必须严格对应JSON文件中的实际数值
+- 变动方向和幅度要精确描述
+- 引用具体数值时要准确无误
+
+字数控制在 350~450 字。
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "你是一位资管机构多资产投资部负责人，擅长撰写专业周报，对数据准确性要求极高。"},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+        review_text = response.choices[0].message.content.strip()
+        log_debug("AI市场回顾生成成功")
+        return review_text
+
+    except Exception as e:
+        print(f"❌ AI生成失败: {str(e)}")
+        log_debug(f"AI生成异常: {e}")
+        exit(1)
+
+def generate_bond_outlook(summary_text, deepseek_env):
+    print("🧠 调用 Deepseek 生成后市展望(债券) ...")
+    client = initialize_deepseek_client(deepseek_env)
+    model = deepseek_env.get('DEEPSEEK_MODEL', "deepseek-chat")
+    prompt = f"""
+你是资管机构多资产投资部的负责人。请基于以下市场摘要，仅生成“二、后市观点及下一步操作计划”中的债券部分观点，保持专业、简洁，结构清晰，长度参考示例文本。只讨论债券，不要展开权益或转债。
+
+【市场总结文字】
+{summary_text}
+
+要求：
+1. 明确资金面（如央行操作、DR007区间）、曲线形态与波动；
+2. 结合基本面与政策预期，给出中短端与长端的策略与区间判断；
+3. 给出下一步操作计划要点（配置方向与择券偏好）；
+4. 字数200~250字；
+"""
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "你是一位资管机构多资产投资部负责人，擅长撰写专业周报，且严格按要求只生成债券后市观点。"},
+                {"role": "user", "content": prompt},
+            ],
+        )
+        text = response.choices[0].message.content.strip()
+        return text
+    except Exception as e:
+        print(f"❌ AI生成失败: {str(e)}")
+        exit(1)
+
+def save_output(review_text):
+    """保存输出文件"""
+    today = datetime.date.today()
+    output_file = os.path.join(OUTPUT_PATH, f"weekly_review_{today}.md")
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write("# 本周市场回顾\n\n")
+        f.write(review_text)
+        f.write("\n\n# 市场回顾及操作\n\n")
+        base_dir = "/Users/fanshengxia/Desktop/周报V2/输出结果"
+        excel_path = _find_latest_operation_excel(base_dir)
+        net_text = _format_net_sub_text(_extract_net_subscription_from_excel(excel_path)) if excel_path else None
+        op_header = net_text or "本周开放式产品合计净申购数据暂缺"
+        static_body = (
+            "；本周资金资金面维持宽松，隔夜与7d在1.45-1.55附近。债券方面，10月以来买入1-2Y左右信用债合计11亿左右，"
+            "加权久期1.2Y左右，加权平均收益率1.84%附近。同业存单买入约4亿，久期0.8年收益率1.65%附近。基金方面，"
+            "价值回报、资源优势等含权日开产品根据申购款比例配置保持权益仓位及配置 部分债券基金保持流动性。"
+        )
+        f.write(op_header + static_body)
+        f.write("\n\n# 后市观点及下一步操作计划（债券）\n\n")
+        outlook_text = generate_bond_outlook(summary_text_global, deepseek_env_global)
+        f.write(outlook_text)
+
+    print(f"✅ 周报已生成：{output_file}")
+    return output_file
+
+# =============== 主执行流程 ===============
+def main():
+    """主函数：封装所有执行逻辑"""
+
+    # 使用环境变量管理器，确保deepseek变量安全隔离
+    with deepseek_env_manager() as deepseek_env:
+
+        # 步骤1：更新数据库（静默处理）
+        #update_database()
+
+        # 步骤2：生成市场数据
+        generate_market_data()
+
+        # 步骤3：读取数据
+        market_data = load_market_data()
+        summary_text = load_market_summary()
+
+        # 步骤4：AI生成市场回顾
+        global summary_text_global, deepseek_env_global
+        summary_text_global = summary_text
+        deepseek_env_global = deepseek_env
+        review_text = generate_ai_review(market_data, summary_text, deepseek_env)
+
+        # 步骤5：保存输出
+        save_output(review_text)
+
+if __name__ == "__main__":
+    main()

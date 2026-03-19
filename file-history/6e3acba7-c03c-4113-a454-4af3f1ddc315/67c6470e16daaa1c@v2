@@ -1,0 +1,256 @@
+# AI Agent 基础环境搭建
+
+**内网部署技术需求说明书**
+
+> 提交部门：多资产投资部 | 目标协作方：科技部门
+
+---
+
+## 一、项目背景与目标
+
+当前业务团队在日常工作中大量使用 AI 辅助工具（如 Claude、ChatGPT 等），但受限于外网访问限制，无法在公司内网环境中使用这些工具。公司已在内网部署了 Qwen（通义千问）大语言模型，具备基础推理能力。
+
+**本次需求的核心目标：** 在内网搭建一个可运行的 AI Agent（智能代理）开发环境，使业务人员能够通过终端工具调用本地 Qwen 模型，实现代码编写、文档处理、数据分析等自动化任务，并支持自定义技能包（Skills）的开发与加载。
+
+**关键约束：** 内网环境无法直接访问外网，所有依赖包、工具均需由科技部门从外网下载后传输至内网安装。
+
+---
+
+## 二、整体技术架构
+
+整个系统分为三层，自底向上分别是：
+
+| 层级 | 组件 | 说明 |
+|------|------|------|
+| 模型推理层 | Qwen + vLLM / Ollama | 公司已部署的 Qwen 模型，需暴露 OpenAI 兼容 API |
+| Agent 客户端层 | OpenCode | 终端 AI 编码助手，连接本地模型 API 进行交互 |
+| 技能扩展层 | Agents / Skills / MCP | 自定义 Markdown 技能文件 + MCP 协议扩展工具 |
+
+**核心数据流：** 用户在终端输入任务 → OpenCode 组装 Prompt + 工具描述 → 调用本地 Qwen API → 模型返回结果 → OpenCode 执行工具调用（编辑文件、运行命令等）→ 返回结果给用户。
+
+---
+
+## 三、模型推理层（科技部门已有 / 需确认）
+
+### 3.1 确认 Qwen 模型 API 接口规范
+
+OpenCode 要求模型服务端暴露 OpenAI 兼容的 HTTP API，即：
+
+```
+POST http://<内网IP>:<端口>/v1/chat/completions
+GET  http://<内网IP>:<端口>/v1/models
+```
+
+请科技部门确认以下信息：
+
+| 确认项 | 需提供的信息 |
+|--------|------------|
+| API 地址 | 如 http://10.x.x.x:8000/v1 |
+| 模型名称（model ID） | 如 qwen3-32b、qwen3-coder 等 |
+| 是否需要 API Key | 如有，请提供 key 或告知获取方式 |
+| 推理框架 | vLLM / SGLang / Ollama / 其他 |
+| 是否支持 Tool Calling | OpenCode 依赖 function calling 能力（极重要） |
+| 是否支持流式输出 | stream: true，提升交互体验 |
+| 上下文窗口大小 | 如 32K / 128K / 256K tokens |
+
+### 3.2 推荐的模型部署方式（如尚未部署）
+
+如果当前 Qwen 模型尚未以 OpenAI 兼容 API 方式部署，建议使用 vLLM：
+
+```bash
+vllm serve Qwen/Qwen3-32B \
+  --port 8000 \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes \
+  --max-model-len 131072
+```
+
+vLLM 启动后自动提供 `/v1/chat/completions` 等标准端点，OpenCode 可直接对接。
+
+---
+
+## 四、OpenCode 工具说明
+
+**OpenCode** 是目前最活跃的开源 AI 编码 Agent（GitHub 100K+ Stars），原生支持 OpenAI 兼容 API 直连本地模型，无需任何代理层。Go 语言编写，单个二进制文件零依赖，离线安装极其简单。
+
+### 4.1 安装方式
+
+从 GitHub Releases 下载对应平台的二进制文件，传输到内网即可运行：
+
+```bash
+# https://github.com/opencode-ai/opencode/releases
+# 下载后直接运行，无需 Node.js / Python / 任何其他依赖
+chmod +x opencode
+./opencode --version
+```
+
+### 4.2 配置本地 Qwen 模型
+
+在项目根目录创建 `opencode.json`：
+
+```json
+{
+  "provider": {
+    "local-qwen": {
+      "name": "Local Qwen",
+      "type": "openai",
+      "options": {
+        "baseURL": "http://<内网IP>:8000/v1"
+      },
+      "models": {
+        "qwen3-32b": {
+          "name": "Qwen3 32B",
+          "contextWindow": 131072
+        }
+      }
+    }
+  },
+  "agents": {
+    "coder": {
+      "model": "local-qwen/qwen3-32b"
+    }
+  }
+}
+```
+
+### 4.3 Agent / Skills 系统
+
+OpenCode 使用 Markdown 文件定义 Agent。每个 `.md` 文件即是一个独立的 Agent 技能配置，包含系统提示词、模型配置、工具权限。
+
+**文件放置位置：**
+
+- 项目级：`<项目根>/.opencode/agents/` —— 仅对当前项目生效
+- 全局级：`~/.config/opencode/agents/` —— 对所有项目生效
+
+**示例 Agent 文件（weekly-report.md）：**
+
+```yaml
+---
+model: local-qwen/qwen3-32b
+description: 周报生成 Agent，自动汇总市场数据并生成报告
+tools:
+  bash: true
+  read: true
+  edit: true
+  webfetch: false
+permissions:
+  bash:
+    "python*": allow
+---
+
+你是一个多资产投资部的周报生成助手。你的职责是：
+1. 读取本周市场数据文件（Excel/CSV）
+2. 汇总债券、权益、转债市场表现
+3. 按模板生成周报文档
+...
+```
+
+**更多 Agent 配置项：**
+
+- `model` —— 每个 Agent 可绑定不同模型（大模型用于复杂任务，小模型用于简单任务）
+- `tools` —— 精细控制 bash / read / edit / webfetch 等工具的开关
+- `permissions` —— 对特定 bash 命令设置 allow / ask / deny
+- `temperature` —— 控制生成随机性（Qwen 默认 0.55）
+- `maxIterations` —— 限制最大迭代次数，控制调用成本
+
+### 4.4 MCP 协议扩展
+
+OpenCode 原生支持 MCP（Model Context Protocol）服务集成，可以通过 MCP Server 连接外部工具：
+
+- 对接内部数据库查询接口
+- 集成 Wind 金融数据 API
+- 对接 GitLab / Jira 等内部系统
+
+---
+
+## 五、离线安装包清单（需科技部门下载）
+
+由于内网无法联网，以下所有软件包需要从外网下载后传输到内网服务器。
+
+### 5.1 基础运行环境
+
+| 软件 | 版本要求 | 下载地址 / 说明 |
+|------|---------|---------------|
+| Node.js | v20 LTS 或更高 | https://nodejs.org/ 下载 Linux/macOS/Windows 二进制包 |
+| Python | 3.10 - 3.12 | https://python.org/ 建议 Miniconda 离线安装包 |
+
+### 5.2 核心 Agent 工具
+
+| 工具 | 离线获取方式 |
+|------|------------|
+| OpenCode 二进制 | https://github.com/opencode-ai/opencode/releases → 下载对应平台 binary |
+| OpenCode npm 包（备选） | `npm pack opencode-ai` → 生成 .tgz，内网 `npm install -g ./opencode-ai-x.x.x.tgz` |
+
+### 5.3 npm 依赖包打包方法（通用）
+
+```bash
+# 在外网机器执行
+npm pack <package-name>  # 生成 .tgz 文件
+
+# 传输到内网后
+npm install -g ./<package-name>-x.x.x.tgz
+```
+
+### 5.4 Python 依赖包打包方法（通用）
+
+```bash
+# 在外网机器执行
+pip download <package-name> -d ./offline_pkgs
+
+# 传输 offline_pkgs 文件夹到内网后
+pip install --no-index --find-links=./offline_pkgs <package-name>
+```
+
+---
+
+## 六、环境配置与网络要求
+
+### 6.1 服务器 / 工作站要求
+
+| 项目 | 最低要求 | 推荐配置 |
+|------|---------|---------|
+| Agent 客户端机器 | 4GB RAM，任意 OS | 8GB RAM，Linux/macOS |
+| 模型推理服务器 | 已由科技部署 | 需确认 API 端口对内网开放 |
+
+### 6.2 网络配置
+
+Agent 客户端机器需要能访问模型推理服务器的 API 端口（默认 8000），不需要外网访问。
+
+- 防火墙规则：允许 Agent 客户端 IP → 模型服务器 IP:8000 的 TCP 连接
+- 如模型服务使用 HTTPS，需配置内网 CA 证书
+
+### 6.3 环境变量配置模板
+
+在用户的 shell 配置文件（`.bashrc` / `.zshrc`）中添加：
+
+```bash
+# AI Agent 环境配置
+export OPENAI_API_BASE=http://<模型服务器IP>:8000/v1
+export OPENAI_API_KEY=EMPTY   # 如无鉴权可设为 EMPTY
+export LOCAL_ENDPOINT=http://<模型服务器IP>:8000/v1
+
+# OpenCode
+export PATH=$PATH:/opt/ai-agent/bin
+```
+
+---
+
+## 七、交付验收清单
+
+请科技部门完成部署后，逐项确认以下内容：
+
+| # | 验收项 | 状态 |
+|---|--------|------|
+| 1 | curl 请求模型 API `/v1/models` 返回模型列表 | ☐ 待确认 |
+| 2 | curl 请求 `/v1/chat/completions` 返回正常回复 | ☐ 待确认 |
+| 3 | Tool Calling 测试通过（发送包含 tools 参数的请求） | ☐ 待确认 |
+| 4 | OpenCode 二进制文件可正常启动（`opencode --version`） | ☐ 待确认 |
+| 5 | opencode.json 配置完成，运行 opencode 可连接本地模型 | ☐ 待确认 |
+| 6 | 在 OpenCode 中输入简单任务可正常执行 | ☐ 待确认 |
+| 7 | 自定义 Agent .md 文件放入目录后可被 OpenCode 识别 | ☐ 待确认 |
+| 8 | Skills 目录结构创建完成，至少包含一个示例技能 | ☐ 待确认 |
+| 9 | Node.js / Python 等基础环境变量配置完成 | ☐ 待确认 |
+
+---
+
+*如有任何技术细节疑问，欢迎随时沟通。感谢科技部门的支持！*
