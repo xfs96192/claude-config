@@ -1,0 +1,15 @@
+{
+  "underlying_goal": "User wanted to greet and start using Claude Code but could not authenticate",
+  "goal_categories": {
+    "warmup_minimal": 1
+  },
+  "outcome": "not_achieved",
+  "user_satisfaction_counts": {},
+  "claude_helpfulness": "unhelpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "User could not authenticate - login was interrupted and access was denied.",
+  "primary_success": "none",
+  "brief_summary": "User tried to greet Claude and use Claude Code but was blocked by authentication failure.",
+  "session_id": "145173b6-139b-40a9-a20b-f923675f11d9"
+}

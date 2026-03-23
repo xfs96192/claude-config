@@ -1,0 +1,47 @@
+{
+  "session_id": "a380b6bb-5aad-4962-8c0e-3ed86ce8f12a",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-03-12T06:49:37.919Z",
+  "duration_minutes": 2,
+  "user_message_count": 5,
+  "assistant_message_count": 10,
+  "tool_counts": {
+    "Bash": 6
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 20,
+  "output_tokens": 2325,
+  "first_prompt": "你按照了同花顺mcp吗",
+  "user_interruptions": 0,
+  "user_response_times": [
+    28.837,
+    30.657,
+    30.656,
+    30.656
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    14,
+    14,
+    14,
+    14,
+    14
+  ],
+  "user_message_timestamps": [
+    "2026-03-12T06:50:05.288Z",
+    "2026-03-12T06:50:48.935Z",
+    "2026-03-12T06:51:51.990Z",
+    "2026-03-12T06:51:51.989Z",
+    "2026-03-12T06:51:51.989Z"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "underlying_goal": "User wanted to send a desktop Word file to themselves and access a Feishu document link",
+  "goal_categories": {
+    "file_sending": 1,
+    "web_content_access": 1,
+    "general_question": 2
+  },
+  "outcome": "not_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1
+  },
+  "claude_helpfulness": "slightly_helpful",
+  "session_type": "multi_task",
+  "friction_counts": {
+    "wrong_approach": 1,
+    "tool_failure": 2
+  },
+  "friction_detail": "Gmail API timed out preventing file sending, and Feishu link required authentication that Claude couldn't bypass.",
+  "primary_success": "none",
+  "brief_summary": "User asked to send a Word file via email and access a Feishu doc, but both tasks failed due to API timeouts and authentication barriers.",
+  "session_id": "dfea4f45-ffe1-4a4e-a1cd-d2db7991b8db"
+}

@@ -1,0 +1,66 @@
+{
+  "session_id": "055395c3-dfd9-44aa-ad84-63cc3bcad840",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-03-11T04:49:52.722Z",
+  "duration_minutes": 17,
+  "user_message_count": 9,
+  "assistant_message_count": 28,
+  "tool_counts": {
+    "Skill": 1,
+    "ToolSearch": 1,
+    "WebFetch": 1,
+    "Bash": 9,
+    "Write": 1
+  },
+  "languages": {
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 53,
+  "output_tokens": 10651,
+  "first_prompt": "使用skill-creator 帮我创建一个skills ,我会给你一个excel 链接 【腾讯文档】委外专户明细表-多资产                                                                                           https://docs.qq.com/sheet/DUWh5RGZNbUNzbVFp，里面包…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    62.041,
+    13.434,
+    26.75,
+    101.448,
+    631.051,
+    631.039,
+    631.039
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "Command Failed": 3
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": true,
+  "lines_added": 198,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    12,
+    12,
+    12,
+    12,
+    12,
+    12,
+    13,
+    13,
+    13
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T04:50:12.662Z",
+    "2026-03-11T04:50:15.111Z",
+    "2026-03-11T04:51:41.161Z",
+    "2026-03-11T04:54:25.615Z",
+    "2026-03-11T04:54:56.229Z",
+    "2026-03-11T04:56:43.800Z",
+    "2026-03-11T05:07:17.713Z",
+    "2026-03-11T05:07:17.701Z",
+    "2026-03-11T05:07:17.701Z"
+  ]
+}

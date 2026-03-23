@@ -1,0 +1,17 @@
+{
+  "underlying_goal": "Get stock information about 派能科技 (Pylon Technologies)",
+  "goal_categories": {
+    "information_lookup": 1
+  },
+  "outcome": "fully_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1
+  },
+  "claude_helpfulness": "very_helpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "fast_accurate_search",
+  "brief_summary": "User asked for stock information on 派能科技 and received a comprehensive summary including company overview, financials, and competitive advantages.",
+  "session_id": "e059ddab-900e-42a5-b698-df9e128b8689"
+}

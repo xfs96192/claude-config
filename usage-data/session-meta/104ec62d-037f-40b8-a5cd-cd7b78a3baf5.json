@@ -1,0 +1,49 @@
+{
+  "session_id": "104ec62d-037f-40b8-a5cd-cd7b78a3baf5",
+  "project_path": "/Users/fanshengxia/Desktop/市场观点美化",
+  "start_time": "2026-02-26T09:12:20.203Z",
+  "duration_minutes": 12,
+  "user_message_count": 3,
+  "assistant_message_count": 42,
+  "tool_counts": {
+    "Read": 7,
+    "Bash": 9,
+    "Edit": 8,
+    "Skill": 1
+  },
+  "languages": {
+    "Markdown": 1,
+    "JavaScript": 13
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 55,
+  "output_tokens": 9338,
+  "first_prompt": "使用git上传和保存我当前的项目",
+  "user_interruptions": 0,
+  "user_response_times": [
+    450.117
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 129,
+  "lines_removed": 1,
+  "files_modified": 5,
+  "message_hours": [
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-26T09:12:44.262Z",
+    "2026-02-26T09:22:21.256Z",
+    "2026-02-26T09:22:30.964Z"
+  ]
+}

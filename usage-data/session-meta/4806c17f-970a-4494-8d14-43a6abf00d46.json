@@ -1,0 +1,28 @@
+{
+  "session_id": "4806c17f-970a-4494-8d14-43a6abf00d46",
+  "project_path": "/Users/fanshengxia/Desktop/周报V2",
+  "start_time": "2026-02-28T08:33:09.990Z",
+  "duration_minutes": 17,
+  "user_message_count": 1,
+  "assistant_message_count": 8,
+  "tool_counts": {
+    "Read": 2,
+    "Write": 1
+  },
+  "languages": {
+    "Python": 2,
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 12,
+  "output_tokens": 7520,
+  "first_prompt": "请针对/Users/fanshengxia/Desktop/周报V2/yield_forecast.py 这个写一个readme文档，尽量详细，我想知道我的收益测算是如何计算的",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,

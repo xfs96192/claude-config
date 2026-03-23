@@ -60,6 +60,16 @@
         "lastUpdated": "2026-02-26T14:58:47.050Z",
         "gitCommitSha": "c5947c8b0686da6fc9c2e4bd4dbdcb7fd4073ff6"
       }
+    ],
+    "claude-hud@claude-hud": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/claude-hud/claude-hud/0.0.11",
+        "version": "0.0.11",
+        "installedAt": "2026-03-23T09:56:56.723Z",
+        "lastUpdated": "2026-03-23T09:56:56.723Z",
+        "gitCommitSha": "30e1dfe46ad7b9a39ca2a4df7c735aaa33a90fd9"
+      }
     ]
   }
 }

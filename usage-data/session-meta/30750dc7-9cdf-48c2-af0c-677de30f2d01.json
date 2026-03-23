@@ -1,0 +1,39 @@
+{
+  "session_id": "30750dc7-9cdf-48c2-af0c-677de30f2d01",
+  "project_path": "/Users/fanshengxia/Desktop",
+  "start_time": "2026-03-04T03:39:46.187Z",
+  "duration_minutes": 8,
+  "user_message_count": 2,
+  "assistant_message_count": 4,
+  "tool_counts": {
+    "Skill": 1,
+    "Bash": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 10,
+  "output_tokens": 30234,
+  "first_prompt": "/ichoice-data 使用ichoice data skills 统计一下2008-2025年历届两会期间沪深300 中证500 黄金 中证转债 十年国债 南华商品指数的两会前后一周、一个月和期间的涨跌幅（债券用bp变动）",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-04T03:40:32.287Z",
+    "2026-03-04T03:40:39.409Z"
+  ]
+}

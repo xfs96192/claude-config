@@ -1,0 +1,18 @@
+{
+  "underlying_goal": "Check if they are running the latest version of Claude Code",
+  "goal_categories": {
+    "version_check": 2,
+    "web_search": 1
+  },
+  "outcome": "fully_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1
+  },
+  "claude_helpfulness": "moderately_helpful",
+  "session_type": "quick_question",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "fast_accurate_search",
+  "brief_summary": "User wanted to verify they had the latest Claude Code version; Claude confirmed they were up to date.",
+  "session_id": "eb6eae6c-2362-4619-b90d-83293086d8a8"
+}

@@ -1,0 +1,261 @@
+"""
+部门重点产品业绩对比分析
+截止日期: 2026-03-19
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings('ignore')
+
+# ─── 配置 ───
+END_DATE = pd.Timestamp('2026-03-19')
+PRODUCTS = ['9T320050', '9K709110', '9K706130', '9S128010', '9K717130', '9S650300', '9K717120']
+
+# ─── 工具函数 ───
+
+def get_nav_at_or_before(series: pd.Series, date: pd.Timestamp):
+    """取 date 当天或之前最近的净值"""
+    sub = series[series.index <= date].dropna()
+    if len(sub) == 0:
+        return None, None
+    return sub.index[-1], sub.iloc[-1]
+
+
+def annualized_return(series: pd.Series, start: pd.Timestamp, end: pd.Timestamp):
+    """计算区间年化收益率"""
+    _, v_start = get_nav_at_or_before(series, start)
+    _, v_end   = get_nav_at_or_before(series, end)
+    if v_start is None or v_end is None or v_start <= 0:
+        return np.nan
+    days = (end - start).days
+    if days <= 0:
+        return np.nan
+    return (v_end / v_start - 1) / days * 365
+
+
+def max_drawdown(series: pd.Series, start: pd.Timestamp, end: pd.Timestamp):
+    """计算区间最大回撤（负数表示下跌）"""
+    sub = series[(series.index >= start) & (series.index <= end)].dropna()
+    if len(sub) < 2:
+        return np.nan
+    peak = sub.expanding().max()
+    drawdown = (sub - peak) / peak
+    return drawdown.min()
+
+
+def calc_since_inception_annualized(series: pd.Series, end: pd.Timestamp):
+    """成立以来年化（取系列第一个非空值为起点）"""
+    sub = series[series.index <= end].dropna()
+    if len(sub) < 2:
+        return np.nan
+    v_start = sub.iloc[0]
+    v_end   = sub.iloc[-1]
+    days    = (sub.index[-1] - sub.index[0]).days
+    if days <= 0 or v_start <= 0:
+        return np.nan
+    return (v_end / v_start - 1) / days * 365
+
+
+# ─── Step 1: 加载产品净值 ───
+print("Loading product NAV data...")
+cache = pd.read_parquet('/Users/fanshengxia/Desktop/周报V2/数据/.nav_cache/nav_master_data.parquet')
+cache['估值日'] = pd.to_datetime(cache['估值日'])
+
+# 产品名称
+latest_file = pd.read_excel(
+    '/Users/fanshengxia/Desktop/周报V2/数据/产品净值数据/产品运作情况表-补充精简20260319.xlsx'
+)
+latest_file = latest_file.dropna(subset=['产品代码'])
+prod_names = latest_file[latest_file['产品代码'].isin(PRODUCTS)][
+    ['产品代码', '产品名称', '产品成立日']
+].drop_duplicates('产品代码').set_index('产品代码')
+
+# 构建每个产品的净值 Series
+product_navs = {}
+for p in PRODUCTS:
+    sub = cache[cache['产品代码'] == p].sort_values('估值日').copy()
+    sub = sub.dropna(subset=['累计净值'])
+    sub = sub[sub['累计净值'] > 0]
+    s = sub.set_index('估值日')['累计净值']
+    s = s[~s.index.duplicated(keep='last')]
+    product_navs[p] = s
+    print(f"  {p}: {len(s)} rows, {s.index[0].date()} ~ {s.index[-1].date()}")
+
+
+# ─── Step 2: 加载指数数据 ───
+print("\nLoading benchmark data...")
+
+# Wind基金指数
+wind_df = pd.read_excel('/Users/fanshengxia/Desktop/部门产品业绩对比情况/wind基金指数数据.xlsx',
+                         sheet_name='wind基金指数数据')
+wind_df = wind_df[pd.to_numeric(wind_df['时间'], errors='coerce').notna()]
+wind_df['date'] = pd.to_datetime(wind_df['时间'].astype(int).astype(str), format='%Y%m%d')
+wind_df = wind_df.set_index('date').sort_index()
+
+# iChoice: 中债-新综合全价(1-3年) + 沪深300
+ichoice_df = pd.read_parquet('/Users/fanshengxia/Desktop/部门产品业绩对比情况/ichoice_index_data.parquet')
+ichoice_df = ichoice_df.sort_index()
+print(f"  iChoice data: {len(ichoice_df)} rows, {ichoice_df.index[0].date()} ~ {ichoice_df.index[-1].date()}")
+
+# ─── Step 3: 构建基准净值 Series ───
+
+# Wind indices (直接用点位作为价格序列)
+bench_wind = {
+    '885006 混债一级': wind_df['万得混合债券型一级指数'],
+    '885062 短纯债':   wind_df['万得短期纯债型基金指数'],
+    '885007 混债二级': wind_df['万得混合债券型二级指数'],
+}
+
+# 复合基准：构建以2020-01-02=100为基础的净值序列
+def build_composite(bond_w, equity_w, start='2020-01-02'):
+    """
+    bond_w: 中债-新综合全价(1-3年)权重
+    equity_w: 沪深300权重
+    """
+    df = pd.DataFrame({
+        'bond':   ichoice_df['中债1-3年全价'],
+        'equity': ichoice_df['沪深300'],
+    }).dropna()
+    df = df[df.index >= pd.Timestamp(start)]
+    # 对齐到有效交易日（两者都有的日期）
+    bond_ret   = df['bond'].pct_change().fillna(0)
+    equity_ret = df['equity'].pct_change().fillna(0)
+    combined_ret = bond_w * bond_ret + equity_w * equity_ret
+    nav = (1 + combined_ret).cumprod()
+    nav.iloc[0] = 1.0
+    return nav
+
+bench_composite = {
+    '95%中债1-3年+5%沪深300':  build_composite(0.95, 0.05),
+    '90%中债1-3年+10%沪深300': build_composite(0.90, 0.10),
+    '85%中债1-3年+15%沪深300': build_composite(0.85, 0.15),
+}
+
+# 合并所有基准
+all_benchmarks = {**bench_wind, **bench_composite}
+
+# ─── Step 4: 计算所有指标 ───
+
+def calc_all_metrics(series: pd.Series, inception: pd.Timestamp = None, name: str = ''):
+    """
+    计算目标产品/基准的所有业绩指标
+    inception: 成立日期（产品用），基准传 None 用数据最早日期
+    """
+    if inception is None:
+        inception = series.dropna().index[0]
+
+    # 截止 END_DATE
+    s = series[series.index <= END_DATE].dropna()
+
+    metrics = {}
+
+    # 近期年化收益率
+    metrics['近1月年化'] = annualized_return(s, END_DATE - pd.DateOffset(months=1), END_DATE)
+    metrics['近3月年化'] = annualized_return(s, END_DATE - pd.DateOffset(months=3), END_DATE)
+    metrics['近6月年化'] = annualized_return(s, END_DATE - pd.DateOffset(months=6), END_DATE)
+    metrics['近1年年化'] = annualized_return(s, END_DATE - pd.DateOffset(years=1), END_DATE)
+
+    # 成立以来年化（产品从inception开始，基准从最早数据开始）
+    metrics['成立以来年化'] = calc_since_inception_annualized(
+        series[series.index >= inception], END_DATE
+    )
+
+    # 2025年年化
+    y2025_start = max(inception, pd.Timestamp('2024-12-31'))
+    y2025_end   = pd.Timestamp('2025-12-31')
+    if y2025_start < y2025_end and series.index.min() <= y2025_end:
+        metrics['2025年年化'] = annualized_return(s, y2025_start, y2025_end)
+    else:
+        metrics['2025年年化'] = np.nan
+
+    # 2026年年化
+    y2026_start = max(inception, pd.Timestamp('2025-12-31'))
+    if y2026_start < END_DATE:
+        metrics['2026年年化'] = annualized_return(s, y2026_start, END_DATE)
+    else:
+        metrics['2026年年化'] = np.nan
+
+    # 最大回撤
+    s_all = series[(series.index >= inception) & (series.index <= END_DATE)].dropna()
+    metrics['成立以来最大回撤'] = max_drawdown(s_all, inception, END_DATE)
+
+    # 今年3月回撤
+    metrics['3月回撤(2026/03)'] = max_drawdown(
+        s, pd.Timestamp('2026-03-01'), END_DATE
+    )
+    # 去年3-4月回撤
+    metrics['3-4月回撤(2025)'] = max_drawdown(
+        s, pd.Timestamp('2025-03-01'), pd.Timestamp('2025-04-30')
+    )
+    # 去年10-11月回撤
+    metrics['10-11月回撤(2025)'] = max_drawdown(
+        s, pd.Timestamp('2025-10-01'), pd.Timestamp('2025-11-30')
+    )
+
+    return metrics
+
+
+print("\nCalculating product metrics...")
+rows = []
+
+# 产品
+for p in PRODUCTS:
+    s = product_navs[p]
+    info = prod_names.loc[p] if p in prod_names.index else {}
+    inception = pd.to_datetime(info.get('产品成立日', s.index[0]))
+    name = info.get('产品名称', p)
+    # 简化名称
+    short_name = name[:20] if isinstance(name, str) else p
+    m = calc_all_metrics(s, inception, short_name)
+    row = {'类型': '产品', '代码': p, '名称': short_name}
+    row.update(m)
+    rows.append(row)
+    print(f"  Done: {p}")
+
+print("\nCalculating benchmark metrics...")
+# 基准
+for bname, bseries in all_benchmarks.items():
+    m = calc_all_metrics(bseries, name=bname)
+    row = {'类型': '基准', '代码': '', '名称': bname}
+    row.update(m)
+    rows.append(row)
+    print(f"  Done: {bname}")
+
+df_result = pd.DataFrame(rows)
+
+# ─── Step 5: 格式化输出 ───
+pct_cols = [
+    '近1月年化', '近3月年化', '近6月年化', '近1年年化',
+    '成立以来年化', '2025年年化', '2026年年化',
+    '成立以来最大回撤', '3月回撤(2026/03)', '3-4月回撤(2025)', '10-11月回撤(2025)'
+]
+
+def fmt_pct(v):
+    if pd.isna(v):
+        return 'N/A'
+    return f"{v*100:.2f}%"
+
+df_display = df_result.copy()
+for col in pct_cols:
+    if col in df_display.columns:
+        df_display[col] = df_display[col].apply(fmt_pct)
+
+print("\n" + "="*120)
+print("部门重点产品与业绩基准 业绩对比表（截止 2026-03-19）")
+print("="*120)
+print(df_display.to_string(index=False))
+
+# ─── Step 6: 保存Excel ───
+out_path = '/Users/fanshengxia/Desktop/部门产品业绩对比情况/部门重点产品业绩对比_20260319.xlsx'
+
+with pd.ExcelWriter(out_path, engine='openpyxl') as writer:
+    # Raw data sheet
+    df_result.to_excel(writer, sheet_name='原始数据', index=False)
+
+    # Formatted sheet
+    df_display.to_excel(writer, sheet_name='业绩对比表', index=False)
+
+print(f"\nSaved to: {out_path}")
+print("Done!")

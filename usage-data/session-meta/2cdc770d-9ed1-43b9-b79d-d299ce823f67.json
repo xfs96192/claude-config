@@ -1,0 +1,48 @@
+{
+  "session_id": "2cdc770d-9ed1-43b9-b79d-d299ce823f67",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-03-11T09:43:15.111Z",
+  "duration_minutes": 8,
+  "user_message_count": 4,
+  "assistant_message_count": 55,
+  "tool_counts": {
+    "Read": 2,
+    "Glob": 3,
+    "Skill": 1,
+    "Bash": 17
+  },
+  "languages": {
+    "Markdown": 1,
+    "Python": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 67,
+  "output_tokens": 23630,
+  "first_prompt": "使用key-product-performance更新3月5日重点产品业绩情况表",
+  "user_interruptions": 0,
+  "user_response_times": [
+    23.836
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T09:43:24.664Z",
+    "2026-03-11T09:43:24.664Z",
+    "2026-03-11T09:43:53.652Z",
+    "2026-03-11T09:44:28.548Z"
+  ]
+}

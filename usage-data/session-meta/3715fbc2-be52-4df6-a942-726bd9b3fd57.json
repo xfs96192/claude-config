@@ -1,0 +1,58 @@
+{
+  "session_id": "3715fbc2-be52-4df6-a942-726bd9b3fd57",
+  "project_path": "/Users/fanshengxia/Desktop/AI",
+  "start_time": "2026-03-02T06:27:56.292Z",
+  "duration_minutes": 60,
+  "user_message_count": 7,
+  "assistant_message_count": 61,
+  "tool_counts": {
+    "Skill": 5,
+    "Bash": 13,
+    "WebSearch": 8,
+    "Write": 1
+  },
+  "languages": {
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 3344,
+  "output_tokens": 46304,
+  "first_prompt": "用 tech-earnings-deepdive 分析一下英伟达最新财报，用us-value-investing  分析一下他的投资价值",
+  "user_interruptions": 0,
+  "user_response_times": [
+    159.037,
+    11.084,
+    2377.319
+  ],
+  "tool_errors": 6,
+  "tool_error_categories": {
+    "Other": 2,
+    "Command Failed": 4
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": true,
+  "uses_web_fetch": false,
+  "lines_added": 408,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    14,
+    14,
+    14,
+    14,
+    14,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-02T06:28:41.344Z",
+    "2026-03-02T06:31:36.785Z",
+    "2026-03-02T06:32:29.763Z",
+    "2026-03-02T06:32:34.896Z",
+    "2026-03-02T06:39:17.142Z",
+    "2026-03-02T07:20:49.749Z",
+    "2026-03-02T07:20:57.362Z"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "underlying_goal": "Fetch 30Y/10Y/1Y treasury bond yield data via iChoice API, analyze yield spreads and percentiles, and assess the impact of recent inflation surprises on the bond market",
+  "goal_categories": {
+    "data_retrieval_and_analysis": 1,
+    "debugging_retry": 1
+  },
+  "outcome": "not_achieved",
+  "user_satisfaction_counts": {
+    "dissatisfied": 1
+  },
+  "claude_helpfulness": "slightly_helpful",
+  "session_type": "iterative_refinement",
+  "friction_counts": {
+    "wrong_approach": 2,
+    "buggy_code": 1
+  },
+  "friction_detail": "iChoice API connection repeatedly failed due to certificate errors and session conflicts, and Claude spent most of the session retrying without resolving the underlying connectivity issue.",
+  "primary_success": "good_debugging",
+  "brief_summary": "User wanted treasury bond yield analysis via iChoice API but the session was consumed by repeated failed API connection attempts without delivering any results.",
+  "session_id": "f029b1a2-09f1-4e74-98dd-8901258cc119"
+}

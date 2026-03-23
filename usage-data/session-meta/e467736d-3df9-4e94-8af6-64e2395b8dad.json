@@ -1,0 +1,61 @@
+{
+  "session_id": "e467736d-3df9-4e94-8af6-64e2395b8dad",
+  "project_path": "/Users/fanshengxia/Desktop/财富部固收+产品权益资产业绩表现",
+  "start_time": "2026-03-19T07:27:14.219Z",
+  "duration_minutes": 63,
+  "user_message_count": 8,
+  "assistant_message_count": 50,
+  "tool_counts": {
+    "Skill": 4,
+    "Bash": 13,
+    "Write": 2,
+    "Read": 1,
+    "Edit": 2
+  },
+  "languages": {
+    "Markdown": 4,
+    "Python": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 78,
+  "output_tokens": 46793,
+  "first_prompt": "请帮我统计一下'/Users/fanshengxia/Desktop/财富部固收+产品权益资产业绩表现/委外分析-净值走势 (2).xlsx'这几个资管产品 成立以来涨幅 （非年化数据，截止最新数据）    2025年度涨幅 （非年化数据）    今年以来涨幅 （非年化数据，截止最新数据）    成立以来最大回撤 （非年化数据，截止最新数据）    2025年度最大回撤    今年以来最大回撤这几…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    95.275,
+    2070.464,
+    60.446
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 644,
+  "lines_removed": 2,
+  "files_modified": 3,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-03-19T07:36:18.269Z",
+    "2026-03-19T07:36:25.746Z",
+    "2026-03-19T07:36:34.324Z",
+    "2026-03-19T07:44:51.687Z",
+    "2026-03-19T07:44:54.875Z",
+    "2026-03-19T07:49:49.567Z",
+    "2026-03-19T08:28:08.747Z",
+    "2026-03-19T08:30:00.596Z"
+  ]
+}

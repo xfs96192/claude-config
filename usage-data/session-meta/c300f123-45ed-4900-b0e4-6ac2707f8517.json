@@ -1,0 +1,43 @@
+{
+  "session_id": "c300f123-45ed-4900-b0e4-6ac2707f8517",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-03-18T09:07:01.831Z",
+  "duration_minutes": 76,
+  "user_message_count": 4,
+  "assistant_message_count": 13,
+  "tool_counts": {
+    "Skill": 2,
+    "Bash": 2
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 26,
+  "output_tokens": 4215,
+  "first_prompt": "我有哪些skills 请介绍一下",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    17,
+    17,
+    18,
+    18
+  ],
+  "user_message_timestamps": [
+    "2026-03-18T09:07:19.996Z",
+    "2026-03-18T09:07:24.388Z",
+    "2026-03-18T10:21:12.992Z",
+    "2026-03-18T10:21:55.610Z"
+  ]
+}

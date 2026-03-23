@@ -1,0 +1,66 @@
+{
+  "session_id": "f7a8d5ff-086f-44b9-aafa-900a5486eb09",
+  "project_path": "/Users/fanshengxia/Desktop/固收+月报",
+  "start_time": "2026-03-03T02:34:08.656Z",
+  "duration_minutes": 38,
+  "user_message_count": 8,
+  "assistant_message_count": 81,
+  "tool_counts": {
+    "Skill": 2,
+    "Bash": 20,
+    "Read": 7,
+    "Glob": 1,
+    "TaskCreate": 2,
+    "TaskUpdate": 4,
+    "Write": 4,
+    "Edit": 2
+  },
+  "languages": {
+    "Markdown": 12,
+    "Python": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 6106,
+  "output_tokens": 52191,
+  "first_prompt": "把这个word文档转换成markdown格式 /Users/fanshengxia/Desktop/固收+月报/重点固收+产品月报模板-徐老师1月.docx",
+  "user_interruptions": 0,
+  "user_response_times": [
+    623.828,
+    138.932,
+    21.258,
+    386.983,
+    386.983
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 618,
+  "lines_removed": 3,
+  "files_modified": 2,
+  "message_hours": [
+    10,
+    10,
+    10,
+    10,
+    11,
+    11,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-03T02:36:03.647Z",
+    "2026-03-03T02:36:08.828Z",
+    "2026-03-03T02:47:31.355Z",
+    "2026-03-03T02:47:38.933Z",
+    "2026-03-03T03:00:30.079Z",
+    "2026-03-03T03:02:56.263Z",
+    "2026-03-03T03:11:04.143Z",
+    "2026-03-03T03:11:04.143Z"
+  ]
+}

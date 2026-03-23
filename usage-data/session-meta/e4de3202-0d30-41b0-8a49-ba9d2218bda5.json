@@ -1,0 +1,58 @@
+{
+  "session_id": "e4de3202-0d30-41b0-8a49-ba9d2218bda5",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-02-26T05:14:58.303Z",
+  "duration_minutes": 53,
+  "user_message_count": 6,
+  "assistant_message_count": 92,
+  "tool_counts": {
+    "Skill": 2,
+    "Bash": 37,
+    "TaskOutput": 5,
+    "TaskStop": 2,
+    "Glob": 1,
+    "Read": 2,
+    "Edit": 3
+  },
+  "languages": {
+    "Markdown": 5
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 114,
+  "output_tokens": 40761,
+  "first_prompt": "使用ichoice data提取10年国债近3年的走势图进行复盘",
+  "user_interruptions": 0,
+  "user_response_times": [
+    181.655,
+    47.554,
+    722.228
+  ],
+  "tool_errors": 7,
+  "tool_error_categories": {
+    "Command Failed": 7
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 179,
+  "lines_removed": 11,
+  "files_modified": 1,
+  "message_hours": [
+    13,
+    13,
+    13,
+    13,
+    13,
+    14
+  ],
+  "user_message_timestamps": [
+    "2026-02-26T05:22:34.382Z",
+    "2026-02-26T05:22:39.779Z",
+    "2026-02-26T05:42:36.112Z",
+    "2026-02-26T05:42:52.267Z",
+    "2026-02-26T05:54:20.439Z",
+    "2026-02-26T06:07:22.684Z"
+  ]
+}

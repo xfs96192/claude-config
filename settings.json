@@ -1,4 +1,31 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__pencil"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx ccusage statusline"
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "financial-analysis@financial-services-plugins": true,
+    "investment-banking@financial-services-plugins": true,
+    "equity-research@financial-services-plugins": true,
+    "private-equity@financial-services-plugins": true,
+    "wealth-management@financial-services-plugins": true,
+    "claude-hud@claude-hud": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true,
   "mcpServers": {
     "hexin-ifind-ds-stock-mcp": {
       "headers": {
@@ -29,23 +56,5 @@
       "url": "https://api-mcp.51ifind.com:8643/ds-mcp-servers/hexin-ifind-ds-news-mcp"
     }
   },
-  "permissions": {
-    "allow": [
-      "mcp__pencil"
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "npx ccusage statusline"
-  },
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true,
-    "financial-analysis@financial-services-plugins": true,
-    "investment-banking@financial-services-plugins": true,
-    "equity-research@financial-services-plugins": true,
-    "private-equity@financial-services-plugins": true,
-    "wealth-management@financial-services-plugins": true
-  },
-  "skipDangerousModePermissionPrompt": true,
   "hasTrustDialogAccepted": true
 }

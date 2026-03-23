@@ -1,0 +1,57 @@
+{
+  "session_id": "858dc599-7724-43a7-981a-75825aea6b71",
+  "project_path": "/Users/fanshengxia/Desktop/市场观点美化",
+  "start_time": "2026-03-14T08:15:21.562Z",
+  "duration_minutes": 70,
+  "user_message_count": 6,
+  "assistant_message_count": 95,
+  "tool_counts": {
+    "Skill": 2,
+    "Read": 6,
+    "Glob": 3,
+    "Bash": 21,
+    "Write": 5,
+    "Edit": 12
+  },
+  "languages": {
+    "Python": 15,
+    "Markdown": 6,
+    "JavaScript": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 116,
+  "output_tokens": 54614,
+  "first_prompt": "参考/Users/fanshengxia/Desktop/市场观点美化/data/generate_tables_from_wind.py，我的wind数据库不更新了，参考/ichoice data                                                             skills和/Users/fanshengxia/Desktop/ichoic…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    2206.06
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Command Failed": 2
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1021,
+  "lines_removed": 57,
+  "files_modified": 6,
+  "message_hours": [
+    16,
+    16,
+    16,
+    16,
+    16,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-03-14T08:17:38.999Z",
+    "2026-03-14T08:25:27.242Z",
+    "2026-03-14T08:25:40.687Z",
+    "2026-03-14T08:45:24.280Z",
+    "2026-03-14T08:45:24.280Z",
+    "2026-03-14T09:22:18.622Z"
+  ]
+}

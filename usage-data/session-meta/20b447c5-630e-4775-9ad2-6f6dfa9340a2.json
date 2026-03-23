@@ -1,0 +1,36 @@
+{
+  "session_id": "20b447c5-630e-4775-9ad2-6f6dfa9340a2",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-03-11T03:06:34.512Z",
+  "duration_minutes": 0,
+  "user_message_count": 3,
+  "assistant_message_count": 0,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    11,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T03:06:38.306Z",
+    "2026-03-11T03:06:38.304Z",
+    "2026-03-11T03:06:38.304Z"
+  ]
+}

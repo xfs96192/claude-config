@@ -1,0 +1,456 @@
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1267-    EXchange_rate = ctx.market_data.get_exchange_rate('USDCNY', Config.EXCHANGE_RATE_DATE)
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1268-    if EXchange_rate is None:
+/Users/fanshengxia/Desktop/周报V2/generate_report.py:1269:        # iChoice无USDCNY.IB权限时用备用兑率
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1270-        fallback = getattr(Config, 'FALLBACK_EXCHANGE_RATE', 7.19)
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1271-        print(f"  ⚠️  汇率获取失败！使用config中的备用兑率: {fallback}")
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1272-        print(f"      请在 config.py 中确认 FALLBACK_EXCHANGE_RATE 值与市场相符!")
+/Users/fanshengxia/Desktop/周报V2/generate_report.py:1273:        print(f"      当前iChoice账户对 USDCNY.IB CLOSE字段无数据权限，请联系iChoice开通")
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1274-        EXchange_rate = fallback
+/Users/fanshengxia/Desktop/周报V2/generate_report.py-1275-    Chicang_df['日终市值(元)-产品法估值'] = Chicang_df.apply(
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-2-市场数据提供者模块
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-3-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:4:该模块封装市场数据获取逻辑，支持Wind和iChoice(EMQuantAPI)两种数据源。
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:5:通过config.py中的DATA_SOURCE配置项切换数据源，默认使用iChoice。
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-6-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-7-所有调用方（generate_report.py, calculate_all_benchmarks.py等）无需修改。
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-14-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-15-    # 或手动创建并连接
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:16:    provider = MarketDataProvider(source='ichoice')  # 或 'wind'
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-17-    provider.connect()
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-18-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-41-    市场数据提供者
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-42-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:43:    支持Wind和iChoice(EMQuantAPI)两种后端数据源。
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-44-    通过source参数选择，公共接口保持不变。
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-45-    """
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-50-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-51-        Args:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:52:            source: 数据源 ('ichoice' 或 'wind')，默认从config读取
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-53-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-54-        self._connected = False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-55-        self._w = None       # Wind API对象
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:56:        self._c = None       # iChoice API模块
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-57-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-58-        if source is None:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-97-            return True
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-98-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:99:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:100:            return self._connect_ichoice()
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-101-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-102-            return self._connect_wind(wait_time)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-128-            return False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-129-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:130:    def _connect_ichoice(self) -> bool:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:131:        """建立iChoice(EMQuantAPI)连接"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-132-        try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-133-            from config import Config
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-136-            password = Config.ICHOICE_PASSWORD
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-137-        except (ImportError, AttributeError):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:138:            print("错误: config.py中缺少iChoice配置")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-139-            return False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-140-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-149-            # 登录
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-150-            login_options = f"ForceLogin=1,UserName={username},Password={password}"
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:151:            print(f"正在连接iChoice (EMQuantAPI)...")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-152-            result = c.start(login_options)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-153-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-154-            if result.ErrorCode != 0:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:155:                print(f"iChoice登录失败，错误码: {result.ErrorCode}, 错误信息: {result.ErrorMsg}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-156-                self._connected = False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-157-                return False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-158-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-159-            self._connected = True
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:160:            print("iChoice连接成功")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-161-            return True
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-162-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-166-            return False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-167-        except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:168:            print(f"iChoice连接异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-169-            self._connected = False
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-170-            return False
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-172-    def disconnect(self) -> None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-173-        """断开数据源连接"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:174:        if self._source == 'ichoice' and self._c and self._connected:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-175-            try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-176-                self._c.stop()
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:177:                print("iChoice连接已断开")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-178-            except:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-179-                pass
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-189-    def _map_code(self, wind_code: str) -> str:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-190-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:191:        将Wind代码映射为iChoice代码
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-192-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-193-        映射规则:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-197-           - .CSI → .SH   （数字开头的代码，如 000922.CSI、950171.CSI）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-198-           - .CSI 保持不变  （字母开头的代码，如 H30269.CSI，已可直接识别）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:199:        3. 其他代码原样返回（iChoice兼容大部分Wind代码）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-200-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:201:        if self._source != 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-202-            return wind_code
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-203-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-222-            prefix = wind_code[:-4]  # 去掉 .CSI
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-223-            # 数字开头的代码（如 000922、9501710）→ .SH
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:224:            # 字母开头的代码（如 H30269）→ 保持 .CSI（iChoice可直接识别）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-225-            if prefix and prefix[0].isdigit():
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-226-                return f"{prefix}.SH"
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-260-    @staticmethod
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-261-    def _format_date(dt) -> str:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:262:        """将日期格式化为 YYYY-MM-DD 字符串（iChoice需要）"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-263-        if isinstance(dt, str):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-264-            # 处理 YYYYMMDD 格式
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-293-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-294-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:295:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:296:            return self._get_index_close_ichoice(code, start_date, end_date)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-297-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-298-            return self._get_index_close_wind(code, start_date, end_date)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-334-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-335-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:336:    def _get_index_close_ichoice(self, code, start_date, end_date):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:337:        """iChoice实现: 获取指数收盘价"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-338-        mapped_code = self._map_code(code)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-339-        if mapped_code is None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:340:            print(f"  [iChoice] {code} 在iChoice中不可用，跳过")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-341-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-342-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-345-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-346-        try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:347:            result = self._c.csd(mapped_code, "CLOSE", start_str, end_str, "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-348-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-349-            if isinstance(result, pd.DataFrame) and not result.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-370-                        close_col = df.columns[1]
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-371-                    else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:372:                        print(f"  [iChoice] {code} 返回列格式异常: {list(df.columns)}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-373-                        return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-374-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-391-                # 非DataFrame返回，检查EmQuantData对象
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-392-                if hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:393:                    print(f"  [iChoice Error] 获取 {code}(→{mapped_code}) 失败: {result.ErrorCode} {getattr(result, 'ErrorMsg', '')}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-394-                else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:395:                    print(f"  [iChoice] 获取 {code}(→{mapped_code}) 返回空数据")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-396-                return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-397-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-398-        except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:399:            print(f"  [iChoice Exception] 获取 {code}(→{mapped_code}) 异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-400-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-401-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-421-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-422-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:423:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:424:            return self._get_index_returns_ichoice(codes, start_date, end_date)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-425-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-426-            return self._get_index_returns_wind(codes, start_date, end_date)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-443-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-444-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:445:    def _get_index_returns_ichoice(self, codes, start_date, end_date):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-446-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:447:        iChoice实现: 获取指数区间收益率
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:448:        iChoice没有直接的pct_chg_per，从首尾收盘价计算
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-449-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-450-        returns = []
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-455-            mapped_code = self._map_code(code)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-456-            if mapped_code is None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:457:                print(f"  [iChoice] {code} 不可用，收益率设为None")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-458-                returns.append(None)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-459-                continue
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-461-            try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-462-                # 获取起止日收盘价
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:463:                result = self._c.csd(mapped_code, "CLOSE", start_str, end_str, "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-464-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-465-                if isinstance(result, pd.DataFrame) and not result.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-491-                else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-492-                    if hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:493:                        print(f"  [iChoice Error] {code}(→{mapped_code}) 收益率获取失败: {result.ErrorCode}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-494-                    returns.append(None)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-495-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-496-            except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:497:                print(f"  [iChoice Exception] {code} 收益率计算异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-498-                returns.append(None)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-499-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-513-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-514-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:515:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:516:            return self._get_index_names_ichoice(codes)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-517-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-518-            return self._get_index_names_wind(codes)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-528-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-529-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:530:    def _get_index_names_ichoice(self, codes):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:531:        """iChoice实现: 获取指数名称"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-532-        names = []
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-533-        today_str = datetime.now().strftime('%Y%m%d')
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-540-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-541-            try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:542:                result = self._c.css(mapped_code, "NAME", f"TradeDate={today_str},Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-543-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-544-                if isinstance(result, pd.DataFrame) and not result.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-566-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-567-            except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:568:                print(f"  [iChoice] 获取 {code} 名称异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-569-                names.append(code)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-570-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-640-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-641-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:642:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:643:            return self._get_exchange_rate_ichoice(currency_pair, trade_date)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-644-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-645-            return self._get_exchange_rate_wind(currency_pair, trade_date)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-663-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-664-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:665:    def _get_exchange_rate_ichoice(self, currency_pair, trade_date):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:666:        """iChoice实现: 获取汇率
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-667-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:668:        iChoice中USD/CNY汇率正确代码: USDCNH.FX (离岸人民币)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:669:        获取方式: c.css("USDCNH.FX", "CLOSE", "TradeDate=YYYY-MM-DD")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-670-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-671-        currency_pair 支持 'USDCNY' 或 'USDCNH'，均映射到 USDCNH.FX。
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-672-        若 USDCNH.FX 失败，回退尝试 USDCNY.IB（需账户有权限）。
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-673-        """
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:674:        # iChoice 中 USD/CNY 汇率使用 USDCNH.FX（离岸人民币，账户有权限）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-675-        # 原 USDCNY.IB 的 CLOSE 字段需特殊权限，该账户可能无权限
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-676-        pair_upper = currency_pair.upper()
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-703-        try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-704-            # --- 方式1: css 快照，带 Ispandas=1（优先）---
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:705:            r = self._c.css(primary_code, "CLOSE", f"TradeDate={date_str},Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-706-            v = _try_extract(r)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-707-            if v is not None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:708:                print(f"  [iChoice] 汇率 {currency_pair} ({primary_code} css) = {v}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-709-                return v
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-710-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-711-            # --- 方式2: css 快照，不带 Ispandas（返回 EmQuantData）---
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:712:            r = self._c.css(primary_code, "CLOSE", f"TradeDate={date_str}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-713-            v = _try_extract_emdata(r, primary_code)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-714-            if v is not None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:715:                print(f"  [iChoice] 汇率 {currency_pair} ({primary_code} css/raw) = {v}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-716-                return v
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-717-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-718-            # --- 方式3: csd 时间序列，单日 ---
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:719:            r = self._c.csd(primary_code, "CLOSE", date_str, date_str, "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-720-            v = _try_extract(r)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-721-            if v is not None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:722:                print(f"  [iChoice] 汇率 {currency_pair} ({primary_code} csd) = {v}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-723-                return v
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-724-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-730-                end_dt = pd.to_datetime(trade_date).to_pydatetime()
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-731-            start_str = self._format_date((end_dt - timedelta(days=45)).strftime('%Y%m%d'))
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:732:            r = self._c.csd(primary_code, "CLOSE", start_str, date_str, "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-733-            if isinstance(r, pd.DataFrame) and not r.empty:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-734-                col = next((c for c in r.columns if 'CLOSE' in str(c).upper()), r.columns[-1])
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-736-                if not valid.empty:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-737-                    v = float(valid.iloc[-1])
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:738:                    print(f"  [iChoice] 汇率 {currency_pair} ({primary_code} csd近期) = {v}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-739-                    return v
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-740-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-741-            # --- 方式5: 回退到 USDCNY.IB（旧代码，需账户特殊权限）---
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:742:            print(f"  [iChoice] {primary_code} 无数据，尝试备用 {fallback_code}...")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:743:            r = self._c.csd(fallback_code, "CLOSE", date_str, date_str, "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-744-            v = _try_extract(r)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-745-            if v is not None:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:746:                print(f"  [iChoice] 汇率 {currency_pair} ({fallback_code} csd) = {v}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-747-                return v
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-748-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-749-            # --- 全部失败 ---
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:750:            print(f"  ⚠️  [iChoice] 获取汇率 {currency_pair} 失败")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-751-            print(f"      尝试过: {primary_code}(css/csd) / {fallback_code}(csd)")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-752-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-753-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-754-        except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:755:            print(f"  [iChoice Exception] 获取汇率异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-756-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-757-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-778-            return pd.DataFrame(columns=['是否城投', '是否永续'])
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-779-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:780:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:781:            return self._get_bond_attributes_ichoice(bond_codes)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-782-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-783-            return self._get_bond_attributes_wind(bond_codes)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-804-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-805-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:806:    def _get_bond_attributes_ichoice(self, bond_codes):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:807:        """iChoice实现: 获取债券属性"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-808-        try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-809-            codes_str = ','.join(bond_codes)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-810-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:811:            # 尝试iChoice字段名（可能与Wind不同）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:812:            result = self._c.css(codes_str, "MUNICIPALBOND,PERPETUAL", "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-813-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-814-            if isinstance(result, pd.DataFrame) and not result.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-837-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-838-            # 如果上面失败，尝试备用字段名
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:839:            print(f"  [iChoice] 债券属性标准字段失败，尝试备用字段...")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:840:            result2 = self._c.css(codes_str, "MUNICIPALBONDWIND,PERPETUALORNOT", "Ispandas=1")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-841-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-842-            if isinstance(result2, pd.DataFrame) and not result2.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-847-                return df
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-848-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:849:            print(f"  [iChoice Warning] 获取债券属性失败，返回空DataFrame")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-850-            df = pd.DataFrame(index=bond_codes, columns=['是否城投', '是否永续'])
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-851-            df['是否城投'] = None
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-854-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-855-        except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:856:            print(f"  [iChoice Exception] 获取债券属性异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-857-            df = pd.DataFrame(index=bond_codes, columns=['是否城投', '是否永续'])
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-858-            df['是否城投'] = None
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-883-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-884-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:885:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:886:            return self._wss_ichoice(codes, fields, options)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-887-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-888-            return self._wss_wind(codes, fields, options)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-909-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-910-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:911:    def _wss_ichoice(self, codes, fields, options=""):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:912:        """iChoice实现: 通用CSS (对应Wind WSS)"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-913-        try:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-914-            if isinstance(codes, str):
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-930-            fields_upper = fields.upper()
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-931-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:932:            # 转换Wind options格式到iChoice格式
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:933:            # Wind: "startDate=X;endDate=Y" → iChoice用逗号
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:934:            ichoice_options = options.replace(';', ',') if options else ""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:935:            if ichoice_options:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:936:                ichoice_options += ",Ispandas=1"
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-937-            else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:938:                ichoice_options = "Ispandas=1"
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-939-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:940:            result = self._c.css(codes_str, fields_upper, ichoice_options)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-941-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-942-            if isinstance(result, pd.DataFrame) and not result.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-952-            if hasattr(result, 'ErrorCode'):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-953-                if result.ErrorCode != 0:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:954:                    print(f"  [iChoice Error] CSS调用失败: {result.ErrorCode} {getattr(result, 'ErrorMsg', '')}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-955-                    return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-956-                # 从EmQuantData手动构建DataFrame
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-969-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-970-        except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:971:            print(f"  [iChoice Exception] CSS调用异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-972-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-973-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-997-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-998-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:999:        if self._source == 'ichoice':
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1000:            return self._wsd_ichoice(codes, fields, start_date, end_date, options)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1001-        else:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1002-            return self._wsd_wind(codes, fields, start_date, end_date, options)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1030-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1031-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1032:    def _wsd_ichoice(self, codes, fields, start_date, end_date, options=""):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1033:        """iChoice实现: 通用CSD (对应Wind WSD)"""
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1034-        start_str = self._format_date(start_date)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1035-        end_str = self._format_date(end_date)
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1054-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1055-            # 构建options
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1056:            ichoice_options = "Ispandas=1"
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1057-            if options:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1058-                extra = options.replace(';', ',').strip()
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1059-                if extra:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1060:                    ichoice_options = f"{extra},{ichoice_options}"
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1061-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1062:            # 逐个代码获取然后合并（iChoice csd多代码返回长格式，需要pivot）
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1063-            all_series = {}
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1064-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1065-            for idx, mapped_code in enumerate(mapped_list):
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1066:                result = self._c.csd(mapped_code, fields_upper, start_str, end_str, ichoice_options)
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1067-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1068-                if isinstance(result, pd.DataFrame) and not result.empty:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1104-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1105-                elif hasattr(result, 'ErrorCode') and result.ErrorCode != 0:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1106:                    print(f"  [iChoice Error] CSD {mapped_code} 失败: {result.ErrorCode}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1107-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1108-            if not all_series:
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1144-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1145-        except Exception as e:
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1146:            print(f"  [iChoice Exception] CSD调用异常: {e}")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1147-            return None
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1148-
+--
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1253-                print("   获取失败")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1254-
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py:1255:            print(f"\n5. 测试代码映射 (仅iChoice模式)...")
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1256-            test_codes = ['885008.WI', '885001.WI', '000832.CSI', '000300.SH', '885007.WI']
+/Users/fanshengxia/Desktop/周报V2/market_data_provider.py-1257-            for tc in test_codes:
+--
+/Users/fanshengxia/Desktop/周报V2/config.py-145-    # 市场数据源配置
+/Users/fanshengxia/Desktop/周报V2/config.py-146-    # ===================
+/Users/fanshengxia/Desktop/周报V2/config.py:147:    # 数据源选择: 'ichoice' 或 'wind'
+/Users/fanshengxia/Desktop/周报V2/config.py:148:    DATA_SOURCE = 'ichoice'
+/Users/fanshengxia/Desktop/周报V2/config.py-149-
+/Users/fanshengxia/Desktop/周报V2/config.py:150:    # iChoice (EMQuantAPI) 配置
+/Users/fanshengxia/Desktop/周报V2/config.py-151-    ICHOICE_USERNAME = 'xylczh0181'
+/Users/fanshengxia/Desktop/周报V2/config.py-152-    ICHOICE_PASSWORD = 'ef465509'
+/Users/fanshengxia/Desktop/周报V2/config.py:153:    ICHOICE_SDK_PATH = '/Users/fanshengxia/Desktop/ichoice/EMQuantAPI_Python/python3'
+/Users/fanshengxia/Desktop/周报V2/config.py-154-
+/Users/fanshengxia/Desktop/周报V2/config.py:155:    # Wind→iChoice 代码映射表（仅对无法通过后缀规则自动转换的代码）
+/Users/fanshengxia/Desktop/周报V2/config.py-156-    WIND_TO_ICHOICE = {
+/Users/fanshengxia/Desktop/周报V2/config.py-157-
+--
+/Users/fanshengxia/Desktop/周报V2/config.py-169-    }
+/Users/fanshengxia/Desktop/周报V2/config.py-170-
+/Users/fanshengxia/Desktop/周报V2/config.py:171:    # iChoice中不可用的Wind代码（获取时会跳过并警告）
+/Users/fanshengxia/Desktop/周报V2/config.py-172-    # 注: CBA*.CS (中债指数) 和 USDCNY.IB 代码有效但当前账户无数据权限,
+/Users/fanshengxia/Desktop/周报V2/config.py-173-    #     不放入此列表,留给运行时graceful处理
+--
+/Users/fanshengxia/Desktop/周报V2/config.py-205-    EXCHANGE_RATE_DATE = '20251229'
+/Users/fanshengxia/Desktop/周报V2/config.py-206-
+/Users/fanshengxia/Desktop/周报V2/config.py:207:    # 备用兑率（当iChoice无法获取USDCNY汇率时使用）
+/Users/fanshengxia/Desktop/周报V2/config.py-208-    # 注意: 应定期根据市场实际汇率更新此值
+/Users/fanshengxia/Desktop/周报V2/config.py:209:    # 如果iChoice账户已开通USDCNY.IB权限，则此配置不会被使用
+/Users/fanshengxia/Desktop/周报V2/config.py-210-    FALLBACK_EXCHANGE_RATE = 7.19  # 参考值，2025年底USDCNY大约汇率
+/Users/fanshengxia/Desktop/周报V2/config.py-211-
+--
+/Users/fanshengxia/Desktop/周报V2/config.py-541-# 数据源配置
+/Users/fanshengxia/Desktop/周报V2/config.py-542-data_source = Config.DATA_SOURCE
+/Users/fanshengxia/Desktop/周报V2/config.py:543:ichoice_username = Config.ICHOICE_USERNAME
+/Users/fanshengxia/Desktop/周报V2/config.py:544:ichoice_password = Config.ICHOICE_PASSWORD
+/Users/fanshengxia/Desktop/周报V2/config.py:545:ichoice_sdk_path = Config.ICHOICE_SDK_PATH
+/Users/fanshengxia/Desktop/周报V2/config.py:546:wind_to_ichoice = Config.WIND_TO_ICHOICE
+/Users/fanshengxia/Desktop/周报V2/config.py:547:ichoice_unavailable_codes = Config.ICHOICE_UNAVAILABLE_CODES
+/Users/fanshengxia/Desktop/周报V2/config.py-548-

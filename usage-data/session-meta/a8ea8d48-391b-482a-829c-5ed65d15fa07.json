@@ -1,0 +1,61 @@
+{
+  "session_id": "a8ea8d48-391b-482a-829c-5ed65d15fa07",
+  "project_path": "/Users/fanshengxia",
+  "start_time": "2026-03-06T09:53:36.643Z",
+  "duration_minutes": 8,
+  "user_message_count": 8,
+  "assistant_message_count": 52,
+  "tool_counts": {
+    "ToolSearch": 5,
+    "TaskCreate": 3,
+    "TaskUpdate": 6,
+    "Bash": 18,
+    "TaskOutput": 3,
+    "Write": 2,
+    "TaskStop": 2
+  },
+  "languages": {
+    "JavaScript": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 76,
+  "output_tokens": 5335,
+  "first_prompt": "/market-review 生成截止3月5日市场复盘",
+  "user_interruptions": 0,
+  "user_response_times": [
+    62.155
+  ],
+  "tool_errors": 4,
+  "tool_error_categories": {
+    "Other": 2,
+    "Command Failed": 2
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 30,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-03-06T09:54:11.141Z",
+    "2026-03-06T09:54:11.141Z",
+    "2026-03-06T09:54:14.447Z",
+    "2026-03-06T09:54:37.500Z",
+    "2026-03-06T09:56:04.752Z",
+    "2026-03-06T09:56:29.165Z",
+    "2026-03-06T09:56:48.660Z",
+    "2026-03-06T09:58:06.218Z"
+  ]
+}

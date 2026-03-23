@@ -1,0 +1,342 @@
+"""
+生成格式美化的业绩对比Excel报告 - 清晰双行表头
+"""
+
+import pandas as pd
+import numpy as np
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+import warnings
+warnings.filterwarnings('ignore')
+
+# ─── 颜色 ───
+C_TITLE_BG     = "2E4057"
+C_CAT_RETURN   = "4472C4"   # 年化收益率分类行
+C_CAT_DD       = "548235"   # 最大回撤分类行
+C_COL_HEADER   = "1F3864"   # 列名行
+C_PROD_HEADER  = "1F4E79"   # 产品分区标题
+C_BENCH_HEADER = "375623"   # 基准分区标题
+C_PROD_ODD     = "DEEAF1"
+C_BENCH_ODD    = "E2EFDA"
+C_WHITE        = "FFFFFF"
+C_UP_RED       = "FFC7CE"   # 正收益 = 红（中国惯例）
+C_DOWN_GREEN   = "C6EFCE"   # 负收益 = 绿（中国惯例）
+C_WARN_YELLOW  = "FFEB9C"
+C_UP_FONT      = "9C0006"   # 红字
+C_DOWN_FONT    = "006100"   # 绿字
+C_WARN_FONT    = "9C6500"
+# 兼容旧变量名（回撤着色用）
+C_GOOD_GREEN   = "C6EFCE"
+C_BAD_RED      = "FFC7CE"
+C_GOOD_FONT    = "006100"
+C_BAD_FONT     = "9C0006"
+
+def side(style='thin', color='AAAAAA'):
+    return Side(style=style, color=color)
+
+def box(left='thin', right='thin', top='thin', bottom='thin'):
+    return Border(
+        left=Side(style=left, color='AAAAAA') if left else Side(style=None),
+        right=Side(style=right, color='AAAAAA') if right else Side(style=None),
+        top=Side(style=top, color='AAAAAA') if top else Side(style=None),
+        bottom=Side(style=bottom, color='AAAAAA') if bottom else Side(style=None),
+    )
+
+def set_cell(ws, row, col, value, font_kw=None, fill_color=None,
+             align='center', border=True, fmt=None, wrap=False):
+    cell = ws.cell(row=row, column=col)
+    cell.value = value
+    fkw = dict(name='微软雅黑', size=10)
+    if font_kw:
+        fkw.update(font_kw)
+    cell.font = Font(**fkw)
+    if fill_color:
+        cell.fill = PatternFill("solid", fgColor=fill_color)
+    cell.alignment = Alignment(
+        horizontal=align, vertical='center',
+        wrap_text=wrap, indent=(1 if align=='left' else 0)
+    )
+    if border:
+        cell.border = box()
+    if fmt:
+        cell.number_format = fmt
+    return cell
+
+def color_value_cell(ws, row, col, val, is_return):
+    """根据值类型着色"""
+    cell = ws.cell(row=row, column=col)
+    if pd.isna(val):
+        cell.value = 'N/A'
+        cell.font = Font(name='微软雅黑', size=10, color='AAAAAA')
+        return
+    cell.value = val
+    cell.number_format = '0.00%'
+    cell.alignment = Alignment(horizontal='center', vertical='center')
+    cell.border = box()
+    if is_return:
+        # 中国惯例：红=正收益，绿=负收益
+        if val > 0.0001:
+            cell.fill = PatternFill("solid", fgColor=C_UP_RED)
+            cell.font = Font(name='微软雅黑', size=10, color=C_UP_FONT, bold=True)
+        elif val < -0.0001:
+            cell.fill = PatternFill("solid", fgColor=C_DOWN_GREEN)
+            cell.font = Font(name='微软雅黑', size=10, color=C_DOWN_FONT, bold=True)
+        else:
+            cell.font = Font(name='微软雅黑', size=10, color='595959')
+    else:
+        av = abs(val)
+        if av < 0.003:
+            cell.fill = PatternFill("solid", fgColor=C_GOOD_GREEN)
+            cell.font = Font(name='微软雅黑', size=10, color=C_GOOD_FONT)
+        elif av < 0.01:
+            cell.fill = PatternFill("solid", fgColor=C_WARN_YELLOW)
+            cell.font = Font(name='微软雅黑', size=10, color=C_WARN_FONT)
+        else:
+            cell.fill = PatternFill("solid", fgColor=C_BAD_RED)
+            cell.font = Font(name='微软雅黑', size=10, color=C_BAD_FONT, bold=True)
+
+# ─── 数据 ───
+df = pd.read_excel(
+    '/Users/fanshengxia/Desktop/部门产品业绩对比情况/部门重点产品业绩对比_20260319.xlsx',
+    sheet_name='原始数据'
+)
+
+RETURN_COLS  = ['近1月年化', '近3月年化', '近6月年化', '近1年年化',
+                '成立以来年化', '2025年年化', '2026年年化']
+DD_COLS      = ['成立以来最大回撤', '3月回撤(2026/03)', '3-4月回撤(2025)', '10-11月回撤(2025)']
+ALL_METRICS  = RETURN_COLS + DD_COLS
+
+SERIES_MAP = {
+    '9T320050': '悦动系列',
+    '9K709110': '逸动系列', '9K706130': '逸动系列', '9K707200': '逸动系列',
+    '9S128010': '灵动系列',
+    '9K717130': '兴动系列', '9S650300': '兴动系列',
+    '9K717120': '兴动系列', '9K717140': '兴动系列',
+}
+BENCH_SERIES_MAP = {
+    '885006.WI 万得混合债券型一级指数': '悦动系列对标',
+    '885062.WI 万得短期纯债型基金指数': '悦动系列对标',
+    '95%中债1-3年+5%沪深300':          '逸动系列对标',
+    '90%中债1-3年+10%沪深300':         '灵动/兴动对标',
+    '85%中债1-3年+15%沪深300':         '灵动/兴动对标',
+    '885007.WI 万得混合债券型二级指数': '灵动/兴动对标',
+}
+NAME_ABBREV = {
+    '9T320050': '悦动1年日开3号',
+    '9K709110': '逸动1年日开01号',
+    '9K706130': '逸动6M日开03号',
+    '9K707200': '逸动10M日开2号',
+    '9S128010': '灵动优选6M持有1号',
+    '9K717130': '兴动科技成长3M',
+    '9S650300': '兴动多策略1年持有3号',
+    '9K717120': '兴动资源优势3M',
+    '9K717140': '兴动红利轮动1年',
+}
+
+# ─── 构建Workbook ───
+wb = Workbook()
+ws = wb.active
+ws.title = "业绩对比报告"
+
+# ── 行定位 ──
+R_TITLE   = 1   # 标题 (跨2行)
+R_CAT     = 3   # 分类标注行: 空 | 空 | 空 | ←年化收益率→ | ←最大回撤→
+R_HEADER  = 4   # 列名行
+R_DATA    = 5   # 数据起始行
+
+# ── 列定义 (col_idx, header, width) ──
+# 固定列: A=系列, B=代码, C=名称
+# 收益列: D~J (7列)
+# 回撤列: K~N (4列)
+
+COL_SERIES = 1  # A
+COL_CODE   = 2  # B
+COL_NAME   = 3  # C
+COL_RETURN_START = 4   # D
+COL_RETURN_END   = 10  # J
+COL_DD_START     = 11  # K
+COL_DD_END       = 14  # N
+
+COL_WIDTHS = [10, 10, 26, 9, 9, 9, 9, 10, 9, 9, 12, 10, 10, 12]
+for i, w in enumerate(COL_WIDTHS, 1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+
+# ── Row 1-2: 标题 ──
+ws.merge_cells(f'A{R_TITLE}:N{R_TITLE+1}')
+c = ws.cell(row=R_TITLE, column=1)
+c.value = "部门重点产品业绩对比分析          截止日期：2026-03-19"
+c.font = Font(name='微软雅黑', size=15, bold=True, color=C_WHITE)
+c.fill = PatternFill("solid", fgColor=C_TITLE_BG)
+c.alignment = Alignment(horizontal='center', vertical='center')
+ws.row_dimensions[R_TITLE].height = 28
+ws.row_dimensions[R_TITLE+1].height = 8
+
+# ── Row 3: 分类标注行 ──
+ws.row_dimensions[R_CAT].height = 18
+
+# A/B/C 空白
+for c_idx in [COL_SERIES, COL_CODE, COL_NAME]:
+    set_cell(ws, R_CAT, c_idx, '', fill_color=C_TITLE_BG, border=False)
+
+# 年化收益率标注 D~J
+ws.merge_cells(f'{get_column_letter(COL_RETURN_START)}{R_CAT}:{get_column_letter(COL_RETURN_END)}{R_CAT}')
+c = ws.cell(row=R_CAT, column=COL_RETURN_START)
+c.value = "─────────────── 年化收益率 ───────────────"
+c.font = Font(name='微软雅黑', size=9, bold=True, color=C_WHITE)
+c.fill = PatternFill("solid", fgColor=C_CAT_RETURN)
+c.alignment = Alignment(horizontal='center', vertical='center')
+
+# 最大回撤标注 K~N
+ws.merge_cells(f'{get_column_letter(COL_DD_START)}{R_CAT}:{get_column_letter(COL_DD_END)}{R_CAT}')
+c = ws.cell(row=R_CAT, column=COL_DD_START)
+c.value = "─────── 各阶段最大回撤 ───────"
+c.font = Font(name='微软雅黑', size=9, bold=True, color=C_WHITE)
+c.fill = PatternFill("solid", fgColor=C_CAT_DD)
+c.alignment = Alignment(horizontal='center', vertical='center')
+
+# ── Row 4: 列名行 ──
+ws.row_dimensions[R_HEADER].height = 42
+
+HEADERS = [
+    (COL_SERIES, '系列'),
+    (COL_CODE,   '产品代码'),
+    (COL_NAME,   '产品/基准名称'),
+    (4,  '近\n1月\n年化'),
+    (5,  '近\n3月\n年化'),
+    (6,  '近\n6月\n年化'),
+    (7,  '近\n1年\n年化'),
+    (8,  '成立以来\n年化'),
+    (9,  '2025年\n年化'),
+    (10, '2026年\n年化'),
+    (11, '成立以来\n最大回撤'),
+    (12, '今年3月\n最大回撤\n(2026/03)'),
+    (13, '去年3-4月\n最大回撤\n(2025)'),
+    (14, '去年10-11月\n最大回撤\n(2025)'),
+]
+
+for col_idx, hdr in HEADERS:
+    c = ws.cell(row=R_HEADER, column=col_idx)
+    c.value = hdr
+    c.font = Font(name='微软雅黑', size=10, bold=True, color=C_WHITE)
+    c.fill = PatternFill("solid", fgColor=C_COL_HEADER)
+    c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    c.border = box()
+
+# ── 写数据 ──
+products   = df[df['类型']=='产品'].to_dict('records')
+benchmarks = df[df['类型']=='基准'].to_dict('records')
+
+def write_section_banner(ws, row, text, color):
+    ws.merge_cells(f'A{row}:N{row}')
+    c = ws.cell(row=row, column=1)
+    c.value = text
+    c.font = Font(name='微软雅黑', size=10, bold=True, color=C_WHITE)
+    c.fill = PatternFill("solid", fgColor=color)
+    c.alignment = Alignment(horizontal='left', vertical='center', indent=2)
+    ws.row_dimensions[row].height = 20
+
+def write_data_rows(ws, start_row, records, series_map, name_abbrev,
+                    odd_color, is_product=True):
+    row = start_row
+    prev_series = None
+    for i, rec in enumerate(records):
+        code = rec.get('代码', '')
+        series = series_map.get(code if is_product else rec['名称'], '')
+        name = name_abbrev.get(code, rec['名称']) if is_product else rec['名称']
+        bg = odd_color if i % 2 == 0 else C_WHITE
+
+        # 系列分隔线（在上一行底部加粗边框）
+        if series != prev_series and prev_series is not None:
+            for ci in range(1, 15):
+                cell = ws.cell(row=row-1, column=ci)
+                b = cell.border
+                cell.border = Border(
+                    left=b.left, right=b.right, top=b.top,
+                    bottom=Side(style='medium', color='2E4057')
+                )
+        prev_series = series
+
+        ws.row_dimensions[row].height = 18
+
+        # 固定列
+        for ci, val, align in [
+            (COL_SERIES, series, 'center'),
+            (COL_CODE,   code if is_product else '', 'center'),
+            (COL_NAME,   name, 'left'),
+        ]:
+            c = ws.cell(row=row, column=ci)
+            c.value = val
+            c.font = Font(name='微软雅黑', size=10)
+            c.fill = PatternFill("solid", fgColor=bg)
+            c.alignment = Alignment(
+                horizontal=align, vertical='center',
+                indent=(1 if align=='left' else 0)
+            )
+            c.border = box()
+
+        # 数值列
+        for mi, metric in enumerate(ALL_METRICS):
+            col_idx = COL_RETURN_START + mi  # D=4 开始
+            val = rec.get(metric, np.nan)
+            is_ret = metric in RETURN_COLS
+            color_value_cell(ws, row, col_idx, val, is_ret)
+            # 背景（未着色时）
+            cell = ws.cell(row=row, column=col_idx)
+            if cell.fill.fgColor.rgb in ('00000000', '000000', 'FF000000'):
+                cell.fill = PatternFill("solid", fgColor=bg)
+
+        row += 1
+    return row
+
+current_row = R_DATA
+
+# 产品区
+write_section_banner(ws, current_row, "▌ 部门重点产品（共9只）", C_PROD_HEADER)
+current_row += 1
+current_row = write_data_rows(ws, current_row, products, SERIES_MAP,
+                               NAME_ABBREV, C_PROD_ODD, is_product=True)
+
+# 空行
+ws.row_dimensions[current_row].height = 8
+current_row += 1
+
+# 基准区
+write_section_banner(ws, current_row, "▌ 业绩基准（共6个）", C_BENCH_HEADER)
+current_row += 1
+current_row = write_data_rows(ws, current_row, benchmarks, BENCH_SERIES_MAP,
+                               {}, C_BENCH_ODD, is_product=False)
+
+# ── 图例 ──
+current_row += 1
+ws.merge_cells(f'A{current_row}:N{current_row}')
+c = ws.cell(row=current_row, column=1)
+c.value = ("颜色说明：  "
+           "收益率 → 红色=正收益  绿色=负收益（中国惯例）    "
+           "回撤 → 绿色=<0.3%（小）  黄色=0.3%~1%（中）  红色=>1%（大）    "
+           "N/A=运作时间不足")
+c.font = Font(name='微软雅黑', size=9, italic=True, color='595959')
+c.fill = PatternFill("solid", fgColor="F8F9FA")
+c.alignment = Alignment(horizontal='left', vertical='center', indent=1)
+ws.row_dimensions[current_row].height = 16
+
+current_row += 1
+ws.merge_cells(f'A{current_row}:N{current_row}')
+c = ws.cell(row=current_row, column=1)
+c.value = ("数据来源：产品净值来自周报V2净值缓存 | Wind基金指数来自Wind导出 | "
+           "中债-新综合全价(1-3年)指数及沪深300来自iChoice(CBA00121.CS/000300.SH) | "
+           "所有数据统一截止2026-03-19 | "
+           "注：基准的「成立以来年化」与「成立以来最大回撤」均以最早产品成立日2024-05-09为起算点，与产品口径一致")
+c.font = Font(name='微软雅黑', size=9, italic=True, color='595959')
+c.fill = PatternFill("solid", fgColor="F8F9FA")
+c.alignment = Alignment(horizontal='left', vertical='center', indent=1)
+ws.row_dimensions[current_row].height = 16
+
+# ── 冻结首行表头 ──
+ws.freeze_panes = f'D{R_DATA}'
+
+# ── 保存 ──
+out_path = '/Users/fanshengxia/Desktop/部门产品业绩对比情况/部门重点产品业绩对比_20260319_美化版.xlsx'
+wb.save(out_path)
+print(f"Saved: {out_path}")
+print("Done!")

@@ -1,0 +1,467 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+单产品业绩基准对比报告生成器
+用法:
+    python generate_report.py <product_code> [nav_file] [end_date]
+
+参数:
+    product_code: 产品代码 (e.g. 9K717120)
+    nav_file:     可选，净值数据xlsx路径 (Sheet='净值走势图', 列=[日期, 单位净值])
+                  不传则从缓存+最新周度文件自动读取
+    end_date:     可选，截止日期 YYYY-MM-DD，不传则使用数据最后一日
+"""
+
+import sys
+import os
+import re
+import warnings
+import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import glob
+from datetime import datetime
+
+warnings.filterwarnings('ignore')
+
+# ─────────────────── 路径常量 ───────────────────
+WEEKLY_BASE      = '/Users/fanshengxia/Desktop/周报V2'
+DATA_DIR         = os.path.join(WEEKLY_BASE, '数据')
+CACHE_PARQUET    = os.path.join(DATA_DIR, '.nav_cache', 'nav_master_data.parquet')
+NAV_DIR          = os.path.join(DATA_DIR, '产品净值数据')
+BENCHMARK_CONFIG = os.path.join(DATA_DIR, '指数业绩基准数据.xlsx')
+OUTPUT_BASE      = '/Users/fanshengxia/Desktop/业绩评价/单个产品及业绩基准对比表现'
+
+DEPOSIT_RATE = 0.0135   # 活期存款年化利率
+
+
+# ═══════════════════ 1. 读取净值数据 ═══════════════════
+
+def load_nav_from_file(nav_file: str, product_code: str) -> pd.DataFrame:
+    """从用户提供的文件读取净值（支持单产品文件）"""
+    df = pd.read_excel(nav_file, sheet_name=0)
+    # 统一列名
+    df.columns = ['日期', '单位净值'] + list(df.columns[2:])
+    df = df[['日期', '单位净值']].dropna(subset=['单位净值'])
+    df['日期'] = pd.to_datetime(df['日期'])
+    return df.sort_values('日期').reset_index(drop=True)
+
+
+def load_nav_from_cache(product_code: str) -> pd.DataFrame:
+    """从 parquet 缓存 + 最新周度文件加载指定产品净值"""
+    # --- 读缓存 ---
+    dfs = []
+    if os.path.exists(CACHE_PARQUET):
+        cache = pd.read_parquet(CACHE_PARQUET)
+        sub = cache[cache['产品代码'].astype(str) == str(product_code)].copy()
+        if not sub.empty:
+            sub['估值日'] = pd.to_datetime(sub['估值日'], errors='coerce')
+            sub = sub.dropna(subset=['估值日'])
+            dfs.append(sub[['估值日', '累计净值']].rename(
+                columns={'估值日': '日期', '累计净值': '单位净值'}))
+
+    # --- 读最新周度文件（补充缓存后的数据）---
+    weekly_files = sorted(glob.glob(os.path.join(NAV_DIR, '产品运作情况表-补充精简*.xlsx')))
+    if dfs:
+        cache_end = dfs[0]['日期'].max()
+        # 只读比缓存更新的文件
+        weekly_files = [f for f in weekly_files
+                        if _parse_date_from_filename(f) and
+                        _parse_date_from_filename(f) > cache_end]
+
+    for f in weekly_files:
+        try:
+            tmp = pd.read_excel(f, usecols=['估值日', '产品代码', '累计净值'])
+            tmp = tmp[tmp['产品代码'].astype(str) == str(product_code)]
+            if tmp.empty:
+                continue
+            tmp['估值日'] = pd.to_datetime(tmp['估值日'], errors='coerce')
+            tmp = tmp.dropna(subset=['估值日'])
+            dfs.append(tmp[['估值日', '累计净值']].rename(
+                columns={'估值日': '日期', '累计净值': '单位净值'}))
+        except Exception as e:
+            print(f"  ⚠ 跳过 {os.path.basename(f)}: {e}")
+
+    if not dfs:
+        raise ValueError(f"未找到产品 {product_code} 的净值数据（缓存 + 周度文件均无记录）")
+
+    df = pd.concat(dfs, ignore_index=True)
+    df = df.drop_duplicates(subset=['日期'], keep='last')
+    return df.sort_values('日期').reset_index(drop=True)
+
+
+def _parse_date_from_filename(path: str):
+    """从文件名提取日期"""
+    m = re.search(r'(\d{8})', os.path.basename(path))
+    if m:
+        try:
+            return pd.to_datetime(m.group(1), format='%Y%m%d')
+        except:
+            pass
+    return None
+
+
+# ═══════════════════ 2. 业绩基准配置 ═══════════════════
+
+def load_benchmark_config(product_code: str) -> dict:
+    """从指数业绩基准数据.xlsx读取产品的基准配置"""
+    df = pd.read_excel(BENCHMARK_CONFIG, sheet_name='Sheet1')
+    rows = df[df['母产品代码'].astype(str) == str(product_code)]
+    if rows.empty:
+        raise ValueError(f"未找到产品 {product_code} 的业绩基准配置")
+
+    product_name = rows['产品简称'].iloc[0]
+    inception    = pd.to_datetime(rows['起息日'].iloc[0])
+    benchmark_desc = rows['原始业绩基准'].iloc[0]
+
+    short_name = rows['产品简称'].iloc[0] if '产品简称' in rows.columns else product_name
+
+    config = {
+        'product_name': product_name,
+        'short_name':   short_name,
+        'inception':    inception,
+        'benchmark_desc': benchmark_desc,
+        'indices': [],
+        'deposit_weight': 0.0,
+    }
+    for _, row in rows.iterrows():
+        code   = row.get('指数Wind代码')
+        weight = float(row.get('权重', 0) or 0)
+        if pd.isna(code) or str(code).strip() == '':
+            config['deposit_weight'] = weight
+        else:
+            config['indices'].append({'code': str(code).strip(), 'weight': weight})
+    return config
+
+
+# ═══════════════════ 3. 基准净值序列 ═══════════════════
+
+def build_benchmark_nav(df_nav: pd.DataFrame, bm_config: dict) -> pd.DataFrame:
+    """用 Wind 获取指数数据并计算基准净值序列"""
+    from WindPy import w
+    if not w.isconnected():
+        w.start()
+    assert w.isconnected(), "Wind 未连接"
+
+    start_str = df_nav['日期'].iloc[0].strftime('%Y-%m-%d')
+    end_str   = df_nav['日期'].iloc[-1].strftime('%Y-%m-%d')
+
+    date_range = pd.date_range(start=start_str, end=end_str)
+    df_bm = pd.DataFrame({'日期': date_range})
+
+    for idx_cfg in bm_config['indices']:
+        code = idx_cfg['code']
+        print(f"  获取 {code} ({start_str} ~ {end_str})...")
+        res = w.wsd(code, "close", start_str, end_str, "Fill=Previous")
+        if res.ErrorCode != 0:
+            raise RuntimeError(f"Wind 获取 {code} 失败: ErrorCode={res.ErrorCode}")
+        tmp = pd.DataFrame({'日期': pd.to_datetime(res.Times), code: res.Data[0]})
+        df_bm = df_bm.merge(tmp, on='日期', how='left')
+        df_bm[code] = df_bm[code].ffill()
+
+    # 日收益率
+    bm_daily = pd.Series(0.0, index=df_bm.index)
+    for idx_cfg in bm_config['indices']:
+        code   = idx_cfg['code']
+        weight = idx_cfg['weight']
+        ret    = df_bm[code].pct_change().fillna(0)
+        bm_daily += ret * weight
+    bm_daily += (DEPOSIT_RATE / 365.0) * bm_config['deposit_weight']
+
+    init_nav = df_nav['单位净值'].iloc[0]
+    df_bm['基准净值'] = (1 + bm_daily).cumprod() * init_nav
+
+    # 对齐到产品净值日期
+    df_merged = df_nav.merge(df_bm[['日期', '基准净值']], on='日期', how='inner')
+    return df_merged.sort_values('日期').reset_index(drop=True)
+
+
+# ═══════════════════ 4. 业绩指标计算 ═══════════════════
+
+def calc_metrics(df: pd.DataFrame, bm_config: dict) -> dict:
+    """
+    计算各期间业绩指标
+    年化公式: 净值涨跌幅 / 运作天数 * 365
+    - 成立以来: 运作天数 = (end_date - (起息日 - 1天)) 的日历天数
+    - 近1月/今年以来: 以上月末/上年末为起点
+    - 近3月/近6月/近1年: end_date 往前推整月/年
+    最大回撤单位: BP (1% = 100 BP)，同时计算产品和基准
+    """
+    end_date = df['日期'].iloc[-1]
+    end_nav  = df['单位净值'].iloc[-1]
+    end_bm   = df['基准净值'].iloc[-1]
+
+    def get_last_nav_on_or_before(target_date):
+        sub = df[df['日期'] <= target_date]
+        if sub.empty:
+            return None
+        return sub.iloc[-1]
+
+    def ann(start_nav, end_nav_val, days):
+        if days <= 0:
+            return None
+        return (end_nav_val / start_nav - 1) / days * 365 * 100
+
+    def max_drawdown_bp(series):
+        rolling_max = series.expanding().max()
+        dd = (series - rolling_max) / rolling_max
+        return abs(dd.min()) * 10000
+
+    metrics = {}
+
+    # ── 成立以来: 起息日前一天为计算起点 ──────────────────────────
+    inception_date = pd.to_datetime(bm_config['inception'])   # 起息日
+    calc_start     = inception_date - pd.Timedelta(days=1)    # 起息日前一天
+    inception_days = (end_date - calc_start).days
+    inception_nav  = df['单位净值'].iloc[0]   # 起息日当天净值（通常=1.0）
+    inception_bm   = df['基准净值'].iloc[0]
+    metrics['成立以来年化']     = ann(inception_nav, end_nav, inception_days)
+    metrics['基准成立以来年化'] = ann(inception_bm,  end_bm,  inception_days)
+    metrics['超额年化']         = (metrics['成立以来年化'] or 0) - (metrics['基准成立以来年化'] or 0)
+
+    # ── 成立以来最大回撤 ──────────────────────────────────────────
+    metrics['成立以来最大回撤BP']     = max_drawdown_bp(df['单位净值'])
+    metrics['基准成立以来最大回撤BP'] = max_drawdown_bp(df['基准净值'])
+
+    # ── 近1月: 上月末为起点 ───────────────────────────────────────
+    prev_month_end = pd.Timestamp(end_date.year, end_date.month, 1) - pd.Timedelta(days=1)
+    row_1m = get_last_nav_on_or_before(prev_month_end)
+    if row_1m is not None:
+        days_1m = (end_date - row_1m['日期']).days
+        metrics['近1月年化']     = ann(row_1m['单位净值'], end_nav, days_1m)
+        metrics['基准近1月年化'] = ann(row_1m['基准净值'], end_bm,  days_1m)
+        df_1m = df[df['日期'] >= row_1m['日期']]
+        metrics['近1月最大回撤BP']     = max_drawdown_bp(df_1m['单位净值'])
+        metrics['基准近1月最大回撤BP'] = max_drawdown_bp(df_1m['基准净值'])
+    else:
+        metrics['近1月年化'] = metrics['基准近1月年化'] = None
+        metrics['近1月最大回撤BP'] = metrics['基准近1月最大回撤BP'] = None
+
+    # ── 今年以来: 上年末为起点 ────────────────────────────────────
+    prev_year_end = pd.Timestamp(end_date.year - 1, 12, 31)
+    row_ytd = get_last_nav_on_or_before(prev_year_end)
+    if row_ytd is not None:
+        ytd_days = (end_date - row_ytd['日期']).days
+        metrics['今年以来年化']     = ann(row_ytd['单位净值'], end_nav, ytd_days)
+        metrics['基准今年以来年化'] = ann(row_ytd['基准净值'], end_bm,  ytd_days)
+    else:
+        metrics['今年以来年化'] = metrics['基准今年以来年化'] = None
+
+    # ── 近3月、近6月、近1年 ───────────────────────────────────────
+    for label, offset_kw in [('近3月', {'months': 3}),
+                               ('近6月', {'months': 6}),
+                               ('近1年', {'years': 1})]:
+        target = end_date - pd.DateOffset(**offset_kw)
+        row = get_last_nav_on_or_before(target)
+        if row is None:
+            metrics[f'{label}年化'] = metrics[f'基准{label}年化'] = None
+            continue
+        days = (end_date - row['日期']).days
+        metrics[f'{label}年化']     = ann(row['单位净值'], end_nav, days)
+        metrics[f'基准{label}年化'] = ann(row['基准净值'], end_bm,  days)
+
+    return metrics
+
+
+# ═══════════════════ 5. 图表生成 ═══════════════════
+
+def plot_chart(df: pd.DataFrame, product_name: str, short_name: str, output_path: str):
+    plt.rcParams['font.sans-serif'] = ['PingFang SC', 'Hiragino Sans GB',
+                                       'STHeiti', 'SimHei', 'Arial Unicode MS']
+    plt.rcParams['axes.unicode_minus'] = False
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.plot(df['日期'], df['单位净值'], color='#1F5FA6', linewidth=1.5, label=product_name)
+    ax.plot(df['日期'], df['基准净值'], color='#C0392B', linewidth=1.5, label='业绩基准')
+
+    ax.set_title(f'{short_name}及业绩基准走势', fontsize=13, fontweight='bold', pad=10)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y/%m/%d'))
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    fig.autofmt_xdate(rotation=0, ha='center')
+
+    y_vals = list(df['单位净值']) + list(df['基准净值'])
+    y_min, y_max = min(y_vals), max(y_vals)
+    margin = (y_max - y_min) * 0.15
+    ax.set_ylim(y_min - margin, y_max + margin)
+    ax.yaxis.set_major_formatter(plt.FormatStrFormatter('%.4f'))
+    ax.grid(axis='y', linestyle='--', linewidth=0.4, alpha=0.6)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.18), ncol=2, frameon=False, fontsize=9)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=180, bbox_inches='tight')
+    plt.close()
+    print(f"  图表已保存: {output_path}")
+
+
+# ═══════════════════ 6. 输出文件 ═══════════════════
+
+def save_excel(df: pd.DataFrame, product_name: str, output_path: str):
+    df_out = df[['日期', '单位净值', '基准净值']].copy()
+    df_out.columns = ['日期', product_name, '业绩基准']
+    df_out.to_excel(output_path, sheet_name='净值对比数据', index=False)
+    print(f"  Excel已保存: {output_path}")
+
+
+def fmt(val, decimals=2, suffix='%'):
+    if val is None:
+        return 'N/A'
+    return f"{val:.{decimals}f}{suffix}"
+
+
+def fmt_bp(val):
+    if val is None:
+        return 'N/A'
+    return f"{val:.1f}BP"
+
+
+def save_markdown(df: pd.DataFrame, metrics: dict, bm_config: dict,
+                  product_code: str, chart_filename: str, output_path: str):
+    pname = bm_config['product_name']
+    short_name = bm_config.get('short_name', pname)
+    end_date = df['日期'].iloc[-1].strftime('%Y-%m-%d')
+    inception = df['日期'].iloc[0].strftime('%Y-%m-%d')
+
+    lines = [
+        f"# {pname} 业绩评价报告",
+        f"",
+        f"**产品代码:** {product_code}  ",
+        f"**产品简称:** {short_name}  ",
+        f"**成立日期:** {inception}  ",
+        f"**统计截止:** {end_date}  ",
+        f"**业绩基准:** {bm_config['benchmark_desc']}",
+        f"",
+        f"---",
+        f"",
+        f"## 净值走势对比",
+        f"",
+        f"![净值走势对比]({chart_filename})",
+        f"",
+        f"---",
+        f"",
+        f"## 业绩指标汇总",
+        f"",
+        f"| 指标 | 本产品 | 业绩基准 |",
+        f"|------|--------|---------|",
+        f"| 近1个月年化收益率 | {fmt(metrics.get('近1月年化'))} | {fmt(metrics.get('基准近1月年化'))} |",
+        f"| 近3个月年化收益率 | {fmt(metrics.get('近3月年化'))} | {fmt(metrics.get('基准近3月年化'))} |",
+        f"| 近6个月年化收益率 | {fmt(metrics.get('近6月年化'))} | {fmt(metrics.get('基准近6月年化'))} |",
+        f"| 近1年年化收益率   | {fmt(metrics.get('近1年年化'))} | {fmt(metrics.get('基准近1年年化'))} |",
+        f"| 今年以来年化收益率 | {fmt(metrics.get('今年以来年化'))} | {fmt(metrics.get('基准今年以来年化'))} |",
+        f"| 成立以来年化收益率 | {fmt(metrics.get('成立以来年化'))} | {fmt(metrics.get('基准成立以来年化'))} |",
+        f"| 超额年化收益      | {fmt(metrics.get('超额年化'))} | — |",
+        f"| 成立以来最大回撤  | {fmt_bp(metrics.get('成立以来最大回撤BP'))} | {fmt_bp(metrics.get('基准成立以来最大回撤BP'))} |",
+        f"| 近1月最大回撤     | {fmt_bp(metrics.get('近1月最大回撤BP'))} | {fmt_bp(metrics.get('基准近1月最大回撤BP'))} |",
+        f"",
+        f"---",
+        f"",
+        f"> *年化收益率计算公式：净值涨跌幅 ÷ 运作天数 × 365。*  ",
+        f"> *成立以来运作天数 = 净值观测总天数；其余期间使用实际日历天数。*  ",
+        f"> *最大回撤单位：BP（基点），1% = 100 BP。*",
+    ]
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines))
+    print(f"  Markdown已保存: {output_path}")
+
+
+# ═══════════════════ 主流程 ═══════════════════
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        sys.exit(1)
+
+    product_code = sys.argv[1].strip()
+    nav_file     = sys.argv[2].strip() if len(sys.argv) >= 3 else None
+    end_date_arg = sys.argv[3].strip() if len(sys.argv) >= 4 else None
+
+    print(f"\n{'='*60}")
+    print(f"产品代码: {product_code}")
+    print(f"净值来源: {nav_file or '自动 (缓存 + 周度文件)'}")
+    if end_date_arg:
+        print(f"截止日期: {end_date_arg}")
+    print(f"{'='*60}")
+
+    # 1. 读取净值
+    print("\n[1/5] 读取产品净值...")
+    if nav_file and os.path.exists(nav_file):
+        df_nav = load_nav_from_file(nav_file, product_code)
+    else:
+        df_nav = load_nav_from_cache(product_code)
+
+    # 截止日期过滤
+    if end_date_arg:
+        end_dt = pd.to_datetime(end_date_arg)
+        df_nav = df_nav[df_nav['日期'] <= end_dt].copy()
+        if df_nav.empty:
+            raise ValueError(f"截止 {end_date_arg} 前无净值数据")
+
+    print(f"  净值数据: {len(df_nav)} 条，{df_nav['日期'].iloc[0].date()} ~ {df_nav['日期'].iloc[-1].date()}")
+
+    # 2. 业绩基准配置
+    print("\n[2/5] 读取业绩基准配置...")
+    bm_config = load_benchmark_config(product_code)
+    print(f"  产品名称: {bm_config['product_name']}")
+    print(f"  产品简称: {bm_config.get('short_name', bm_config['product_name'])}")
+    print(f"  基准描述: {bm_config['benchmark_desc']}")
+
+    # 3. 获取Wind数据，构建基准净值
+    print("\n[3/5] 构建业绩基准净值序列（Wind）...")
+    df_merged = build_benchmark_nav(df_nav, bm_config)
+
+    # 4. 计算指标
+    print("\n[4/5] 计算业绩指标...")
+    metrics = calc_metrics(df_merged, bm_config)
+    print(f"  近1月年化:          产品={fmt(metrics.get('近1月年化'))}  基准={fmt(metrics.get('基准近1月年化'))}")
+    print(f"  近3月年化:          产品={fmt(metrics.get('近3月年化'))}  基准={fmt(metrics.get('基准近3月年化'))}")
+    print(f"  近6月年化:          产品={fmt(metrics.get('近6月年化'))}  基准={fmt(metrics.get('基准近6月年化'))}")
+    print(f"  近1年年化:          产品={fmt(metrics.get('近1年年化'))}  基准={fmt(metrics.get('基准近1年年化'))}")
+    print(f"  今年以来年化:        产品={fmt(metrics.get('今年以来年化'))}  基准={fmt(metrics.get('基准今年以来年化'))}")
+    print(f"  成立以来年化:        产品={fmt(metrics.get('成立以来年化'))}  基准={fmt(metrics.get('基准成立以来年化'))}")
+    print(f"  超额年化:            {fmt(metrics.get('超额年化'))}")
+    print(f"  成立以来最大回撤:    产品={fmt_bp(metrics.get('成立以来最大回撤BP'))}  基准={fmt_bp(metrics.get('基准成立以来最大回撤BP'))}")
+    print(f"  近1月最大回撤:       产品={fmt_bp(metrics.get('近1月最大回撤BP'))}  基准={fmt_bp(metrics.get('基准近1月最大回撤BP'))}")
+
+    # 5. 创建输出目录
+    print("\n[5/5] 生成报告文件...")
+    date_str   = df_merged['日期'].iloc[-1].strftime('%Y%m%d')
+    pname      = bm_config['product_name']
+    # 取前几字作为short_name (用于图表标题)
+    short_name = pname[:6] if len(pname) > 6 else pname
+    folder_name = f"{product_code}_{pname}_{date_str}"
+    output_dir  = os.path.join(OUTPUT_BASE, folder_name)
+    os.makedirs(output_dir, exist_ok=True)
+    print(f"  输出目录: {output_dir}")
+
+    chart_fn  = f"{pname}_净值对比图_{date_str}.png"
+    excel_fn  = f"{pname}_净值对比数据_{date_str}.xlsx"
+    md_fn     = f"{pname}_业绩评价_{date_str}.md"
+    script_fn = f"calculate_{product_code}.py"
+
+    # 生成图表
+    plot_chart(df_merged, pname, short_name, os.path.join(output_dir, chart_fn))
+    # 保存Excel
+    save_excel(df_merged, pname, os.path.join(output_dir, excel_fn))
+    # 保存Markdown
+    save_markdown(df_merged, metrics, bm_config, product_code,
+                  chart_fn, os.path.join(output_dir, md_fn))
+    # 复制/生成当前脚本
+    import shutil
+    shutil.copy(__file__, os.path.join(output_dir, script_fn))
+
+    print(f"\n{'='*60}")
+    print(f"✅ 报告生成完成！")
+    print(f"   文件夹: {output_dir}")
+    print(f"   - {md_fn}  (主报告)")
+    print(f"   - {chart_fn}")
+    print(f"   - {excel_fn}")
+    print(f"   - {script_fn}")
+    print(f"{'='*60}\n")
+
+
+if __name__ == '__main__':
+    main()

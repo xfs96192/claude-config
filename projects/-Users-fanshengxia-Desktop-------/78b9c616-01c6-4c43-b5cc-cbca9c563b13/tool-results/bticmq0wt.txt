@@ -1,0 +1,357 @@
+COMMAND     PID        USER   FD     TYPE             DEVICE SIZE/OFF                NODE NAME
+ControlCe   663 fanshengxia   11u    IPv4 0x622c85ee0d32b53a      0t0                 TCP *:afs3-fileserver (LISTEN)
+ControlCe   663 fanshengxia   12u    IPv6 0xa31fd162c4f2522d      0t0                 TCP *:afs3-fileserver (LISTEN)
+ControlCe   663 fanshengxia   13u    IPv4 0xb963ae05222d25e8      0t0                 TCP *:commplex-main (LISTEN)
+ControlCe   663 fanshengxia   14u    IPv6 0xc44bf7c461d8b687      0t0                 TCP *:commplex-main (LISTEN)
+cloudd      671 fanshengxia   13u    IPv4 0xda99138b5a84f167      0t0                 TCP localhost:59783->localhost:amt-esd-prot (ESTABLISHED)
+cloudd      671 fanshengxia   17u    IPv4 0x263dbb6d6a1c8f63      0t0                 TCP localhost:59785->localhost:amt-esd-prot (ESTABLISHED)
+cloudd      671 fanshengxia   18u    IPv4 0x9bba93b28679a275      0t0                 TCP localhost:59789->localhost:amt-esd-prot (ESTABLISHED)
+rapportd    691 fanshengxia   11u    IPv4 0xbc1f096f5717ab81      0t0                 TCP *:57465 (LISTEN)
+rapportd    691 fanshengxia   14u    IPv6 0xaa40e8a019dceb03      0t0                 TCP *:57465 (LISTEN)
+rapportd    691 fanshengxia   21u    IPv6 0xab1ed936cc7b49a8      0t0                 TCP fanshengdemacbook-pro-87.local:57465->fanshengxiademac-mini.local:56060 (ESTABLISHED)
+rapportd    691 fanshengxia   22u    IPv6 0x9647638519cc761a      0t0                 UDP *:xserveraid
+identitys   702 fanshengxia    7u    IPv4 0x87275c425bdcb953      0t0                 UDP *:*
+identitys   702 fanshengxia   15u    IPv4 0x1c9433b0d29ddee3      0t0                 UDP *:*
+identitys   702 fanshengxia   20u    IPv4 0x83de52ba20682eaa      0t0                 UDP *:*
+identitys   702 fanshengxia   42u    IPv4 0xc5cd36a07b29296a      0t0                 UDP *:*
+identitys   702 fanshengxia   43u    IPv6 0xe408cfe4c7a3dd47      0t0                 TCP fanshengdemacbook-pro-87.local:1024->[fe80:1a::c8d2:bf82:1834:e879]:1024 (ESTABLISHED)
+identitys   702 fanshengxia   46u    IPv4 0xfaf7d92413f078e5      0t0                 UDP *:*
+identitys   702 fanshengxia   47u    IPv6  0x2470c9a110bbbc8      0t0                 TCP fanshengdemacbook-pro-87.local:cap->[fe80:1a::c8d2:bf82:1834:e879]:blackjack (ESTABLISHED)
+identitys   702 fanshengxia   48u    IPv6  0x2470c9a110bbbc8      0t0                 TCP fanshengdemacbook-pro-87.local:cap->[fe80:1a::c8d2:bf82:1834:e879]:blackjack (ESTABLISHED)
+identitys   702 fanshengxia   50u    IPv6 0xf2ab27e01261cbc3      0t0                 TCP fanshengdemacbook-pro-87.local:blackjack->[fe80:1d::90f9:6d53:e1e6:7068]:activesync (ESTABLISHED)
+identitys   702 fanshengxia   55u    IPv4 0xc16fd164962a6d9f      0t0                 UDP *:*
+identitys   702 fanshengxia   56u    IPv6 0x9c8837ea980300b7      0t0                 TCP fanshengdemacbook-pro-87.local:1024->[fe80:1d::90f9:6d53:e1e6:7068]:1024 (ESTABLISHED)
+identitys   702 fanshengxia   59u    IPv4 0x3d5508cad7cf1453      0t0                 UDP *:*
+identitys   702 fanshengxia   61u    IPv6 0xf2ab27e01261cbc3      0t0                 TCP fanshengdemacbook-pro-87.local:blackjack->[fe80:1d::90f9:6d53:e1e6:7068]:activesync (ESTABLISHED)
+nsurlsess   715 fanshengxia    8u    IPv4 0x2308ebecf576484b      0t0                 TCP localhost:59787->localhost:amt-esd-prot (ESTABLISHED)
+sharingd    730 fanshengxia    4u    IPv4 0x59dfa4ece41174fe      0t0                 UDP *:*
+sharingd    730 fanshengxia   11u    IPv6 0xc01c1ffbe08bc769      0t0                 UDP *:50151
+ARDAgent    787 fanshengxia    6u    IPv6 0x3bbf9ae3b7691770      0t0                 UDP *:net-assistant
+ARDAgent    787 fanshengxia    7u    IPv4 0x35da31720aaf186a      0t0                 UDP *:net-assistant
+ARDAgent    787 fanshengxia    9u    IPv6 0xcae40e873da4f46f      0t0                 TCP *:net-assistant (LISTEN)
+ChatGPTHe   892 fanshengxia   11u    IPv4 0x2cc20b5e3152ade2      0t0                 TCP localhost:59541->localhost:amt-esd-prot (ESTABLISHED)
+netdisk_s   906 fanshengxia   10u    IPv4 0xf02bb943caf84b0b      0t0                 TCP localhost:ndmp (LISTEN)
+node       1036 fanshengxia   15u    IPv4 0xa8a8cbf0ebb9cd3a      0t0                 UDP *:mdns
+node       1036 fanshengxia   16u    IPv4 0xe04513e08c3be416      0t0                 TCP localhost:18789 (LISTEN)
+node       1036 fanshengxia   17u    IPv6 0xfa4fd2abe954d8f1      0t0                 TCP localhost:18789 (LISTEN)
+node       1036 fanshengxia   18u    IPv4 0xa18898ea1e0fd697      0t0                 TCP localhost:18791 (LISTEN)
+node       1036 fanshengxia   19u    IPv4  0xb8d7583392d3de7      0t0                 TCP localhost:18792 (LISTEN)
+node       1036 fanshengxia   20u    IPv4 0xd1e3c8b5236f1ad3      0t0                 UDP *:mdns
+node       1036 fanshengxia   27u    IPv4 0xd65b556569aa80a7      0t0                 TCP 198.18.0.1:64853->198.18.0.14:https (ESTABLISHED)
+node       1036 fanshengxia   28u    IPv4 0xeac5c589ba4cdc50      0t0                 TCP 198.18.0.1:57823->198.18.0.82:https (ESTABLISHED)
+node       1036 fanshengxia   31u    IPv4 0xb4755f291c3726b9      0t0                 UDP *:mdns
+WeatherWi 14517 fanshengxia   15u    IPv4 0xaa122be975fc427b      0t0                 TCP localhost:57520->localhost:amt-esd-prot (CLOSED)
+antigravi 15499 fanshengxia   16u    IPv4 0xf667657b95a25942      0t0                 TCP localhost:8045 (LISTEN)
+vmark     22257 fanshengxia   20u    IPv4 0x74edbb8e5b35edda      0t0                 TCP localhost:52990 (LISTEN)
+replicato 24086 fanshengxia    8u    IPv6 0xb45590cf6d50bc3f      0t0                 UDP *:63734
+replicato 24086 fanshengxia   11u    IPv6 0x25654906600e2c76      0t0                 UDP [fe80:11::2c3c:deff:fe6e:559e]:63734->[fe80:11::bc89:edff:fe28:c96e]:49996
+2.1.81    25031 fanshengxia   10u    IPv4 0xb66c7db3f9b84f70      0t0                 TCP 198.18.0.1:58328->198.18.0.23:https (ESTABLISHED)
+2.1.81    25031 fanshengxia   14u    IPv4 0xa5686aea4c48f4f5      0t0                 TCP 198.18.0.1:58331->198.18.0.23:https (ESTABLISHED)
+2.1.81    25031 fanshengxia   16u    IPv4 0x69237d9d388f232c      0t0                 TCP 198.18.0.1:59460->198.18.0.39:https (ESTABLISHED)
+2.1.81    25031 fanshengxia   20u    IPv4 0xa9a2e8d07b8f7f85      0t0                 TCP 198.18.0.1:58332->198.18.0.23:https (ESTABLISHED)
+2.1.81    25985 fanshengxia    8u    IPv4 0x8a7e798aa747c61c      0t0                 TCP 198.18.0.1:59107->198.18.0.23:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   11u    IPv4 0x3983390002bd7c3c      0t0                 TCP 198.18.0.1:59108->198.18.0.23:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   14u    IPv4 0xcf8fd4d4089bf3dc      0t0                 TCP 198.18.0.1:59124->198.18.0.23:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   15u    IPv4 0xe4a1ded85e171118      0t0                 TCP 198.18.0.1:59159->198.18.0.38:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   18u    IPv4 0xb2b9d42b52725b4c      0t0                 TCP 198.18.0.1:59160->198.18.0.38:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   19u    IPv4 0x9d09a7e889edce52      0t0                 TCP 198.18.0.1:59106->198.18.0.23:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   21u    IPv4 0x7be7297f036d6628      0t0                 TCP 198.18.0.1:59128->198.18.0.27:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   23u    IPv4 0x934c1ec0a691b65c      0t0                 TCP 198.18.0.1:59125->198.18.0.25:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   25u    IPv4 0x6a6d711c38a59946      0t0                 TCP 198.18.0.1:59163->198.18.0.31:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   26u    IPv4 0xb1e68c5697a8f9df      0t0                 TCP 198.18.0.1:59161->198.18.0.38:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   28u    IPv4 0x8816c0ba5f0df4d0      0t0                 TCP 198.18.0.1:59131->198.18.0.28:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   31u    IPv4 0x6976ed60be26ec5f      0t0                 TCP 198.18.0.1:59133->198.18.0.32:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   32u    IPv4 0xeed9c818b7dfdd7e      0t0                 TCP 198.18.0.1:59127->198.18.0.35:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   33u    IPv4 0x1f07777552248ed9      0t0                 TCP 198.18.0.1:59134->198.18.0.24:https (ESTABLISHED)
+2.1.81    25985 fanshengxia   35u    IPv4 0xf02f0025f7e73678      0t0                 TCP 198.18.0.1:59135->198.18.0.33:https (ESTABLISHED)
+node      27044 fanshengxia  cwd      DIR               1,15      480           106046378 /Users/fanshengxia/Desktop/å¸‚åœºè§‚ç‚¹ç¾ŽåŒ–/asset-analysis-real-data/asset-analysis-dashboard
+node      27044 fanshengxia  txt      REG               1,15 61835232            98874302 /opt/homebrew/Cellar/node/23.11.0/bin/node
+node      27044 fanshengxia  txt      REG               1,15    87728           210711445 /opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlidec.1.2.0.dylib
+node      27044 fanshengxia  txt      REG               1,15   230704            98856881 /opt/homebrew/Cellar/libuv/1.51.0/lib/libuv.1.dylib
+node      27044 fanshengxia  txt      REG               1,15   163626           216444657 /Users/fanshengxia/Desktop/å¸‚åœºè§‚ç‚¹ç¾ŽåŒ–/asset-analysis-real-data/asset-analysis-dashboard/node_modules/.pnpm/fsevents@2.3.3/node_modules/fsevents/fsevents.node
+node      27044 fanshengxia  txt      REG               1,15   243456           210711504 /opt/homebrew/Cellar/c-ares/1.34.6/lib/libcares.2.19.5.dylib
+node      27044 fanshengxia  txt      REG               1,15   653328           210711446 /opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlienc.1.2.0.dylib
+node      27044 fanshengxia  txt      REG               1,15   201024           210711949 /opt/homebrew/Cellar/libnghttp2/1.68.0/lib/libnghttp2.14.dylib
+node      27044 fanshengxia  txt      REG               1,15   167264           210711443 /opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlicommon.1.2.0.dylib
+node      27044 fanshengxia  txt      REG               1,15  2300384 1152921500312563530 /usr/lib/dyld
+node      27044 fanshengxia  txt      REG               1,15   900304           204516672 /opt/homebrew/Cellar/openssl@3/3.6.1/lib/libssl.3.dylib
+node      27044 fanshengxia  txt      REG               1,15  1841072            98856162 /opt/homebrew/Cellar/icu4c@77/77.1/lib/libicuuc.77.1.dylib
+node      27044 fanshengxia  txt      REG               1,15  4843760           204516671 /opt/homebrew/Cellar/openssl@3/3.6.1/lib/libcrypto.3.dylib
+node      27044 fanshengxia  txt      REG               1,15  3174032            98856158 /opt/homebrew/Cellar/icu4c@77/77.1/lib/libicui18n.77.1.dylib
+node      27044 fanshengxia  txt      REG               1,15  2392944           216444627 /Users/fanshengxia/Desktop/å¸‚åœºè§‚ç‚¹ç¾ŽåŒ–/asset-analysis-real-data/asset-analysis-dashboard/node_modules/.pnpm/@rollup+rollup-darwin-arm64@4.40.2/node_modules/@rollup/rollup-darwin-arm64/rollup.darwin-arm64.node
+node      27044 fanshengxia  txt      REG               1,15 32167248            98856157 /opt/homebrew/Cellar/icu4c@77/77.1/lib/libicudata.77.1.dylib
+node      27044 fanshengxia    0r     CHR                3,2      0t0                 336 /dev/null
+node      27044 fanshengxia    1w     REG               1,15      142           225703581 /private/tmp/claude-501/-Users-fanshengxia-Desktop-------/78b9c616-01c6-4c43-b5cc-cbca9c563b13/tasks/b1z37nw2f.output
+node      27044 fanshengxia    2w     REG               1,15      142           225703581 /private/tmp/claude-501/-Users-fanshengxia-Desktop-------/78b9c616-01c6-4c43-b5cc-cbca9c563b13/tasks/b1z37nw2f.output
+node      27044 fanshengxia    3u  KQUEUE                                                 count=0, state=0x8
+node      27044 fanshengxia    4     PIPE 0xe671e844bf9a8371    16384                     ->0x5179c3810323acb8
+node      27044 fanshengxia    5     PIPE 0x5179c3810323acb8    16384                     ->0xe671e844bf9a8371
+node      27044 fanshengxia    6r     DIR               1,15      704                   2 /
+node      27044 fanshengxia    7u  KQUEUE                                                 count=0, state=0xa
+node      27044 fanshengxia    8r     DIR               1,15      704                   2 /
+node      27044 fanshengxia    9u  KQUEUE                                                 count=1, state=0x8
+node      27044 fanshengxia   10r     DIR               1,15      704                   2 /
+node      27044 fanshengxia   11r     CHR                3,2      0t0                 336 /dev/null
+node      27044 fanshengxia   12u    unix 0xc8d65986540d25b1      0t0                     ->0xcac40fce2c48559
+node      27044 fanshengxia   13r     REG               1,15     1053           216443960 /Users/fanshengxia/Desktop/å¸‚åœºè§‚ç‚¹ç¾ŽåŒ–/asset-analysis-real-data/asset-analysis-dashboard/node_modules/.pnpm/tapable@2.2.1/node_modules/tapable/package.json
+node      27044 fanshengxia   14u    unix 0xb04cb9c8f6562bab      0t0                     ->0x6c97857a8d9096dc
+Shadowroc 30006 fanshengxia    9u    IPv4 0x4a892ee52367acad      0t0                 UDP *:50731
+Shadowroc 30006 fanshengxia   11u    IPv6 0xa65ecafbed406b82      0t0                 UDP *:*
+Claude    37346 fanshengxia  109u    IPv4 0x61b1c13f71a1054a      0t0                 UDP 198.18.0.1:49442->198.18.0.180:ntp
+Claude    37359 fanshengxia   21u    IPv4 0x90a7bfd0c73f1179      0t0                 TCP localhost:57791->localhost:amt-esd-prot (ESTABLISHED)
+Claude    37359 fanshengxia   23u    IPv4  0x1f2862b55d4a82b      0t0                 TCP localhost:57463->localhost:amt-esd-prot (ESTABLISHED)
+PacketTun 42867 fanshengxia    8u    IPv4 0x7788a644b0d51a46      0t0                ICMP *:*
+PacketTun 42867 fanshengxia    9u    IPv4 0x3a66ba10326bcef9      0t0                 TCP localhost:amt-esd-prot->localhost:54678 (CLOSED)
+PacketTun 42867 fanshengxia   10u    IPv4 0x820cbb6ba7547cb4      0t0                 TCP localhost:amt-esd-prot->localhost:56019 (CLOSED)
+PacketTun 42867 fanshengxia   11u    IPv4 0xc61b994d0c429a0a      0t0                 TCP localhost:amt-esd-prot->localhost:58464 (CLOSED)
+PacketTun 42867 fanshengxia   12u    IPv4 0x3165ebc7b5a0a0dd      0t0                 UDP *:*
+PacketTun 42867 fanshengxia   13u    IPv4 0x632ede344bb0dfe0      0t0                 TCP localhost:amt-esd-prot->localhost:60955 (CLOSED)
+PacketTun 42867 fanshengxia   14u    IPv6 0x192e43d6972576d8      0t0              ICMPV6 *:*
+PacketTun 42867 fanshengxia   15u    IPv4 0x8e03a75d0d003853      0t0                 TCP localhost:amt-esd-prot->localhost:59385 (CLOSED)
+PacketTun 42867 fanshengxia   17u    IPv4 0xd0b00cdf30e67623      0t0                 TCP localhost:amt-esd-prot->localhost:55125 (CLOSED)
+PacketTun 42867 fanshengxia   18u    IPv4  0xc2e44cced5060c2      0t0                 TCP localhost:amt-esd-prot->localhost:58696 (CLOSED)
+PacketTun 42867 fanshengxia   19u    IPv4 0x2fe86e94aaefe72d      0t0                 TCP 192.168.1.9:amt-esd-prot (LISTEN)
+PacketTun 42867 fanshengxia   20u    IPv4 0xb5e3bfdc350e2d2d      0t0                 TCP localhost:amt-esd-prot (LISTEN)
+PacketTun 42867 fanshengxia   21u    IPv4 0x6a7386ddfc772f9f      0t0                 TCP localhost:amt-esd-prot->localhost:58038 (CLOSED)
+PacketTun 42867 fanshengxia   22u    IPv4 0x380064f2820236e0      0t0                 TCP localhost:amt-esd-prot->localhost:55142 (CLOSED)
+PacketTun 42867 fanshengxia   23u    IPv4 0x11f81abdc0c6e650      0t0                 TCP localhost:amt-esd-prot->localhost:55223 (CLOSED)
+PacketTun 42867 fanshengxia   24u    IPv4 0x7267abdec745f6d5      0t0                 TCP localhost:amt-esd-prot->localhost:55331 (CLOSED)
+PacketTun 42867 fanshengxia   25u    IPv4 0x5fa9567b55910b29      0t0                 TCP localhost:amt-esd-prot->localhost:57105 (CLOSED)
+PacketTun 42867 fanshengxia   26u    IPv6 0x376674967d9892f7      0t0                 TCP localhost:amt-esd-prot (LISTEN)
+PacketTun 42867 fanshengxia   27u    IPv4 0x4e47e50323b8b2bb      0t0                 UDP 192.168.1.9:56162->dns.google:domain
+PacketTun 42867 fanshengxia   29u    IPv4 0xb5bb84e2d10847c6      0t0                 TCP localhost:amt-esd-prot->localhost:53937 (CLOSED)
+PacketTun 42867 fanshengxia   30u    IPv4 0xd39a2ded7154ee06      0t0                 TCP localhost:amt-esd-prot->localhost:58256 (CLOSED)
+PacketTun 42867 fanshengxia   31u    IPv4 0x70764f67f6dfe09e      0t0                 UDP 192.168.1.9:60728->pdns.dnspod.cn:domain
+PacketTun 42867 fanshengxia   32u    IPv4 0x8e2f09e58b510a38      0t0                 TCP 192.168.1.9:58104->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   33u    IPv4 0x28eded8fccfe29b3      0t0                 TCP 192.168.1.9:57865->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   34u    IPv4 0xd564cc671c587620      0t0                 TCP 192.168.1.9:59026->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   35u    IPv4 0xe84e245b7bd328a9      0t0                 TCP localhost:amt-esd-prot->localhost:59668 (ESTABLISHED)
+PacketTun 42867 fanshengxia   36u    IPv4 0x7ebbe32f6c1d1d24      0t0                 TCP localhost:amt-esd-prot->localhost:59775 (ESTABLISHED)
+PacketTun 42867 fanshengxia   37u    IPv4 0x18873f4d84222c1f      0t0                 TCP localhost:amt-esd-prot->localhost:57937 (ESTABLISHED)
+PacketTun 42867 fanshengxia   38u    IPv4 0x2ed16da0e6a19877      0t0                 TCP 192.168.1.9:59776->117.135.214.3:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   40u    IPv4 0x82cf85ae19a46954      0t0                 TCP 192.168.1.9:59140->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   41u    IPv4 0x18bcd4cd84aa64aa      0t0                 TCP localhost:amt-esd-prot->localhost:58103 (ESTABLISHED)
+PacketTun 42867 fanshengxia   42u    IPv4 0x584b24ad28925148      0t0                 TCP localhost:amt-esd-prot->localhost:58288 (ESTABLISHED)
+PacketTun 42867 fanshengxia   43u    IPv4  0x332a1fa3d5274fa      0t0                 TCP 192.168.1.9:58859->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   44u    IPv4 0xc823d011e4819d5f      0t0                 TCP 192.168.1.9:58317->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   45u    IPv4 0xc4e5f9f7a03278d4      0t0                 TCP 192.168.1.9:57938->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   46u    IPv4  0xc78edd7c0a954c4      0t0                 TCP 192.168.1.9:57835->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   47u    IPv4 0xc568f3bc2fdc690d      0t0                 UDP 192.168.1.9:59207->111.62.113.100:https
+PacketTun 42867 fanshengxia   48u    IPv4  0x904e629c9ea9be4      0t0                 TCP 192.168.1.9:57843->17.57.145.136:5223 (ESTABLISHED)
+PacketTun 42867 fanshengxia   49u    IPv4 0x9aa8cd6cfc1a9bef      0t0                 TCP localhost:amt-esd-prot->localhost:59541 (ESTABLISHED)
+PacketTun 42867 fanshengxia   50u    IPv4 0x99e912755d1dc6b5      0t0                 TCP localhost:amt-esd-prot->localhost:57939 (ESTABLISHED)
+PacketTun 42867 fanshengxia   51u    IPv4 0x99fa3f2da83c1ad8      0t0                 TCP 192.168.1.9:57688->139.224.82.203:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   52u    IPv4 0x2bea7f77a2376f0b      0t0                 UDP 192.168.1.9:62907->111.62.113.101:https
+PacketTun 42867 fanshengxia   53u    IPv4 0xa405a9c399568305      0t0                 TCP 192.168.1.9:59670->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   54u    IPv4 0x3540641603bb81b8      0t0                 TCP localhost:amt-esd-prot->localhost:60995 (CLOSED)
+PacketTun 42867 fanshengxia   55u    IPv4 0xd409e77273ed6e30      0t0                 TCP 192.168.1.9:59764->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   56u    IPv4 0x1a441af531fc5f9a      0t0                 TCP 192.168.1.9:59542->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   57u    IPv4 0x6e077fbceabad62c      0t0                 TCP 192.168.1.9:59138->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   58u    IPv4 0x1c45173d24971371      0t0                 TCP localhost:amt-esd-prot->localhost:57463 (ESTABLISHED)
+PacketTun 42867 fanshengxia   59u    IPv4 0xba33dfaf2bb53411      0t0                 TCP 192.168.1.9:57464->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   60u    IPv4 0xf9bb90c7531aea46      0t0                 TCP 192.168.1.9:57941->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   61u    IPv4 0x54a832e98ee40af3      0t0                 TCP localhost:amt-esd-prot->localhost:58428 (ESTABLISHED)
+PacketTun 42867 fanshengxia   62u    IPv4 0xc2ab68c1d16941fd      0t0                 TCP localhost:amt-esd-prot->localhost:59785 (ESTABLISHED)
+PacketTun 42867 fanshengxia   63u    IPv4 0xbf3d73e48dfac406      0t0                 TCP localhost:amt-esd-prot->localhost:58274 (ESTABLISHED)
+PacketTun 42867 fanshengxia   64u    IPv4  0xd46fba84390490c      0t0                 TCP localhost:amt-esd-prot->localhost:57940 (ESTABLISHED)
+PacketTun 42867 fanshengxia   65u    IPv4 0xd76eea55f9d4613d      0t0                 TCP 192.168.1.9:58275->223.111.25.96:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   66u    IPv4 0xdd353af0e75516fc      0t0                 TCP 192.168.1.9:58289->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   67u    IPv4 0x66ed9c7c808529b9      0t0                 TCP 192.168.1.9:58429->36.155.245.244:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   68u    IPv4 0xd91d5e8a0fcc8905      0t0                 TCP 192.168.1.9:53088->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   69u    IPv4 0x496060daec72398d      0t0                 TCP localhost:amt-esd-prot->localhost:53089 (ESTABLISHED)
+PacketTun 42867 fanshengxia   70u    IPv4 0x6be6dbd3ffae13ea      0t0                 TCP 192.168.1.9:57698->120.241.149.214:http-alt (ESTABLISHED)
+PacketTun 42867 fanshengxia   71u    IPv4 0xe01182a4fc1a2662      0t0                 TCP 192.168.1.9:53176->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   72u    IPv4 0x7573fa1768aa05d1      0t0                 TCP 192.168.1.9:53177->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   74u    IPv4 0xe812fe6b55fc3933      0t0                 TCP 192.168.1.9:59113->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   75u    IPv4  0x7d3c6cfa88ac1d8      0t0                 TCP 192.168.1.9:59786->17.248.216.42:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   76u    IPv4 0xa4e067188dd42292      0t0                 TCP 192.168.1.9:53179->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   77u    IPv4  0x1c462ef0794e7e5      0t0                 TCP localhost:amt-esd-prot->localhost:59763 (ESTABLISHED)
+PacketTun 42867 fanshengxia   78u    IPv4 0xfe6e8f59b2f87e5b      0t0                 TCP 192.168.1.9:59110->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   79u    IPv4 0xa4c44ceac6445a8c      0t0                 TCP 192.168.1.9:59112->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   81u    IPv4 0xb85d79c699f4c2b5      0t0                 TCP localhost:amt-esd-prot->localhost:59765 (ESTABLISHED)
+PacketTun 42867 fanshengxia   82u    IPv4 0x9b875b67e45b0c01      0t0                 TCP 192.168.1.9:57974->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   83u    IPv4 0x3b29f60fc62ad759      0t0                 TCP localhost:amt-esd-prot->localhost:59783 (ESTABLISHED)
+PacketTun 42867 fanshengxia   84u    IPv4 0x992994197f3d698a      0t0                 TCP 192.168.1.9:59784->17.248.216.42:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   85u    IPv4 0x89a5af83b1f49ed4      0t0                 TCP 192.168.1.9:59142->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   86u    IPv4 0x40d4f34d96640f74      0t0                 TCP 192.168.1.9:53090->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   87u    IPv4 0x9842ba7c098516ae      0t0                 TCP 192.168.1.9:59143->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   88u    IPv4 0x509146c38c678ce1      0t0                 TCP 192.168.1.9:57942->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   89u    IPv4 0xf640a76da334083c      0t0                 TCP localhost:amt-esd-prot->localhost:59787 (ESTABLISHED)
+PacketTun 42867 fanshengxia   90u    IPv4 0xcf7d456f58bf4651      0t0                 TCP 192.168.1.9:59766->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   91u    IPv4 0xfdc95343fb653132      0t0                 TCP 192.168.1.9:59733->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   92u    IPv4 0xaeb31feafc862a6e      0t0                 TCP localhost:amt-esd-prot->localhost:58316 (ESTABLISHED)
+PacketTun 42867 fanshengxia   93u    IPv4 0x879029a0010d2679      0t0                 TCP 192.168.1.9:59166->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   95u    IPv4 0x4d5c6471ffb1999d      0t0                 TCP 192.168.1.9:59146->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   96u    IPv4 0x55b4d5d5471ecade      0t0                 TCP 192.168.1.9:59147->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia   97u    IPv4 0xb0d2d169665aab95      0t0                 TCP 192.168.1.9:59768->:https (ESTABLISHED)
+PacketTun 42867 fanshengxia   98u    IPv4 0x28af951dc89e7bb8      0t0                 TCP localhost:amt-esd-prot->localhost:59433 (ESTABLISHED)
+PacketTun 42867 fanshengxia   99u    IPv4 0xf359ddc98198db28      0t0                 TCP 192.168.1.9:57814->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  100u    IPv4 0xe23f0c0c071f09ac      0t0                 TCP localhost:amt-esd-prot->localhost:58782 (ESTABLISHED)
+PacketTun 42867 fanshengxia  101u    IPv4 0x9e3337aa5b00ebf4      0t0                 TCP localhost:amt-esd-prot->localhost:58777 (ESTABLISHED)
+PacketTun 42867 fanshengxia  102u    IPv4 0x18c3ceea26dd271a      0t0                 TCP 192.168.1.9:59788->17.248.216.42:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  103u    IPv4 0x6fff18e72fbb5140      0t0                 TCP localhost:amt-esd-prot->localhost:58858 (ESTABLISHED)
+PacketTun 42867 fanshengxia  104u    IPv4 0xb3c04d2699f5a9c6      0t0                 TCP 192.168.1.9:59434->17.248.216.23:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  105u    IPv4 0x86fa6266e79b5c27      0t0                 TCP localhost:amt-esd-prot->localhost:59789 (ESTABLISHED)
+PacketTun 42867 fanshengxia  106u    IPv4 0xdd8bc94c10ca26e7      0t0                 TCP 192.168.1.9:59167->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  107u    IPv4 0x95a5e98907a87e58      0t0                 TCP 192.168.1.9:58333->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  108u    IPv4 0x5292091794b68ed5      0t0                 TCP localhost:amt-esd-prot->localhost:55870 (ESTABLISHED)
+PacketTun 42867 fanshengxia  109u    IPv4 0xbfe46e80939df4a3      0t0                 TCP 192.168.1.9:59790->17.248.216.42:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  110u    IPv4 0xca1417348f9cb4d3      0t0                 UDP 192.168.1.9:54583->111.62.113.101:https
+PacketTun 42867 fanshengxia  112u    IPv4 0x66be9bfe206935d2      0t0                 TCP 192.168.1.9:58336->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  113u    IPv4 0xf1e459bae91977f4      0t0                 TCP 192.168.1.9:58337->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  115u    IPv4 0xddfd64e8da146b26      0t0                 TCP localhost:amt-esd-prot->localhost:59679 (ESTABLISHED)
+PacketTun 42867 fanshengxia  116u    IPv4 0x887d7b00c5968ffd      0t0                 TCP 192.168.1.9:57499->120.241.149.214:http-alt (ESTABLISHED)
+PacketTun 42867 fanshengxia  118u    IPv4 0xc453a56473137287      0t0                 TCP 192.168.1.9:59680->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  119u    IPv4 0xf1287b59d2a0286d      0t0                 TCP 192.168.1.9:57500->120.241.149.214:http-alt (ESTABLISHED)
+PacketTun 42867 fanshengxia  120u    IPv6 0x9b4085d538c5e2be      0t0                 TCP [2409:8a1e:9872:6cd0:1c5b:c717:79e7:3de9]:57631->[2409:8c20:818:2002::21]:http (ESTABLISHED)
+PacketTun 42867 fanshengxia  123u    IPv4 0x91defbc953266473      0t0                 TCP localhost:amt-esd-prot->localhost:57834 (ESTABLISHED)
+PacketTun 42867 fanshengxia  124u    IPv4 0x849634528184ebbc      0t0                 TCP 192.168.1.9:55871->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  126u    IPv4 0xcd8a5a2dea9a95d2      0t0                 TCP localhost:amt-esd-prot->localhost:57863 (ESTABLISHED)
+PacketTun 42867 fanshengxia  129u    IPv4 0xf024b30abc5b8172      0t0                 TCP 192.168.1.9:57824->223.111.243.45:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  131u    IPv4 0xae4e11c76488f2ff      0t0                 TCP 192.168.1.9:59149->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  132u    IPv4 0xd172a014246e8fab      0t0                 TCP localhost:amt-esd-prot->localhost:55876 (ESTABLISHED)
+PacketTun 42867 fanshengxia  134u    IPv4 0xf578c861c80fed69      0t0                 TCP 192.168.1.9:59150->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  136u    IPv4 0x2581b9c7a76c4ac2      0t0                 TCP 192.168.1.9:55877->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  137u    IPv4 0xfb45aa55a0a536a7      0t0                 TCP 192.168.1.9:57708->111.62.113.77:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  138u    IPv4 0xf0272dcde6b4eefd      0t0                 TCP localhost:amt-esd-prot->localhost:55878 (ESTABLISHED)
+PacketTun 42867 fanshengxia  139u    IPv4 0x540bffd5be2f1933      0t0                 TCP 192.168.1.9:55879->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  140u    IPv4 0xf24cdd1f8a3eb9cf      0t0                 TCP 192.168.1.9:59461->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  146u    IPv4 0xcf87cd9588822807      0t0                 TCP 192.168.1.9:57606->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  152u    IPv4 0xc14254bfd8d9302d      0t0                 TCP 192.168.1.9:58778->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  154u    IPv4 0xa814fc9fd33d365e      0t0                 TCP 192.168.1.9:59168->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  156u    IPv4 0x2a8f37fb3c630313      0t0                 TCP 192.168.1.9:59170->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  157u    IPv4 0x69c56d058f46b0ba      0t0                 TCP 192.168.1.9:59512->8.133.123.139:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  158u    IPv4 0xa276491351824f3b      0t0                 TCP localhost:amt-esd-prot->localhost:57973 (ESTABLISHED)
+PacketTun 42867 fanshengxia  159u    IPv4 0x205af1ae4d786057      0t0                 TCP 192.168.1.9:59347->120.233.23.199:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  161u    IPv4 0x22fe9b00722f74f4      0t0                 TCP 192.168.1.9:59513->36.151.61.51:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  162u    IPv4 0x7ffd9a4097f99b41      0t0                 TCP 192.168.1.9:59514->36.151.61.51:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  164u    IPv4 0xa5bf8310f836eefa      0t0                 TCP localhost:amt-esd-prot->localhost:58625 (ESTABLISHED)
+PacketTun 42867 fanshengxia  165u    IPv4 0x8118b21b1c14369d      0t0                 TCP 192.168.1.9:58626->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  166u    IPv4 0xbeb32a4675bbc9a0      0t0                 TCP 192.168.1.9:58783->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  169u    IPv4 0xceede4d5c8fd02ee      0t0                 TCP 192.168.1.9:57837->39.175.118.180:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  176u    IPv4 0xfa8b4d0a78dae513      0t0                 TCP localhost:amt-esd-prot->localhost:57791 (ESTABLISHED)
+PacketTun 42867 fanshengxia  179u    IPv4 0xf296769e02451eda      0t0                 TCP 192.168.1.9:57786->36.151.61.52:https (ESTABLISHED)
+PacketTun 42867 fanshengxia  180u    IPv4 0xd66aec1c9fd3e673      0t0                 TCP localhost:amt-esd-prot->localhost:58696 (ESTABLISHED)
+PacketTun 42867 fanshengxia  181u    IPv4 0xb61bac35c3fcddec      0t0                 TCP 192.168.1.9:57793->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  182u    IPv4 0x124e3fcdf80518a2      0t0                 TCP 192.168.1.9:58697->23.186.200.120:11012 (ESTABLISHED)
+PacketTun 42867 fanshengxia  185u    IPv4 0xcdfb056a560da03c      0t0                 TCP localhost:amt-esd-prot->localhost:57886 (ESTABLISHED)
+PacketTun 42867 fanshengxia  186u    IPv4 0x32e3c6dec332d6d5      0t0                 TCP 192.168.1.9:57887->23.186.200.120:11012 (ESTABLISHED)
+stable    43007 fanshengxia   23u    IPv4 0x821fb9c532c31d15      0t0                 TCP localhost:58288->localhost:amt-esd-prot (ESTABLISHED)
+stable    43007 fanshengxia   27u    IPv4 0xdf04e35a654d9c6b      0t0                 TCP localhost:58625->localhost:amt-esd-prot (ESTABLISHED)
+stable    43007 fanshengxia   34u    IPv4 0x166b86152b643430      0t0                 TCP 198.18.0.1:57593->198.18.0.21:https (ESTABLISHED)
+stable    43007 fanshengxia   46u    IPv4 0x485e487ac9c93785      0t0                 TCP localhost:9277 (LISTEN)
+stable    43007 fanshengxia   54u    IPv4 0x58dda279accaa165      0t0                 TCP localhost:58858->localhost:amt-esd-prot (ESTABLISHED)
+stable    43007 fanshengxia   72u    IPv4 0xd6ce6518268fe72c      0t0                 TCP 198.18.0.1:53171->198.18.0.21:https (ESTABLISHED)
+stable    43007 fanshengxia   73u    IPv4 0x3934c98020b41189      0t0                 TCP 198.18.0.1:53175->198.18.0.21:https (ESTABLISHED)
+stable    43007 fanshengxia   76u    IPv4 0x1bb04a03e5cf2c37      0t0                 TCP 198.18.0.1:53170->198.18.0.21:https (ESTABLISHED)
+node      54211 fanshengxia   19u    IPv4 0x554131aa887b5c6d      0t0                 TCP 198.18.0.1:57782->198.18.0.82:https (ESTABLISHED)
+accountsd 59406 fanshengxia   16u    IPv4 0x6fafef3c8f71d4fb      0t0                 TCP localhost:58696->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   23u    IPv4 0x9a9234853553b72a      0t0                 TCP localhost:58777->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   26u    IPv4 0x63e08f8a2c0af854      0t0                 TCP localhost:53089->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   27u    IPv4  0xd5280a3080596b3      0t0                 TCP localhost:59775->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   29u    IPv4 0x1b764f7297cf25b9      0t0                 TCP localhost:57937->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   30u    IPv4 0x91658437e1338852      0t0                 TCP localhost:57863->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   32u    IPv4 0x18df254bbe6ca513      0t0                 TCP localhost:58103->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   33u    IPv4 0x8fa17644ec68d13f      0t0                 TCP localhost:57973->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   34u    IPv4 0x4465ae262b6bbcf6      0t0                 TCP localhost:58782->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   35u    IPv4 0x21c4a139b80207e5      0t0                 TCP localhost:58316->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   36u    IPv4  0x324f4f97f902f31      0t0                 TCP localhost:55870->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   37u    IPv4 0x9bae7a4e19bf6084      0t0                 TCP localhost:55876->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   40u    IPv4 0xb65423d45b89246e      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   41u    IPv4 0x26102d676fa83cc1      0t0                 TCP localhost:55878->localhost:amt-esd-prot (ESTABLISHED)
+Comet\x20 61662 fanshengxia   42u    IPv6 0x9ecc2b510426a532      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   69u    IPv6 0x9ac3610b6de24278      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   72u    IPv6  0x52e8def4a6760b0      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   73u    IPv6 0x7f9111b2a342b50d      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   74u    IPv6 0x799ecbd485c1bcde      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   75u    IPv6 0x996d7c277a70b8b9      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   76u    IPv6 0xc777d5f5b1195f1d      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   77u    IPv6 0x451dde7a76567a01      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   78u    IPv6  0xda026c7cfb70e6b      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   79u    IPv4 0x839b936c0cdbbac8      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   80u    IPv6 0x75f6f30025644f19      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   81u    IPv6 0xd1ed0407b4d6ec8f      0t0                 UDP *:mdns
+Comet\x20 61662 fanshengxia   82u    IPv6 0x8b6462a7c9619450      0t0                 UDP *:mdns
+WeChat    62767 fanshengxia   15u    IPv4 0x6888637b735cf3a7      0t0                 UDP *:*
+WeChat    62767 fanshengxia   90u    IPv6 0x9872cecbc5f0ab14      0t0                 TCP [fc00:1234:ffff::10]:51459->[2408:80f1:21:4078::118]:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia   92u    IPv6 0x492c056dab937dab      0t0                 TCP [fc00:1234:ffff::10]:51462->[2408:80f1:21:60fe::128]:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia   98u    IPv6 0x2749ff749536b881      0t0                 TCP [fc00:1234:ffff::10]:51467->[2408:80f1:21:3006::90]:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia  101u    IPv6 0xc59f27a8bb6d9f37      0t0                 TCP [fc00:1234:ffff::10]:51465->[2408:80f1:21:3006::90]:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia  351u    IPv4 0x4d444cf85e801627      0t0                 TCP 198.18.0.1:60282->182.50.10.149:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia  352u    IPv4 0xb3e7d68d2d253b85      0t0                 TCP 198.18.0.1:60284->182.50.10.149:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia  355u    IPv4 0x278e1abd88ddad21      0t0                 TCP 198.18.0.1:60286->112.65.193.167:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia  359u    IPv4 0x208fc1085a7ddf26      0t0                 TCP 198.18.0.1:60289->182.50.15.211:http (CLOSE_WAIT)
+WeChat    62767 fanshengxia  362u    IPv6 0xa85c97d674ed245f      0t0                 TCP [fc00:1234:ffff::10]:57608->[2409:8c20:818:2002::21]:http (ESTABLISHED)
+Electron  65042 fanshengxia   50u    IPv4 0xf4669d2687186b2f      0t0                 TCP localhost:17788 (LISTEN)
+Trae\x20H 65082 fanshengxia   28u    IPv4  0x70ba224520d70ac      0t0                 TCP localhost:57834->localhost:amt-esd-prot (ESTABLISHED)
+Trae\x20H 65082 fanshengxia   33u    IPv4 0x49e608877094c972      0t0                 TCP localhost:59763->localhost:amt-esd-prot (ESTABLISHED)
+Trae\x20H 65082 fanshengxia   37u    IPv4 0x6659edbe7b297187      0t0                 TCP localhost:57886->localhost:amt-esd-prot (ESTABLISHED)
+Trae\x20H 65082 fanshengxia   41u    IPv4 0x690f58a848ff97ac      0t0                 TCP localhost:59765->localhost:amt-esd-prot (ESTABLISHED)
+Trae\x20H 65082 fanshengxia   42u    IPv4 0x958ffea6e77a2421      0t0                 TCP localhost:59668->localhost:amt-esd-prot (ESTABLISHED)
+Trae\x20H 65085 fanshengxia   54u    IPv4 0xd9c9b415d2c131b0      0t0                 TCP localhost:52654->localhost:51000 (ESTABLISHED)
+Trae\x20H 65086 fanshengxia   16u    IPv4 0x85ead4b3045b35a9      0t0                 TCP localhost:51000 (LISTEN)
+Trae\x20H 65086 fanshengxia   19u    IPv4 0xfff8b09eab113d3f      0t0                 TCP localhost:51000->localhost:52654 (ESTABLISHED)
+node      66428 fanshengxia   16u    IPv4 0xff8679d2483f1c1e      0t0                 TCP localhost:5174 (LISTEN)
+SogouInpu 68501 fanshengxia   11u    IPv4 0x5d880ae7360d31fe      0t0                 TCP localhost:58428->localhost:amt-esd-prot (ESTABLISHED)
+Lark\x20H 68937 fanshengxia    4u    IPv4 0x7ceeb66ef9156ae4      0t0                 UDP 198.18.0.1:50030->198.18.0.53:https
+Lark\x20H 68937 fanshengxia   20u    IPv4 0x1c8df9bb69326303      0t0                 UDP 198.18.0.1:61093->198.18.0.194:https
+Lark\x20H 68937 fanshengxia   37u    IPv4 0x2934b24e2c784f01      0t0                 TCP 198.18.0.1:59505->198.18.0.206:https (ESTABLISHED)
+Lark\x20H 68937 fanshengxia   40u    IPv4 0x59b55783e4afafe8      0t0                 UDP 198.18.0.1:51775->198.18.0.74:https
+Lark\x20H 68937 fanshengxia   49u    IPv4 0xef7d2e2359e97830      0t0                 TCP 198.18.0.1:57663->198.18.0.87:https (ESTABLISHED)
+Lark\x20H 68937 fanshengxia   53u    IPv4 0xded235d286582a7b      0t0                 TCP 198.18.0.1:57697->198.18.0.188:https (ESTABLISHED)
+Lark\x20H 68937 fanshengxia   65u    IPv4 0xcf4275f4bcb6498e      0t0                 TCP localhost:57692->localhost:amt-esd-prot (CLOSED)
+Lark\x20H 68937 fanshengxia  109u    IPv4 0x78b247de43f8da9e      0t0                 TCP 198.18.0.1:59510->198.18.0.195:https (ESTABLISHED)
+Lark\x20H 68937 fanshengxia  137u    IPv4 0x318e809919c798e9      0t0                 TCP 198.18.0.1:57836->198.18.0.182:https (ESTABLISHED)
+Lark\x20H 68937 fanshengxia  141u    IPv4 0xd2c0df4ff67616d3      0t0                 TCP 198.18.0.1:59511->198.18.0.185:https (ESTABLISHED)
+ä¼\x81ä¸  68969 fanshengxia   14u    IPv4 0xf6c1f4cce775ac5f      0t0                 TCP 198.18.0.1:58160->120.233.20.77:https (CLOSE_WAIT)
+ä¼\x81ä¸  68969 fanshengxia   45u    IPv4 0xf70fc66f7d64e0dc      0t0                 TCP 198.18.0.1:54687->157.255.202.42:https (CLOSED)
+ä¼\x81ä¸  68969 fanshengxia   47u    IPv4 0xf3db916a48f40647      0t0                 TCP 198.18.0.1:54690->157.148.54.114:https (CLOSED)
+ä¼\x81ä¸  68969 fanshengxia   88u    IPv4 0xa1bedb03bc8ad0b8      0t0                 TCP localhost:50010 (LISTEN)
+ä¼\x81ä¸  68969 fanshengxia  137u    IPv4 0xf29cab82cd30c7bd      0t0                 TCP 198.18.0.1:57478->198.18.0.102:http-alt (ESTABLISHED)
+ä¼\x81ä¸  68969 fanshengxia  231u    IPv4 0x6b94ab3f32482f67      0t0                 TCP 198.18.0.1:54682->157.255.202.42:https (CLOSED)
+ä¼\x81ä¸  68969 fanshengxia  232u    IPv4 0x6b14f0bdd1d582dc      0t0                 TCP 198.18.0.1:54683->157.148.54.114:https (CLOSED)
+ä¼\x81ä¸  68969 fanshengxia  290u    IPv4 0xb66379ec9b248434      0t0                 TCP 198.18.0.1:57481->198.18.0.102:http-alt (ESTABLISHED)
+ä¼\x81ä¸  68969 fanshengxia  344u    IPv4 0xeb349cc6489c8557      0t0                 TCP 198.18.0.1:57657->120.233.18.106:https (CLOSE_WAIT)
+ä¼\x81ä¸  68969 fanshengxia  349u    IPv4 0xd20a3e821e5b1d2c      0t0                 TCP 198.18.0.1:57658->120.233.18.106:https (CLOSE_WAIT)
+ä¼\x81ä¸  68969 fanshengxia  364u    IPv4  0x40348edcc7c7a3d      0t0                 TCP 198.18.0.1:57691->120.241.149.214:http-alt (ESTABLISHED)
+ä¼\x81ä¸  68969 fanshengxia  394u    IPv4 0x444476b67999af06      0t0                 TCP 198.18.0.1:61292->157.148.54.114:https (CLOSED)
+ä¼\x81ä¸  68984 fanshengxia   26u    IPv4  0x56895c325e91535      0t0                 TCP localhost:57939->localhost:amt-esd-prot (ESTABLISHED)
+ä¼\x81ä¸  68984 fanshengxia   28u    IPv4 0x79963477ba4d92d9      0t0                 TCP localhost:57940->localhost:amt-esd-prot (ESTABLISHED)
+node      68987 fanshengxia   41u    IPv4 0xf1971f94e8469141      0t0                 TCP 198.18.0.1:59767->:https (ESTABLISHED)
+node      68988 fanshengxia   24u    IPv4 0xcbcfdf50b2d9b71e      0t0                 TCP 198.18.0.1:59344->198.18.0.57:https (ESTABLISHED)
+Antigravi 83476 fanshengxia   38u    IPv4 0x19ee16c2a48ddaa1      0t0                 TCP localhost:59352->localhost:63228 (ESTABLISHED)
+Antigravi 83476 fanshengxia   40u    IPv4 0xfd338c5ed05669b9      0t0                 TCP localhost:59352->localhost:59361 (ESTABLISHED)
+Antigravi 83476 fanshengxia   41u    IPv4  0x6dfea260df8f2d5      0t0                 TCP localhost:59352 (LISTEN)
+Antigravi 83476 fanshengxia   44u    IPv4 0xca4b2b997ebed00c      0t0                 TCP localhost:59352->localhost:59487 (ESTABLISHED)
+Antigravi 83476 fanshengxia   45u    IPv4 0x643b3ea26a3c8ade      0t0                 TCP localhost:59372->localhost:59366 (ESTABLISHED)
+Antigravi 83476 fanshengxia   47u    IPv4 0xffd15800a4c8470f      0t0                 TCP localhost:59373->localhost:59353 (ESTABLISHED)
+Antigravi 83476 fanshengxia   49u    IPv4 0x8d3696f986a15886      0t0                 TCP localhost:59352->localhost:63229 (ESTABLISHED)
+Antigravi 83476 fanshengxia   51u    IPv4 0x1640a6353abd2381      0t0                 TCP localhost:59352->localhost:59368 (ESTABLISHED)
+Antigravi 83476 fanshengxia   54u    IPv4 0x491627d501d6860b      0t0                 TCP localhost:59390 (LISTEN)
+Antigravi 83476 fanshengxia   56u    IPv4 0x420f7af541ac13d7      0t0                 TCP localhost:59352->localhost:63230 (ESTABLISHED)
+Antigravi 83476 fanshengxia   57u    IPv4 0x817ee8c09687f580      0t0                 TCP localhost:59390->localhost:59391 (ESTABLISHED)
+Antigravi 83476 fanshengxia   58u    IPv6 0x7210f9239590ffa8      0t0                 TCP *:16100 (LISTEN)
+Antigravi 83476 fanshengxia   59u    IPv4 0x26d1787ca2256e6b      0t0                 TCP localhost:59352->localhost:63231 (ESTABLISHED)
+Antigravi 83476 fanshengxia   60u    IPv4 0xdc790d09e869b2e1      0t0                 TCP localhost:58274->localhost:amt-esd-prot (ESTABLISHED)
+Antigravi 83476 fanshengxia   61u    IPv4 0x23f500d2ba45b217      0t0                 TCP localhost:59679->localhost:amt-esd-prot (ESTABLISHED)
+Antigravi 83476 fanshengxia   62u    IPv6 0x8d8e1842ad9fcea7      0t0                 TCP *:18100 (LISTEN)
+Antigravi 83476 fanshengxia   64u    IPv4 0x68e9d06cbeb3208e      0t0                 TCP localhost:59453 (LISTEN)
+language_ 83501 fanshengxia    4u    IPv4 0x8e3928ffd4493d3b      0t0                 TCP localhost:59353 (LISTEN)
+language_ 83501 fanshengxia    5u    IPv4 0xf93b52a82be0a6aa      0t0                 TCP localhost:59354 (LISTEN)
+language_ 83501 fanshengxia    9u    IPv4 0x4510e145e75492e4      0t0                 TCP localhost:59353->localhost:52924 (ESTABLISHED)
+language_ 83501 fanshengxia   10u    IPv4  0x503bcea855e3495      0t0                 TCP localhost:59361->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   11u    IPv4 0xca3ede8c8297e89d      0t0                 TCP localhost:59366 (LISTEN)
+language_ 83501 fanshengxia   12u    IPv4 0x961a5e94d1b3210c      0t0                 TCP localhost:59391->localhost:59390 (ESTABLISHED)
+language_ 83501 fanshengxia   13u    IPv4 0xb5289a158c13c3e0      0t0                 TCP localhost:59487->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   15u    IPv4 0x9f56cfd8f3eb5996      0t0                 TCP localhost:59368->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   26u    IPv4  0x920781b04bd8f70      0t0                 TCP 198.18.0.1:53085->198.18.0.47:https (ESTABLISHED)
+language_ 83501 fanshengxia   27u    IPv4  0xc20bd36947c8cba      0t0                 TCP localhost:59353->localhost:59373 (ESTABLISHED)
+language_ 83501 fanshengxia   30u    IPv4 0xc7d34f37073c5cf1      0t0                 TCP localhost:59366->localhost:59372 (ESTABLISHED)
+language_ 83501 fanshengxia   31u    IPv4 0x4f73eaf5f9e6d5f8      0t0                 TCP 198.18.0.1:59021->198.18.0.44:https (ESTABLISHED)
+language_ 83501 fanshengxia   67u    IPv4 0x9f05bc5bffc9a2b2      0t0                 TCP localhost:63228->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   69u    IPv4 0x3b9be90f888faa6c      0t0                 TCP localhost:63229->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   70u    IPv4 0x44b64794f6315521      0t0                 TCP localhost:63230->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   73u    IPv4 0x82fc50bc7c2a90fe      0t0                 TCP localhost:63231->localhost:59352 (ESTABLISHED)
+language_ 83501 fanshengxia   74u    IPv4 0x1974ddbb358d83d7      0t0                 TCP 198.18.0.1:57813->198.18.0.45:https (ESTABLISHED)
+Electron  84132 fanshengxia   73u    IPv4 0xed7792d87aa7e927      0t0                 TCP localhost:64067 (LISTEN)
+Antigravi 84410 fanshengxia   22u    IPv4  0x77717bb53e65a01      0t0                 TCP localhost:52924->localhost:59353 (ESTABLISHED)
