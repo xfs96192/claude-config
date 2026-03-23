@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Function to handle errors
+handle_error() {
+    echo "Error occurred in step: $1"
+}
+
+CURRENT_DATE=$(date "+%Y-%m-%d %H:%M:%S")
+echo "Starting Git Sync at $CURRENT_DATE..."
+
+# --- 1. Update .claude ---
+echo ""
+echo "=========================================="
+echo "📂 Processing: /Users/fanshengxia/.claude"
+echo "Found repo: https://github.com/xfs96192/claude-config"
+echo "=========================================="
+
+if cd /Users/fanshengxia/.claude; then
+    # Add all changes
+    git add .
+    
+    # Check if there are changes to commit
+    if ! git diff-index --quiet HEAD --; then
+        echo "📝 Changes detected. Committing..."
+        git commit -m "Auto update: $CURRENT_DATE"
+        
+        echo "wd Pushing to remote..."
+        if git push; then
+            echo "✅ Success!"
+        else
+            echo "❌ Push failed. Please check your network or git configuration."
+        fi
+    else
+        echo "yz No changes to commit."
+        # Still try to push in case there are unpushed commits
+        echo "wd Checking for unpushed commits..."
+        git push
+    fi
+else
+    echo "❌ Directory /Users/fanshengxia/.claude not found!"
+fi
+
+# --- 2. Update clawd ---
+echo ""
+echo "=========================================="
+echo "📂 Processing: /Users/fanshengxia/clawd"
+echo "Found repo: https://github.com/xfs96192/openclaw_config"
+echo "=========================================="
+
+if cd /Users/fanshengxia/clawd; then
+    # Add all changes
+    git add .
+    
+    # Check if there are changes to commit
+    if ! git diff-index --quiet HEAD --; then
+        echo "📝 Changes detected. Committing..."
+        git commit -m "Auto update: $CURRENT_DATE"
+        
+        echo "wd Pushing to remote..."
+        if git push; then
+            echo "✅ Success!"
+        else
+            echo "❌ Push failed. Please check your network or git configuration."
+        fi
+    else
+        echo "yz No changes to commit."
+        # Still try to push in case there are unpushed commits
+        echo "wd Checking for unpushed commits..."
+        git push
+    fi
+else
+    echo "❌ Directory /Users/fanshengxia/clawd not found!"
+fi
+
+echo ""
+echo "=========================================="
+echo "🎉 Sync process finished!"
+echo "You can close this window."
+echo "=========================================="
+read -p "Press branch Enter to close..."

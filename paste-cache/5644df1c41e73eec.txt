@@ -1,0 +1,56 @@
+te mode 100644 usage-data/session-meta/d516bfde-2786-47a3-9c3d-c76f9b3822a7.json
+ create mode 100644 usage-data/session-meta/db3a481d-257b-4eae-b670-4bda2c1cc1d6.json
+ create mode 100644 usage-data/session-meta/df3288ea-42cf-41ea-a575-7e9f28fb2741.json
+ create mode 100644 usage-data/session-meta/dfea4f45-ffe1-4a4e-a1cd-d2db7991b8db.json
+ create mode 100644 usage-data/session-meta/e059ddab-900e-42a5-b698-df9e128b8689.json
+ create mode 100644 usage-data/session-meta/e467736d-3df9-4e94-8af6-64e2395b8dad.json
+ create mode 100644 usage-data/session-meta/e4de3202-0d30-41b0-8a49-ba9d2218bda5.json
+ create mode 100644 usage-data/session-meta/e5cace42-fc33-41af-a9a4-30d650fe93e9.json
+ create mode 100644 usage-data/session-meta/e9029c9e-d7b6-4577-baf2-002abbe76265.json
+ create mode 100644 usage-data/session-meta/e97c85c8-515c-4881-99b2-15aa95a466fc.json
+ create mode 100644 usage-data/session-meta/eb6eae6c-2362-4619-b90d-83293086d8a8.json
+ create mode 100644 usage-data/session-meta/f029b1a2-09f1-4e74-98dd-8901258cc119.json
+ create mode 100644 usage-data/session-meta/f2e6165e-d96c-43f3-8683-c6e47e70a1e5.json
+ create mode 100644 usage-data/session-meta/f7a8d5ff-086f-44b9-aafa-900a5486eb09.json
+wd Pushing to remote...
+Enumerating objects: 5273, done.
+Counting objects: 100% (5273/5273), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (5023/5023), done.
+Writing objects: 100% (5225/5225), 24.81 MiB | 2.51 MiB/s, done.
+Total 5225 (delta 1744), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1744/1744), completed with 20 local objects.
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: 
+remote: - GITHUB PUSH PROTECTION
+remote:   —————————————————————————————————————————
+remote:     Resolve the following violations before pushing again
+remote: 
+remote:     - Push cannot contain secrets
+remote: 
+remote:     
+remote:      (?) Learn how to resolve a blocked push
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
+remote:     
+remote:      (?) This repository does not have Secret Scanning enabled, but is eligible. Enable Secret Scanning to view and manage detected secrets.
+remote:      Visit the repository settings page, https://github.com/xfs96192/claude-config/settings/security_analysis
+remote:     
+remote:     
+remote:       —— Google OAuth Refresh Token ————————————————————————
+remote:        locations:
+remote:          - commit: d289a3c020a84545890e5c97377efc525fd5f70d
+remote:            path: projects/-Users-fanshengxia-Desktop-------/858dc599-7724-43a7-981a-75825aea6b71.jsonl:323
+remote:          - commit: d289a3c020a84545890e5c97377efc525fd5f70d
+remote:            path: projects/-Users-fanshengxia-Desktop-------/858dc599-7724-43a7-981a-75825aea6b71.jsonl:323
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/xfs96192/claude-config/security/secret-scanning/unblock-secret/3BLEj7VwksKrukIIIT8LHUUl3DU
+remote:     
+remote: 
+remote: 
+To https://github.com/xfs96192/claude-config.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/xfs96192/claude-config.git'
+❌ Push failed. Please check your network or git configuration.
+
+==========================================

@@ -1,1 +1,7 @@
 .DS_Store
+
+# Conversation logs — may contain secrets (OAuth tokens, API keys, etc.)
+projects/
+
+# Usage telemetry data
+usage-data/
