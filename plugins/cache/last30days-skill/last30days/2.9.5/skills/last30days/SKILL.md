@@ -1,0 +1,1 @@
+/Users/fanshengxia/.claude/plugins/marketplaces/last30days-skill/SKILL.md

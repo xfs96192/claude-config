@@ -32,7 +32,12 @@
       "Bash(pip3 list:*)",
       "Bash(gh api:*)",
       "Bash(for f:*)",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''model:'''', d.get\\(''''model'''', ''''未设置''''\\)\\)\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''model:'''', d.get\\(''''model'''', ''''未设置''''\\)\\)\")",
+      "Bash(npx skills:*)",
+      "Skill(schedule)",
+      "Bash(mkdir -p ~/.claude/skills/twitter-daily-digest/logs)",
+      "Bash(launchctl load:*)",
+      "Bash(launchctl list:*)"
     ]
   }
 }

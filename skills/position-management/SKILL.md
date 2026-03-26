@@ -1,0 +1,202 @@
+---
+name: position-management
+description: Use when generating daily position arrangement, trading logs, and repo plans for bank wealth management products. Triggered by requests like "生成交易日志"、"安排头寸"、"生成回购安排"、"明天的头寸".
+---
+
+# 银行理财子每日头寸安排与交易日志生成
+
+## 角色
+
+你是银行理财子多资产部投资经理，每日为所有管理产品生成次日头寸安排、交易日志和回购计划。
+
+## 数据输入路径
+
+基础路径：`/Users/fanshengxia/Desktop/头寸安排agent/头寸管理_YYYY-MM-DD/`
+
+| 数据 | 文件 | Sheet / 说明 |
+|------|------|------|
+| 资金缺口(PAS) | `头寸管理_YYYY-MM-DD.xlsm` | 银行间头寸 sheet |
+| 产品指标概览 | `产品运作概览 - *.xlsx` | 产品运作概览 sheet，**只看母产品（名称不含"子"）** |
+| 申赎情况 | `产品申赎*.xlsx` | SheetJS sheet，**只看母产品**，取+2日确认数据 |
+| 持仓底表 | `持仓盈亏明细列表*.xlsx` | **正回购上限校验的权威数据源** |
+
+## 输出文件路径
+
+```
+/Users/fanshengxia/Library/Mobile Documents/iCloud~md~obsidian/Documents/工作/工作/投资经理/组合管理/
+```
+
+| 文件 | 格式 | 命名 |
+|------|------|------|
+| 交易日志 | Markdown (.md) | `交易日志_YYYY-MM-DD.md` |
+| 回购安排 | Excel (.xlsx) | `回购安排_YYYY-MM-DD.xlsx` |
+
+Excel 包含 3 个 Sheet：**正回购安排**（含小额必做分区）、**逐日到期校验**、**逆回购安排**
+
+## 读取数据方法
+
+```python
+import pandas as pd
+from datetime import datetime, timedelta
+import math
+
+# 1. PAS表
+xl = pd.ExcelFile('头寸管理_YYYY-MM-DD.xlsm')
+df = pd.read_excel(xl, sheet_name='银行间头寸', header=None)
+product_names  = df.iloc[1, 2:].values
+pas            = df.iloc[3, 2:].values   # 银行间预计可用-PAS (亿)
+unpledged_row  = df.iloc[4, 2:].values   # 未质押券 (参考，以持仓底表为准)
+demand_deposit = df.iloc[6, 2:].values   # 活期存款余额 (亿)
+repo_due_today = df.iloc[13, 2:].values  # 正回购到期 (亿，负值，今日到期)
+scale          = df.iloc[34, 2:].values  # 产品规模 (亿)
+
+# 2. 持仓底表：未质押银行间债券 + 现有正回购到期明细
+df_pos = pd.read_excel('持仓盈亏明细列表.xlsx')
+bonds = df_pos[(df_pos['上市地点']=='银行间') & (df_pos['新版资产小类']!='正回购')]
+unpledged = bonds[bonds['是否质押'].isna() | (bonds['是否质押']!='是')]
+unpledged_by_product = (unpledged.groupby('产品简称')['持仓面额'].sum() / 1e8).to_dict()
+
+# 现有正回购到期明细（按产品×到期日）
+repo_pos = df_pos[(df_pos['上市地点']=='银行间') & (df_pos['新版资产小类']=='正回购')].copy()
+repo_pos['到期日'] = pd.to_datetime(repo_pos['到期日'])
+repo_pos['金额_亿'] = repo_pos['持仓面额'] / 1e8
+today = datetime(YYYY, MM, DD)
+repo_today_due = repo_pos[repo_pos['到期日']==today].groupby('产品简称')['金额_亿'].sum().to_dict()
+repo_active = repo_pos[repo_pos['到期日'] > today]
+# 构建 {产品名: {date: 到期金额_亿}} 的字典
+repo_schedule = {}
+for _, row in repo_active.iterrows():
+    pname, dt, amt = row['产品简称'], row['到期日'].date(), row['金额_亿']
+    repo_schedule.setdefault(pname, {})[dt] = repo_schedule.get(pname, {}).get(dt, 0) + amt
+
+# 3. 产品运作概览：杠杆率
+df_ops = pd.read_excel('产品运作概览.xlsx', sheet_name='产品运作概览')
+mother = df_ops[~df_ops['产品简称'].str.contains('子', na=False)]
+leverage_map = dict(zip(mother['产品简称'], mother['杠杆']))
+
+# 4. 申赎（单位：元，除以1e8转亿）
+df_sub = pd.read_excel('产品申赎.xlsx', sheet_name='SheetJS')
+sub = df_sub[~df_sub['产品简称'].str.contains('子', na=False)]
+sub_next = sub[sub['确认日期'] == next_date_str].copy()
+sub_next['净申赎_亿'] = sub_next['净申赎（确认）'].apply(
+    lambda x: float(str(x).replace(',','')) if pd.notna(x) else 0.0) / 1e8
+```
+
+## 正回购安排核心逻辑
+
+### 步骤1：计算有效未质押券
+
+```python
+# 有效未质押券 = 持仓底表未质押 + 今日到期回购释放
+effective_unpledged = unpledged_by_product.get(pname, 0) + repo_today_due.get(pname, 0)
+max_borrow = effective_unpledged * 0.95
+```
+
+### 步骤2：确定借入金额
+
+```python
+need_amt = math.ceil(abs(pas_val) * 10) / 10   # 向上取整到0.1亿=1000万
+borrow_amt = min(need_amt, math.floor(max_borrow * 10) / 10)
+borrow_wan = int(round(borrow_amt * 10000 / 1000) * 1000)  # 1000万整数倍
+```
+
+### 步骤3：选择期限（关键规则）
+
+#### 日开产品（每日可赎回）— 50% 阈值规则
+
+```python
+# 核心逻辑：把N亿未质押券看作可分配资源
+# 借≤0.5N → 隔夜即可（一次全质押，次日滚动）
+# 借≤5/6·N → 7天（把券分成6份，每天借1份，留1份质押；5个工作日轮换完）
+# 借>5/6·N → 14天（高杠杆情况）
+ratio = borrow_amt / effective_unpledged
+if ratio <= 0.50:
+    chosen_term = 1   # 隔夜
+elif ratio <= 5/6:
+    chosen_term = 7
+else:
+    chosen_term = 14
+```
+
+#### 非日开产品（封闭式/定期开放）
+
+| 条件 | 期限选择 |
+|------|---------|
+| 杠杆 ≥ 130% | **优先14天**，分散到期，降低单日集中风险 |
+| 杠杆 < 130% | **优先7天** |
+| 7d/14d到期日已满 | 尝试21天 |
+| 产品临近到期（<15天） | 禁止续作超过到期日的正回购 |
+
+### 步骤4：逐日到期校验（核心约束）
+
+```python
+for term in term_options:
+    maturity = (today + timedelta(days=term)).date()
+    existing_due = repo_schedule.get(pname, {}).get(maturity, 0)
+    total_due = existing_due + borrow_amt
+    # 约束：新增后，该到期日的总到期量 ≤ 有效未质押券 × 95%
+    if total_due <= effective_unpledged * 0.95:
+        chosen_term = term
+        break
+# 若所有期限都超限，压缩金额至 available = floor((effective_unpledged*0.95 - existing_due)*10)/10
+```
+
+> **注意**：校验使用今日有效未质押（保守估计）。实际上随着未来回购陆续到期，未质押券会增加，本约束是保守下界。
+
+### 步骤5：小额缺口处理规则
+
+| 场景 | 处理方式 |
+|------|---------|
+| 缺口 < 3000万 且 有活期存款覆盖 | 减活期，不做正回购 |
+| 缺口 < 3000万 且 无活期存款 | **仍须安排正回购**（手续费不经济但不可避免），在Excel中单独标注 |
+| 缺口 < 1000万 且 无活期 | 轻微缺口可接受，标注观察 |
+
+## 产品分类与策略框架
+
+### 封闭式产品（合享/私享/悦动定期系列）
+- **目标**：达到业绩基准下限即可
+- **资产配置**：非标45% + 债券40-50% + 委外30-40%；**杠杆≤140%**
+- **高杠杆（≥130%）**：正回购用14天期分散，避免单日集中到期压力
+- **久期**：与剩余期限匹配；临近到期（<30天）禁止续作正回购
+
+### 开放式产品（悦动/逸动/灵动/兴动系列）
+- **目标**：超越业绩基准，关注流动性
+- **资产配置**：公募基金30% + 委外10-20% + 债券
+- **久期中枢**（±0.5年波动）：悦动1年/逸动1年/灵动1.5年/兴动2年
+- **流动性**：大额赎回（>0.05亿）时，优先减活期/逆回购，**确保流动性资产≥40%**
+
+## 回购期限选择汇总
+
+| 场景 | 期限 |
+|------|------|
+| **日开产品**：借入 ≤ 50% 有效未质押券 | **隔夜**（成本最低，每日滚动） |
+| **日开产品**：借入 50%–83% 有效未质押券 | **7天**（债券分6份轮换，5工作日滚满） |
+| **日开产品**：借入 > 83% 有效未质押券 | **14天** |
+| 封闭/定期开放，杠杆 ≥ 130% | **14天**（分散到期） |
+| 封闭/定期开放，杠杆 < 130% | **7天** |
+| 大额赎回次日到账过渡 | 隔夜，次日再安排中长期 |
+| 持续缺口 | 14天或21天，降低滚动频率 |
+| 逆回购出钱 | 7天（≥3000万）；少量闲置用隔夜 |
+| 节假日前 | 测算跨节天数，选择覆盖假期的期限 |
+
+## 核心约束规则
+
+| 规则 | 说明 |
+|------|------|
+| **正回购上限** | **每日到期量 ≤ 有效未质押券 × 95%**（须逐日检验，不只检验安排当天） |
+| **有效未质押** | 持仓底表未质押银行间债券 + 当日到期正回购释放的债券 |
+| **金额精度** | 银行间回购金额为 **1000万整数倍** |
+| **费用门槛** | 逆回购 < 3000万不安排；正回购缺口 < 3000万无活期覆盖时例外须做 |
+| **高杠杆期限** | 杠杆 ≥ 130% 用14天正回购，避免集中到期风险 |
+| **日终头寸** | 必须为正（含当日所有收付后） |
+| **临近到期** | 产品剩余天数 < 15天，禁止续作正回购 |
+
+## 常见误区
+
+- 未质押券不足时不要强行安排正回购（95%上限是每日硬约束）
+- **只检验安排当天是不够的**——要检验新增回购到期那一天，叠加现有到期量是否超限
+- 申赎金额单位是**元**，务必除以1e8转亿
+- 合享等高杠杆封闭产品，7天期容易在特定日期集中到期，应优先用14天分散
+- **日开产品默认不是7天——先算借入/有效未质押比率，≤50%选隔夜成本更低**
+- 临近到期产品主动降杠杆，不要续作正回购
+- 小额缺口无活期覆盖时仍须安排正回购，不能因低于3000万直接跳过（日终头寸为正是底线）

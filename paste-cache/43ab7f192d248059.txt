@@ -1,0 +1,215 @@
+[openclaw-weixin] 正在安装插件...
+[openclaw-weixin] 检测到本地已安装，正在更新...
+[openclaw-weixin] [wechat-access] 腾讯通路插件已注册
+[plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+[plugins] feishu_chat: Registered feishu_chat tool
+[plugins] feishu_wiki: Registered feishu_wiki tool
+[plugins] feishu_drive: Registered feishu_drive tool
+[plugins] feishu_bitable: Registered bitable tools
+│
+◇  Config warnings ────────────────────────────────────────────────────────╮
+│                                                                          │
+│  - plugins.entries.feishu: plugin feishu: duplicate plugin id detected;  │
+│    bundled plugin will be overridden by global plugin                    │
+│    (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)             │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+Downloading @tencent-weixin/openclaw-weixin…
+Extracting /var/folders/ss/sxlfg89x4vv7lmgxn5nbk4380000gn/T/openclaw-npm-pack-O7anCx/tencent-weixin-openclaw-weixin-1.0.3.tgz…
+Plugin manifest id "openclaw-weixin" differs from npm package name "@tencent-weixin/openclaw-weixin"; using manifest id as the config key.
+WARNING: Plugin "openclaw-weixin" contains dangerous code patterns: Environment variable access combined with network send — possible credential harvesting (/var/folders/ss/sxlfg89x4vv7lmgxn5nbk4380000gn/T/openclaw-plugin-QHNmO2/extract/package/src/messaging/process-message.ts:428)
+Installing to /Users/fanshengxia/.openclaw/extensions/openclaw-weixin…
+Installing plugin dependencies…
+openclaw-weixin already at 1.0.3.
+Restart the gateway to load plugins and hooks.
+[openclaw-weixin] 插件就绪，开始首次连接...
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin will be overridden by global plugin (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)
+
+🦞 OpenClaw 2026.3.22 (4dcc39c) — Your personal assistant, minus the passive-aggressive calendar reminders.
+
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; later plugin may be overridden (/Applications/QClaw.app/Contents/Resources/openclaw/node_modules/openclaw/extensions/feishu/index.ts)
+Config was last written by a newer OpenClaw (2026.3.22); current version is 2026.2.24.
+[wechat-access] 腾讯通路插件已注册
+23:33:55 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:33:55 [plugins] feishu_chat: Registered feishu_chat tool
+23:33:55 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:33:55 [plugins] feishu_drive: Registered feishu_drive tool
+23:33:55 [plugins] feishu_bitable: Registered bitable tools
+23:33:56 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:33:56 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[wechat-access] 腾讯通路插件已注册
+23:33:56 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:33:56 [plugins] feishu_chat: Registered feishu_chat tool
+23:33:56 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:33:56 [plugins] feishu_drive: Registered feishu_drive tool
+23:33:56 [plugins] feishu_bitable: Registered bitable tools
+23:33:56 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:33:56 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[wechat-access] 腾讯通路插件已注册
+23:33:56 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:33:56 [plugins] feishu_chat: Registered feishu_chat tool
+23:33:56 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:33:56 [plugins] feishu_drive: Registered feishu_drive tool
+23:33:56 [plugins] feishu_bitable: Registered bitable tools
+23:33:56 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:33:56 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[wechat-access] 腾讯通路插件已注册
+23:33:56 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:33:56 [plugins] feishu_chat: Registered feishu_chat tool
+23:33:56 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:33:56 [plugins] feishu_drive: Registered feishu_drive tool
+23:33:56 [plugins] feishu_bitable: Registered bitable tools
+23:33:56 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:33:56 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+│
+◇  Config warnings ───────────────────────────────────────────────────────────────────────╮
+│                                                                                         │
+│  - plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin  │
+│    will be overridden by global plugin                                                  │
+│    (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)                            │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────╯
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin will be overridden by global plugin (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)
+[wechat-access] 腾讯通路插件已注册
+23:33:56 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:33:56 [plugins] feishu_chat: Registered feishu_chat tool
+23:33:56 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:33:56 [plugins] feishu_drive: Registered feishu_drive tool
+23:33:56 [plugins] feishu_bitable: Registered bitable tools
+23:33:56 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:33:56 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[openclaw] Failed to start CLI: PluginLoadFailureError: plugin load failed: openclaw-weixin: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts; wecom-openclaw-plugin: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+    at maybeThrowOnPluginLoadError (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/pi-embedded-CzQCqSlH.js:158793:8)
+    at loadOpenClawPlugins (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/pi-embedded-CzQCqSlH.js:159358:2)
+    at ensurePluginRegistryLoaded (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/plugin-registry-WrSFdbK1.js:28:2)
+    at Object.callback (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/program-0zi5806_.js:135:5)
+    at async Command.parseAsync (/Users/fanshengxia/.npm-global/lib/node_modules/openclaw/node_modules/commander/lib/command.js:1122:5)
+    at async runCli (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/run-main-Md2icRAq.js:420:3)
+
+[openclaw-weixin] 首次连接未完成，可稍后手动重试：
+  openclaw channels login --channel openclaw-weixin
+[openclaw-weixin] 正在重启 OpenClaw Gateway...
+
+🦞 OpenClaw 2026.3.22 (4dcc39c) — I'll do the boring stuff while you dramatically stare at the logs like it's cinema.
+
+│
+◇  Config warnings ───────────────────────────────────────────────────────────────────────╮
+│                                                                                         │
+│  - plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin  │
+│    will be overridden by global plugin                                                  │
+│    (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)                            │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────╯
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin will be overridden by global plugin (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)
+Restarted LaunchAgent: gui/501/ai.openclaw.gateway
+openclaw channels login --channel openclaw-weixin
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin will be overridden by global plugin (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)
+
+🦞 OpenClaw 2026.3.22 (4dcc39c) — Deployed locally, trusted globally, debugged eternally.
+
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; later plugin may be overridden (/Applications/QClaw.app/Contents/Resources/openclaw/node_modules/openclaw/extensions/feishu/index.ts)
+Config was last written by a newer OpenClaw (2026.3.22); current version is 2026.2.24.
+[wechat-access] 腾讯通路插件已注册
+23:34:17 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:34:17 [plugins] feishu_chat: Registered feishu_chat tool
+23:34:17 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:34:17 [plugins] feishu_drive: Registered feishu_drive tool
+23:34:17 [plugins] feishu_bitable: Registered bitable tools
+23:34:18 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:34:18 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[wechat-access] 腾讯通路插件已注册
+23:34:18 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:34:18 [plugins] feishu_chat: Registered feishu_chat tool
+23:34:18 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:34:18 [plugins] feishu_drive: Registered feishu_drive tool
+23:34:18 [plugins] feishu_bitable: Registered bitable tools
+23:34:18 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:34:18 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[wechat-access] 腾讯通路插件已注册
+23:34:18 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:34:18 [plugins] feishu_chat: Registered feishu_chat tool
+23:34:18 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:34:18 [plugins] feishu_drive: Registered feishu_drive tool
+23:34:18 [plugins] feishu_bitable: Registered bitable tools
+23:34:18 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:34:18 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[wechat-access] 腾讯通路插件已注册
+23:34:18 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:34:18 [plugins] feishu_chat: Registered feishu_chat tool
+23:34:18 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:34:18 [plugins] feishu_drive: Registered feishu_drive tool
+23:34:18 [plugins] feishu_bitable: Registered bitable tools
+23:34:18 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:34:18 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+│
+◇  Config warnings ───────────────────────────────────────────────────────────────────────╮
+│                                                                                         │
+│  - plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin  │
+│    will be overridden by global plugin                                                  │
+│    (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)                            │
+│                                                                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────╯
+Config warnings:\n- plugins.entries.feishu: plugin feishu: duplicate plugin id detected; bundled plugin will be overridden by global plugin (/Users/fanshengxia/.openclaw/extensions/feishu/index.ts)
+[wechat-access] 腾讯通路插件已注册
+23:34:18 [plugins] feishu_doc: Registered feishu_doc, feishu_app_scopes
+23:34:18 [plugins] feishu_chat: Registered feishu_chat tool
+23:34:18 [plugins] feishu_wiki: Registered feishu_wiki tool
+23:34:18 [plugins] feishu_drive: Registered feishu_drive tool
+23:34:18 [plugins] feishu_bitable: Registered bitable tools
+23:34:18 [plugins] openclaw-weixin failed to load from /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts
+23:34:18 [plugins] wecom-openclaw-plugin failed to load from /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+[openclaw] Failed to start CLI: PluginLoadFailureError: plugin load failed: openclaw-weixin: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/openclaw-weixin/index.ts; wecom-openclaw-plugin: Error: Cannot find module 'openclaw/plugin-sdk'
+Require stack:
+- /Users/fanshengxia/.openclaw/extensions/wecom-openclaw-plugin/dist/index.esm.js
+    at maybeThrowOnPluginLoadError (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/pi-embedded-CzQCqSlH.js:158793:8)
+    at loadOpenClawPlugins (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/pi-embedded-CzQCqSlH.js:159358:2)
+    at ensurePluginRegistryLoaded (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/plugin-registry-WrSFdbK1.js:28:2)
+    at Object.callback (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/program-0zi5806_.js:135:5)
+    at async Command.parseAsync (/Users/fanshengxia/.npm-global/lib/node_modules/openclaw/node_modules/commander/lib/command.js:1122:5)
+    at async runCli (file:///Users/fanshengxia/.npm-global/lib/node_modules/openclaw/dist/run-main-Md2icRAq.js:420:3)

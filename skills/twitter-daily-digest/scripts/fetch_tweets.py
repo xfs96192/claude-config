@@ -1,0 +1,268 @@
+#!/usr/bin/env python3
+"""
+Twitter 日报抓取脚本
+并发抓取 AI 类和投资类 Top 10 账号的最新推文，生成 Markdown 日报写入 Obsidian。
+用法：python3 fetch_tweets.py [--date YYYY-MM-DD]
+"""
+
+import json
+import os
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+from pathlib import Path
+
+from openai import OpenAI
+
+# ── 配置 ─────────────────────────────────────────────────────────────────────
+
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiOWt4dnVGeU1LVWZFZzd0RkdaMmNNbU5LYTZDdjd0QzJIUFpEZG5kSnQ2WkIiLCJub25jZSI6ImM3ODU5NWNiLTdiNjktNGMyZS1iYzg1LTFkMWY4NmU2ZWU0NCIsImlhdCI6MTc3MjMzODY2MiwianRpIjoiYzczNWQzMDktNTRkMy00OWJkLWJkZjYtZmJiNjhkYjZhZDdjIn0.sejceESWIPn5tJxRRC3nzf5gOYjiVvgs4Sz3k2d9urE"
+API_BASE = "https://ai.6551.io/open/twitter_user_tweets"
+
+OBSIDIAN_DIR = Path("/Users/fanshengxia/Library/Mobile Documents/iCloud~md~obsidian/Documents/工作/工作/AI")
+
+AI_ACCOUNTS = [
+    ("op7418",           "歸藏(guizang.ai) "),
+    ("dotey",         "宝玉"),
+    ("karpathy",       "Andrej Karpathy"),
+    ("ylecun",         "Yann LeCun"),
+    ("AnthropicAI",    "Anthropic"),
+    ("gdb",            "Greg Brockman"),
+    ("claudeai",       "Claude"),
+    ("geoffreyhinton", "Geoffrey Hinton"),
+    ("openclaw",       "OpenClaw"),
+    ("perplexity_ai",  "Perplexity"),
+]
+
+INVEST_ACCOUNTS = [
+    ("mattshumer_",    "Matt Shumer"),
+    ("didengshengwu",  "低等生物"),
+    ("macrotradecn",   "杰克船长宏观策略"),
+    ("rickawsb",       "rick awsb"),
+    ("UnicornBitcoin", "UNICORN"),
+    ("Rocky_Bitcoin",  "Rocky"),
+    ("Super4DeFi",     "benmo.eth"),
+    ("tychozzz",       "Nico投资有道"),
+    ("TrumpDailyPosts",     "TrumpDailyPosts"),
+    ("realDonaldTrump",      " Donald J. Trump"),
+]
+
+MAX_TWEETS = 5  # 每账号最多条数
+
+# ── API 调用 ─────────────────────────────────────────────────────────────────
+
+def fetch_user_tweets(username: str, display_name: str) -> tuple[str, str, list]:
+    """单个账号抓取，返回 (username, display_name, tweets列表)"""
+    payload = json.dumps({
+        "username": username,
+        "maxResults": MAX_TWEETS,
+        "product": "Latest",
+        "excludeRetweets": True,
+        "includeReplies": False,
+    })
+    cmd = [
+        "curl", "-s", "-X", "POST", API_BASE,
+        "-H", f"Authorization: Bearer {TOKEN}",
+        "-H", "Content-Type: application/json",
+        "-d", payload,
+        "--max-time", "15",
+    ]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+        data = json.loads(result.stdout)
+        # 兼容不同响应结构
+        tweets = data if isinstance(data, list) else data.get("data", data.get("tweets", []))
+        if not isinstance(tweets, list):
+            tweets = []
+        return username, display_name, tweets[:MAX_TWEETS]
+    except Exception as e:
+        print(f"  ⚠️  @{username} 抓取失败: {e}", file=sys.stderr)
+        return username, display_name, []
+
+
+def fetch_all(accounts: list) -> dict:
+    """并发抓取所有账号"""
+    results = {}
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        futures = {
+            executor.submit(fetch_user_tweets, handle, name): (handle, name)
+            for handle, name in accounts
+        }
+        for future in as_completed(futures):
+            username, display_name, tweets = future.result()
+            results[username] = {"name": display_name, "tweets": tweets}
+    return results
+
+
+# ── Markdown 生成 ─────────────────────────────────────────────────────────────
+
+def fmt_date(iso: str) -> str:
+    """ISO 时间 → 简洁中文日期"""
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        return dt.strftime("%m-%d %H:%M")
+    except Exception:
+        return iso[:10] if iso else "?"
+
+
+def render_account_section(handle: str, info: dict) -> str:
+    name = info["name"]
+    tweets = info["tweets"]
+    if not tweets:
+        return f"### @{handle} · {name}\n\n> *暂无数据*\n"
+
+    lines = [f"### @{handle} · {name}\n"]
+    for t in tweets:
+        text = t.get("text", "").strip()
+        created = fmt_date(t.get("createdAt", ""))
+        likes = t.get("favoriteCount", 0)
+        retweets = t.get("retweetCount", 0)
+        replies = t.get("replyCount", 0)
+        tweet_id = t.get("id", "")
+        url = f"https://x.com/{handle}/status/{tweet_id}" if tweet_id else f"https://x.com/{handle}"
+
+        lines.append(f"**[{created}]** [{text[:280]}]({url})")
+        lines.append(f"❤️ {likes:,}  🔁 {retweets:,}  💬 {replies:,}\n")
+
+    return "\n".join(lines)
+
+
+def generate_summary(ai_data: dict, invest_data: dict) -> str:
+    """用 Claude 生成今日要点摘要"""
+    # 拼装所有推文文本供摘要用
+    ai_texts, inv_texts = [], []
+    for handle, name in AI_ACCOUNTS:
+        for t in ai_data.get(handle, {}).get("tweets", []):
+            txt = t.get("text", "").strip()
+            if txt:
+                ai_texts.append(f"@{handle}: {txt[:200]}")
+    for handle, name in INVEST_ACCOUNTS:
+        for t in invest_data.get(handle, {}).get("tweets", []):
+            txt = t.get("text", "").strip()
+            if txt:
+                inv_texts.append(f"@{handle}: {txt[:200]}")
+
+    prompt = f"""以下是今天从Twitter/X抓取的推文内容，请生成一份简洁的中文摘要，放在日报最前面。
+
+要求：
+1. 分两部分：【AI & 科技动态】和【投资市场动态】
+2. 每部分提炼3-5个最重要的话题/事件，每条1-2句话
+3. 如果有新技术、新产品发布、新研究成果，用🆕标注
+4. 如果有重要市场信号或投资观点，用📊标注
+5. 语言简洁，直接说要点，不要废话
+6. 格式用 Markdown，条目用 `-` 列表
+
+【AI & 科技推文】
+{chr(10).join(ai_texts[:30])}
+
+【投资推文】
+{chr(10).join(inv_texts[:30])}
+
+输出格式：
+## 📋 今日要点
+
+### 🤖 AI & 科技
+- ...
+
+### 📈 投资市场
+- ...
+"""
+    try:
+        client = OpenAI(
+            api_key="sk-sp-2ac6a0d55df247b5ad67cfdd603ba0c2",
+            base_url="https://coding.dashscope.aliyuncs.com/v1",
+        )
+        resp = client.chat.completions.create(
+            model="qwen3.5-plus",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"  ⚠️  摘要生成失败: {e}", file=sys.stderr)
+        return "## 📋 今日要点\n\n> *摘要生成失败，请查看下方详细内容*"
+
+
+def build_markdown(date_str: str, ai_data: dict, invest_data: dict, summary: str) -> str:
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    lines = [
+        f"# Twitter 日报 {date_str}",
+        "",
+        f"> 🤖 AI类 {len(AI_ACCOUNTS)} 个账号 + 📈 投资类 {len(INVEST_ACCOUNTS)} 个账号 | 每账号最新 {MAX_TWEETS} 条",
+        "",
+        summary,
+        "",
+        "---",
+        "",
+        "## 🤖 AI 动态",
+        "",
+    ]
+
+    for handle, _ in AI_ACCOUNTS:
+        if handle in ai_data:
+            lines.append(render_account_section(handle, ai_data[handle]))
+
+    lines += [
+        "---",
+        "",
+        "## 📈 投资动态",
+        "",
+    ]
+
+    for handle, _ in INVEST_ACCOUNTS:
+        if handle in invest_data:
+            lines.append(render_account_section(handle, invest_data[handle]))
+
+    lines += [
+        "---",
+        "",
+        f"*生成时间: {now}*",
+    ]
+
+    return "\n".join(lines)
+
+
+# ── 主流程 ────────────────────────────────────────────────────────────────────
+
+def main():
+    # 解析日期参数
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    if "--date" in sys.argv:
+        idx = sys.argv.index("--date")
+        if idx + 1 < len(sys.argv):
+            date_str = sys.argv[idx + 1]
+
+    print(f"📡 开始抓取 Twitter 日报 [{date_str}]")
+    print(f"   AI类: {len(AI_ACCOUNTS)} 个账号 | 投资类: {len(INVEST_ACCOUNTS)} 个账号")
+
+    # 并发抓取两类账号
+    print("⏳ 并发抓取中...")
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        ai_future = pool.submit(fetch_all, AI_ACCOUNTS)
+        invest_future = pool.submit(fetch_all, INVEST_ACCOUNTS)
+        ai_data = ai_future.result()
+        invest_data = invest_future.result()
+
+    # 统计成功数
+    ai_ok = sum(1 for v in ai_data.values() if v["tweets"])
+    inv_ok = sum(1 for v in invest_data.values() if v["tweets"])
+    print(f"✅ 抓取完成: AI {ai_ok}/{len(AI_ACCOUNTS)}  投资 {inv_ok}/{len(INVEST_ACCOUNTS)}")
+
+    # 生成 AI 摘要
+    print("🧠 生成今日要点摘要...")
+    summary = generate_summary(ai_data, invest_data)
+
+    # 生成 Markdown
+    md = build_markdown(date_str, ai_data, invest_data, summary)
+
+    # 写入 Obsidian
+    OBSIDIAN_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = OBSIDIAN_DIR / f"Twitter日报_{date_str}.md"
+    out_path.write_text(md, encoding="utf-8")
+    print(f"📝 已写入: {out_path}")
+    print(f"   文件大小: {len(md):,} 字符")
+
+
+if __name__ == "__main__":
+    main()

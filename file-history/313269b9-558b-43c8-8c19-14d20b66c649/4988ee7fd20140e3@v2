@@ -1,0 +1,62 @@
+---
+last_skill_write: 2026-03-25 09:30
+source: Desktop_Projects_Analysis.md + position-management skill + weekly-report skill
+---
+
+# 多资产投资部 — 工作规范与流程
+
+## 核心自动化系统
+
+### 1. 周报自动化流水线（周报V2）
+
+**路径：** `~/Desktop/周报V2/`
+
+**执行顺序：**
+1. 更新 `config.py` 中的 `YUNZUOGAILAN_DATE`（报告日期 YYYYMMDD）
+2. 运行 `python run_weekly_report.py`（一键执行5个子脚本）
+3. 用 openpyxl 更新 Excel 链接工作簿（`周报生成工具_加权_调整兴动合兴系列.xlsm`）
+4. 截图并插入 Word 模板生成 PDF
+
+**5个子脚本职责：**
+| 脚本 | 职责 |
+|------|------|
+| `move_files.py` | 数据源文件移动到指定目录 |
+| `update_new_product_catgoery.py` | AI 更新产品分类标签 |
+| `generate_report.py` | 核心数据处理，生成 40+ sheet Excel（约 5-15 分钟）|
+| `calculate_all_benchmarks.py` | 业绩基准计算（需 Wind 登录）|
+| `yield_forecast.py` | 合享/悦动稳享收益预测 |
+
+**输出：** `输出结果/输出结果{DATE}.xlsx`
+
+---
+
+### 2. 每日头寸安排（position-management）
+
+**数据路径：** `~/Desktop/头寸安排agent/头寸管理_YYYY-MM-DD/`
+
+**关键输入文件：**
+| 文件 | 用途 |
+|------|------|
+| `头寸管理_YYYY-MM-DD.xlsm` | PAS（资金缺口）、活期存款、正回购到期 |
+| `产品运作概览 - *.xlsx` | 杠杆率、久期、规模（只看母产品）|
+| `产品申赎*.xlsx` | +2日确认申赎量（只看母产品）|
+| `持仓盈亏明细列表*.xlsx` | 未质押债券上限计算（权威数据源）|
+
+**输出：**
+- 交易日志 → `$OBSIDIAN_VAULT/投资经理/组合管理/交易日志_YYYY-MM-DD.md`
+- 回购安排 → `$OBSIDIAN_VAULT/投资经理/组合管理/回购安排_YYYY-MM-DD.xlsx`（3个Sheet）
+
+---
+
+## 工作质量标准
+
+- 数字精确到小数点后 2 位（亿元）
+- 大额申赎标准：> 0.05 亿（500万）
+- 正回购金额：**1000万整数倍**（银行间规则）
+- 逆回购门槛：< 3000万不安排（成本不划算）
+- 所有产品申赎数据单位为**元**，读取后除以 1e8 转亿
+
+## 信息安全提示
+
+- 持仓数据、PAS 数据为内部敏感信息，不上传外部平台
+- Obsidian vault 通过 iCloud 同步，交易日志中不写具体债券代码和成本价

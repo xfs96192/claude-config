@@ -4,10 +4,10 @@
     "superpowers@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5",
-        "version": "5.0.5",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6",
+        "version": "5.0.6",
         "installedAt": "2026-01-19T05:02:57.248Z",
-        "lastUpdated": "2026-03-18T09:07:27.759Z",
+        "lastUpdated": "2026-03-26T02:38:04.654Z",
         "gitCommitSha": "ac471e69c2a672f50e491a45f6ff56b104d0e562"
       }
     ],
@@ -69,6 +69,26 @@
         "installedAt": "2026-03-23T09:56:56.723Z",
         "lastUpdated": "2026-03-23T09:56:56.723Z",
         "gitCommitSha": "30e1dfe46ad7b9a39ca2a4df7c735aaa33a90fd9"
+      }
+    ],
+    "autoresearch@autoresearch": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/autoresearch/autoresearch/1.8.2",
+        "version": "1.8.2",
+        "installedAt": "2026-03-25T04:55:42.185Z",
+        "lastUpdated": "2026-03-25T04:55:42.185Z",
+        "gitCommitSha": "0c102fd9078fe1b48bc9ff16494a3158a65ba5f9"
+      }
+    ],
+    "last30days@last30days-skill": [
+      {
+        "scope": "user",
+        "installPath": "/Users/fanshengxia/.claude/plugins/cache/last30days-skill/last30days/2.9.5",
+        "version": "2.9.5",
+        "installedAt": "2026-03-26T02:35:15.572Z",
+        "lastUpdated": "2026-03-26T02:35:15.572Z",
+        "gitCommitSha": "4d6224f79aab743052d36248949ca03b24fded26"
       }
     ]
   }

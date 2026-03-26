@@ -6,7 +6,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx ccusage statusline"
+    "command": "bash -c 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"/Users/fanshengxia/.npm-global/bin/bun\" --env-file /dev/null \"${plugin_dir}src/index.ts\"'"
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
@@ -15,13 +15,27 @@
     "equity-research@financial-services-plugins": true,
     "private-equity@financial-services-plugins": true,
     "wealth-management@financial-services-plugins": true,
-    "claude-hud@claude-hud": true
+    "claude-hud@claude-hud": true,
+    "autoresearch@autoresearch": true,
+    "last30days@last30days-skill": true
   },
   "extraKnownMarketplaces": {
     "claude-hud": {
       "source": {
         "source": "github",
         "repo": "jarrodwatts/claude-hud"
+      }
+    },
+    "autoresearch": {
+      "source": {
+        "source": "github",
+        "repo": "uditgoenka/autoresearch"
+      }
+    },
+    "last30days-skill": {
+      "source": {
+        "source": "github",
+        "repo": "mvanhorn/last30days-skill"
       }
     }
   },
