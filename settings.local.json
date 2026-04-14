@@ -37,7 +37,28 @@
       "Skill(schedule)",
       "Bash(mkdir -p ~/.claude/skills/twitter-daily-digest/logs)",
       "Bash(launchctl load:*)",
-      "Bash(launchctl list:*)"
+      "Bash(launchctl list:*)",
+      "Bash(agent-browser --version)",
+      "Bash(agent-browser open:*)",
+      "Bash(agent-browser wait:*)",
+      "Bash(agent-browser get:*)",
+      "Bash(agent-browser snapshot:*)",
+      "Bash(agent-browser click:*)",
+      "Bash(agent-browser eval:*)",
+      "Bash(agent-browser close:*)",
+      "Bash(agent-browser fill:*)",
+      "Bash(agent-browser screenshot:*)",
+      "Bash(/dev/null lsof:*)",
+      "Bash(cd /Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard node ./node_modules/vite/bin/vite.js build)",
+      "Bash(pkill -f \"vite\\\\|oxide\\\\|tailwind\")",
+      "Bash(rm -rf node_modules)",
+      "Bash(pnpm install:*)",
+      "Bash(pkill -f \"vite.*5173\")",
+      "Skill(last30days:last30days-skill)",
+      "Bash(pandoc \"/Users/fanshengxia/Desktop/季报汇总/季报20260331/兴证全球掘金绿色投资专户2026年3月份月报 \\(1\\).docx\" -t plain)",
+      "Bash(pandoc \"/Users/fanshengxia/Desktop/季报汇总/季报20260331/月度监控-中欧优治1号20260228.docx\" -t plain)",
+      "Bash(pandoc:*)",
+      "Bash(/opt/homebrew/bin/python3.11:*)"
     ]
   }
 }

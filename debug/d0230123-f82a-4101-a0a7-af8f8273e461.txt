@@ -1,2 +1,0 @@
-2026-03-04T09:57:09.385Z [DEBUG] [Query.streamInput] Starting to process input stream
-2026-03-04T09:57:09.462Z [DEBUG] [Query.streamInput] Processing message 1: user

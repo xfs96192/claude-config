@@ -1,0 +1,536 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""行业生命周期分析系统（网站展示层）"""
+
+from __future__ import annotations
+
+import logging
+import math
+import os
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List
+
+import numpy as np
+import pandas as pd
+from flask import Flask, jsonify
+
+try:
+    from flask_cors import CORS  # type: ignore
+except ImportError:
+    CORS = None
+
+from sw_hierarchy import SW_TREE, L3_TO_L1L2
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+if CORS is None:
+    def _noop_cors(app):  # type: ignore
+        return app
+    CORS = _noop_cors  # type: ignore
+
+BASE_DIR = Path(__file__).resolve().parent
+DEFAULT_CSV_PATH = BASE_DIR / "industry_metrics.csv"
+METRICS_CSV = Path(os.environ.get("INDUSTRY_METRICS_CSV", DEFAULT_CSV_PATH))
+DEFAULT_CHAR_PATH = BASE_DIR / "industry_characteristics.csv"
+CHARACTERISTICS_CSV = Path(os.environ.get("INDUSTRY_CHARACTERISTICS_CSV", DEFAULT_CHAR_PATH))
+
+NUMERIC_COLUMNS: List[str] = [
+    "gross_margin", "gross_margin_3y_diff", "capex_cagr_3y", "roic",
+    "rev_growth_3y", "rev_growth_percentile", "capex_cagr_percentile",
+    "gross_margin_geom3y", "leader_margin", "leader_advantage",
+    "revenue_sum", "capex_sum", "equity_sum", "debt_sum",
+    "da_sum", "capex_da_ratio", "ocf_to_rev", "net_margin", "fixed_asset_ratio",
+    "lifecycle_stage",
+]
+
+PERCENT_COLUMNS = {
+    "gross_margin_3y_diff", "capex_cagr_3y", "roic", "rev_growth_3y",
+    "gross_margin_geom3y", "leader_margin", "leader_advantage",
+    "ocf_to_rev", "net_margin", "fixed_asset_ratio",
+}
+
+PERCENTILE_COLUMNS = {"rev_growth_percentile", "capex_cagr_percentile"}
+
+# 气泡半径范围（px）
+RADIUS_MIN, RADIUS_MAX = 3.0, 9.0
+
+
+@dataclass
+class IndustryMetrics:
+    dataframe: pd.DataFrame
+    loaded_at: datetime
+
+
+class MetricsRepository:
+    def __init__(self, csv_path: Path):
+        self.csv_path = csv_path
+        self._cache: IndustryMetrics | None = None
+        self._last_mtime: float | None = None
+
+    def load(self) -> IndustryMetrics:
+        if not self.csv_path.exists():
+            raise FileNotFoundError(f"指标数据文件不存在: {self.csv_path}")
+        current_mtime = self.csv_path.stat().st_mtime
+        if self._cache is None or self._last_mtime != current_mtime:
+            df = pd.read_csv(self.csv_path)
+            df = self._prepare_dataframe(df)
+            self._cache = IndustryMetrics(df, datetime.now())
+            self._last_mtime = current_mtime
+            logger.info("Loaded metrics from %s (rows=%d)", self.csv_path, len(df))
+        return self._cache
+
+    @staticmethod
+    def _prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+        df = df.copy()
+        df["Accper"] = pd.to_datetime(df["Accper"], errors="coerce")
+        df = df.dropna(subset=["IndustryName", "Accper"])
+        for col in NUMERIC_COLUMNS:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+        df = df.sort_values(["IndustryName", "Accper"]).reset_index(drop=True)
+        df["quarter_label"] = df["Accper"].dt.to_period("Q").astype(str)
+        return df
+
+
+CHAR_COLUMNS: List[str] = [
+    "entry_exit_rate", "struct_change", "leader_turnover",
+    "leader_rev_share", "cr3", "cr5",
+    "entry_exit_pct", "struct_change_pct", "leader_turnover_pct",
+    "leader_rev_share_pct", "cr3_pct", "cr5_pct",
+]
+
+# Chinese display labels for characteristics
+CHAR_LABELS: Dict[str, str] = {
+    "entry_exit_rate":      "公司进出率",
+    "struct_change":        "结构变化度",
+    "leader_turnover":      "龙头换手率",
+    "leader_rev_share":     "龙头营收占比",
+    "cr3":                  "CR3 集中度",
+    "cr5":                  "CR5 集中度",
+    "entry_exit_pct":       "公司进出率分位",
+    "struct_change_pct":    "结构变化分位",
+    "leader_turnover_pct":  "龙头换手分位",
+    "leader_rev_share_pct": "龙头占比分位",
+    "cr3_pct":              "CR3 分位",
+    "cr5_pct":              "CR5 分位",
+}
+
+
+class CharacteristicsRepository:
+    def __init__(self, csv_path: Path):
+        self.csv_path = csv_path
+        self._cache: pd.DataFrame | None = None
+        self._last_mtime: float | None = None
+
+    def load(self) -> pd.DataFrame:
+        if not self.csv_path.exists():
+            logger.warning("Characteristics file not found: %s", self.csv_path)
+            return pd.DataFrame(columns=["IndustryName"] + CHAR_COLUMNS)
+        current_mtime = self.csv_path.stat().st_mtime
+        if self._cache is None or self._last_mtime != current_mtime:
+            df = pd.read_csv(self.csv_path)
+            for col in CHAR_COLUMNS:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
+            self._cache = df
+            self._last_mtime = current_mtime
+            logger.info("Loaded characteristics from %s (rows=%d)", self.csv_path, len(df))
+        return self._cache
+
+
+repo = MetricsRepository(METRICS_CSV)
+char_repo = CharacteristicsRepository(CHARACTERISTICS_CSV)
+app = Flask(__name__, static_folder="static", static_url_path="/static")
+CORS(app)
+
+
+LIFECYCLE_LABELS: Dict[int, str] = {
+    0: "未分类",
+    1: "S1·成长赛道",
+    2: "S2·洗牌前期",
+    3: "S3·行业洗牌",
+    4: "S4·出清末期",
+    5: "S5·龙头进阶",
+    6: "S6·稳态成熟",
+}
+
+LIFECYCLE_COLORS: Dict[int, str] = {
+    0: "#6b7590",
+    1: "#4caf7d",
+    2: "#c9a84c",
+    3: "#e08c3c",
+    4: "#e05c5c",
+    5: "#5c9de0",
+    6: "#9c7adb",
+}
+
+
+def _get_representative_stage(industry_df: pd.DataFrame) -> Dict:
+    """返回最可靠的最近一期生命周期阶段。
+
+    优先选取满足以下条件的最新季度：
+    1. 报告期为 Q3 (09-30) 或 Q4 (12-31)（季报/年报数据更完整）
+    2. rev_growth_percentile 在正常范围内 (0.05 ~ 0.95)，排除早报户造成的异常
+    3. lifecycle_stage > 0（已成功分类）
+    若以上均找不到则退而取最后一期非零阶段。
+    """
+    PREFERRED_ENDS = {"09-30", "12-31"}
+
+    def _month_day(ts) -> str:
+        return f"{ts.month:02d}-{ts.day:02d}"
+
+    sorted_df = industry_df.sort_values("Accper", ascending=False)
+
+    # Build sorted series for consistency check
+    sorted_df_asc = industry_df.sort_values("Accper", ascending=True)
+    r_pct_series = sorted_df_asc["rev_growth_percentile"].tolist()
+    accper_series = sorted_df_asc["Accper"].tolist()
+
+    def _is_suspect(row) -> bool:
+        """True if this row's r_pct looks like an early-reporter anomaly."""
+        r_pct = row.get("rev_growth_percentile")
+        if pd.isna(r_pct):
+            return True
+        r = float(r_pct)
+        # Extreme bottom (< 10%) is suspicious for preferred-pass
+        if r < 0.10:
+            return True
+        # Sudden large drop from previous quarter (>0.50 fall) is suspicious
+        try:
+            idx = accper_series.index(row["Accper"])
+            if idx >= 2:
+                prev2 = [v for v in r_pct_series[max(0, idx-3):idx]
+                         if not (isinstance(v, float) and math.isnan(v))]
+                if prev2:
+                    avg_prev = sum(prev2) / len(prev2)
+                    if avg_prev > 0.40 and r < avg_prev * 0.40:
+                        return True
+        except (ValueError, TypeError):
+            pass
+        return False
+
+    # Pass 1: preferred quarter-ends with sane percentile
+    for _, row in sorted_df.iterrows():
+        if _month_day(row["Accper"]) not in PREFERRED_ENDS:
+            continue
+        stage = int(row.get("lifecycle_stage") or 0)
+        if stage <= 0:
+            continue
+        if _is_suspect(row):
+            continue
+        return {
+            "stage": stage,
+            "label": LIFECYCLE_LABELS.get(stage, "未分类"),
+            "color": LIFECYCLE_COLORS.get(stage, "#6b7590"),
+            "quarter": row["quarter_label"],
+        }
+
+    # Pass 2: any quarter with sane percentile
+    for _, row in sorted_df.iterrows():
+        stage = int(row.get("lifecycle_stage") or 0)
+        if stage <= 0:
+            continue
+        r_pct = row.get("rev_growth_percentile")
+        if pd.isna(r_pct) or not (0.04 <= float(r_pct) <= 0.96):
+            continue
+        return {
+            "stage": stage,
+            "label": LIFECYCLE_LABELS.get(stage, "未分类"),
+            "color": LIFECYCLE_COLORS.get(stage, "#6b7590"),
+            "quarter": row["quarter_label"],
+        }
+
+    # Pass 3: fallback — any non-zero stage
+    for _, row in sorted_df.iterrows():
+        stage = int(row.get("lifecycle_stage") or 0)
+        if stage > 0:
+            return {
+                "stage": stage,
+                "label": LIFECYCLE_LABELS.get(stage, "未分类"),
+                "color": LIFECYCLE_COLORS.get(stage, "#6b7590"),
+                "quarter": row["quarter_label"],
+            }
+
+    return {"stage": 0, "label": "未分类", "color": "#6b7590", "quarter": ""}
+
+
+def _sanitize_json(obj):
+    """递归将 NaN / Inf 替换为 None，确保输出合法 JSON。"""
+    if isinstance(obj, float):
+        return None if not math.isfinite(obj) else obj
+    if isinstance(obj, dict):
+        return {k: _sanitize_json(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_json(v) for v in obj]
+    return obj
+
+
+def _scale_series(series: pd.Series, multiplier: float) -> pd.Series:
+    return (series.astype(float) * multiplier).round(4)
+
+
+def _compute_radii(values: pd.Series) -> pd.Series:
+    """将 size 列的绝对值按分位数归一化到 [RADIUS_MIN, RADIUS_MAX]。
+    使用第5和第95百分位裁剪极端值，确保气泡大小差异清晰可见。
+    """
+    abs_vals = values.abs()
+    lo = abs_vals.quantile(0.05)
+    hi = abs_vals.quantile(0.95)
+    if hi <= lo:
+        return pd.Series([float((RADIUS_MIN + RADIUS_MAX) / 2)] * len(values), index=values.index)
+    clipped = abs_vals.clip(lo, hi)
+    normalized = (clipped - lo) / (hi - lo)  # 0~1
+    return normalized * (RADIUS_MAX - RADIUS_MIN) + RADIUS_MIN
+
+
+def _build_chart_points(
+    industry_df: pd.DataFrame,
+    x_col: str,
+    y_col: str,
+    size_col: str | None = None,
+    percent_cols: set[str] | None = None,
+    percentile_cols: set[str] | None = None,
+) -> List[Dict]:
+    percent_cols = percent_cols or set()
+    percentile_cols = percentile_cols or set()
+
+    # 对于有 size_col 的图，x/y 允许 size=NaN（仍展示点，但不显示气泡大小）
+    required_cols = [c for c in [x_col, y_col] if c]
+    data = industry_df.dropna(subset=required_cols).copy()
+    if data.empty:
+        return []
+
+    # 缩放 x / y
+    for col in [x_col, y_col]:
+        if col in percent_cols:
+            data[col] = _scale_series(data[col], 100)
+        elif col in percentile_cols:
+            data[col] = _scale_series(data[col], 100)
+
+    # 缩放并归一化 size
+    radii: pd.Series | None = None
+    if size_col:
+        if size_col in percent_cols:
+            data[size_col] = _scale_series(data[size_col], 100)
+        size_valid = data[size_col].dropna()
+        if len(size_valid) > 1:
+            radii = _compute_radii(data[size_col])
+        else:
+            radii = pd.Series([(RADIUS_MIN + RADIUS_MAX) / 2] * len(data), index=data.index)
+
+    points: List[Dict] = []
+    for _, row in data.iterrows():
+        point: Dict = {
+            "x": float(row[x_col]),
+            "y": float(row[y_col]),
+            "quarter": row["quarter_label"],
+        }
+        if size_col and radii is not None:
+            raw_val = row[size_col]
+            point["value"] = None if (isinstance(raw_val, float) and not math.isfinite(raw_val)) else round(float(raw_val), 2)
+            r = radii.loc[row.name]
+            point["radius"] = round(float(r) if math.isfinite(float(r)) else float((RADIUS_MIN + RADIUS_MAX) / 2), 2)
+        points.append(point)
+    return points
+
+
+def _build_summary(industry_df: pd.DataFrame) -> Dict:
+    latest = industry_df.iloc[-1]
+
+    def pct(key: str) -> float | None:
+        v = latest.get(key)
+        if v is None or (isinstance(v, float) and not math.isfinite(v)):
+            return None
+        return round(float(v) * 100, 2)
+
+    def raw(key: str) -> float | None:
+        v = latest.get(key)
+        if v is None or (isinstance(v, float) and not math.isfinite(v)):
+            return None
+        return round(float(v) * 100, 2)
+
+    def ratio(key: str) -> float | None:
+        """Return a raw ratio value (not ×100), rounded to 4 dp."""
+        v = latest.get(key)
+        if v is None or (isinstance(v, float) and not math.isfinite(v)):
+            return None
+        return round(float(v), 4)
+
+    return {
+        "latest_quarter": latest["quarter_label"],
+        "gross_margin": raw("gross_margin"),
+        "gross_margin_3y_diff": pct("gross_margin_3y_diff"),
+        "capex_cagr_3y": pct("capex_cagr_3y"),
+        "roic": pct("roic"),
+        "rev_growth_3y": pct("rev_growth_3y"),
+        "gross_margin_geom3y": pct("gross_margin_geom3y"),
+        "leader_advantage": pct("leader_advantage"),
+        # New metrics
+        "capex_da_ratio": ratio("capex_da_ratio"),
+        "ocf_to_rev": pct("ocf_to_rev"),
+        "net_margin": pct("net_margin"),
+        "fixed_asset_ratio": pct("fixed_asset_ratio"),
+    }
+
+
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
+
+
+@app.route("/api/industries/tree")
+def get_industry_tree():
+    """返回 SW 三级行业树，过滤仅保留 CSV 中存在的三级行业。"""
+    try:
+        metrics = repo.load()
+        available_l3 = set(metrics.dataframe["IndustryName"].dropna().unique())
+
+        tree = []
+        for l1_name, l2_map in SW_TREE.items():
+            l2_nodes = []
+            for l2_name, l3_list in l2_map.items():
+                l3_available = [l3 for l3 in l3_list if l3 in available_l3]
+                if l3_available:
+                    l2_nodes.append({"name": l2_name, "children": l3_available})
+            if l2_nodes:
+                tree.append({"name": l1_name, "children": l2_nodes})
+
+        return jsonify(_sanitize_json({"status": "success", "tree": tree}))
+    except Exception as exc:
+        logger.exception("Failed to build industry tree")
+        return jsonify({"status": "error", "error": str(exc)}), 500
+
+
+@app.route("/api/industries")
+def get_industries():
+    try:
+        metrics = repo.load()
+        industries = sorted(metrics.dataframe["IndustryName"].dropna().unique().tolist())
+        return jsonify(_sanitize_json({
+            "status": "success",
+            "industries": industries,
+            "timestamp": metrics.loaded_at.isoformat(),
+        }))
+    except Exception as exc:
+        logger.exception("Failed to load industries")
+        return jsonify({"status": "error", "error": str(exc)}), 500
+
+
+@app.route("/api/analyze/<industry_name>")
+def analyze_industry(industry_name: str):
+    try:
+        metrics = repo.load()
+        df = metrics.dataframe
+        industry_df = df[df["IndustryName"] == industry_name].copy()
+        if industry_df.empty:
+            return jsonify({"status": "error", "error": f"未找到行业: {industry_name}"}), 404
+
+        chart1 = _build_chart_points(
+            industry_df, x_col="capex_cagr_3y", y_col="gross_margin_3y_diff",
+            size_col="roic", percent_cols=PERCENT_COLUMNS, percentile_cols=PERCENTILE_COLUMNS,
+        )
+        chart2 = _build_chart_points(
+            industry_df, x_col="capex_cagr_percentile", y_col="rev_growth_percentile",
+            percent_cols=PERCENT_COLUMNS, percentile_cols=PERCENTILE_COLUMNS,
+        )
+        chart3 = _build_chart_points(
+            industry_df, x_col="rev_growth_3y", y_col="gross_margin_geom3y",
+            size_col="leader_advantage", percent_cols=PERCENT_COLUMNS, percentile_cols=PERCENTILE_COLUMNS,
+        )
+
+        # 行业层级信息
+        l1, l2 = L3_TO_L1L2.get(industry_name, ("—", "—"))
+
+        # Industry characteristics
+        chars_df = char_repo.load()
+        chars_row = chars_df[chars_df["IndustryName"] == industry_name]
+        characteristics: Dict = {}
+        if not chars_row.empty:
+            row = chars_row.iloc[0]
+            for col in CHAR_COLUMNS:
+                v = row.get(col)
+                if v is not None and not (isinstance(v, float) and not math.isfinite(v)):
+                    characteristics[col] = round(float(v), 4)
+                else:
+                    characteristics[col] = None
+
+        lifecycle = _get_representative_stage(industry_df)
+
+        result = {
+            "status": "success",
+            "industry": industry_name,
+            "l1": l1,
+            "l2": l2,
+            "chart1": chart1,
+            "chart2": chart2,
+            "chart3": chart3,
+            "summary": _build_summary(industry_df),
+            "characteristics": characteristics,
+            "lifecycle": lifecycle,
+            "timestamp": datetime.now().isoformat(),
+        }
+        return jsonify(_sanitize_json(result))
+    except Exception as exc:
+        logger.exception("Failed to analyze industry")
+        return jsonify({"status": "error", "error": str(exc)}), 500
+
+
+@app.route("/api/characteristics")
+def get_characteristics():
+    """返回所有行业的静态特征指标及当前生命周期阶段（用于前端筛选）。"""
+    try:
+        df = char_repo.load()
+        metrics = repo.load()
+        metrics_df = metrics.dataframe
+
+        # Build a lookup: industry → current representative lifecycle stage
+        lifecycle_map: Dict[str, Dict] = {}
+        for ind_name, grp in metrics_df.groupby("IndustryName"):
+            lifecycle_map[ind_name] = _get_representative_stage(grp)
+
+        records = []
+        for _, row in df.iterrows():
+            rec: Dict = {"IndustryName": row["IndustryName"]}
+            for col in CHAR_COLUMNS:
+                v = row.get(col)
+                rec[col] = None if (v is None or (isinstance(v, float) and not math.isfinite(v))) else round(float(v), 4)
+            # Attach lifecycle info
+            lc = lifecycle_map.get(row["IndustryName"], {"stage": 0, "label": "未分类", "color": "#6b7590", "quarter": ""})
+            rec["lifecycle_stage"] = lc["stage"]
+            rec["lifecycle_label"] = lc["label"]
+            rec["lifecycle_color"] = lc["color"]
+            rec["lifecycle_quarter"] = lc["quarter"]
+            records.append(rec)
+        return jsonify(_sanitize_json({
+            "status": "success",
+            "labels": CHAR_LABELS,
+            "lifecycle_labels": LIFECYCLE_LABELS,
+            "lifecycle_colors": LIFECYCLE_COLORS,
+            "industries": records,
+        }))
+    except Exception as exc:
+        logger.exception("Failed to load characteristics")
+        return jsonify({"status": "error", "error": str(exc)}), 500
+
+
+@app.route("/api/health")
+def health():
+    try:
+        metrics = repo.load()
+        df = metrics.dataframe
+        return jsonify(_sanitize_json({
+            "status": "healthy",
+            "industries": int(df["IndustryName"].nunique()),
+            "observations": int(len(df)),
+            "last_quarter": df["quarter_label"].max(),
+            "loaded_at": metrics.loaded_at.isoformat(),
+        }))
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 500
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=8080)

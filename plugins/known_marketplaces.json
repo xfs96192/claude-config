@@ -5,7 +5,7 @@
       "repo": "anthropics/claude-plugins-official"
     },
     "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/claude-plugins-official",
-    "lastUpdated": "2026-03-26T05:27:27.910Z"
+    "lastUpdated": "2026-04-13T06:23:52.640Z"
   },
   "superpowers-marketplace": {
     "source": {
@@ -13,7 +13,8 @@
       "repo": "obra/superpowers-marketplace"
     },
     "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/superpowers-marketplace",
-    "lastUpdated": "2026-01-19T05:01:48.108Z"
+    "lastUpdated": "2026-04-13T06:23:52.346Z",
+    "autoUpdate": true
   },
   "financial-services-plugins": {
     "source": {
@@ -46,5 +47,13 @@
     },
     "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/last30days-skill",
     "lastUpdated": "2026-03-26T02:35:02.460Z"
+  },
+  "claude-subconscious": {
+    "source": {
+      "source": "github",
+      "repo": "letta-ai/claude-subconscious"
+    },
+    "installLocation": "/Users/fanshengxia/.claude/plugins/marketplaces/claude-subconscious",
+    "lastUpdated": "2026-03-26T07:19:04.294Z"
   }
 }

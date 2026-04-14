@@ -1,0 +1,565 @@
+#!/usr/bin/env python3
+"""Compute industry-level long-horizon财务指标。
+
+本脚本围绕本地 `financial_data.db`，聚合三级行业维度的 TTM 指标，用于模型或看板。
+核心流程：
+1. 从利润表、现金流量表、资产负债表生成 TTM 序列。
+2. 与 `上市公司行业分类` 进行映射，生成公司-行业-季度面板。
+3. 依指标要求汇总行业级数据，并按三年窗口或分位计算派生因子。
+4. 输出含毛利率、Capex、ROIC、营收增速及龙头优势等字段的时间序列。
+"""
+import argparse
+import math
+import sqlite3
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+# 行业分类字段映射：支持申万 / Wind / 中信三级行业
+INDUSTRY_FIELDS = {
+    "sw": ("SwIndustryCodeL3", "SwIndustryNameL3"),
+    "wind": ("WindIndustryCodeL3", "WindIndustryNameL3"),
+    "cicc": ("CiccIndustryCodeL3", "CiccIndustryNameL3"),
+}
+
+# 快速校验的季度末后缀集合
+QUARTER_SUFFIXES = {"03-31", "06-30", "09-30", "12-31"}
+
+
+def parse_args() -> argparse.Namespace:
+    """解析命令行参数，允许指定库文件、行业口径、起始年份与导出路径。"""
+    parser = argparse.ArgumentParser(description="Calculate industry-level financial factors")
+    parser.add_argument("--db", default="financial_data.db", help="Path to SQLite database")
+    parser.add_argument(
+        "--classification",
+        choices=INDUSTRY_FIELDS.keys(),
+        default="sw",
+        help="Industry schema to use (default: sw=申万三级)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Optional CSV output path for the aggregated metrics",
+    )
+    parser.add_argument(
+        "--min-year",
+        type=int,
+        default=2010,
+        help="Earliest fiscal year to include (applied on reporting period)",
+    )
+    return parser.parse_args()
+
+
+def _ttm_sql(table: str, value_col: str) -> str:
+    """构造通用 SQL 片段，将单季累计值换算为 TTM。
+
+    约定：源表需为季报累计制（如利润表/现金流量表），且字段在每季度末累积当年数值。
+    - 12-31：直接采用当年累计值作为 TTM。
+    - 其他季度：使用当前累计 + 上年年末 - 上年同期，以得到滚动12月。
+    """
+    return f"""
+    WITH base AS (
+        SELECT Stkcd,
+               Accper,
+               Typrep,
+               CAST({value_col} AS REAL) AS val
+        FROM {table}
+        WHERE Typrep='A' AND substr(Accper,6,5) IN ('03-31','06-30','09-30','12-31')
+    ),
+    ttm AS (
+        SELECT cur.Stkcd,
+               cur.Accper,
+               CASE
+                   WHEN substr(cur.Accper,6,5)='12-31' THEN cur.val
+                   ELSE cur.val
+                        + COALESCE(prev_year_end.val, 0)
+                        - COALESCE(prev_same.val, 0)
+               END AS val_ttm
+        FROM base cur
+        LEFT JOIN base prev_same
+               ON prev_same.Stkcd=cur.Stkcd
+              AND prev_same.Accper=date(cur.Accper,'-12 months')
+        LEFT JOIN base prev_year_end
+               ON prev_year_end.Stkcd=cur.Stkcd
+              AND prev_year_end.Accper=strftime('%Y', date(cur.Accper,'-12 months')) || '-12-31'
+    )
+    SELECT Stkcd, Accper, val_ttm
+    FROM ttm
+    WHERE val_ttm IS NOT NULL
+    """
+
+
+def fetch_income_metrics(conn: sqlite3.Connection, min_year: int) -> pd.DataFrame:
+    """读取利润表生成营收/成本 TTM，过滤到指定年份之后。"""
+    sql = f"""
+    WITH revenue AS ({_ttm_sql("v_latest_利润表", "B001101000")}),
+         cost AS ({_ttm_sql("v_latest_利润表", "B001201000")})
+    SELECT r.Stkcd,
+           r.Accper,
+           r.val_ttm AS revenue_ttm,
+           c.val_ttm AS cost_ttm
+    FROM revenue r
+    LEFT JOIN cost c
+      ON c.Stkcd=r.Stkcd AND c.Accper=r.Accper
+    WHERE substr(r.Accper,1,4)>=?;
+    """
+    df = pd.read_sql_query(sql, conn, params=(str(min_year),))
+    df["Accper"] = pd.to_datetime(df["Accper"], errors="coerce")
+    df = df.dropna(subset=["Accper"])  # drop malformed dates
+    return df
+
+
+def fetch_capex_metrics(conn: sqlite3.Connection, min_year: int) -> pd.DataFrame:
+    """读取现金流量表，计算购建类资本开支的 TTM。"""
+    base_sql = _ttm_sql("v_latest_现金流量表", "C002006000")
+    sql = f"SELECT * FROM ({base_sql}) WHERE substr(Accper,1,4)>=?"
+    df = pd.read_sql_query(sql, conn, params=(str(min_year),))
+    df["Accper"] = pd.to_datetime(df["Accper"])
+    return df
+
+
+def fetch_balance_metrics(conn: sqlite3.Connection, min_year: int) -> pd.DataFrame:
+    """提取资产负债表权益与有息负债构成，按季度返回。"""
+    sql = """
+    SELECT Stkcd,
+           Accper,
+           CAST(A003000000 AS REAL) AS equity,
+           COALESCE(CAST(A002101000 AS REAL),0) AS short_term_debt,
+           COALESCE(CAST(A002201000 AS REAL),0) AS long_term_debt,
+           COALESCE(CAST(A002203000 AS REAL),0) AS bonds_payable,
+           COALESCE(CAST(A002125000 AS REAL),0) AS current_portion,
+           COALESCE(CAST(A002211000 AS REAL),0) AS lease_liab,
+           COALESCE(CAST(A001212000 AS REAL),0) AS fixed_assets,
+           COALESCE(CAST(A001213000 AS REAL),0) AS construction_in_progress,
+           CAST(A001000000 AS REAL) AS total_assets,
+           COALESCE(CAST(A001123000 AS REAL),0) AS inventory
+    FROM v_latest_资产负债表
+    WHERE Typrep='A' AND substr(Accper,6,5) IN ('03-31','06-30','09-30','12-31')
+          AND substr(Accper,1,4)>=?
+    """
+    df = pd.read_sql_query(sql, conn, params=(str(min_year),))
+    df["Accper"] = pd.to_datetime(df["Accper"], errors="coerce")
+    # 粗略的有息负债估计：短期借款 + 长期借款 + 应付债券 + 一年内到期非流动负债 + 租赁负债
+    df["interest_bearing_debt"] = (
+        df["short_term_debt"].fillna(0)
+        + df["long_term_debt"].fillna(0)
+        + df["bonds_payable"].fillna(0)
+        + df["current_portion"].fillna(0)
+        + df["lease_liab"].fillna(0)
+    )
+    return df[["Stkcd", "Accper", "equity", "interest_bearing_debt",
+               "fixed_assets", "construction_in_progress", "total_assets", "inventory"]]
+
+
+def fetch_da_metrics(conn: sqlite3.Connection, min_year: int) -> pd.DataFrame:
+    """从现金流量表(间接法)读取折旧摊销，生成TTM序列。
+
+    注：该表仅有半年报(06-30)和年报(12-31)数据，Q1/Q3几乎无值，
+    TTM主要在Q2/Q4期间有效。
+    DA = 固定资产折旧(D000103000) + 无形资产摊销(D000104000) + 长期待摊费用摊销(D000105000)
+    """
+    # Try view first, fall back to base table
+    for table_name in ["'v_latest_现金流量表(间接法)'", "'现金流量表(间接法)'"]:
+        try:
+            sql = f"""
+            WITH base AS (
+                SELECT Stkcd, Accper,
+                       COALESCE(CAST(D000103000 AS REAL), 0)
+                       + COALESCE(CAST(D000104000 AS REAL), 0)
+                       + COALESCE(CAST(D000105000 AS REAL), 0) AS val
+                FROM {table_name}
+                WHERE Typrep='A'
+                  AND substr(Accper,6,5) IN ('03-31','06-30','09-30','12-31')
+            ),
+            ttm AS (
+                SELECT cur.Stkcd, cur.Accper,
+                       CASE
+                           WHEN substr(cur.Accper,6,5)='12-31' THEN cur.val
+                           ELSE cur.val
+                                + COALESCE(prev_year_end.val, 0)
+                                - COALESCE(prev_same.val, 0)
+                       END AS da_ttm
+                FROM base cur
+                LEFT JOIN base prev_same
+                       ON prev_same.Stkcd=cur.Stkcd
+                      AND prev_same.Accper=date(cur.Accper,'-12 months')
+                LEFT JOIN base prev_year_end
+                       ON prev_year_end.Stkcd=cur.Stkcd
+                      AND prev_year_end.Accper=strftime('%Y', date(cur.Accper,'-12 months')) || '-12-31'
+            )
+            SELECT Stkcd, Accper, da_ttm
+            FROM ttm
+            WHERE da_ttm > 0 AND substr(Accper,1,4)>=?
+            """
+            df = pd.read_sql_query(sql, conn, params=(str(min_year),))
+            df["Accper"] = pd.to_datetime(df["Accper"], errors="coerce")
+            df = df.dropna(subset=["Accper"])
+            df["Stkcd"] = pd.to_numeric(df["Stkcd"], errors="coerce")
+            df = df.dropna(subset=["Stkcd"]).astype({"Stkcd": "int64"})
+            return df
+        except Exception:
+            continue
+    return pd.DataFrame(columns=["Stkcd", "Accper", "da_ttm"])
+
+
+def fetch_ocf_metrics(conn: sqlite3.Connection, min_year: int) -> pd.DataFrame:
+    """读取经营活动现金流量净额(C001000000) TTM。"""
+    sql = f"SELECT * FROM ({_ttm_sql('v_latest_现金流量表', 'C001000000')}) WHERE substr(Accper,1,4)>=?"
+    df = pd.read_sql_query(sql, conn, params=(str(min_year),))
+    df["Accper"] = pd.to_datetime(df["Accper"], errors="coerce")
+    df = df.dropna(subset=["Accper"])
+    df["Stkcd"] = pd.to_numeric(df["Stkcd"], errors="coerce")
+    df = df.dropna(subset=["Stkcd"]).astype({"Stkcd": "int64"})
+    return df.rename(columns={"val_ttm": "ocf_ttm"})
+
+
+def fetch_netprofit_metrics(conn: sqlite3.Connection, min_year: int) -> pd.DataFrame:
+    """读取归母净利润(B002000000) TTM。"""
+    sql = f"SELECT * FROM ({_ttm_sql('v_latest_利润表', 'B002000000')}) WHERE substr(Accper,1,4)>=?"
+    df = pd.read_sql_query(sql, conn, params=(str(min_year),))
+    df["Accper"] = pd.to_datetime(df["Accper"], errors="coerce")
+    df = df.dropna(subset=["Accper"])
+    df["Stkcd"] = pd.to_numeric(df["Stkcd"], errors="coerce")
+    df = df.dropna(subset=["Stkcd"]).astype({"Stkcd": "int64"})
+    return df.rename(columns={"val_ttm": "netprofit_ttm"})
+
+
+def fetch_industry_map(conn: sqlite3.Connection, classification: str) -> pd.DataFrame:
+    """加载行业映射表，返回 Stkcd 对应的行业编码/名称及市值。"""
+    code_field, name_field = INDUSTRY_FIELDS[classification]
+    cols = ["Stkcd", code_field, name_field, "TotalMarketCap"]
+    df = pd.read_sql_query(
+        f"SELECT {', '.join(cols)} FROM '上市公司行业分类'",
+        conn,
+    )
+    df = df.dropna(subset=[name_field])
+    df["Stkcd"] = pd.to_numeric(df["Stkcd"], errors="coerce")
+    df["TotalMarketCap"] = pd.to_numeric(df["TotalMarketCap"], errors="coerce")
+    df = df.dropna(subset=["Stkcd"]).astype({"Stkcd": "int64"})
+    df = df.rename(columns={code_field: "IndustryCode", name_field: "IndustryName"})
+    return df
+
+
+def load_financial_frames(db_path: Path, classification: str, min_year: int):
+    """统一调度各数据源，返回多张中间 DataFrame。"""
+    with sqlite3.connect(db_path) as conn:
+        income = fetch_income_metrics(conn, min_year)
+        capex = fetch_capex_metrics(conn, min_year)
+        balance = fetch_balance_metrics(conn, min_year)
+        industry = fetch_industry_map(conn, classification)
+        da = fetch_da_metrics(conn, min_year)
+        ocf = fetch_ocf_metrics(conn, min_year)
+        netprofit = fetch_netprofit_metrics(conn, min_year)
+    return income, capex, balance, industry, da, ocf, netprofit
+
+
+def prepare_company_panel(
+    income: pd.DataFrame,
+    capex: pd.DataFrame,
+    balance: pd.DataFrame,
+    da: pd.DataFrame,
+    ocf: pd.DataFrame,
+    netprofit: pd.DataFrame,
+) -> pd.DataFrame:
+    """拼接公司层三大报表 TTM 指标，为行业聚合做准备。"""
+    # 先合并利润表/现金流量，保留所有季度
+    df = income.merge(capex, on=["Stkcd", "Accper"], how="outer", suffixes=('', '_capex'))
+    df = df.merge(balance, on=["Stkcd", "Accper"], how="left")
+    # 合并折旧摊销(DA)、经营CF、净利润
+    if not da.empty:
+        df = df.merge(da, on=["Stkcd", "Accper"], how="left")
+    else:
+        df["da_ttm"] = np.nan
+    if not ocf.empty:
+        df = df.merge(ocf, on=["Stkcd", "Accper"], how="left")
+    else:
+        df["ocf_ttm"] = np.nan
+    if not netprofit.empty:
+        df = df.merge(netprofit, on=["Stkcd", "Accper"], how="left")
+    else:
+        df["netprofit_ttm"] = np.nan
+
+    df["Stkcd"] = pd.to_numeric(df["Stkcd"], errors="coerce")
+    df = df.dropna(subset=["Stkcd"]).astype({"Stkcd": "int64"})
+    df = df.sort_values(["Stkcd", "Accper"])  # chronological per company
+
+    # Clean metrics and prepare helper columns
+    df["revenue_ttm"] = pd.to_numeric(df["revenue_ttm"], errors="coerce")
+    df["cost_ttm"] = pd.to_numeric(df["cost_ttm"], errors="coerce")
+    df["val_ttm"] = pd.to_numeric(df.get("val_ttm"), errors="coerce")  # from capex merge
+    df["capex_ttm"] = pd.to_numeric(df.get("val_ttm"), errors="coerce").abs()
+    df = df.drop(columns=[col for col in ["val_ttm"] if col in df.columns])
+
+    df["equity"] = pd.to_numeric(df["equity"], errors="coerce")
+    df["interest_bearing_debt"] = pd.to_numeric(df["interest_bearing_debt"], errors="coerce")
+    df["da_ttm"] = pd.to_numeric(df.get("da_ttm"), errors="coerce")
+    df["ocf_ttm"] = pd.to_numeric(df.get("ocf_ttm"), errors="coerce")
+    df["netprofit_ttm"] = pd.to_numeric(df.get("netprofit_ttm"), errors="coerce")
+    df["fixed_assets"] = pd.to_numeric(df.get("fixed_assets"), errors="coerce").fillna(0)
+    df["construction_in_progress"] = pd.to_numeric(df.get("construction_in_progress"), errors="coerce").fillna(0)
+    df["total_assets"] = pd.to_numeric(df.get("total_assets"), errors="coerce")
+    df["inventory"] = pd.to_numeric(df.get("inventory"), errors="coerce").fillna(0)
+
+    # Basic company-level gross margin (for leader advantage)
+    # 公司级毛利率（供龙头对比使用）
+    df["gross_margin_company"] = np.where(
+        (df["revenue_ttm"] > 0) & (df["cost_ttm"] > 0),
+        (df["revenue_ttm"] - df["cost_ttm"]) / df["revenue_ttm"],
+        np.nan,
+    )
+    return df
+
+
+def aggregate_by_industry(panel: pd.DataFrame, industry: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """按行业/季度聚合指标并输出龙头股毛利率序列。"""
+    # 注：仅保留存在行业映射的公司
+    panel = panel.merge(industry, on="Stkcd", how="inner")
+    panel["IndustryName"] = panel["IndustryName"].fillna("未分类")
+
+    # Apply per-metric inclusion rules
+    # 毛利率聚合：仅纳入营收、成本均为正的样本
+    panel["rev_for_margin"] = np.where(
+        (panel["revenue_ttm"] > 0) & (panel["cost_ttm"] > 0),
+        panel["revenue_ttm"],
+        np.nan,
+    )
+    panel["cost_for_margin"] = np.where(
+        (panel["revenue_ttm"] > 0) & (panel["cost_ttm"] > 0),
+        panel["cost_ttm"],
+        np.nan,
+    )
+    panel["rev_valid"] = panel["revenue_ttm"].where(panel["revenue_ttm"] > 0)
+    panel["capex_valid"] = panel["capex_ttm"].where(panel["capex_ttm"] > 0)
+    panel["equity_valid"] = panel["equity"].where(panel["equity"] > 0)
+    panel["debt_valid"] = panel["interest_bearing_debt"].where(panel["interest_bearing_debt"] >= 0)
+    panel["da_valid"] = panel["da_ttm"].where(panel["da_ttm"] > 0)
+    panel["ocf_valid"] = panel["ocf_ttm"]  # allow negative (出清期 OCF 可能为负)
+    panel["netprofit_valid"] = panel["netprofit_ttm"]  # allow negative
+    panel["fa_valid"] = (panel["fixed_assets"] + panel["construction_in_progress"]).where(
+        panel["total_assets"] > 0
+    )
+    panel["assets_valid"] = panel["total_assets"].where(panel["total_assets"] > 0)
+    panel["inv_valid"] = panel["inventory"].where(panel["inventory"] >= 0)
+
+    def sum_nan(series: pd.Series) -> float:
+        return series.sum(min_count=1)
+
+    agg = (
+        panel.groupby(["IndustryName", "Accper"], as_index=False)
+        .agg(
+            rev_margin_sum=("rev_for_margin", sum_nan),
+            cost_margin_sum=("cost_for_margin", sum_nan),
+            revenue_sum=("rev_valid", sum_nan),
+            capex_sum=("capex_valid", sum_nan),
+            equity_sum=("equity_valid", sum_nan),
+            debt_sum=("debt_valid", sum_nan),
+            da_sum=("da_valid", sum_nan),
+            ocf_sum=("ocf_valid", sum_nan),
+            netprofit_sum=("netprofit_valid", sum_nan),
+            fa_sum=("fa_valid", sum_nan),
+            assets_sum=("assets_valid", sum_nan),
+            inv_sum=("inv_valid", sum_nan),
+        )
+    )
+    agg = agg.sort_values(["IndustryName", "Accper"])
+
+    # Leader mapping (largest market cap per industry)
+    # 选取市值最大个股作为行业“龙头”
+    industry_sorted = (
+        panel[["IndustryName", "Stkcd", "TotalMarketCap"]]
+        .dropna(subset=["TotalMarketCap"])
+        .drop_duplicates(["IndustryName", "Stkcd"], keep="last")
+    )
+    industry_sorted = industry_sorted.sort_values(["IndustryName", "TotalMarketCap"], ascending=[True, False])
+    leaders = industry_sorted.drop_duplicates("IndustryName")[["IndustryName", "Stkcd"]]
+
+    leader_margin = (
+        panel.merge(leaders, on=["IndustryName", "Stkcd"], how="inner")
+        [["IndustryName", "Accper", "gross_margin_company"]]
+        .rename(columns={"gross_margin_company": "leader_gross_margin"})
+    )
+    leader_margin = leader_margin.sort_values(["IndustryName", "Accper"])
+
+    return agg, leader_margin
+
+
+def compute_industry_metrics(agg: pd.DataFrame, leader_margin: pd.DataFrame) -> pd.DataFrame:
+    """基于行业聚合数据计算多种三年窗口指标及分位数。"""
+    df = agg.copy()
+    df["quarter"] = pd.PeriodIndex(df["Accper"], freq="Q")
+
+    # Gross margin and 3-year difference (12 quarters)
+    df["gross_margin"] = np.where(
+        df["rev_margin_sum"] > 0,
+        (df["rev_margin_sum"] - df["cost_margin_sum"]) / df["rev_margin_sum"],
+        np.nan,
+    )
+
+    df["gross_margin_3y_diff"] = (
+        df.groupby("IndustryName")["gross_margin"].transform(lambda s: s - s.shift(12))
+    )
+
+    # Capex CAGR over 3 years
+    df["capex_cagr_3y"] = df.groupby("IndustryName")["capex_sum"].transform(
+        lambda s: np.where(
+            (s > 0) & (s.shift(12) > 0),
+            np.power(s / s.shift(12), 1 / 3) - 1,
+            np.nan,
+        )
+    )
+
+    # ROIC using equity+debt change over 1y
+    invested = df["equity_sum"].fillna(0) + df["debt_sum"].fillna(0)
+    invested_prev = invested.groupby(df["IndustryName"]).shift(4)
+    revenue_prev_3y = df.groupby("IndustryName")["revenue_sum"].shift(12)
+    df["roic"] = np.where(
+        (df["revenue_sum"] > 0)
+        & (revenue_prev_3y > 0)
+        & ((invested - invested_prev) != 0),
+        (df["revenue_sum"] - revenue_prev_3y) / (invested - invested_prev),
+        np.nan,
+    )
+
+    # Revenue growth metrics
+    rev_series = df["revenue_sum"].replace(0, np.nan)
+    rev_prev_4 = rev_series.groupby(df["IndustryName"]).shift(4)
+    df["rev_growth_q"] = np.where(
+        (rev_series > 0) & (rev_prev_4 > 0),
+        np.power(rev_series / rev_prev_4, 0.25),
+        np.nan,
+    )
+
+    df["rev_growth_3y"] = (
+        df.groupby("IndustryName")["rev_growth_q"]
+        .rolling(12, min_periods=12)
+        .apply(lambda x: np.nan if np.isnan(x).any() else (np.prod(x) ** (1 / 3) - 1), raw=False)
+        .reset_index(level=0, drop=True)
+    )
+
+    # Percentile ranks per quarter
+    df["rev_growth_percentile"] = df.groupby("Accper")["rev_growth_3y"].transform(
+        lambda s: s.rank(pct=True)
+    )
+    df["capex_cagr_percentile"] = df.groupby("Accper")["capex_cagr_3y"].transform(
+        lambda s: s.rank(pct=True)
+    )
+
+    # Gross margin 3-year rolling geometric mean fallback arithmetic
+    def geom_or_arith(window: np.ndarray) -> float:
+        valid = window[~np.isnan(window)]
+        if len(valid) == 0:
+            return np.nan
+        if np.any(valid <= 0):
+            return float(np.nanmean(valid))
+        geom = float(np.exp(np.mean(np.log(valid))))
+        if math.isfinite(geom) and geom > 0:
+            return geom
+        return float(np.nanmean(valid))
+
+    df["gross_margin_geom3y"] = (
+        df.groupby("IndustryName")["gross_margin"]
+        .rolling(12, min_periods=12)
+        .apply(lambda x: geom_or_arith(x.to_numpy()), raw=False)
+        .reset_index(level=0, drop=True)
+    )
+
+    # Leader margin advantage
+    merged_leader = pd.merge(
+        df[["IndustryName", "Accper"]],
+        leader_margin.drop_duplicates(["IndustryName", "Accper"]),
+        on=["IndustryName", "Accper"],
+        how="left",
+    )
+    df["leader_margin"] = merged_leader["leader_gross_margin"].values
+    df["leader_advantage"] = df["leader_margin"] - df["gross_margin_geom3y"]
+
+    # ── 新增衍生指标 ──────────────────────────────────────────────────────────
+    # Capex/DA 比值：资本开支强度 / 折旧摊销；< 1.0~1.5 通常为出清见底信号
+    # 注：da_sum 只在Q2/Q4有值（间接法CF仅半年报/年报），其余期间为 NaN
+    df["capex_da_ratio"] = np.where(
+        (df["da_sum"] > 0) & (df["capex_sum"] > 0),
+        df["capex_sum"] / df["da_sum"],
+        np.nan,
+    )
+
+    # 经营现金流/营收：高现金流转化率信号（S5/S6 龙头进阶特征）
+    df["ocf_to_rev"] = np.where(
+        df["revenue_sum"] > 0,
+        df["ocf_sum"] / df["revenue_sum"],
+        np.nan,
+    )
+
+    # 净利率（归母）：用于区分 ROIC 高低背后的盈利质量
+    df["net_margin"] = np.where(
+        df["revenue_sum"] > 0,
+        df["netprofit_sum"] / df["revenue_sum"],
+        np.nan,
+    )
+
+    # 固定资产比率（固定资产+在建工程）/ 资产总计：轻资产化 = 出清后期特征
+    df["fixed_asset_ratio"] = np.where(
+        df["assets_sum"] > 0,
+        df["fa_sum"] / df["assets_sum"],
+        np.nan,
+    )
+
+    df = df[
+        [
+            "IndustryName",
+            "Accper",
+            "gross_margin",
+            "gross_margin_3y_diff",
+            "capex_cagr_3y",
+            "roic",
+            "rev_growth_3y",
+            "rev_growth_percentile",
+            "capex_cagr_percentile",
+            "gross_margin_geom3y",
+            "leader_margin",
+            "leader_advantage",
+            "revenue_sum",
+            "capex_sum",
+            "equity_sum",
+            "debt_sum",
+            "da_sum",
+            "capex_da_ratio",
+            "ocf_to_rev",
+            "net_margin",
+            "fixed_asset_ratio",
+        ]
+    ]
+    return df
+
+
+def main():
+    args = parse_args()
+    db_path = Path(args.db)
+    if not db_path.exists():
+        raise SystemExit(f"Database not found: {db_path}")
+
+    income, capex, balance, industry, da, ocf, netprofit = load_financial_frames(
+        db_path, args.classification, args.min_year
+    )
+    if income.empty:
+        raise SystemExit("No income statement data retrieved; please verify database contents")
+
+    panel = prepare_company_panel(income, capex, balance, da, ocf, netprofit)
+    if panel.empty:
+        raise SystemExit("No combined panel data; check if balance sheet and industry data are available")
+
+    agg, leader_margin = aggregate_by_industry(panel, industry)
+    if agg.empty:
+        raise SystemExit("No industry aggregation possible with current inputs")
+
+    result = compute_industry_metrics(agg, leader_margin)
+    result = result.sort_values(["Accper", "IndustryName"]).reset_index(drop=True)
+
+    print(result.head(20))
+    if args.output:
+        result.to_csv(args.output, index=False)
+        print(f"Saved metrics to {args.output}")
+
+
+if __name__ == "__main__":
+    main()

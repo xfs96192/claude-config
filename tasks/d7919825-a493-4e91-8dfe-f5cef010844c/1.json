@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "生成市场复盘截图 2026-03-28",
+  "description": "按 market-review skill 步骤执行：生成iChoice数据 → 转JSON → 启动前端 → 截图 → 关闭服务",
+  "activeForm": "生成市场复盘截图",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

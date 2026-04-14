@@ -1,0 +1,57 @@
+#!/bin/bash
+# 重点产品业绩表自动生成脚本
+# 每周五 16:50 由 launchd 触发
+
+set -e
+
+DATA_DIR="/Users/fanshengxia/Desktop/周报V2/数据"
+LOG_PREFIX="[$(date '+%Y-%m-%d %H:%M:%S')]"
+
+echo "$LOG_PREFIX 开始执行重点产品业绩表生成任务"
+
+# Step 1: 强制下载所需 iCloud 文件（brctl download 触发同步）
+echo "$LOG_PREFIX 确保 iCloud 文件已下载..."
+DIRS=(
+    "$DATA_DIR/产品业绩指标数据"
+    "$DATA_DIR/产品运作概览数据-母子产品"
+    "$DATA_DIR/合享发行送审表"
+    "/Users/fanshengxia/Desktop/重点业绩产品"
+)
+
+for dir in "${DIRS[@]}"; do
+    # 触发目录内所有 .icloud 占位文件下载
+    find "$dir" -name "*.icloud" 2>/dev/null | while read f; do
+        real_name="${f%.icloud}"
+        real_name="${real_name/#$dir\/./.}" # 去掉前缀点
+        brctl download "$f" 2>/dev/null || true
+        echo "$LOG_PREFIX   下载中: $f"
+    done
+done
+
+# 等待最多 60 秒让 iCloud 完成同步
+MAX_WAIT=60
+WAIT=0
+while [ $WAIT -lt $MAX_WAIT ]; do
+    PENDING=$(find "${DIRS[@]}" -name "*.icloud" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$PENDING" -eq 0 ]; then
+        echo "$LOG_PREFIX iCloud 文件全部就绪"
+        break
+    fi
+    echo "$LOG_PREFIX   等待 $PENDING 个文件下载... (${WAIT}s)"
+    sleep 5
+    WAIT=$((WAIT + 5))
+done
+
+if [ $WAIT -ge $MAX_WAIT ]; then
+    echo "$LOG_PREFIX 警告: 部分 iCloud 文件未能在 ${MAX_WAIT}s 内下载完成，继续执行"
+fi
+
+# Step 2: 执行 Claude Code 任务
+TODAY=$(date '+%Y年%-m月%-d日')
+echo "$LOG_PREFIX 调用 Claude 生成 $TODAY 的重点产品业绩表..."
+
+/Users/fanshengxia/.local/bin/claude \
+    -p "生成${TODAY}的重点产品业绩表" \
+    --allowedTools "Bash,Read,Write,Edit,Glob,Grep"
+
+echo "$LOG_PREFIX 任务完成"

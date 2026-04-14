@@ -1,0 +1,14 @@
+INFO:werkzeug: * Debugger PIN: 109-295-403
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:00:27] "GET / HTTP/1.1" 304 -
+INFO:__main__:Loaded metrics from /Users/fanshengxia/Desktop/研究工作/行业生命周期/industry_metrics.csv (rows=13972)
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:00:28] "GET /api/industries HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:00:31] "GET /api/analyze/LED HTTP/1.1" 200 -
+INFO:__main__:Loaded metrics from /Users/fanshengxia/Desktop/研究工作/行业生命周期/industry_metrics.csv (rows=14403)
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:14:49] "GET /api/analyze/白酒 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:14:51] "GET /api/analyze/白酒 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:14:52] "GET /api/analyze/白酒 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:14:53] "GET /api/analyze/白酒 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:14:55] "GET /api/analyze/白酒 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:15:06] "GET / HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:15:06] "GET /api/industries HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2026 16:15:10] "GET /api/analyze/LED HTTP/1.1" 200 -

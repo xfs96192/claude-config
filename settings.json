@@ -17,7 +17,8 @@
     "wealth-management@financial-services-plugins": true,
     "claude-hud@claude-hud": true,
     "autoresearch@autoresearch": true,
-    "last30days@last30days-skill": true
+    "last30days@last30days-skill": true,
+    "claude-subconscious@claude-subconscious": false
   },
   "extraKnownMarketplaces": {
     "claude-hud": {
@@ -36,6 +37,12 @@
       "source": {
         "source": "github",
         "repo": "mvanhorn/last30days-skill"
+      }
+    },
+    "claude-subconscious": {
+      "source": {
+        "source": "github",
+        "repo": "letta-ai/claude-subconscious"
       }
     }
   },
@@ -70,5 +77,6 @@
       "url": "https://api-mcp.51ifind.com:8643/ds-mcp-servers/hexin-ifind-ds-news-mcp"
     }
   },
-  "hasTrustDialogAccepted": true
+  "hasTrustDialogAccepted": true,
+  "autoDreamEnabled": true
 }

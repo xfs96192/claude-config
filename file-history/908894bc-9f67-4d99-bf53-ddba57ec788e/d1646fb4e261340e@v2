@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import sys, html
+sys.path.insert(0, '/Users/fanshengxia/.claude/skills/docx')
+
+XML_PATH = '/tmp/jibao_q1_unpacked_v2/word/document.xml'
+
+def make_para_unicode(text, indent="420"):
+    """生成段落 XML，文本保持 Unicode（最后统一编码）"""
+    # 转义 XML 特殊字符（但保留中文为 Unicode）
+    safe = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    return (f'\n    <w:p>\n      '
+            f'<w:pPr><w:ind w:firstLineChars="200" w:firstLine="{indent}"/></w:pPr>\n      '
+            f'<w:r><w:t>{safe}</w:t></w:r>\n    </w:p>')
+
+with open(XML_PATH, 'r', encoding='ascii') as f:
+    raw = f.read()
+
+decoded = html.unescape(raw)   # 全部转为 Unicode
+
+# ---- 灵动日开：插入到灵动36号 paraId=16D29DB8 的 </w:p> 之后 ----
+ld_text = ('灵动日开：组合债券有效行权久期为1-3年，主要采用哑铃策略，中短端信用债底仓配置，'
+           '通过长端交易博取阶段性收益，通过杠杆适度增厚收益。'
+           '权益市场震荡分化，从结构中寻找机会，重点配置具有稳定质量的公司的配置比例，'
+           '适度增加景气类、科技成长类公司，以提升组合弹性及胜率。')
+
+ld36_pos = decoded.find('paraId="16D29DB8"')
+if ld36_pos != -1:
+    close_pos = decoded.find('</w:p>', ld36_pos)
+    insert_pt = close_pos + len('</w:p>')
+    decoded = decoded[:insert_pt] + make_para_unicode(ld_text) + decoded[insert_pt:]
+    print("灵动日开插入成功")
+else:
+    print("WARNING: 未找到灵动36号 paraId")
+
+# ---- 悦动51/61号：插入到悦动56号 paraId=3F044277 的 </w:p> 之后 ----
+yue51_text = '悦动51号固收类理财产品，衍生品套利策略不高于5%的比例，债券部分采用衰竭式久期的配置方式，非标资产配置比例不高于50%，权益仓位为0%。'
+yue61_text = '悦动61号固收类理财产品，衍生品套利策略不高于5%的比例，债券部分采用衰竭式久期的配置方式，非标资产配置比例不高于50%，权益仓位为0%。'
+
+yue56_pos = decoded.find('paraId="3F044277"')
+if yue56_pos != -1:
+    close_pos = decoded.find('</w:p>', yue56_pos)
+    insert_pt = close_pos + len('</w:p>')
+    decoded = decoded[:insert_pt] + make_para_unicode(yue51_text) + make_para_unicode(yue61_text) + decoded[insert_pt:]
+    print("悦动51/61号插入成功")
+else:
+    print("WARNING: 未找到悦动56号 paraId")
+
+# 验证（此时 decoded 是纯 Unicode）
+print('灵动日开已加入:', '灵动日开：' in decoded)
+print('悦动51号已加入:', '悦动51号' in decoded)
+print('悦动61号已加入:', '悦动61号' in decoded)
+
+# 重新编码为 ASCII 实体
+def re_encode_ascii(text):
+    result = []
+    for ch in text:
+        if ord(ch) > 127:
+            result.append(f'&#{ord(ch)};')
+        else:
+            result.append(ch)
+    return ''.join(result)
+
+re_encoded = re_encode_ascii(decoded)
+with open(XML_PATH, 'w', encoding='ascii') as f:
+    f.write(re_encoded)
+print("写入完成")
+
+# 重新打包
+from ooxml.scripts.pack import pack_document
+OUT_PATH = '/Users/fanshengxia/Desktop/季报汇总/季报20260331/2026年一季报策略报告-徐莹更新.docx'
+pack_document('/tmp/jibao_q1_unpacked_v2', OUT_PATH)
+print(f"已生成: {OUT_PATH}")

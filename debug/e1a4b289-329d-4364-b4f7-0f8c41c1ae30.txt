@@ -1,5 +1,0 @@
-2026-03-02T06:20:35.302Z [DEBUG] Error log sink initialized
-2026-03-02T06:20:35.304Z [DEBUG] [bridge:init] bridgeId=29451695-36b9-4ddd-9131-fda743863046 environmentId=8811257f-c447-4993-9061-3687414303e2 dir=/Users/fanshengxia/Desktop/AI branch=HEAD gitRepoUrl=null machine=FanshengdeMacBook-Pro-87.local
-2026-03-02T06:20:35.304Z [DEBUG] [bridge:init] apiBaseUrl=https://api.anthropic.com sessionIngressUrl=https://api.anthropic.com
-2026-03-02T06:20:35.304Z [DEBUG] [bridge:init] sandbox=false
-2026-03-02T06:20:35.304Z [DEBUG] [bridge:api] POST /v1/environments/bridge bridgeId=29451695-36b9-4ddd-9131-fda743863046

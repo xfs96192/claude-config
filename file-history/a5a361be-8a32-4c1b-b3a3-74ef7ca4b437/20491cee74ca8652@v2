@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# 上传 xiafansheng-site 到云服务器 /home/xiafansheng-site
+# 用法: bash upload_site.sh [--dry-run]
+
+LOCAL_SRC="/Users/fanshengxia/Desktop/backupserver/home/xiafansheng-site"
+REMOTE_HOST="47.115.210.223"
+REMOTE_USER="root"
+REMOTE_DEST="/home/xiafansheng-site"
+REMOTE_PASS='@Xfs9619'
+
+# ── 检查依赖 ──────────────────────────────────────────────────────────────────
+if ! command -v sshpass &>/dev/null; then
+    echo "[错误] 未找到 sshpass，请先安装："
+    echo "  brew install hudochenkov/sshpass/sshpass   # macOS"
+    echo "  apt-get install sshpass                    # Debian/Ubuntu"
+    exit 1
+fi
+
+if ! command -v rsync &>/dev/null; then
+    echo "[错误] 未找到 rsync，请先安装：brew install rsync"
+    exit 1
+fi
+
+# ── 参数解析 ──────────────────────────────────────────────────────────────────
+DRY_RUN=""
+if [[ "${1:-}" == "--dry-run" ]]; then
+    DRY_RUN="--dry-run"
+    echo "[模拟模式] 仅预览，不实际传输"
+fi
+
+# ── 执行同步 ──────────────────────────────────────────────────────────────────
+echo "本地路径 : $LOCAL_SRC"
+echo "目标路径 : $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST"
+echo "开始传输…"
+
+SSHPASS="$REMOTE_PASS" rsync \
+    -avz \
+    --progress \
+    --delete \
+    $DRY_RUN \
+    -e "sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+    "$LOCAL_SRC/" \
+    "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST/"
+
+STATUS=$?
+if [[ $STATUS -eq 0 ]]; then
+    echo ""
+    echo "[完成] 同步成功。"
+else
+    echo ""
+    echo "[失败] rsync 退出码: $STATUS"
+    exit $STATUS
+fi

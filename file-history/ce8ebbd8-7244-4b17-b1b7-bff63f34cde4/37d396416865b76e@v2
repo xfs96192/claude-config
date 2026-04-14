@@ -1,0 +1,307 @@
+# 行业多期指标脚本说明
+
+本说明配套 `industry_metrics.py` 脚本，帮助理解其依赖、计算逻辑与输出字段。可结合 `financial_data.db` 的最新数据生成三级行业的多维财务因子。
+
+## 1. 运行环境与依赖
+
+- Python ≥ 3.9
+- 已安装 `pandas`、`numpy`
+- 本地 SQLite 数据库：`financial_data.db`（当前使用路径：`~/Desktop/financial data/financial_data.db`）
+- 行业口径来源：`上市公司行业分类` 表（来自 Wind 快照），需包含 `Stkcd` 映射。
+
+## 2. 脚本入口
+
+```bash
+python3 industry_metrics.py --classification sw --min-year 2010 --output industry_metrics.csv
+```
+
+参数说明：
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `--db` | `financial_data.db` | SQLite 文件路径 |
+| `--classification` | `sw` | 行业体系：`sw`（申万三级）、`wind`（Wind 三级）、`cicc`（中信三级）|
+| `--min-year` | `2010` | 最早纳入年份（基于报表期 `Accper`）|
+| `--output` | 无（仅打印） | CSV 输出路径 |
+
+## 3. 数据覆盖范围
+
+`industry_metrics.csv` 当前已更新至：
+
+| 期数 | 行业数 | 说明 |
+|------|--------|------|
+| 2025-03-31（2025Q1）| 227 | 全量 |
+| 2025-06-30（2025Q2）| 227 | 全量 |
+| 2025-09-30（2025Q3）| 227 | 全量 |
+| 2025-12-31（2025Q4）| 201 | 部分：约 1374 家已披露年报，其余上市公司尚未发布 |
+
+> 2025Q4 数据将随年报披露逐步补全，届时重跑脚本即可覆盖全量。
+
+---
+
+## 4. 计算流程详解
+
+### 4.1 TTM（过去12个月滚动）换算
+
+**适用报表**：利润表（`v_latest_利润表`）、现金流量表（`v_latest_现金流量表`）。这两张表的字段均为"当年累计制"（即 Q1 报告 1 月~3 月合计，Q3 报告 1 月~9 月合计），需换算为滚动 12 个月值。
+
+**换算公式**：
+- 若报告期为 **12月31日**（年报）：直接使用当年累计值作为 TTM。
+- 若报告期为 **3/6/9月末**（季报）：
+
+```
+TTM_t = 当期累计_t + 上年年末累计_t-12m(12-31) - 上年同期累计_t-12m
+```
+
+例如，2025-09-30 的营业收入 TTM：
+```
+= 2025-09-30 累计收入
+  + 2024-12-31 全年收入
+  − 2024-09-30 累计收入
+```
+
+**筛选条件**：仅读取 `Typrep='A'`（合并报表），且报告期末日期后缀在 `{03-31, 06-30, 09-30, 12-31}` 内。
+
+**涉及字段**：
+
+| 变量 | 源表字段 | 含义 |
+|------|---------|------|
+| `revenue_ttm` | `B001101000`（利润表） | 营业收入 TTM |
+| `cost_ttm` | `B001201000`（利润表） | 营业成本 TTM |
+| `capex_ttm` | `C002006000`（现金流量表）绝对值 | 购建固定资产、无形资产和其他长期资产支付的现金 TTM |
+
+---
+
+### 4.2 资产负债表项目（期末点值，非 TTM）
+
+资产负债表为时点数据，直接取季度末余额，不做 TTM 换算。
+
+| 变量 | 源字段 | 含义 |
+|------|--------|------|
+| `equity` | `A003000000` | 所有者权益合计（归母+少数股东） |
+| `short_term_debt` | `A002101000` | 短期借款 |
+| `long_term_debt` | `A002201000` | 长期借款 |
+| `bonds_payable` | `A002203000` | 应付债券 |
+| `current_portion` | `A002125000` | 一年内到期的非流动负债 |
+| `lease_liab` | `A002211000` | 租赁负债 |
+
+**有息负债估算**：
+```
+interest_bearing_debt = short_term_debt + long_term_debt
+                      + bonds_payable + current_portion + lease_liab
+```
+此为宽口径估算，未扣除经营性负债，适用行业间横向比较；若需精确，可在代码中替换。
+
+---
+
+### 4.3 公司-季度面板拼合
+
+将利润表、现金流量表、资产负债表三张中间表按 `(Stkcd, Accper)` 做 `outer join`，再与行业分类表按 `Stkcd` 做 `inner join`，保留有行业映射的公司。
+
+**质量过滤**：
+
+| 指标 | 参与聚合条件 |
+|------|-------------|
+| 毛利率计算用收入/成本 | `revenue_ttm > 0` 且 `cost_ttm > 0` |
+| 营收（用于增速/ROIC） | `revenue_ttm > 0` |
+| Capex | `capex_ttm > 0` |
+| 权益 | `equity > 0` |
+| 有息负债 | `interest_bearing_debt ≥ 0` |
+
+---
+
+### 4.4 行业聚合（按三级行业 + 季度）
+
+对每个 `(IndustryName, Accper)` 分组，对公司级指标求**加总**（`sum`，要求至少 1 个非 NaN，否则返回 NaN）：
+
+```
+rev_margin_sum   = Σ(revenue_ttm，仅营收/成本均正的公司)
+cost_margin_sum  = Σ(cost_ttm，仅营收/成本均正的公司)
+revenue_sum      = Σ(revenue_ttm > 0)
+capex_sum        = Σ(capex_ttm > 0)
+equity_sum       = Σ(equity > 0)
+debt_sum         = Σ(interest_bearing_debt ≥ 0)
+```
+
+**龙头认定**：在行业分类快照中，取该行业 `TotalMarketCap` 最大的个股为行业龙头，龙头的公司级毛利率序列用于计算 `leader_advantage`。市值快照来自 `上市公司行业分类` 表（静态），如需动态龙头请重导行业分类表。
+
+---
+
+### 4.5 各指标逐字段计算说明
+
+#### `gross_margin`（行业毛利率 TTM）
+
+```
+gross_margin = (rev_margin_sum - cost_margin_sum) / rev_margin_sum
+```
+
+- 分子：行业聚合收入 − 行业聚合成本（仅纳入收入/成本均为正的公司）
+- 分母：行业聚合收入（同上过滤条件，与分子样本一致）
+- 若 `rev_margin_sum ≤ 0` 则返回 NaN
+
+---
+
+#### `gross_margin_3y_diff`（毛利率三年差分）
+
+```
+gross_margin_3y_diff_t = gross_margin_t − gross_margin_{t-12}
+```
+
+- 同一行业，当期毛利率减去 **12个季度前**（即3年前同一季度）的毛利率
+- 反映行业盈利空间三年趋势变化，正值表示毛利率扩张，负值表示压缩
+
+---
+
+#### `capex_cagr_3y`（Capex 三年复合增速）
+
+```
+capex_cagr_3y_t = (capex_sum_t / capex_sum_{t-12})^(1/3) − 1
+```
+
+- 取当期与12个季度前的行业 Capex 之比，开3次方后减1
+- 需 `capex_sum_t > 0` 且 `capex_sum_{t-12} > 0`，否则返回 NaN
+- 反映行业扩张意愿，高 CAGR 对应成长/扩张阶段
+
+---
+
+#### `roic`（投入资本回报率简化版）
+
+本指标用营收增量 / 新增投入资本来近似 ROIC（非传统息税前利润口径）：
+
+```
+投入资本_t = equity_sum_t + debt_sum_t
+roic_t = (revenue_sum_t − revenue_sum_{t-12})
+         / (投入资本_t − 投入资本_{t-4})
+```
+
+- 分子：当期 TTM 营收 − 3年前（12个季度前）同期 TTM 营收，衡量增量收入
+- 分母：当期投入资本 − 1年前（4个季度前）投入资本，衡量净新增资本投入
+- 若分母为 0，或分子/分母任一为 NaN，则返回 NaN
+- **注意**：此为简化口径，使用营收增量代替利润增量；投入资本未剔除经营性负债；适用行业间横向比较，不适合与传统 ROIC 直接对比
+
+---
+
+#### `rev_growth_3y`（三年营收复合增速）
+
+**第一步**：计算单季度环比化年化增速
+
+```
+rev_growth_q_t = (revenue_sum_t / revenue_sum_{t-4})^0.25
+```
+
+即相邻4个季度（同比）的增速，取0.25次方换算为"季化"增速。
+
+**第二步**：过去12个季度的复合增速
+
+```
+rev_growth_3y_t = [∏(rev_growth_q_{t-11} ... rev_growth_q_t)]^(1/3) − 1
+```
+
+即将过去12个 `rev_growth_q` 值连乘，再对整体3年期取几何均值减1。
+窗口内有任意 NaN 时返回 NaN（要求 `min_periods=12`）。
+
+---
+
+#### `rev_growth_percentile`（三年营收增速分位）
+
+```
+rev_growth_percentile_t = rank(rev_growth_3y_t) / N_t
+```
+
+在**同一季度截面**（`Accper` 相同）内对所有行业的 `rev_growth_3y` 进行百分位排名（`pct=True`），范围 0~1。分位值越高表示该行业增速在当期所有行业中排名越靠前。
+
+---
+
+#### `capex_cagr_percentile`（Capex 复合增速分位）
+
+同 `rev_growth_percentile` 计算逻辑，对象换为 `capex_cagr_3y`：
+
+```
+capex_cagr_percentile_t = rank(capex_cagr_3y_t) / N_t   （同一季度截面）
+```
+
+---
+
+#### `gross_margin_geom3y`（毛利率三年滚动几何/算术均值）
+
+对同一行业过去12个季度的 `gross_margin` 序列，取滚动窗口均值：
+
+```
+若窗口内所有值均 > 0：
+    gross_margin_geom3y = exp( mean(ln(gross_margin)) )   # 几何均值
+
+若窗口内存在 ≤ 0 的值（特殊行业负毛利）：
+    gross_margin_geom3y = mean(gross_margin)               # 退化为算术均值
+```
+
+窗口长度 = 12个季度，`min_periods=12`（不足12期返回 NaN）。用于平滑短期波动，反映行业中期盈利水平。
+
+---
+
+#### `leader_margin`（龙头毛利率）
+
+行业龙头公司（同期市值最大个股）的**公司级毛利率** TTM：
+
+```
+leader_margin = (revenue_ttm_龙头 − cost_ttm_龙头) / revenue_ttm_龙头
+```
+
+龙头为静态市值排名，每次重跑脚本时以最新行业分类表快照为准。
+
+---
+
+#### `leader_advantage`（龙头毛利率优势）
+
+```
+leader_advantage = leader_margin − gross_margin_geom3y
+```
+
+- 正值：龙头毛利率高于行业三年均值，体现龙头溢价/竞争壁垒
+- 负值：龙头毛利率低于行业均值（可能为资产重、周期性强的龙头，或行业竞争格局分散）
+
+---
+
+## 5. 输出字段汇总
+
+| 列名 | 含义 | 数据范围 |
+|------|------|---------|
+| `IndustryName` | 申万三级行业名称 | 共 227 个行业 |
+| `Accper` | 报表期（季度末日期） | 2010Q1 ~ 2025Q4（Q4 部分） |
+| `gross_margin` | 行业毛利率 TTM | 当期加总口径 |
+| `gross_margin_3y_diff` | 毛利率三年差分 | 需 12 期历史，2013Q1 起有效 |
+| `capex_cagr_3y` | Capex 三年复合增速 | 需 12 期历史，2013Q1 起有效 |
+| `roic` | 简化 ROIC（营收增量/新增资本） | 需 12 期历史 |
+| `rev_growth_3y` | 三年营收复合增速 | 需 16 期历史（4+12），2014Q1 起有效 |
+| `rev_growth_percentile` | 三年营收增速同期分位（0~1） | 截面排名 |
+| `capex_cagr_percentile` | Capex 增速同期分位（0~1） | 截面排名 |
+| `gross_margin_geom3y` | 毛利率三年滚动几何均值 | 需 12 期历史 |
+| `leader_margin` | 行业龙头（最大市值）公司毛利率 | 静态龙头快照 |
+| `leader_advantage` | 龙头毛利率 − 行业三年均值 | |
+| `revenue_sum` | 行业营收 TTM（聚合） | 万元，原始单位 |
+| `capex_sum` | 行业资本开支 TTM（聚合） | 万元，取绝对值 |
+| `equity_sum` | 行业所有者权益合计 | 期末点值 |
+| `debt_sum` | 行业有息负债估算合计 | 期末点值，宽口径 |
+
+---
+
+## 6. 常见注意事项
+
+- **2025Q4 数据不完整**：截至当前仅约 1,374 家公司披露年报（约占全量 25%），对应 201 个行业有数据，其余行业待年报披露后补全。届时重跑脚本即可。
+- **NaN 处理**：指标需要一定历史窗口（12~16期），早期数据（2010~2013年）部分衍生指标会返回 NaN，可视化时建议掩码处理。
+- **ROIC 口径局限**：使用营收增量而非利润增量，且投入资本未剔除经营性负债，仅适用行业间横向比较，不可与传统 ROIC 直接对比。
+- **龙头为静态快照**：行业龙头以 `上市公司行业分类` 表中的 `TotalMarketCap` 静态排名确定，如需动态龙头，需同步更新行业分类表后重跑。
+- **分位数截面说明**：`rev_growth_percentile` 和 `capex_cagr_percentile` 为**同期截面排名**，仅反映相对排名，不反映绝对水平。
+
+## 7. 重跑方式
+
+```bash
+cd /Users/fanshengxia/Desktop/研究工作/行业生命周期
+python3 industry_metrics.py \
+  --db "/Users/fanshengxia/Desktop/financial data/financial_data.db" \
+  --classification sw \
+  --min-year 2010 \
+  --output industry_metrics.csv
+```
+
+---
+如对指标定义或口径有定制需求，可在脚本中调整对应 SQL / 聚合逻辑，并同步更新本说明。

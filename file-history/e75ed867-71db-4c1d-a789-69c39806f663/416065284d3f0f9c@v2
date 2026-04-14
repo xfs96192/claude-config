@@ -1,0 +1,146 @@
+---
+type: concept
+related: [[AI/LLM_WIKI_SCHEMA]], [[研究相关/宏观主题/当前主题索引]], [[研究相关/市场概念/收益率曲线]]
+last_updated: 2026-04-07
+sources: Clippings/LLM_Wiki_Karpathy_2026-04-07.md
+---
+
+# LLM Wiki 方法论
+
+> **本知识库本身即基于此方法论构建。**
+> 来源：Andrej Karpathy 于 2026-04-02 发布的 LLM Knowledge Bases 思路，结合社区实践整理。
+
+---
+
+## 核心思想
+
+LLM Wiki 是对传统 RAG 的根本改进：LLM 不在查询时重新检索，而是**提前**将原始来源编译为结构化的持久 wiki，知识持续复利而非每次丢弃。
+
+| 对比维度 | RAG | LLM Wiki |
+|---------|-----|---------|
+| 知识存储位置 | 原始 chunk + 向量嵌入 | 结构化 Markdown wiki |
+| 查询方式 | 临时检索拼合 | 读已整理的 wiki 页 |
+| 知识是否积累 | 否，每次重新发现 | 是，随 ingest 持续复利 |
+| 交叉引用 | 查询时临时建立 | 提前建立，持久存在 |
+| 矛盾检测 | 无 | Lint 操作定期检查 |
+| 维护成本 | 随规模线性增长 | 趋近于零（LLM 不会厌倦） |
+
+---
+
+## 架构（三层）
+
+```
+/raw（只读，人类策划）
+    └── 论文、文章、网页剪藏、会议纪要、数据集...
+
+/wiki（LLM 维护，永久结构化知识）
+    └── 概念页、主题页、实体页、综合对比页...
+
+schema文件（人机共同进化的配置文件）
+    └── 目录约定、命名规范、三种操作定义
+```
+
+**比喻**：wiki = 代码库，Obsidian = IDE，LLM = 程序员，schema = 代码风格指南。
+
+---
+
+## 三种操作
+
+### Ingest（摄取）
+- 将新来源放入 /raw，告诉 LLM 处理
+- 单个来源可更新 **10-15 个** wiki 页面
+- 自动完成：提取→写摘要→更新现有页→建立交叉链接→标记矛盾→更新索引→记录变更日志
+- 查询结果本身也可以作为新页面写回 wiki（探索本身积累知识）
+
+### Query（查询）
+- 对 wiki 提问，而非对原始文档
+- wiki 已整理好交叉引用，回答质量远高于 RAG
+
+### Lint（健康检查）
+- 找孤立页面（无入链）
+- 找同机构/来源的矛盾判断
+- 找有操作但无复盘的缺口
+- 找过期主题（超 30 天未更新）
+- LLM 不会厌倦，维护成本趋近于零
+
+---
+
+## 为什么选 Obsidian + Claude Code
+
+| 工具 | 角色 | 优势 |
+|------|------|------|
+| Obsidian | wiki 存储与可视化 | 本地文件，`[[wiki链接]]` 天然支持，Graph View 可视化 |
+| Claude Code（Opus 4.6） | LLM agent | 可读写文件系统，支持多文件并发操作 |
+| Obsidian Web Clipper | 原始资料采集 | 一键剪藏到 /Clippings |
+| Markdown + [[链接]] | 格式规范 | 兼容任何工具，文件即数据 |
+
+---
+
+## 四大优势（为什么优于封闭平台）
+
+1. **显式**：可以直接看到 AI 知道什么、不知道什么；无隐藏嵌入
+2. **本地文件**：不锁定任何平台，Markdown 是通用格式
+3. **Files over Apps**：兼容全部 Unix 工具链、任意编辑器
+4. **可换底座**：可随时替换 Claude → GPT → 开源模型，甚至在 wiki 数据上微调
+
+---
+
+## 适用场景
+
+- 垂直领域深度研究（投研、学术、尽职调查）
+- 机构观点追踪（多来源、跨时间、矛盾对比）
+- 个人决策复盘（历史操作→模式提炼）
+- 团队内部知识库（会议纪要 + Slack → 自动维护）
+- 代码库理解（CodeWiki：将代码库编译为活的 wiki）
+
+---
+
+## 社区争议与反驳
+
+**主要质疑**（来自 HN，291分，92评论）：
+- "Context 污染太多"
+- "不就是 RAG 压缩吗"
+
+**反驳**：
+- LLM Wiki 的 context 是结构化、可导航的，不是随机 chunk
+- "压缩"是被动的；LLM Wiki 是主动整理 + 建立交叉引用——质的区别
+- 关键差异：人类放弃 wiki 因为维护成本增长快于价值；LLM 不会厌倦，触及 15 个文件只需一次调用
+
+**对照组**：Wikipedia 同期宣布禁止 LLM 写作（关注可验证性）——LLM Wiki 反方向，鼓励 LLM 作为个人 wiki 主要作者，因为**个人 wiki 的核心价值是为你个人服务，不需要对外部可验证**。
+
+---
+
+## 开源实现（2026年4月一周内涌现）
+
+| 项目 | 特征 |
+|------|------|
+| lucasastorian/llm-wiki | 开源实现，Karpathy 原始思路 |
+| LLM Wiki Compiler（ethanjoffe） | 编译器变体 |
+| CacheZero（swarajbachu） | 一行 NPM 安装，面向 JS 开发者 |
+
+---
+
+## 关键引用
+
+> "The LM incrementally builds and maintains a persistent wiki — structured interlinked markdown files — sitting between you and your raw sources." — Karpathy
+
+> "Humans abandon wikis because the maintenance burden grows faster than the value. LLMs don't get bored. They can touch 15 files in a single pass. The cost of maintenance drops to near zero." — Karpathy
+
+---
+
+## 本库的实现
+
+本知识库（兴银理财多资产投资知识库）即基于此方法论构建，规则详见：
+`[[AI/LLM_WIKI_SCHEMA]]`
+
+**raw 层**：`Clippings/` + `AI/信息来源库/`
+**wiki 层**：`研究相关/` + `投资经理/` + `数据知识库/` + `AI/工作方法/`
+**schema**：`AI/LLM_WIKI_SCHEMA.md`
+
+## 来源摘录 — 2026-04-07（LLM_Wiki_Karpathy_2026-04-07.md）
+
+- Karpathy 于 2026-04-02 发布 LLM Knowledge Bases 推文，迅速走红
+- 一周内出现 3 个 Show HN 开源实现
+- 社区主流工具栈：Obsidian + Claude Code Opus 4.6
+- HN 主要质疑："context 污染"和"就是 RAG 压缩"，反驳：质的区别在于主动整理与交叉引用
+- YouTube 热度：Onchain AI Garage（10K播放/580赞）、Cole Medin（9.5K播放/525赞）

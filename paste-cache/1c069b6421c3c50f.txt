@@ -1,0 +1,38 @@
+(base) fanshengxia@FanshengdeMacBook-Pro-87 ~ % cd "/Users/fanshengxia/Desktop/financial data"
+(base) fanshengxia@FanshengdeMacBook-Pro-87 financial data %  python3 update_db.py --dry-run
+数据库：/Users/fanshengxia/Desktop/financial data/financial_data.db
+数据目录：数据底表截止2026年3月底
+策略：全量替换
+模式：dry-run（不修改数据库）
+
+[处理] 资产负债表
+       来源：资产负债表103255804(仅供混沌书苑使用)/FS_Combas.xlsx
+    [dry-run] 策略=全量替换，来源=FS_Combas.xlsx，列数=154
+
+[处理] 利润表
+       来源：利润表102534166(仅供混沌书苑使用)/FS_Comins.xlsx
+    [dry-run] 策略=全量替换，来源=FS_Comins.xlsx，列数=81
+
+[处理] 现金流量表
+       来源：现金流量表(直接法)123324256(仅供混沌书苑使用)/FS_Comscfd.xlsx
+    [dry-run] 策略=全量替换，来源=FS_Comscfd.xlsx，列数=72
+
+[处理] 现金流量表(间接法)
+       来源：现金流量表(间接法)132434354(仅供混沌书苑使用)/FS_Comscfi.xlsx
+    [dry-run] 策略=全量替换，来源=FS_Comscfi.xlsx，列数=35
+
+[跳过] 所有者权益表：在 数据底表截止2026年3月底 中未找到 FN_FN046.xlsx
+[处理] 上市公司基本信息年度表
+       来源：上市公司基本信息年度表095214688(仅供混沌书苑使用)/STK_LISTEDCOINFOANL.xlsx
+    [dry-run] 策略=全量替换，来源=STK_LISTEDCOINFOANL.xlsx，列数=41
+
+=======================================================
+表名                           导入行数  状态
+-------------------------------------------------------
+  资产负债表                         0  成功
+  利润表                           0  成功
+  现金流量表                         0  成功
+  现金流量表(间接法)                    0  成功
+  所有者权益表                        0  未找到文件
+  上市公司基本信息年度表                   0  成功
+=======================================================

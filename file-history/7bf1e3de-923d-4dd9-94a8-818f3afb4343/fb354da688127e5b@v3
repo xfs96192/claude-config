@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.fanshengxia.key-performance</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/fanshengxia/.local/bin/run-key-performance.sh</string>
+  </array>
+
+  <!-- 每周五 16:50 (Asia/Shanghai) -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key>
+    <integer>5</integer>
+    <key>Hour</key>
+    <integer>16</integer>
+    <key>Minute</key>
+    <integer>50</integer>
+  </dict>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/fanshengxia/Desktop</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/fanshengxia/Desktop/重点业绩产品/cron.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/fanshengxia/Desktop/重点业绩产品/cron_error.log</string>
+
+  <!-- 保证环境变量正确（PATH / HOME） -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/Users/fanshengxia</string>
+    <key>PATH</key>
+    <string>/Users/fanshengxia/.local/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+</dict>
+</plist>

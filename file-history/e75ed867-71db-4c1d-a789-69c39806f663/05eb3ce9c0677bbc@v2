@@ -1,0 +1,134 @@
+---
+source: last30days research (Reddit / YouTube / HN / Web)
+captured: 2026-04-07
+topic: LLM Wiki / LLM Knowledge Base
+type: raw
+---
+
+# LLM Wiki — Karpathy 知识库模式研究摘录
+
+> 来源：/last30days 工具跨平台研究（YouTube / Hacker News / Web），覆盖过去30天。
+> 原帖：Andrej Karpathy 于 2026-04-02 发布。
+
+---
+
+## 核心概念
+
+Karpathy 将 LLM Wiki 描述为"持久知识编译器"，区别于传统 RAG（查询时临时检索）：
+
+> "You never (or rarely) write the wiki yourself — the LLM writes and maintains all of it. You're in charge of sourcing, exploration, and asking the right questions. The LLM does all the grunt work — the summarizing, cross-referencing, filing, and bookkeeping."
+
+**关键区别**：
+- RAG：每次查询时重新从原始文档中拼合答案，知识不积累
+- LLM Wiki：LLM 提前读取所有原始来源，构建持久的相互关联的 Markdown wiki，知识持续复利
+
+---
+
+## 架构（三层）
+
+```
+/raw         原始来源（不可变，LLM只读）
+             ← 论文、文章、网页剪藏、数据集等
+
+/wiki        LLM 维护的知识层（Markdown 互链文件）
+             ← 摘要页、概念页、实体页、对比分析页
+
+schema文件   配置文件（类似 CLAUDE.md）
+             ← 告诉 LLM wiki 结构、命名约定、工作流程
+```
+
+---
+
+## 三种核心操作
+
+### 1. Ingest（摄取）
+- 将新来源放入 /raw 文件夹，让 LLM 处理
+- 单个来源可触及 10-15 个 wiki 页面
+- LLM 写摘要页、更新现有页面、建立交叉链接、标记矛盾、更新索引、记录变更日志
+
+### 2. Query（查询）
+- 对 wiki 提问而非原始文档
+- 好的回答本身可以作为新页面写回 wiki
+- 知识复利：探索过程本身也积累到知识库
+
+### 3. Lint（健康检查）
+- 找矛盾：新数据与已有内容冲突
+- 找孤立页面：无入链
+- 找缺口：建议补充新资料
+- LLM 不会感到厌倦，维护成本趋近于零
+
+---
+
+## 工具栈（社区主流选择）
+
+| 工具 | 角色 |
+|------|------|
+| Obsidian | wiki 存储与可视化（IDE） |
+| Claude Code（Opus 4.6） | LLM 编写/维护 agent |
+| Obsidian Web Clipper | 网页内容采集到 /raw |
+| 标准 Markdown + [[wiki链接]] | 格式规范 |
+
+Obsidian 比喻：wiki = 代码库，Obsidian = IDE，LLM = 程序员，schema = 代码风格指南。
+
+---
+
+## 为什么优于 RAG
+
+1. **显式**：知识可见于可导航的 wiki，可以直接看到 AI 知道什么、不知道什么；无隐藏向量嵌入
+2. **本地文件**：所有内容为本地 Markdown，不锁定任何平台
+3. **文件优先（Files over Apps）**：兼容任何工具、CLI、编辑器
+4. **可换底座**：可以换 Claude、GPT、开源模型，甚至在 wiki 数据上微调模型
+
+---
+
+## 适用场景（社区讨论）
+
+- **学术研究**：持续数周/月深入某个主题，论文→wiki→综合观点
+- **个人知识管理**：目标、健康、自我提升的结构化追踪
+- **企业内部 wiki**：Slack + 会议 + 客户通话喂入，自动维护
+- **读书笔记**：按章节摄取，构建角色/主题页面
+- **尽职调查**：投研垂直领域知识库（本案例：Onchain AI Garage 以交易策略为例演示）
+- **代码库 wiki（CodeWiki）**：将代码库编译为活的 wiki（HN Show HN 项目）
+- **医学知识开源**（HN 用户探讨中）
+
+---
+
+## 开源实现（2026年4月一周内涌现）
+
+| 项目 | 来源 | 特征 |
+|------|------|------|
+| LLM Wiki（lucasastorian） | HN Show HN | 开源实现，Karpathy 原始思路 |
+| LLM Wiki Compiler（ethanjoffe） | HN Show HN | 编译器变体 |
+| CacheZero（swarajbachu） | HN Show HN | 一行 NPM 安装，面向 JS 开发者 |
+
+---
+
+## 社区争议（HN，291分，92评论）
+
+**主要质疑**：
+- "Too much context pollution"（context 污染太多）
+- "This sounds like compaction for RAG"（不就是 RAG 压缩吗）
+
+**反驳视角**：
+- LLM Wiki 的 context 是结构化的、可导航的，不是随机 chunk
+- 不是"压缩"，而是"主动整理 + 交叉引用"——这是质的区别
+- Karpathy：人类放弃 wiki 是因为维护成本增长快于价值；LLM 不会厌倦，维护成本趋近于零
+
+**对照组**：Wikipedia 同期宣布禁止 LLM 生成/改写文章（关注可验证性），LLM Wiki 则是反方向——鼓励 LLM 作为个人 wiki 的主要作者。
+
+---
+
+## 关键引用（Karpathy 原话）
+
+> "The LM incrementally builds and maintains a persistent wiki — structured interlinked markdown files — sitting between you and your raw sources."
+
+> "Humans abandon wikis because the maintenance burden grows faster than the value. LLMs don't get bored. They can touch 15 files in a single pass. The cost of maintenance drops to near zero."
+
+---
+
+## 参考视频
+
+- Onchain AI Garage：《Karpathy's LLM Wiki: Watch Me Build a Knowledge Base From Scratch!》10,003播放，580点赞（2026-04-06）
+- Cole Medin：《I Built Self-Evolving Claude Code Memory w/ Karpathy's LLM Knowledge Bases》9,530播放，525点赞（2026-04-06）
+- Tommy Chryst：《How To Do PHD-Level Research with AI (Karpathy's LLM Wiki)》2,334播放（2026-04-05）
+- 编者按（입문 가이드 - 韩语入门）：4,131播放（2026-04-06）

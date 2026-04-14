@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "生成 iChoice + AKShare 数据",
+  "description": "运行 generate_tables_from_ichoice.py --date 2026-04-09",
+  "activeForm": "正在拉取市场数据",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

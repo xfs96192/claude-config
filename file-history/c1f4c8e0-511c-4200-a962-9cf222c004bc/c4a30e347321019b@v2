@@ -1,0 +1,206 @@
+# 多资产投资分析平台
+
+兴银理财多资产投资部 · 市场观点可视化系统
+
+---
+
+## 项目概述
+
+本项目将多资产市场数据自动化处理并可视化，生成涵盖**权益、债券、汇率、商品**四大类资产的分析仪表板。每个交易日运行一次数据生成脚本，即可刷新所有指标并截图存档。
+
+### 数据流
+
+```
+iChoice (EMQuantAPI)          AKShare（集思录/中国货币网）
+       ↓                              ↓
+generate_tables_from_ichoice.py  ←——合并——→
+       ↓
+近1月净值走势.xlsx  /  近3年净值走势.xlsx  /  指标值.xlsx
+       ↓
+excel_to_json_converter.py
+       ↓
+asset_data.json
+       ↓
+React 前端仪表板 (Vite + Tailwind)
+       ↓
+市场复盘_YYYY-MM-DD.png（截图存档）
+```
+
+---
+
+## 目录结构
+
+```
+市场观点美化/
+├── data/                                  # 数据脚本与生成文件
+│   ├── generate_tables_from_ichoice.py    # 主数据生成脚本（当前使用）
+│   ├── excel_to_json_converter.py         # Excel → JSON 转换
+│   ├── 近1月净值走势.xlsx                  # 近23个交易日日度行情
+│   ├── 近3年净值走势.xlsx                  # 近753个交易日日度行情
+│   ├── 指标值.xlsx                        # 36个指标的当前值+历史分位数
+│   └── asset_data.json                   # JSON备份
+├── asset-analysis-real-data/
+│   └── asset-analysis-dashboard/         # React 前端项目
+│       ├── src/
+│       │   ├── components/               # 各板块组件（权益/债券/汇率/商品）
+│       │   └── assets/asset_data.json    # 前端数据源
+│       └── package.json
+├── 市场复盘_YYYY-MM-DD.png                # 截图存档
+└── CLAUDE.md                             # Claude Code 项目配置
+```
+
+---
+
+## 快速开始
+
+### 前置条件
+
+| 工具 | 说明 |
+|------|------|
+| iChoice 东方财富量化终端 | 账号 xylczh0181，已内置于脚本 |
+| Python 3.9+ | 需要 pandas, numpy, openpyxl, EmQuantAPI, akshare |
+| Node.js 18+ | 前端运行与截图（puppeteer） |
+| pnpm 10.4.1 | 前端包管理器 |
+
+```bash
+# 安装 Python 依赖
+pip install pandas numpy openpyxl akshare
+
+# 安装 iChoice EMQuantAPI
+# 参考 /Users/fanshengxia/Desktop/ichoice_data/ichoice/EMQuantAPI_Python/
+```
+
+### 每日运行（3步）
+
+```bash
+# 步骤1：生成 Excel 数据文件（约2-3分钟，含iChoice登录初始化）
+cd /Users/fanshengxia/Desktop/市场观点美化/data
+python generate_tables_from_ichoice.py --date 2026-04-03
+
+# 步骤2：转换为前端 JSON
+python excel_to_json_converter.py
+
+# 步骤3：截图存档（需要 Node.js + puppeteer）
+cd /Users/fanshengxia/Desktop/市场观点美化/asset-analysis-real-data/asset-analysis-dashboard
+./node_modules/.bin/vite --port 5173 --host 0.0.0.0 &
+sleep 20
+cd /tmp && node screenshot_market.js
+# 截图保存至 市场复盘_YYYY-MM-DD.png
+```
+
+> 也可使用一键脚本：`/Users/fanshengxia/.claude/skills/market-review/scripts/run_market_review.sh 2026-04-03`
+
+---
+
+## 数据源说明
+
+### iChoice (EMQuantAPI) — 主数据源
+
+| 数据类型 | 接口 | 说明 |
+|----------|------|------|
+| 日度行情 | CSD | 股指、债指、汇率、商品10个资产 |
+| 周度行情 | CSD | 同上，用于历史分位数计算 |
+| PE/PB/ERP | CSD PETTM/PBMRQ | 上证、标普500估值 |
+| 债券收益率 | EDB | 国债/国开债/信用债/美债 9个指标 |
+| 美国10年国债日度 | EDB EMG00001310 | 用于近1月走势图 |
+
+### AKShare — 补充数据源（免费）
+
+| 数据 | 函数 | 用途 |
+|------|------|------|
+| 1Y USD/CNY 掉期点（实时） | `fx_swap_quote()` | 锁汇成本校正锚点 |
+| 中美国债收益率日频 | `bond_zh_us_rate()` | 锁汇成本历史代理序列 |
+| 可转债市场指标（集思录） | `bond_cb_index_jsl()` | 转股溢价率、价格中位数（1年历史） |
+
+---
+
+## 覆盖指标（共36个）
+
+### 权益（9个）
+
+| 子类 | 指标 | 数据源 |
+|------|------|--------|
+| 上证指数 | PE(TTM)、PB(MRQ)、股债性价比 | iChoice CSD |
+| 标普500 | PE(TTM)、PB(MRQ)、股债性价比 | iChoice CSD |
+| 中证转债 | 转股溢价率、纯债溢价率（占位）、价格中位数 | AKShare 集思录 |
+
+### 债券（9个）
+
+| 子类 | 指标 | 数据源 |
+|------|------|--------|
+| 7-10年国开 | 收益率、信用利差、期限利差 | iChoice EDB |
+| 1-3年高信用等级债 | 收益率、信用利差、期限利差 | iChoice EDB |
+| 10年美债 | 收益率、期限利差(10减1)、VIX | iChoice EDB/CSD |
+
+### 汇率（6个）
+
+| 子类 | 指标 | 数据源 |
+|------|------|--------|
+| USDCNY | 中间价、中美利差、美元指数 | iChoice EDB/CSD |
+| 锁汇成本 | 锁汇成本、掉期点1Y、美元兑离岸人民币CNH | AKShare（利率平价代理） |
+
+### 商品（12个）
+
+| 子类 | 指标 | 数据源 |
+|------|------|--------|
+| 沪金 | 内外盘价差、美国实际利率、USDCNY | iChoice |
+| 螺纹钢 | 螺卷差、铁矿价格、USDCNY | iChoice |
+| 原油 | WTI与布油价差、美元指数、USDCNY | iChoice |
+| 豆粕 | 期货现货价差、期货主连持仓量、USDCNY | iChoice |
+
+---
+
+## 已知限制
+
+| 问题 | 说明 | 当前处理 |
+|------|------|---------|
+| iChoice 掉期点1Y无权限 | EMI01871925 无数据 | AKShare 利率平价代理，精度>99% |
+| 转债纯债溢价率无历史 | 无公开免费历史接口 | 转股溢价率+随机偏移占位 |
+| 转债指标仅1年历史 | 集思录API限制 | 分位数基于1年(53周)，标注"近1年" |
+| 中证转债CSD字段无权限 | CONVPREMRATIO等字段 | 改用AKShare替代 |
+
+---
+
+## 前端仪表板
+
+### 技术栈
+
+- **框架**: React 19 + Vite 6.3.5
+- **样式**: Tailwind CSS 4.x
+- **组件库**: shadcn/ui (Radix UI)
+- **包管理**: pnpm 10.4.1
+
+### 启动
+
+```bash
+cd asset-analysis-real-data/asset-analysis-dashboard
+pnpm dev          # 开发服务器 http://localhost:5173
+pnpm build        # 生产构建
+```
+
+### 功能特性
+
+- 四大类资产分板块展示，每资产含走势图 + 分位数条
+- 近1月走势图：SVG折线图，含涨跌幅、日期标签
+- 近1月年化波动率：颜色编码（绿<5% / 橙5-15% / 红>15%）
+- 近3年波动率分位数条：基于753个交易日滚动22日波动率
+- 所有数值单位、精度均按各指标业务含义设定
+
+---
+
+## 截图存档
+
+截图文件命名规则：`市场复盘_YYYY-MM-DD.png`，存放于项目根目录。
+
+截图使用 puppeteer（headless Chrome），访问 `http://192.168.8.144:5173/`（IPv4），等待15秒全页渲染后截图。
+
+---
+
+## 版本历史
+
+| 版本 | 时间 | 说明 |
+|------|------|------|
+| v1.0 | 2026-01 | Wind API 数据生成（已停用） |
+| v2.0 | 2026-03 | 迁移至 iChoice EMQuantAPI |
+| v2.1 | 2026-04-03 | 新增 AKShare 锁汇成本、转债指标 |
+| v2.2 | 2026-04-03 | 补充锁汇成本近1月走势；转债指标真实数据 |

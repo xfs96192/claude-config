@@ -1,0 +1,257 @@
+#!/usr/bin/env python3
+"""Compute static per-industry characteristic metrics for lifecycle filtering.
+
+Six metrics (one value per industry, across the full sample period):
+  1. entry_exit_rate   -- 公司进出率：每期公司数量变化的绝对值均值
+  2. struct_change     -- 结构变化度：以最新期前10大公司为固定维度，相邻期余弦距离均值
+  3. leader_turnover   -- 龙头换手率：龙头（营收最大）更替次数 / 总期数
+  4. leader_rev_share  -- 龙头营收占比：最新期龙头营收 / 行业合计（%）
+  5. cr3               -- CR3 集中度：最新期前三营收 / 行业合计（%）
+  6. cr5               -- CR5 集中度：最新期前五营收 / 行业合计（%）
+
+All metrics are additionally ranked to a 1–100 percentile across all industries.
+高百分位 = 该指标值高（进出率高/结构变化大/龙头换手多/集中度高），方向一致便于比较。
+"""
+from __future__ import annotations
+
+import argparse
+import sqlite3
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+INDUSTRY_FIELDS = {
+    "sw":   ("SwIndustryCodeL3",   "SwIndustryNameL3"),
+    "wind": ("WindIndustryCodeL3", "WindIndustryNameL3"),
+    "cicc": ("CiccIndustryCodeL3", "CiccIndustryNameL3"),
+}
+
+
+# ── SQL helpers ───────────────────────────────────────────────────────────────
+
+def _revenue_ttm_sql() -> str:
+    return """
+    WITH base AS (
+        SELECT Stkcd, Accper,
+               CAST(B001101000 AS REAL) AS val
+        FROM v_latest_利润表
+        WHERE Typrep='A'
+          AND substr(Accper,6,5) IN ('03-31','06-30','09-30','12-31')
+    ),
+    ttm AS (
+        SELECT cur.Stkcd, cur.Accper,
+               CASE
+                   WHEN substr(cur.Accper,6,5)='12-31' THEN cur.val
+                   ELSE cur.val
+                        + COALESCE(py.val, 0)
+                        - COALESCE(ps.val, 0)
+               END AS revenue_ttm
+        FROM base cur
+        LEFT JOIN base ps
+               ON ps.Stkcd  = cur.Stkcd
+              AND ps.Accper  = date(cur.Accper, '-12 months')
+        LEFT JOIN base py
+               ON py.Stkcd  = cur.Stkcd
+              AND py.Accper  = strftime('%Y', date(cur.Accper, '-12 months')) || '-12-31'
+    )
+    SELECT Stkcd, Accper, revenue_ttm
+    FROM ttm
+    WHERE revenue_ttm IS NOT NULL AND revenue_ttm > 0
+    """
+
+
+# ── Data loading ──────────────────────────────────────────────────────────────
+
+def load_panel(db_path: Path, classification: str, min_year: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Return (revenue_panel, industry_map)."""
+    cf, nf = INDUSTRY_FIELDS[classification]
+    with sqlite3.connect(db_path) as conn:
+        sql = f"{_revenue_ttm_sql()} AND substr(Accper,1,4) >= '{min_year}'"
+        rev = pd.read_sql_query(sql, conn)
+        ind = pd.read_sql_query(
+            f"SELECT Stkcd, {nf} AS IndustryName, TotalMarketCap FROM '上市公司行业分类'",
+            conn,
+        )
+
+    rev["Accper"]  = pd.to_datetime(rev["Accper"], errors="coerce")
+    rev["Stkcd"]   = pd.to_numeric(rev["Stkcd"],  errors="coerce")
+    rev = rev.dropna(subset=["Stkcd", "Accper"]).astype({"Stkcd": "int64"})
+
+    ind["Stkcd"]         = pd.to_numeric(ind["Stkcd"],        errors="coerce")
+    ind["TotalMarketCap"] = pd.to_numeric(ind["TotalMarketCap"], errors="coerce")
+    ind = ind.dropna(subset=["Stkcd", "IndustryName"]).astype({"Stkcd": "int64"})
+
+    return rev, ind
+
+
+# ── Per-industry computation ──────────────────────────────────────────────────
+
+def _cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
+    na, nb = np.linalg.norm(a), np.linalg.norm(b)
+    if na == 0 or nb == 0:
+        return 0.0
+    return float(1.0 - np.clip(np.dot(a, b) / (na * nb), -1.0, 1.0))
+
+
+def _representative_latest(grp: pd.DataFrame, periods: list) -> pd.DataFrame:
+    """Return the latest period where company count >= 70% of the median count.
+
+    This avoids bias from periods where only a few companies have reported early.
+    """
+    counts = grp.groupby("Accper")["Stkcd"].nunique()
+    median_count = counts.median()
+    threshold = max(2, median_count * 0.70)
+    # Walk backwards from latest
+    for p in reversed(periods):
+        if counts.get(p, 0) >= threshold:
+            return grp[grp["Accper"] == p]
+    # fallback: use the period with the most companies
+    best_p = counts.idxmax()
+    return grp[grp["Accper"] == best_p]
+
+
+def compute_one(ind_name: str, grp: pd.DataFrame, top10_stocks: list[int]) -> dict:
+    """Compute all six metrics for a single industry."""
+    periods = sorted(grp["Accper"].unique())
+    n = len(periods)
+    result: dict = {"IndustryName": ind_name}
+
+    # ── 1. entry_exit_rate ───────────────────────────────────────────────────
+    counts = grp.groupby("Accper")["Stkcd"].nunique().reindex(periods)
+    diffs  = counts.diff().dropna().abs()
+    result["entry_exit_rate"] = float(diffs.mean()) if len(diffs) else 0.0
+
+    # ── 2. struct_change (Top-10 cosine distance) ────────────────────────────
+    if len(top10_stocks) >= 2 and n >= 2:
+        # Pivot: rows=period, cols=top10 Stkcds; fill missing with 0
+        sub = grp[grp["Stkcd"].isin(top10_stocks)][["Accper", "Stkcd", "revenue_ttm"]]
+        pivot = (
+            sub.pivot_table(index="Accper", columns="Stkcd", values="revenue_ttm",
+                            aggfunc="sum", fill_value=0.0)
+            .reindex(columns=top10_stocks, fill_value=0.0)
+            .reindex(periods, fill_value=0.0)
+        )
+        # Normalize each row to sum = 1 (weight vector)
+        row_sums = pivot.sum(axis=1).replace(0, np.nan)
+        weights  = pivot.div(row_sums, axis=0).fillna(0.0).values  # shape (n, 10)
+
+        dists = [
+            _cosine_distance(weights[i - 1], weights[i])
+            for i in range(1, n)
+        ]
+        result["struct_change"] = float(np.mean(dists)) if dists else 0.0
+    else:
+        result["struct_change"] = 0.0
+
+    # ── 3. leader_turnover ───────────────────────────────────────────────────
+    leaders = (
+        grp.loc[grp.groupby("Accper")["revenue_ttm"].idxmax(), ["Accper", "Stkcd"]]
+        .set_index("Accper")["Stkcd"]
+        .reindex(periods)
+    )
+    changes = int((leaders != leaders.shift()).sum()) - 1  # first period doesn't count
+    result["leader_turnover"] = float(max(changes, 0) / n) if n > 0 else 0.0
+
+    # ── 4. leader_rev_share (representative latest period) ───────────────────
+    latest_p = _representative_latest(grp, periods) if periods else grp.iloc[0:0]
+    if not latest_p.empty:
+        total = latest_p["revenue_ttm"].sum()
+        top1  = latest_p["revenue_ttm"].nlargest(1).sum()
+        result["leader_rev_share"] = float(top1 / total) if total > 0 else 0.0
+    else:
+        result["leader_rev_share"] = 0.0
+
+    # ── 5. CR3 / CR5 ─────────────────────────────────────────────────────────
+    if not latest_p.empty:
+        total = latest_p["revenue_ttm"].sum()
+        result["cr3"] = float(latest_p["revenue_ttm"].nlargest(3).sum() / total) if total > 0 else 0.0
+        result["cr5"] = float(latest_p["revenue_ttm"].nlargest(5).sum() / total) if total > 0 else 0.0
+    else:
+        result["cr3"] = result["cr5"] = 0.0
+
+    return result
+
+
+def compute_all(panel: pd.DataFrame, ind_map: pd.DataFrame) -> pd.DataFrame:
+    """Compute metrics for every industry and add percentile columns."""
+    merged = panel.merge(ind_map[["Stkcd", "IndustryName", "TotalMarketCap"]], on="Stkcd", how="inner")
+    merged = merged.sort_values(["IndustryName", "Accper", "Stkcd"])
+
+    rows = []
+    for ind_name, grp in merged.groupby("IndustryName"):
+        if grp["Accper"].nunique() < 4:
+            continue  # too few periods, skip
+
+        # Identify top-10 by static market cap (fixed dimension for struct_change)
+        top10 = (
+            grp[["Stkcd", "TotalMarketCap"]]
+            .dropna(subset=["TotalMarketCap"])
+            .drop_duplicates("Stkcd")
+            .nlargest(10, "TotalMarketCap")["Stkcd"]
+            .tolist()
+        )
+        rows.append(compute_one(ind_name, grp, top10))
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return df
+
+    # Round raws
+    for col in ["entry_exit_rate", "struct_change", "leader_turnover",
+                "leader_rev_share", "cr3", "cr5"]:
+        df[col] = df[col].round(6)
+
+    # ── Percentile ranks (1–100) ─────────────────────────────────────────────
+    # All ascending: high pct = high value
+    for col, pct_col in [
+        ("entry_exit_rate",  "entry_exit_pct"),
+        ("struct_change",    "struct_change_pct"),
+        ("leader_turnover",  "leader_turnover_pct"),
+        ("leader_rev_share", "leader_rev_share_pct"),
+        ("cr3",              "cr3_pct"),
+        ("cr5",              "cr5_pct"),
+    ]:
+        df[pct_col] = (
+            df[col].rank(pct=True, ascending=True) * 100
+        ).round(0).clip(1, 100).astype(int)
+
+    return df.sort_values("IndustryName").reset_index(drop=True)
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(description="Compute static industry characteristic metrics")
+    parser.add_argument("--db",             default="financial_data.db")
+    parser.add_argument("--classification", choices=INDUSTRY_FIELDS.keys(), default="sw")
+    parser.add_argument("--output",         type=Path, default=Path("industry_characteristics.csv"))
+    parser.add_argument("--min-year",   type=int,  default=2010)
+    parser.add_argument("--max-period", default=None,
+                        help="Latest reporting period, e.g. 2025-09-30")
+    args = parser.parse_args()
+
+    db_path = Path(args.db)
+    if not db_path.exists():
+        raise SystemExit(f"Database not found: {db_path}")
+
+    print("Loading panel data…")
+    rev, ind = load_panel(db_path, args.classification, args.min_year)
+    if args.max_period:
+        cutoff = pd.Timestamp(args.max_period)
+        rev = rev[rev["Accper"] <= cutoff]
+        print(f"  Cutoff applied: Accper ≤ {args.max_period}")
+    print(f"  Revenue rows: {len(rev):,}  |  Industries: {rev.merge(ind[['Stkcd','IndustryName']],on='Stkcd',how='inner')['IndustryName'].nunique()}")
+
+    print("Computing characteristics…")
+    df = compute_all(rev, ind)
+    print(f"  Computed {len(df)} industries")
+
+    df.to_csv(args.output, index=False)
+    print(f"Saved → {args.output}")
+    print(df[["IndustryName","entry_exit_rate","struct_change","leader_turnover",
+              "leader_rev_share","cr3","cr5"]].head(20).to_string(index=False))
+
+
+if __name__ == "__main__":
+    main()

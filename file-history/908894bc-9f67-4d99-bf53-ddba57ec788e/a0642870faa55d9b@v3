@@ -1,0 +1,365 @@
+---
+name: quarterly-report
+description: 季度报告更新工作流，用于每季度更新投资经理的季报。包含五个步骤：（1）比较本期Excel与上期Word识别新增/删除产品；（2）更新Word季报文档（删除到期产品、新增产品段落、更新季度市场描述）；（3）从更新后的Word提取策略文本填入Excel；（4）重命名Excel为投资经理姓名格式；（5）汇总所有投资经理Excel并生成说明Markdown。特殊产品（绿色发展/责任投资/优质企业）的权益部分需要从子顾问月报提取，债券部分用alphapai-research查询当季市场总结。当用户说"更新季报"、"季报更新"、"更新投资策略"、"填写季报"、"汇总季报"、"更新三个ESG产品"等相关内容时，必须使用此skill。
+---
+
+# 季度报告更新工作流
+
+本 skill 覆盖每季度末季报更新的完整流程，适用于多资产投资部的季报汇总工作。
+
+## 环境要求
+
+```bash
+# Python 3.11（必须，不能用 3.9）
+/opt/homebrew/bin/python3.11
+
+# 必需的 Python 包
+pip install python-docx openpyxl pandas defusedxml lxml
+```
+
+所有脚本位于本 skill 的 `scripts/` 目录下。
+
+---
+
+## 第一步：识别产品变化
+
+**目标**：比较本期 Excel 模板与上期 Word 季报，找出新增和删除的产品。
+
+```bash
+/opt/homebrew/bin/python3.11 scripts/compare_products.py \
+    "<本期Excel路径>" \
+    "<上期Word路径>" \
+    --manager 徐莹 夏凡盛
+```
+
+**输出**：
+- 新增产品列表（需在 Word 中添加段落）
+- 删除产品列表（需从 Word 中移除段落）
+- 保留产品列表
+
+**注意**：Excel 产品全称需映射到 Word 短名称，`compare_products.py` 中的 `normalize_product_name()` 函数维护了这个映射表。若发现未映射的产品名，需手动添加到映射表。
+
+---
+
+## 第二步A：特殊产品（绿色发展/责任投资/优质企业）单独处理
+
+这三个产品有债券和权益两个部分，权益部分由子顾问管理，每季度需从子顾问月报中提取内容单独撰写，**不能沿用上期文字**。
+
+### 子顾问对应关系
+
+| 产品代码 | 产品简称 | 子顾问 | 月报文件命名规律 |
+|---------|---------|-------|--------------|
+| 9K221040 | 绿色发展 | 兴证全球掘金绿色投资专户 | `兴证全球掘金绿色投资专户{YYYY}年{M}月份月报*.docx` |
+| 9K221050 | 责任投资 | 中欧优治1号 | `月度监控-中欧优治1号{YYYYMM}.docx` |
+| 9K221060 | 优质企业 | ESG兴动公司治理1号 | `ESG兴动系列运作解析-公司治理1号{YYYYMM}*.docx` |
+
+### 债券部分：调用 alphapai-research
+
+```bash
+# 在 alphapai-research skill 目录下执行
+python scripts/alphapai_client.py qa \
+  --question "请总结{YYYY}年{Q}季度（{月份范围}）债券市场的整体表现，包括：
+    1）利率债市场走势（10年期国债收益率变化、关键时间节点）；
+    2）信用债市场表现（信用利差变化）；
+    3）主要影响因素（货币政策、基本面、资金面）；
+    4）季度末市场展望" \
+  --mode Think \
+  --start {YYYY-MM-DD} --end {YYYY-MM-DD}
+```
+
+债券段落写作要点（仿照上期风格，约150-200字）：
+- 开头："{YYYY}年{Q}季度，[市场整体定性判断]，[收益率曲线变化]。"
+- 中间：具体的利率变化数据、信用利差变化、阶段性扰动因素
+- 结尾："展望后市，[利率中枢判断]，操作上[策略方向]。"
+
+### 权益部分：读取子顾问月报
+
+```python
+import subprocess
+# 用 pandoc 将 Word 转为纯文本
+result = subprocess.run(
+    ['pandoc', word_path, '-t', 'plain'],
+    capture_output=True, text=True
+)
+text = result.stdout
+```
+
+权益段落写作要点（仿照上期风格，约200-250字）：
+- 开头："权益方面，[季度整体运作基调]，[核心配置思路]。"
+- 中间：报告期内操作（仓位变化/行业调整/重仓股列举）、子顾问净值表现数据
+- 结尾："展望后市，子顾问认为，[市场判断]，[配置方向]。"
+
+**注意**：子顾问月报数据可能只有2月数据（如中欧优治1号仅提供到月末监控），此时结合市场整体环境补充3月分析；若月报是整个Q的汇总则直接使用。
+
+### 将新文字写入 Word 和 Excel
+
+使用 `python-docx` 的 `set_para_text()` 方式替换（比 XML 操作更稳定）：
+
+```python
+from docx import Document
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+import copy
+
+def set_para_text(para, new_text):
+    """保留段落原有格式，仅替换文字内容"""
+    first_rpr = None
+    for run in para.runs:
+        rpr = run._r.find(qn('w:rPr'))
+        if rpr is not None:
+            first_rpr = copy.deepcopy(rpr)
+            break
+    for r in para._p.findall(qn('w:r')):
+        para._p.remove(r)
+    new_r = OxmlElement('w:r')
+    if first_rpr is not None:
+        new_r.append(first_rpr)
+    t = OxmlElement('w:t')
+    t.text = new_text
+    t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+    new_r.append(t)
+    para._p.append(new_r)
+
+doc = Document('本期季报.docx')
+paras = doc.paragraphs
+# 先打印索引确认位置
+for i, p in enumerate(paras[:20]):
+    if p.text.strip():
+        print(f'[{i}] {p.text.strip()[:60]}')
+
+# 按实际索引替换
+set_para_text(paras[3], BOND_TEXT)    # 绿色发展债券
+set_para_text(paras[5], EQUITY_TEXT)  # 绿色发展权益
+doc.save('本期季报.docx')
+```
+
+Excel 同步更新（三个产品合并写入）：
+
+```python
+# 绿色发展：bond_text + '\n  ' + equity_text（两段合并）
+# 责任投资：bond_text + '\n  ' + equity_para1 + '\n  ' + equity_para2（三段合并）
+# 优质企业：bond_text + '\n  ' + equity_text（两段合并）
+```
+
+---
+
+## 第二步B：更新 Word 季报文档（结构性变更）
+
+> 注：第二步A（三个ESG产品）和第二步B（其他产品结构性变更）独立进行，可并行处理。
+
+**目标**：在上期 Word 文档基础上，删除到期产品段落、新增新产品段落、替换季度文字描述。
+
+### 关键技术要点
+
+Word XML 使用 ASCII 实体编码（中文字符编码为 `&#25237;` 等形式），操作时必须：
+1. 先解码为 Unicode（`html.unescape()`）
+2. 在 Unicode 字符串上做操作
+3. 最后重新编码为 ASCII 实体
+
+使用 `scripts/update_word.py` 中的 `update_doc()` 函数：
+
+```python
+from scripts.update_word import update_doc
+
+update_doc(
+    src_docx="上期季报.docx",
+    dst_docx="本期季报.docx",
+    # 要删除的产品（段落中包含这些文字的整段都会被删除）
+    delete_products=["增盈优选27号", "合享122号", "悦动42号"],
+    # 在指定锚点文本后插入新段落（当锚点文本在XML中是连续的时候使用）
+    insert_after={
+        "合享142号：": ["合享148号：债券部分采用衰竭式久期...", "（权益部分：...）"],
+    },
+    # 在指定 paraId 后插入（当文本锚点失效时使用，更可靠）
+    insert_after_id={
+        "16D29DB8": ["灵动36号：债券部分维持..."],  # paraId 从 XML 中查找
+    },
+    # 全局文本替换
+    text_replacements=[
+        ("2025年四季度", "2026年一季度"),
+        ("四季度", "一季度"),
+        ("2025年末", "2026年一季度末"),
+    ],
+)
+```
+
+### 查找 paraId（当文本锚点失效时）
+
+中文文本在 XML 中常被拆分到多个 `<w:r>` 元素，导致直接搜索失败。此时用 paraId：
+
+```bash
+# 解包 Word 文档
+/opt/homebrew/bin/python3.11 ~/.claude/skills/docx/ooxml/scripts/unpack.py \
+    "上期季报.docx" /tmp/word_unpacked
+
+# 在 XML 中搜索产品名附近的 paraId
+grep -n "paraId" /tmp/word_unpacked/word/document.xml | head -50
+# 或精确定位某段落附近
+grep -n "灵动36\|16D29" /tmp/word_unpacked/word/document.xml
+```
+
+### 新增产品段落的文字模板
+
+新增产品时，参考同系列的现有产品表述，结合当期市场情况调整：
+- **合享系列**（封闭式）：以久期管理 + 信用下沉为主线
+- **悦动/逸动系列**（日开型）：以流动性管理 + 利率债操作为主线
+- **兴动系列**（权益增强）：分债券和权益两段描述
+
+---
+
+## 第三步：填入 Excel
+
+**目标**：从更新后的 Word 文档提取各产品策略文本，填入 Excel 对应单元格。
+
+需要建立 **产品代码 → 段落索引** 的映射（每季度需根据实际 Word 段落位置更新）。
+
+### 检测段落索引
+
+```bash
+/opt/homebrew/bin/python3.11 scripts/fill_excel.py \
+    "本期季报.docx" "Excel模板.xlsx" --detect
+```
+
+输出示例：
+```
+[3] 绿色发展：债券部分维持中性久期...
+[5]   （权益部分：重点配置...）
+[8] 责任投资：债券部分...
+```
+
+### 填入 Excel
+
+建立映射后，在 Python 脚本中调用：
+
+```python
+from scripts.fill_excel import fill_excel_from_word
+
+code_para_map = {
+    '9K221040': [3, 5],      # 绿色发展（债券+权益两段）
+    '9K221050': [8, 10, 11], # 责任投资（债券+权益+展望三段）
+    '9K221060': [15, 16],    # 优质企业
+    '9S650300': [19],        # 多策略1年持有期3号
+    # ... 更多产品
+}
+
+result = fill_excel_from_word(
+    word_path="本期季报.docx",
+    excel_path="Excel模板.xlsx",
+    code_para_map=code_para_map,
+    output_path="填好的Excel.xlsx",  # None 则覆盖原文件
+)
+print(f"填入 {result['filled']} 条，未找到: {result['not_found']}")
+```
+
+### 2026Q1 产品代码映射（参考）
+
+以下为徐莹/夏凡盛管理产品的代码映射，每季度如有新增/删除需更新：
+
+| 产品代码 | 产品简称 |
+|---------|---------|
+| 9K221040 | 绿色发展 |
+| 9K221050 | 责任投资 |
+| 9K221060 | 优质企业 |
+| 9S650300 | 多策略1年持有期3号 |
+| 9S232010 | 丰利兴动ESG日开 |
+| 9K717310 | 价值回报 |
+| 9K717120 | 资源优势 |
+| 9S128030 | 灵动优选九个月持有期1号 |
+| 9K717810 | 逸动1M |
+| 9K706130 | 逸动6个月日开03号 |
+| 9K707200 | 逸动10M 2号 |
+| 9K709160 | 逸动1年6号 |
+| 9K717240 | 逸动3M日开7号 |
+| 9K221501 | 兴动未来1号 |
+| 9K777010 | 兴承恒享1号 |
+| 9K212086 | 灵动36号 |
+| 9K717430 | 灵动日开 |
+| 9K210030 | 悦动9M |
+| 9K731010 | 悦动1M |
+| 9K220110 | 悦动2号ESG |
+| 9K220160 | ESG悦动7号 |
+| 9K241190 | 合享119号 |
+| 9K241290 | 合享129号 |
+| 9K241350 | 合享135号 |
+| 9K241420 | 合享142号 |
+| 9K241480 | 合享148号 |
+| 9K251550 | 合享155号 |
+| 9K251610 | 合享161号 |
+| 9K251650 | 合享165号 |
+| 9T310560 | 悦动56号 |
+| 9T310510 | 悦动51号 |
+| 9T310610 | 悦动61号 |
+
+---
+
+## 第四步：重命名 Excel 文件
+
+将填好的 Excel 文件重命名为标准格式：
+
+```
+多资产投资部投资经理和投资策略部分-{投资经理姓名}.xlsx
+```
+
+例如：`多资产投资部投资经理和投资策略部分-徐莹.xlsx`
+
+```bash
+mv "多资产投资部投资经理和投资策略部分 (5).xlsx" \
+   "多资产投资部投资经理和投资策略部分-徐莹.xlsx"
+```
+
+---
+
+## 第五步：汇总所有投资经理文件
+
+**目标**：将文件夹中所有投资经理的 Excel 合并为一个完整汇总表，并生成 Markdown 说明文档。
+
+```bash
+/opt/homebrew/bin/python3.11 scripts/merge_reports.py \
+    "/Users/fanshengxia/Desktop/季报汇总/季报20260331" \
+    --base "多资产投资部投资经理和投资策略部分-徐莹.xlsx" \
+    --output "多资产投资部投资经理和投资策略部分-全部汇总2026Q1.xlsx" \
+    --report "汇总说明_2026Q1.md"
+```
+
+脚本自动：
+- 扫描文件夹中所有 `-*.xlsx` 文件（排除"汇总"和"标签"字样）
+- 以 `--base` 文件为基础，补充其他文件中有策略文本的产品
+- 对未填行标黄色背景
+- 生成 Markdown 说明（已提交老师/各投资经理完成状态/未汇总产品清单/待催促名单）
+
+---
+
+## 常见问题排查
+
+### 问题：插入段落后文档损坏
+检查是否有双重编码。正确流程：
+1. `decode_xml(raw)` → 得到 Unicode 字符串
+2. 在 Unicode 上操作（`make_para_unicode()` 产生 Unicode XML 片段）
+3. 最后一次性 `encode_xml(decoded)` → 写回 ASCII 文件
+
+### 问题：文本锚点搜索失败
+中文字符在 XML 中常被拆分为多个 `<w:r>`，连续搜索会失败。解决方案：
+1. 解包文档，用 `grep -n "关键词" word/document.xml` 查看实际 XML 结构
+2. 改用 `paraId` 属性定位段落（`insert_after_id` 参数）
+3. paraId 在文档 XML 的 `<w:p w14:paraId="XXXXXXXX">` 属性中
+
+### 问题：pandas 读 Excel 出现 NaN 或列名错位
+Excel 模板第 1 行为空（或标题行），第 2 行才是列名。读取时需用 `header=1`：
+```python
+df = pd.read_excel(path, header=1)
+```
+
+### 问题：策略列名不固定
+各期 Excel 策略列名可能含年份，如"投资策略和运作分析（2026年一季报）"。
+`compare_products.py` 和 `fill_excel.py` 均使用模糊匹配（`'投资策略' in col`），无需手动修改。
+
+---
+
+## 文件命名规范
+
+| 文件类型 | 命名格式 | 示例 |
+|---------|---------|------|
+| 单个投资经理 Excel | `多资产投资部投资经理和投资策略部分-{姓名}.xlsx` | `...-徐莹.xlsx` |
+| 汇总 Excel | `多资产投资部投资经理和投资策略部分-全部汇总{年份}{季度}.xlsx` | `...-全部汇总2026Q1.xlsx` |
+| 更新后 Word | `{年份}{季度}季报策略报告-{姓名}更新.docx` | `2026年一季报策略报告-徐莹更新.docx` |
+| 汇总说明 | `汇总说明_{年份}{季度}.md` | `汇总说明_2026Q1.md` |

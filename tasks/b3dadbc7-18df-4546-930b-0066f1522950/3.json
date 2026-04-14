@@ -1,0 +1,9 @@
+{
+  "id": "3",
+  "subject": "启动前端并截图",
+  "description": "启动 Vite 前端，等待渲染后用 puppeteer 截图",
+  "activeForm": "正在生成复盘截图",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

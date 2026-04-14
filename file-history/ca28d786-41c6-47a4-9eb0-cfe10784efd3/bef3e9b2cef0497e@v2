@@ -1,0 +1,64 @@
+---
+type: cover
+palette: dark
+rendering: flat-vector
+---
+
+# Content Context
+Article title: 圆桌讨论：AI 替代下的金融从业者命运
+Content summary: 五位思想领袖（达利欧、迈克尔·刘易斯、李开复、塔勒布、苏姿丰）围绕AI替代金融从业者展开圆桌辩论，探讨职业命运、人才金字塔重构与大师的未来。核心张力在于：AI是替代工具还是增强杠杆？人性、信任、隐性知识是否构成不可替代的护城河？
+Keywords: AI替代, 金融从业者, 人才金字塔, 人机协作, 反脆弱, 大师, 命运, 圆桌
+
+# Visual Design
+Cover theme: 人机命运博弈
+Type: conceptual
+Palette: dark
+Rendering: flat-vector
+Font: clean
+Text level: title-only
+Mood: balanced
+Aspect ratio: 16:9
+Language: zh
+
+# Text Elements
+Title: 圆桌讨论：AI 替代下的金融从业者命运
+
+# Mood Application
+Use medium contrast, normal saturation, balanced visual weight.
+
+# Font Application
+Use clean geometric sans-serif typography. Modern, minimal letterforms. Chinese title displayed with clear, bold weight.
+
+# Composition
+Type composition:
+- Conceptual layout: abstract shapes representing the tension between human and AI
+- Information hierarchy: visual metaphor dominant, title secondary
+- Clean zones with purposeful negative space
+
+Visual composition:
+- Main visual: A stylized circular roundtable viewed from above, with 5 human silhouettes seated around it. Hovering above the center of the table is an abstract AI neural network orb/node cluster, radiating thin connection lines toward each seated figure. The human figures are simplified geometric silhouettes.
+- Layout: Central composition — roundtable occupies 50-60% of vertical space, title text placed at bottom third
+- Decorative: Subtle circuit/network pattern lines in the dark background; a faint inverted pyramid (金字塔) outline in the lower background suggesting the talent pyramid being disrupted
+
+Color scheme:
+- Background: Deep navy/slate #0D1B2A
+- Table and human silhouettes: Dark steel blue #1E3A5F with light outlines
+- AI orb: Electric cyan/teal gradient #00D4FF to #0099CC, softly glowing
+- Connection lines: Thin cyan #00D4FF at 40% opacity
+- Title text: Off-white #F0F4F8
+- Accent: Subtle amber #FFB347 on one or two silhouette highlights to suggest "the human element"
+
+Rendering notes:
+- Flat vector style: clean geometric shapes, no gradients except the AI orb glow
+- Crisp outlines, no texture or noise
+- Human figures: simple 2D geometric silhouettes, no facial details
+- AI orb: interconnected nodes and edges forming a sphere, flat-vector simplified
+
+Type notes:
+- Conceptual: abstract shapes dominate, metaphor-driven, emotion conveyed through form and color contrast
+- Clear visual hierarchy: AI center > human figures around > background elements
+
+Palette notes:
+- Dark palette: deep backgrounds emphasizing the gravity of the theme
+- Cool blue tones with cyan accent = technology and uncertainty
+- Amber warmth on human figures = irreplaceable human element
