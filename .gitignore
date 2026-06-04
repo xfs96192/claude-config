@@ -5,3 +5,32 @@ projects/
 
 # Usage telemetry data
 usage-data/
+
+# Local credentials and machine-specific Claude state
+settings.json
+settings.local.json
+config.json
+history.jsonl
+transcripts/
+file-history/
+cache/
+telemetry/
+shell-snapshots/
+backups/
+debug/
+sessions/
+jobs/
+todos/
+.specstory/
+daemon/
+daemon.log
+daemon-auth-status.json
+daemon-auth-cooldown
+stats-cache.json
+mcp-needs-auth-cache.json
+plugins/cache/
+plugins/claude-hud/transcript-cache/
+node_modules/
+skills/*/node_modules/
+__pycache__/
+*.pyc
