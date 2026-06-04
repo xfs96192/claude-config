@@ -29,7 +29,9 @@ daemon-auth-cooldown
 stats-cache.json
 mcp-needs-auth-cache.json
 plugins/cache/
+plugins/marketplaces/
 plugins/claude-hud/transcript-cache/
+skills/dot-skill/
 node_modules/
 skills/*/node_modules/
 __pycache__/
