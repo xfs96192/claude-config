@@ -1,0 +1,20 @@
+{
+  "name": "滴滴打车",
+  "installedAt": 1780550571127,
+  "source": "marketplace",
+  "version": "1.1.3",
+  "skillId": "skill_2053082043850457088",
+  "examples_zh": [
+    "帮我从上海虹桥站叫车去静安寺，先估算快车和专车价格。",
+    "规划从广州塔到白云机场的路线，比较打车、地铁和步行换乘方案。",
+    "查询我刚才的滴滴订单状态，看看司机到哪里了。"
+  ],
+  "examples_en": [
+    "Book a DiDi ride from Shanghai Hongqiao Railway Station to Jing'an Temple and estimate Express versus Premier prices first.",
+    "Plan a route from Canton Tower to Guangzhou Baiyun Airport comparing ride-hailing, metro, and walking transfers.",
+    "Check my latest DiDi order status and show where the driver is now."
+  ],
+  "iconSource": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/didi-ride-skill.png",
+  "iconLocalPath": "/Users/fanshengxia/.workbuddy/skills/skill_2053082043850457088/_icon.png",
+  "iconDownloadedFrom": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/didi-ride-skill.png"
+}

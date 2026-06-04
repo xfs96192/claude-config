@@ -1,0 +1,4 @@
+interface:
+  display_name: "DM Data"
+  short_description: "调用 DM 量化数据和宏观 EDB 指标"
+  default_prompt: "Use $dm-data to query DM bond, money market, futures, equity, EDB, or trade calendar data."

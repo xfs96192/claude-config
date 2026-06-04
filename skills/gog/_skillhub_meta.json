@@ -1,0 +1,20 @@
+{
+  "name": "Google全家桶",
+  "installedAt": 1780376397793,
+  "source": "marketplace",
+  "version": "1.0.0",
+  "skillId": "skill_2053082127698788352",
+  "examples_zh": [
+    "查看我的Gmail未读邮件",
+    "在Google日历新建一个会议",
+    "搜索我的Google Drive文档"
+  ],
+  "examples_en": [
+    "Check my unread Gmail messages",
+    "Create a new event in Google Calendar",
+    "Search my Google Drive for documents"
+  ],
+  "iconSource": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/gog.png",
+  "iconLocalPath": "/Users/fanshengxia/.workbuddy/skills/skill_2053082127698788352/_icon.png",
+  "iconDownloadedFrom": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/gog.png"
+}

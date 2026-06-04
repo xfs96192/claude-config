@@ -118,11 +118,15 @@ python3 /Users/fanshengxia/.claude/skills/product-benchmark-report/scripts/gener
 年化收益率 = (期末净值 / 期初净值 - 1) / 运作天数 × 365
 ```
 
-**运作天数取法：**
-- 近3月：`end_date - DateOffset(months=3)` → 实际日历天数
-- 近6月：`end_date - DateOffset(months=6)` → 实际日历天数
-- 近1年：`end_date - DateOffset(years=1)`  → 实际日历天数
+**运作天数取法（与PAS/周报系统口径一致，固定自然日）：**
+- 近1月：`end_date - Timedelta(days=30)`  → 30 天
+- 近3月：`end_date - Timedelta(days=90)`  → 90 天
+- 近6月：`end_date - Timedelta(days=180)` → 180 天
+- 近1年：`end_date - Timedelta(days=365)` → 365 天
+- 今年以来：自上一年 12-31 起至 end_date
 - 成立以来：**总净值观测行数**（非日历天数，差1天）
+
+> 注：早期版本曾用 `DateOffset(months=N)`（月对齐），会导致 30/31 天波动，已统一改为固定 N 自然日，与 utils.py:37 的 PAS 周报口径对齐。
 
 ### 业绩基准构建
 

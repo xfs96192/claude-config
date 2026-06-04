@@ -1,0 +1,121 @@
+{
+  "bond_bars": {
+    "name": "债券-高频序列",
+    "path": "/dm-quant-func-service/api/v1/bond/market-data/bars",
+    "required": ["security_id_list", "data_source_list", "kline_type"],
+    "optional": ["start_datetime", "end_datetime", "field_names"],
+    "notes": "经纪商成交行情K线。security_id_list单次最多5个；data_source_list当前支持1=经纪商；kline_type 1/2/3/4/5/6/7/8对应1分钟/5分钟/15分钟/30分钟/60分钟/日/周/月。"
+  },
+  "bond_date": {
+    "name": "债券-日期序列",
+    "path": "/dm-quant-func-service/api/v1/bond/market-data/date",
+    "required": ["security_id_list", "data_source_list"],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "债券日度成交统计、报价统计、估值数据。security_id_list单次最多5个；data_source_list支持1经纪商、2外汇交易中心、3上交所、4上固收、7深交所；时间跨度不超过3个月。"
+  },
+  "bond_realtime_quote": {
+    "name": "债券-实时最新行情",
+    "path": "/dm-quant-func-service/api/v1/bond/market-data/realtime-quote",
+    "required": ["security_id_list"],
+    "optional": ["field_names"],
+    "notes": "仅当天实时最优报价、最新成交价。security_id_list单次最多200只。"
+  },
+  "bond_insti_sentiment": {
+    "name": "债券-机构行为",
+    "path": "/dm-quant-func-service/api/v1/bond/analysis/insti-sentiment",
+    "required": ["data_source"],
+    "optional": ["start_datetime", "end_datetime", "freq_list", "field_names"],
+    "notes": "国际货币债券分歧指数、国利货币买卖力量指数。data_source 10=国际货币、14=国利货币；国利货币需传freq_list；时间跨度不超过1周。"
+  },
+  "bond_basic_info": {
+    "name": "债券-基础资料",
+    "path": "/dm-quant-func-service/api/v1/bond/basic-info/info",
+    "required": ["security_id_list"],
+    "optional": ["field_names"],
+    "notes": "债券基础信息。security_id_list单次最多200只。"
+  },
+  "bond_yield_curve": {
+    "name": "债券-收益率曲线",
+    "path": "/dm-quant-func-service/api/v1/bond/yield-curve/data",
+    "required": ["data_source", "curve_name", "curve_term_list"],
+    "optional": ["curve_type", "forward_n", "forward_k", "start_date", "end_date", "field_names"],
+    "notes": "中债/中证收益率曲线。data_source 18=中债、19=中证；curve_term_list单次不超过5个；时间跨度不超过1个月。"
+  },
+  "bond_outstanding_bonds": {
+    "name": "债券-发行人维度存续债",
+    "path": "/dm-quant-func-service/api/v1/bond/basic-info/outstanding-bonds",
+    "required": ["issuer_full_name or society_code"],
+    "optional": ["field_names", "offset"],
+    "notes": "根据发行人名称或统一社会信用代码查境内存续债。返回可能分页，使用max_offset继续。"
+  },
+  "bond_rolling_bonds": {
+    "name": "债券-活跃券/次活跃券",
+    "path": "/dm-quant-func-service/api/v1/bond/market-data/rolling-bonds",
+    "required": ["sequence_type", "bond_filter_type", "key_tenor"],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "国债/国开活跃券或次活跃券。sequence_type 1=活跃券、2=次活跃券；bond_filter_type 1=国债、3=国开；时间窗口不超过1年。"
+  },
+  "money_market_date": {
+    "name": "货币市场-日期序列",
+    "path": "/dm-quant-func-service/api/v1/money-market/data/date",
+    "required": ["instrument_type_list or instrument_code"],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "回购、拆借、基准利率等日度行情。instrument_type_list支持DR、R、OR、IBO、L、Shibor、FDR、FR、GC、R-；instrument_code单次最多5个；时间跨度不超过1周。"
+  },
+  "money_market_sentiment": {
+    "name": "货币市场-资金情绪指数",
+    "path": "/dm-quant-func-service/api/v1/money-market/analysis/sentiment-index",
+    "required": [],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "CNEX资金情绪指数，日内8:45、10:15、14:30、16:00更新；时间跨度不超过2个月。"
+  },
+  "futures_bars": {
+    "name": "期货-高频序列",
+    "path": "/dm-quant-func-service/api/v1/futures/market-data/bars",
+    "required": ["security_id_list", "kline_type"],
+    "optional": ["start_datetime", "end_datetime", "field_names"],
+    "notes": "国债期货K线。security_id_list单次最多5个；kline_type 1/2/3/4/5/6/7/8对应1分钟/5分钟/15分钟/30分钟/60分钟/日/周/月。"
+  },
+  "futures_basis": {
+    "name": "期货-日期序列衍生",
+    "path": "/dm-quant-func-service/api/v1/futures/analysis/basis",
+    "required": ["security_id_list"],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "国债期货与可交割券的基差、净基差、IRR等日度指标。security_id_list单次最多20个；时间跨度不超过3个月。"
+  },
+  "futures_vol_oi_rank": {
+    "name": "期货-成交持仓排名",
+    "path": "/dm-quant-func-service/api/v1/futures/analysis/vol-oi-rank",
+    "required": ["security_id_list"],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "中金所国债期货成交量、持买单量、持卖单量排名。时间跨度不超过1周。"
+  },
+  "equity_bars": {
+    "name": "权益-高频序列",
+    "path": "/dm-quant-func-service/api/v1/equity/market-data/bars",
+    "required": ["security_category", "security_id_list", "kline_type"],
+    "optional": ["start_datetime", "end_datetime", "field_names"],
+    "notes": "交易所股票/基金/指数K线。security_category 1=股票、2=基金、3=指数；security_id_list单次最多5个。"
+  },
+  "edb_codes": {
+    "name": "EDB-指标ID获取",
+    "path": "/dm-quant-func-service/api/v1/edb/data-info/code",
+    "required": ["edb_level_id_list"],
+    "optional": ["field_names", "offset"],
+    "notes": "根据EDB层级ID获取indicator_id、指标名称、单位、频率等。单次限制200条，超出时用max_offset翻页。"
+  },
+  "edb_data": {
+    "name": "EDB-指标数值调取",
+    "path": "/dm-quant-func-service/api/v1/edb/data-info/data",
+    "required": ["indicator_id"],
+    "optional": ["start_date", "end_date", "field_names"],
+    "notes": "获取宏观EDB指标值。日度/不定期跨度小于1年；周度/旬度小于5年；月度/季度/半年度/年度小于10年。"
+  },
+  "trade_dates": {
+    "name": "交易日历",
+    "path": "/dm-quant-func-service/api/v1/market/trade-dates",
+    "required": ["market_type", "start_date", "end_date"],
+    "optional": ["field_names"],
+    "notes": "market_type支持1=银行间市场、2=交易所市场；时间窗口不超过2年。"
+  }
+}

@@ -34,5 +34,8 @@ plugins/claude-hud/transcript-cache/
 skills/dot-skill/
 node_modules/
 skills/*/node_modules/
+skills/*/logs/
+skills/*/scripts/.letta/
+*.log
 __pycache__/
 *.pyc

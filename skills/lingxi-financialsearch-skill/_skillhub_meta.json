@@ -1,0 +1,18 @@
+{
+  "name": "国泰海通金融数据查询",
+  "installedAt": 1780376374614,
+  "source": "marketplace",
+  "version": "1.11.0",
+  "skillId": "skill_2053082702444552192",
+  "examples_zh": [
+    "查一下贵州茅台今日股价和市盈率",
+    "查科大讯飞营业收入和净利润",
+    "今日A股涨幅最大的股票有哪些"
+  ],
+  "examples_en": [
+    "Check Guizhou Moutai's stock price and P/E ratio today",
+    "Show iFLYTEK revenue and net profit",
+    "Top gaining A-share stocks today"
+  ],
+  "iconSource": "letter:auto"
+}

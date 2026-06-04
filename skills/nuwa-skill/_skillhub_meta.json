@@ -1,0 +1,18 @@
+{
+  "name": "女娲",
+  "installedAt": 1780376409065,
+  "source": "marketplace",
+  "version": "1.0.1",
+  "skillId": "skill_2053082488497897472",
+  "examples_zh": [
+    "基于公开访谈和文章蒸馏费曼的问题拆解方式，生成一个用于物理学习辅导的人物 Skill。",
+    "我想提升产品决策质量，先诊断适合的思维框架，再蒸馏成可运行的人物 Skill。",
+    "更新已有的\"德鲁克管理思维\"Skill，加入目标管理、有效决策和复盘提问模块。"
+  ],
+  "examples_en": [
+    "Distill Feynman's problem-framing style from public interviews and articles into a runnable persona Skill for physics tutoring.",
+    "I want to improve product decision quality; diagnose a suitable thinking framework and turn it into a runnable persona Skill.",
+    "Update the existing \"Drucker management thinking\" Skill with modules for management by objectives, effective decisions, and retrospectives."
+  ],
+  "iconSource": "letter:auto"
+}

@@ -314,7 +314,7 @@ data = c.css("102480862.IB", "DIRTYCNBD,NETCNBD,MODIDURACNBD,YIELDCNBD", "EndDat
 - MLF1年: EMM00650875
 
 **债券收益率(EDB):**
-- 国债10Y: E1000180 | 国债5Y: EMM00166462 | 国债1Y: E1000172
+- 国债30Y: E1000183 | 国债10Y: E1000180 | 国债5Y: EMM00166462 | 国债1Y: E1000172
 - 国开10Y: E1701714 | 国开5Y: E1701710 | 国开3Y: E1701708
 - 中票AAA 3Y: E1000590 | 中票AA+ 3Y: E1000621
 - 城投AAA 3Y: E1702579 | 城投AA 3Y: E1702615
@@ -335,6 +335,12 @@ data = c.css("102480862.IB", "DIRTYCNBD,NETCNBD,MODIDURACNBD,YIELDCNBD", "EndDat
 
 **商品(CSD, CLOSE):**
 - 沪金: AU0.SHF | 原油: scm.INE | 螺纹钢: RB0.SHF | 豆粕: M0.DCE
+
+**⚠️ 查询指标代码的首选方式：先读取 `references/indicator_codes.md`**
+
+使用规则：
+- 遇到任何债券收益率（国债/国开/城投/信用债）、利率、宏观指标代码需求时，**必须先 Read `references/indicator_codes.md`** 获取准确代码，禁止凭记忆猜测
+- Quick Reference 仅为常用指标的便捷索引，不代表全量指标
 
 **For full 453 indicator code mappings:** Read [references/indicator_codes.md](references/indicator_codes.md)
 

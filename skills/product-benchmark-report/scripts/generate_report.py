@@ -355,8 +355,8 @@ def calc_metrics(df: pd.DataFrame, bm_config: dict) -> dict:
     metrics['成立以来最大回撤BP']     = max_drawdown_bp(df['单位净值'])
     metrics['基准成立以来最大回撤BP'] = max_drawdown_bp(df['基准净值'])
 
-    # ── 近1月 ─────────────────────────────────────────────
-    row_1m = get_last_nav_on_or_before(end_date - pd.DateOffset(months=1))
+    # ── 近1月（固定30自然日，与PAS系统口径一致）─────────────
+    row_1m = get_last_nav_on_or_before(end_date - pd.Timedelta(days=30))
     if row_1m is not None:
         days_1m = (end_date - row_1m['日期']).days
         metrics['近1月年化']     = ann(row_1m['单位净值'], end_nav, days_1m)
@@ -382,11 +382,9 @@ def calc_metrics(df: pd.DataFrame, bm_config: dict) -> dict:
         metrics['今年以来年化'] = metrics['基准今年以来年化'] = None
         metrics['今年以来区间'] = 'N/A'
 
-    # ── 近3月、近6月、近1年 ───────────────────────────────
-    for label, offset_kw in [('近3月', {'months': 3}),
-                               ('近6月', {'months': 6}),
-                               ('近1年', {'years': 1})]:
-        target = end_date - pd.DateOffset(**offset_kw)
+    # ── 近3月/近6月/近1年（固定 90/180/365 自然日，与PAS系统口径一致）───
+    for label, days_offset in [('近3月', 90), ('近6月', 180), ('近1年', 365)]:
+        target = end_date - pd.Timedelta(days=days_offset)
         row = get_last_nav_on_or_before(target)
         if row is None:
             metrics[f'{label}年化'] = metrics[f'基准{label}年化'] = None

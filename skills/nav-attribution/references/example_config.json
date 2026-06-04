@@ -1,0 +1,34 @@
+{
+  "end_date": "2026-05-20",
+  "periods": {
+    "近1个月": "2026-04-20",
+    "近3个月": "2026-02-20",
+    "近6个月": "2025-11-20",
+    "今年以来": "2025-12-31"
+  },
+  "ytd_start": "2025-12-31",
+  "products": [
+    {
+      "name": "悦动1M",
+      "code": "9K731010",
+      "nav_file": "/Users/fanshengxia/Downloads/产品评价/净值走势图2026-05-21 (1).xlsx",
+      "nav_sheet": "净值走势图",
+      "contribution_files": {
+        "近1个月": "/Users/fanshengxia/Downloads/产品评价/资产收益贡献_9K731010_20260420_20260520.xlsx",
+        "近3个月": "/Users/fanshengxia/Downloads/产品评价/资产收益贡献_9K731010_20260220_20260520.xlsx"
+      },
+      "contribution_sheet": "资产收益贡献信息0"
+    },
+    {
+      "name": "悦动9M",
+      "code": "9K210030",
+      "nav_file": "/Users/fanshengxia/Downloads/产品评价/净值走势图2026-05-21.xlsx",
+      "contribution_files": {
+        "近1个月": "/Users/fanshengxia/Downloads/产品评价/资产收益贡献_9K210030_20260420_20260520.xlsx",
+        "近3个月": "/Users/fanshengxia/Downloads/产品评价/资产收益贡献_9K210030_20260220_20260520.xlsx"
+      }
+    }
+  ],
+  "classification_override": null,
+  "output_dir": "/Users/fanshengxia/Downloads/产品评价/skill输出测试"
+}

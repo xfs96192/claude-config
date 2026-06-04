@@ -1,0 +1,1 @@
+/Users/fanshengxia/.claude/skills/gstack/open-gstack-browser/SKILL.md

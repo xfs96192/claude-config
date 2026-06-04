@@ -1,0 +1,20 @@
+{
+  "name": "盈米Skills",
+  "installedAt": 1780376389724,
+  "source": "marketplace",
+  "version": "0.1.5",
+  "skillId": "skill_2054901386815930368",
+  "examples_zh": [
+    "帮我查一下易方达蓝筹精选的最新持仓和业绩",
+    "诊断一下我的基金组合是否合理",
+    "做一个家庭资产配置方案"
+  ],
+  "examples_en": [
+    "Look up the latest holdings and performance of a fund",
+    "Diagnose whether my fund portfolio is well-balanced",
+    "Create a family asset allocation plan"
+  ],
+  "iconSource": "https://openplatform-cdn.codebuddy.cn/public/45edac6b-2078-4678-89f3-6f9800cf5e5f/avatar/skill/au_7da00424-e4a.png",
+  "iconLocalPath": "/Users/fanshengxia/.workbuddy/skills/skill_2054901386815930368/_icon.png",
+  "iconDownloadedFrom": "https://openplatform-cdn.codebuddy.cn/public/45edac6b-2078-4678-89f3-6f9800cf5e5f/avatar/skill/au_7da00424-e4a.png"
+}

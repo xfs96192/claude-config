@@ -1,0 +1,18 @@
+{
+  "name": "同事.skill",
+  "installedAt": 1780550569092,
+  "source": "marketplace",
+  "version": "1.0.0",
+  "skillId": "skill_2053081490252660736",
+  "examples_zh": [
+    "帮我创建一个同事 skill",
+    "我想蒸馏一下张三的工作经验",
+    "把同事的飞书记录做成 skill"
+  ],
+  "examples_en": [
+    "Create a colleague skill",
+    "Distill my coworker into an AI skill",
+    "Build a team member knowledge profile"
+  ],
+  "iconSource": "letter:auto"
+}

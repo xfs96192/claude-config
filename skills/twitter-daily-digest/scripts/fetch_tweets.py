@@ -17,7 +17,7 @@ from openai import OpenAI
 
 # ── 配置 ─────────────────────────────────────────────────────────────────────
 
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiOWt4dnVGeU1LVWZFZzd0RkdaMmNNbU5LYTZDdjd0QzJIUFpEZG5kSnQ2WkIiLCJub25jZSI6ImM3ODU5NWNiLTdiNjktNGMyZS1iYzg1LTFkMWY4NmU2ZWU0NCIsImlhdCI6MTc3MjMzODY2MiwianRpIjoiYzczNWQzMDktNTRkMy00OWJkLWJkZjYtZmJiNjhkYjZhZDdjIn0.sejceESWIPn5tJxRRC3nzf5gOYjiVvgs4Sz3k2d9urE"
+TOKEN = os.environ.get("TWITTER_DAILY_DIGEST_TOKEN", "")
 API_BASE = "https://ai.6551.io/open/twitter_user_tweets"
 
 OBSIDIAN_DIR = Path("/Users/fanshengxia/Library/Mobile Documents/iCloud~md~obsidian/Documents/工作/工作/AI")
@@ -169,8 +169,11 @@ def generate_summary(ai_data: dict, invest_data: dict) -> str:
 - ...
 """
     try:
+        dashscope_api_key = os.environ.get("DASHSCOPE_API_KEY")
+        if not dashscope_api_key:
+            raise RuntimeError("DASHSCOPE_API_KEY is not set")
         client = OpenAI(
-            api_key="sk-sp-2ac6a0d55df247b5ad67cfdd603ba0c2",
+            api_key=dashscope_api_key,
             base_url="https://coding.dashscope.aliyuncs.com/v1",
         )
         resp = client.chat.completions.create(
